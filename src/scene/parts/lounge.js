@@ -92,7 +92,14 @@ export function createLounge(ctx) {
   // pernah tampak di TV 3D nyata, hanya di kanvas 2D yang dibaca e2e).
   function drawTv() {
     const ageSec = tvConn.lastOkAt != null ? Math.max(0, Math.floor((Date.now() - tvConn.lastOkAt) / 1000)) : 0;
-    drawTvDashboard(tvx, window.__tvData, { conn: { state: tvConn.state, ageSec } });
+    // Siklus 529: hitungan agen on-site live dari simulasi scene (bukan gateway)
+    // — offsite lunch/pulang dikecualikan (paritas lobbyOnsiteCount 528).
+    let onsite = null, onsiteTotal = null;
+    if (Array.isArray(window.__agentData)) {
+      onsite = window.__agentData.reduce((n, a) => n + (a && typeof a === 'object' && a.state !== 'offsite' ? 1 : 0), 0);
+      onsiteTotal = window.__agentData.length;
+    }
+    drawTvDashboard(tvx, window.__tvData, { conn: { state: tvConn.state, ageSec }, onsite, onsiteTotal });
     tvTex.needsUpdate = true;
     window.__lastTvDrawAt = Date.now();
   }
@@ -133,6 +140,14 @@ export function createLounge(ctx) {
   // LALU" harus berdetak tiap 30 dtk — paritas papan 3D (connIv). Bila live,
   // drawTv sudah dipanggil tiap pull sukses; tick di-skip agar hemat.
   const connTick = setInterval(() => { if (tvConn.state !== 'live') drawTv(); }, CONN_TICK_MS);
+  // Siklus 529: hitungan on-site berubah saat agen lunch/pulang (bukan saat
+  // pull gateway) — ticker 5 dtk redraw hanya bila angka berubah (hemat).
+  let __onsiteLast = null;
+  const onsiteTick = setInterval(() => {
+    if (!Array.isArray(window.__agentData)) return;
+    const n = window.__agentData.reduce((s, a) => s + (a && typeof a === 'object' && a.state !== 'offsite' ? 1 : 0), 0);
+    if (n !== __onsiteLast) { __onsiteLast = n; drawTv(); }
+  }, 5000);
   function tvSchedule() {
     tvPollTimer = setTimeout(async () => {
       await tvPull();
@@ -146,6 +161,7 @@ export function createLounge(ctx) {
     tvStopped = true; // hentikan rantai poll adaptif
     if (tvPollTimer !== null) clearTimeout(tvPollTimer);
     clearInterval(connTick); // detak umur badge ikut berhenti
+    clearInterval(onsiteTick); // siklus 529: ticker on-site ikut berhenti
     document.removeEventListener('visibilitychange', tvOnVis);
   }
   tvScr.position.set(12.31, 2.0, 6.4); tvScr.rotation.y = -Math.PI / 2; lounge.add(tvScr);

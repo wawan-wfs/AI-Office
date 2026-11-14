@@ -51,6 +51,17 @@ export function tvPct(T){
   return pctDone(T?.done, T?.total);
 }
 
+// ── Siklus 529: badge hitungan agen ON-SITE di TV lounge (paritas layar lobi
+// 528) — dulu TV hanya menampilkan status agen gateway (●/○); jumlah orang yang
+// benar-benar ada di kantor (offsite lunch/pulang dikecualikan) tak terlihat.
+// tvOnsiteText(onsite, total) → '16/26 DI KANTOR' atau null (jangan menggambar
+// 'NaN DI KANTOR'): onsite/total non-finite/negatif/onsite>total → null.
+export function tvOnsiteText(onsite, total) {
+  if (!Number.isFinite(onsite) || !Number.isFinite(total)) return null;
+  if (onsite < 0 || total <= 0 || onsite > total) return null;
+  return Math.floor(onsite) + '/' + Math.floor(total) + ' DI KANTOR';
+}
+
 // Gambar seluruh dasbor TV pada ctx (2D canvas). Semua pengambilan teks
 // di-pure-kan lewat helper di atas; fungsi ini hanya urutan perintah gambar.
 // opts.conn: {state,ageSec} opsional — bila ada, badge koneksi gateway
@@ -98,4 +109,12 @@ export function drawTvDashboard(ctx,data,opts={}){
   ctx.fillText(AG.map(a=>a.name+(a.status==='Up'?'●':'○')).join(' ')||'-',56,120);
   ctx.fillStyle=TV_DIM;ctx.font='9px monospace';
   ctx.fillText('update '+(fmtStampId(stampTs) ?? ''),12,138);
+  // Siklus 529: badge agen on-site (paritas layar lobi 528) — digambar di baris
+  // stempel (kanan); null → tidak digambar (tanpa teks 'NaN DI KANTOR').
+  const onsiteLine = tvOnsiteText(opts.onsite, opts.onsiteTotal);
+  if (onsiteLine) {
+    ctx.fillStyle = TV_GREEN; ctx.textAlign = 'right';
+    ctx.fillText(onsiteLine, TV_W - 12, 138);
+    ctx.textAlign = 'left';
+  }
 }
