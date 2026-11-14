@@ -8,7 +8,7 @@ import { floorElevationAt, floorOf } from './parts/floor_elevation.js';
 import { createZones, fitZoneLabel } from './parts/flooring.js';
 import { createMeeting } from './parts/meeting.js';
 import { createMotion } from './parts/motion.js';
-import { drawScreenFrame, createDriftingPages, addDeskTrinkets, shouldRedrawScreenAt, screenTickGate, SCREEN_REDRAW_EVERY, shouldRefreshShadow, shouldRelayoutLabels, labelRelayoutTimeGate, shouldRedrawClock, clockTimeGate, shadowTimeGate, shouldUpdateLeds, ledTimeGate, ledOpacity, shouldUpdateDust, dustTimeGate, dustY, DUST_UPDATE_EVERY, DUST_RATE, DUST_RATE_X, shouldUpdateAmbient, ambientFx, ambientTimeGate, pulseFx, shouldUpdateBubbles, bubbleTimeGate, charMotion, applyCharMotion, plantSway, coffeeSteam, printerCycle, coolerBubbles, robotIdle, pedestalBreath, lampFlicker, receptionGlow, deckNeonBreath, wallLogoBreath, downlightBreath, serverHum, floorLampBreath, receptionLightBreath, tubeLightBreath, pendantBreath, panelBreath, cafeGlowBreath, rackEdgeBreath, badgeBreath, screenGlowBreath, posterBreath, bookNudge, trophyPulse, zoneBreath, magTilt, cupLift, markerPick, headphonePick, menuHighlight, glassShimmer, posterSloganIdx, posterSloganFor, wallPosterIdx, wallPosterTextFor, floorBadgeIdx, floorMissionTextFor } from './parts/effects.js';
+import { drawScreenFrame, createDriftingPages, addDeskTrinkets, screenTickGate, shouldRedrawScreenTime, SCREEN_REDRAW_EVERY, shouldRefreshShadow, shouldRelayoutLabels, labelRelayoutTimeGate, shouldRedrawClock, clockTimeGate, shadowTimeGate, shouldUpdateLeds, ledTimeGate, ledOpacity, shouldUpdateDust, dustTimeGate, dustY, DUST_UPDATE_EVERY, DUST_RATE, DUST_RATE_X, shouldUpdateAmbient, ambientFx, ambientTimeGate, pulseFx, shouldUpdateBubbles, bubbleTimeGate, charMotion, applyCharMotion, plantSway, coffeeSteam, printerCycle, coolerBubbles, robotIdle, pedestalBreath, lampFlicker, receptionGlow, deckNeonBreath, wallLogoBreath, downlightBreath, serverHum, floorLampBreath, receptionLightBreath, tubeLightBreath, pendantBreath, panelBreath, cafeGlowBreath, rackEdgeBreath, badgeBreath, screenGlowBreath, posterBreath, bookNudge, trophyPulse, zoneBreath, magTilt, cupLift, markerPick, headphonePick, menuHighlight, glassShimmer, posterSloganIdx, posterSloganFor, wallPosterIdx, wallPosterTextFor, floorBadgeIdx, floorMissionTextFor } from './parts/effects.js';
 import { uiTexture, uiMaterial } from './parts/ui_colorspace.js';
 import { overlapPass, sweepClampRounds, worldPerPx, labelWorldOffset, accumulateZoneAnti, zoneViewportGuard, buildAgentPts, buildZonePts, buildBubblePts, resetZoneBaseOffsets, PX_PER_TAN, VIEW_TOP_MARGIN, VIEW_BOT_MARGIN, ZONE_TOP_EXTRA, PAD_X_ZONE } from './parts/label_overlap.js';
 import { applyZoneLod } from './parts/zone_lod.js';
@@ -38,7 +38,7 @@ import { drawSky, drawGlassSheen } from './parts/sky_canvas.js';
 import { drawWoodFloor, drawAoStrip } from './parts/floor_canvas.js';
 import { drawCeiling } from './parts/ceiling_canvas.js';
 import { drawResepsiLogo, drawWallLogo, drawWallTitle, TITLE_NIGHT, TITLE_DAY, wallTaglineIdx } from './parts/logo_canvas.js';
-import { drawLobbyScreen, lobbyScreenKey } from './parts/lobby_screen.js'; // siklus 525: layar resepsionis live
+import { drawLobbyScreen, lobbyScreenKey, lobbyOnsiteCount } from './parts/lobby_screen.js'; // siklus 525: layar resepsionis live; 528: hitungan on-site
 import { drawPoster } from './parts/poster_canvas.js';
 import { createWalls } from './parts/walls.js';
 import { drawBlobShadow } from './parts/blob_canvas.js';
@@ -1921,7 +1921,7 @@ function animate(){
       const lk=lobbyScreenKey(timeOfDay);
       if(lk!==__lobbyKeyLast){
         __lobbyKeyLast=lk;
-        drawLobbyScreen(__lobbyCtx,{minutes:timeOfDay,agents:agentData.length});
+        drawLobbyScreen(__lobbyCtx,{minutes:timeOfDay,agents:lobbyOnsiteCount(agentData)??agentData.length,total:agentData.length}); // siklus 528: on-site, bukan total terdaftar
         __lobbyTex.needsUpdate=true;
       }
     }

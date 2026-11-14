@@ -43,12 +43,31 @@ export function lobbyStatusText(minutes) {
 }
 
 /** Baris jumlah agen: '26 AGEN BERTUGAS'. Non-finite/negatif → 'AGEN SIAP'
- *  (bukan 'NaN AGEN' di layar). */
-export function lobbyAgentsText(n) {
+ *  (bukan 'NaN AGEN' di layar).
+ *  Siklus 528: dgn total opsional (agen terdaftar) → 'N/TOTAL DI KANTOR' —
+ *  dulu footer selalu agentData.length (26) meski agen lunch/nightfall OFFSITE
+ *  (walker & sittingChar hidden, tidak di kantor) — angka menyesatkan pengunjung.
+ *  total tak valid/≤0/n ≤ total → fallback teks lama (kompatibilitas pemanggil). */
+export function lobbyAgentsText(n, total) {
   if (!Number.isFinite(n) || n < 0) return 'AGEN SIAP';
   const c = Math.floor(n);
+  if (c === 0 && !Number.isFinite(+total)) return 'AGEN SIAP';
+  const t = Number.isFinite(+total) ? Math.floor(+total) : 0;
+  if (t > 0 && c <= t) return c + '/' + t + ' DI KANTOR';
   if (c === 0) return 'AGEN SIAP';
   return c + ' AGEN BERTUGAS';
+}
+
+/** Hitung agen yang benar-benar berada di kantor: state 'offsite' (lunch keluar,
+ *  nightfall pulang, departure selesai) dikecualikan. Guard non-array/korup →
+ *  null (pemanggil fallback ke agentData.length pola lama). */
+export function lobbyOnsiteCount(agentData) {
+  if (!Array.isArray(agentData)) return null;
+  let n = 0;
+  for (const a of agentData) {
+    if (a && typeof a === 'object' && a.state !== 'offsite') n++;
+  }
+  return n;
 }
 
 /** Kunci redraw: menit bulat — cukup satu repaint per menit simulasi (5 dtk

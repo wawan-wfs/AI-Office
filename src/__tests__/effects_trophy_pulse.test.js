@@ -11,7 +11,9 @@ describe('trophyPulse (siklus 511)', () => {
     expect(trophyPulse(undefined).visor).toBe(n.visor);
   });
 
-  it('rentang 0.45…1.0 visor / 0.10…0.20 ring / 0.05…0.08 ringIn — tak pernah padam', () => {
+  it('rentang 0.45…1.0 visor / 0.10…0.20 ring / 0.05…0.08 ringIn — tak pernah padam', { timeout: 20000 }, () => {
+    // 60rb iterasi × 5 assert — di VM 2 vCPU kadang >5 dtk default vitest (flaky
+    // terdeteksi siklus 528: fail timeout pada pohon bersih sekalipun).
     for (let t = 0; t < 600; t += 0.01) {
       const v = trophyPulse(t);
       expect(v.visor).toBeGreaterThanOrEqual(0.45 - 1e-12);
