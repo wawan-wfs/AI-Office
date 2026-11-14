@@ -3,6 +3,7 @@
 // (ukuran kanvas, auto-shrink font, ellipsis, title-case nama) terdeteksi unit test.
 // Tidak ada THREE / DOM di sini — ctx 2D di-inject oleh pemanggil.
 import { ACRONYMS } from './nameplate_spec.js';
+import { STATUS_HEX } from './agent_status.js'; // siklus 530: warna dot status live
 
 export const LABEL_Y = 2.45; // tepat di atas kepala (tinggi duduk ≈1.95)
 
@@ -55,6 +56,25 @@ export function drawLabelText(ctx, agent, spec, full) {
   ctx.fillStyle = '#fff';
   drawFit(nmFull, spec.NAME_MAX, spec.NAME_FONT, full ? 36 : 28, spec.NAME_Y);
   if (full) { ctx.fillStyle = '#b8c4d4'; drawFit(agent.role, spec.ROLE_MAX, spec.ROLE_FONT, 22, spec.ROLE_Y); }
+}
+
+// ── Siklus 530: warna dot status di label — LIVE dari state agen ──────────
+// Dulu dot label mengambang SELALU hijau (#10E5A0, TASK_STATUS_COLORS.done)
+// hardcode — agen rapat/makan siang/berjalan/pulang tetap "hijau online",
+// menyesatkan. Kini warna delegasi STATUS_HEX (agent_status.js, satu sumber
+// dgn agentLiveStatus/HUD): work hijau, meet biru, lunch amber, walk biru
+// muda, dim/standby abu. Guard: entry tak valid/tone tak dikenal → hijau
+// (paritas visual lama, tanpa dot hilang di harness lama).
+export function labelStatusColor(ad) {
+  if (!ad || typeof ad !== 'object') return STATUS_HEX.work;
+  const st = typeof ad.state === 'string' ? ad.state : '';
+  if (st === 'offsite') return STATUS_HEX.dim;
+  if (st === 'meeting') return STATUS_HEX.meet;
+  if (ad.lunch) return STATUS_HEX.lunch;
+  if (st === 'walking_out' || st === 'walking_back') return STATUS_HEX.walk;
+  if (st === 'leaving') return STATUS_HEX.dim;
+  if (st === 'sitting') return STATUS_HEX.work;
+  return STATUS_HEX.work; // standby/tak dikenal → netral hijau (paritas lama)
 }
 
 // scale sprite label agar tingginya konsisten di layar (sizeAttenuation=false)

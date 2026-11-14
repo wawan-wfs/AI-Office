@@ -42,7 +42,7 @@ import { drawLobbyScreen, lobbyScreenKey, lobbyOnsiteCount } from './parts/lobby
 import { drawPoster } from './parts/poster_canvas.js';
 import { createWalls } from './parts/walls.js';
 import { drawBlobShadow } from './parts/blob_canvas.js';
-import { LABEL_Y, LABEL_FULL, LABEL_SHORT, labelScale, drawLabelText } from './parts/label_spec.js';
+import { LABEL_Y, LABEL_FULL, LABEL_SHORT, labelScale, drawLabelText, labelStatusColor } from './parts/label_spec.js';
 import { drawZoneLive, zoneAgentCount } from './parts/zone_label_canvas.js'; // siklus 527
 import { WALK_DESTINATIONS, CAMPUS_WALK_DESTINATIONS } from './parts/walk_destinations.js';
 import { OBSTACLES } from './parts/obstacles.js';
@@ -1045,11 +1045,8 @@ const screenData=[];
 const LABEL_Y=2.45; // tepat di atas kepala (tinggi duduk ≈1.95)
 const _LF=LABEL_FULL, _LS=LABEL_SHORT;
 function makeLabel(agent){
-  const mk=(full)=>{
-    const spec=full?_LF:_LS;
-    const W=spec.W, H=spec.H + 14;
-    const lc=document.createElement('canvas'); lc.width=W; lc.height=H;
-    const c=lc.getContext('2d');
+  const mk=(full, lc, c, spec, live)=>{
+    const W=spec.W;
     
     // 1. Gambar teks label base
     drawLabelText(c,agent,spec,full);
@@ -1085,9 +1082,11 @@ function makeLabel(agent){
     c.lineTo(W / 2 + 10, spec.H - 4);
     c.stroke();
     
-    // 4. Status dot online (hijau neon menyala)
-    c.fillStyle = TASK_STATUS_COLORS.done;
-    c.shadowColor = TASK_STATUS_COLORS.done;
+    // 4. Status dot — LIVE: warna mengikuti state agen (labelStatusColor,
+    // siklus 530; dulu hijau hardcode TASK_STATUS_COLORS.done). Glow ikut warna.
+    const dotCol = labelStatusColor(live ?? agent.__live);
+    c.fillStyle = dotCol;
+    c.shadowColor = dotCol;
     c.shadowBlur = 8;
     c.beginPath();
     c.arc(16, full ? 22 : spec.H / 2, 4.5, 0, Math.PI * 2);
@@ -1095,9 +1094,23 @@ function makeLabel(agent){
     c.restore();
 
     const tex=uiTexture(new THREE.CanvasTexture(lc)); tex.minFilter=THREE.LinearFilter;
-    return {tex, as: W / H};
+    return { tex, as: spec.W / (spec.H + 14) };
   };
-  const full=mk(true), short=mk(false);
+  // Siklus 530: painter lengkap per mode — dipanggil ulang saat status agen
+  // berganti (redrawLive). Canvas+ctx disimpan agar repaint murah.
+  const paint=(full)=>{
+    const spec=full?_LF:_LS;
+    const W=spec.W, H=spec.H + 14;
+    const lc=document.createElement('canvas'); lc.width=W; lc.height=H;
+    const c=lc.getContext('2d');
+    const r=mk(full,lc,c,spec,agent.__live);
+    // Siklus 530: repaint(ad) — gambar ulang seluruh kanvas slot dgn warna dot
+    // dari state terkini (labelStatusColor(ad)); ad null → dot hijau netral
+    // (paritas tampilan awal). needsUpdate agar tekstur 3D ikut segar.
+    const repaint=(ad)=>{ mk(full,lc,c,spec,ad); r.tex.needsUpdate=true; return true; };
+    return {tex:r.tex, as:r.as, repaint};
+  };
+  const full=paint(true), short=paint(false);
   const label=new THREE.Sprite(uiMaterial(new THREE.SpriteMaterial({
     map: short.tex,
     transparent: true,
@@ -1106,6 +1119,10 @@ function makeLabel(agent){
   })));
   label.scale.set(0.042 * short.as, 0.042, 1); // ±17px tinggi label di HP (dari 12.5px) — keterbacaan mobile
   label.userData={full,short,mode:'short'};
+  // Siklus 530: repaint label saat status agen berganti (dot ikut warna live).
+  // mk kini mengembalikan repaint(ad) — menggambar ulang kanvas slot dgn state
+  // terkini (labelStatusColor(ad)); tex.needsUpdate agar tekstur 3D ikut segar.
+  label.userData.redrawStatus=(ad)=>{ return full.repaint(ad)&&short.repaint(ad); };
   label.renderOrder=35; // Selalu di depan agar tidak tertutup perabotan
   return label;
 }
@@ -1458,6 +1475,10 @@ let __floorBadgeLast=-1; // siklus 526: kunci redraw plakat lantai
 // satu angka berganti tak memicu redraw semua zona; redraw per sprite saat
 // count-nya berubah, cek di dalam loop).
 const __zoneLiveLast=new Map();
+// siklus 530: dot status label mengambang — state live terakhir per label
+// (serialisasi state+lunch → redraw label hanya saat status berganti).
+const __labelStatusLast=new Map();
+const labelStatusKey=(ad)=>(!ad||typeof ad!=='object')?'?':String(ad.state||'')+(ad.lunch?':lunch':'');
 // siklus 525: layar monitor resepsionis live — refs dari reception; kunci menit-sim
 // terakhir yang digambar (redraw hanya saat menit berganti, pola 518/519/523).
 const __lobbyCtx=__rc&&__rc.lobbyCtx?__rc.lobbyCtx:null;
@@ -2183,6 +2204,15 @@ function animate(){
       });
     }
     ringMat.opacity=fx.ring;
+    // siklus 530: dot status label mengambang — repaint hanya saat state agen
+    // berganti (kunci state+lunch per label; pola Map __zoneLiveLast 527).
+    agentData.forEach((a)=>{
+      if(!a||!a.label||!a.label.userData||typeof a.label.userData.redrawStatus!=='function') return;
+      const k=labelStatusKey(a);
+      if(__labelStatusLast.get(a.label)===k) return;
+      __labelStatusLast.set(a.label,k);
+      a.label.userData.redrawStatus(a);
+    });
     helmetVisor.material.opacity=fx.visor;
     agentData.forEach((a,i)=>{
       if(a.state==='sitting'){

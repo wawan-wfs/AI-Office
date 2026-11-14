@@ -17,7 +17,7 @@ const UI_SITES = [
   ['scene/parts/projectboard.js', /const tex = uiTexture\(new THREE\.CanvasTexture\(cv\)\)/],
   ['scene/parts/room.js', /map: uiTexture\(new THREE\.CanvasTexture\(cv\)\)/], // whiteboard
   ['scene/parts/room.js', /const tex = uiTexture\(new THREE\.CanvasTexture\(cv\)\); tex\.minFilter/], // jam dinding
-  ['scene/OfficeScene.js', /const tex=uiTexture\(new THREE\.CanvasTexture\(lc\)\)/], // label agen (full/short)
+  ['scene/OfficeScene.js', /const r=mk\(full,lc,c,spec,agent\.__live\)/], // label agen (full/short) — painter + repaintStatus di makeLabel (siklus 530)
   ['scene/OfficeScene.js', /const stx=uiTexture\(new THREE\.CanvasTexture\(sc\)\)/], // monitor agen
   ['scene/OfficeScene.js', /const tex = uiTexture\(new THREE\.CanvasTexture\(c\)\); tex\.minFilter/], // nameplate
   ['scene/OfficeScene.js', /const wtt=uiTexture\(new THREE\.CanvasTexture\(wtc\)\)/], // judul dinding
