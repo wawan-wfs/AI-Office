@@ -20,8 +20,8 @@ const TYPES = Object.keys(SCREEN_RENDERERS);
 describe('SCREEN_RENDERERS', () => {
   it('mencakup 9 tipe layar yang dipakai scene', () => {
     expect(TYPES.sort()).toEqual(
-      ['bugs', 'board', 'charts', 'deploy', 'docs', 'lead', 'map', 'palette', 'terminal', 'tracking'].length === TYPES.length
-        ? ['bugs', 'board', 'charts', 'deploy', 'docs', 'lead', 'map', 'palette', 'terminal', 'tracking']
+      ['bugs', 'board', 'charts', 'deploy', 'docs', 'lead', 'map', 'palette', 'sysdash', 'terminal', 'tracking'].length === TYPES.length
+        ? ['bugs', 'board', 'charts', 'deploy', 'docs', 'lead', 'map', 'palette', 'sysdash', 'terminal', 'tracking']
         : TYPES // fallback: cukup pastikan >= 8 renderer ada
     );
     expect(TYPES.length).toBeGreaterThanOrEqual(8);

@@ -1677,8 +1677,14 @@ const rm2Stand=new THREE.Mesh(new THREE.BoxGeometry(.03,.22,.03),M(0xAABBCC));
 rm2Stand.position.set(leadDesk.x+.5,.88,leadDesk.z-.2);office.add(rm2Stand);
 const rm2Body=new THREE.Mesh(new THREE.BoxGeometry(.65,.42,.03),M(0x2A2A2A));
 rm2Body.position.set(leadDesk.x+.5,1.28,leadDesk.z-.24);office.add(rm2Body);
-const rm2Screen=new THREE.Mesh(new THREE.BoxGeometry(.58,.36,.01),MB(0x051015));
-rm2Screen.position.set(leadDesk.x+.5,1.28,leadDesk.z-.22);office.add(rm2Screen);
+  // Siklus 531: dashboard monitor kedua meja lead — dulu kotak gelap kosong.
+  // Kanvas live via screenData (stagger drawScreen) dgn renderer 'sysdash'.
+  const rm2Cv=document.createElement('canvas');rm2Cv.width=128;rm2Cv.height=76;
+  const rm2Ctx=rm2Cv.getContext('2d');
+  const rm2Tex=uiTexture(new THREE.CanvasTexture(rm2Cv));rm2Tex.minFilter=THREE.LinearFilter;
+  const rm2Screen=new THREE.Mesh(new THREE.PlaneGeometry(.58,.36), uiMaterial(new THREE.MeshBasicMaterial({map:rm2Tex})));
+  rm2Screen.position.set(leadDesk.x+.5,1.28,leadDesk.z-.221);office.add(rm2Screen);
+  screenData.push({ctx:rm2Ctx,canvas:rm2Cv,tex:rm2Tex,type:'sysdash',hex:'#60A5FA'});
 
 // Helmet trophy on desk
 const helmetBase=new THREE.Mesh(new THREE.BoxGeometry(.15,.03,.15),M(0x1A2A3A));

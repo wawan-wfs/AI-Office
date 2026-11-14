@@ -106,6 +106,30 @@ export const SCREEN_RENDERERS = {
     c.fillText((T.review ? 'REVIEW: ' + T.review + '  ' : '') + (T.failed ? 'GAGAL: ' + T.failed : 'on track'), 6, 42);
     if (Math.sin(t * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
+  // Dashboard sistem meja lead (monitor kedua, siklus 531): 4 baris metrik
+  // dgn bar mini + FPS hidup. t = detik nyata (kontrak drawScreenFrame 264).
+  sysdash(c, w, h, t, col) {
+    const tt = Number.isFinite(t) ? t : 0; // guard anti-poisoning (paritas 264)
+    c.font = '6px monospace';
+    const rows = [
+      ['CPU', 22 + Math.sin(tt * 0.7) * 12, col],
+      ['MEM', 48 + Math.sin(tt * 0.4 + 2) * 8, '#4ade80'],
+      ['GPU', 65 + Math.sin(tt * 1.1 + 4) * 15, '#fbbf24'],
+      ['NET', 30 + Math.sin(tt * 2.2) * 25, '#60a5fa'],
+    ];
+    rows.forEach(([label, pct, cl], i) => {
+      const v = Math.min(95, Math.max(5, pct)); // guard rentang bar
+      const y = 10 + i * 17;
+      c.globalAlpha = 0.7; c.fillStyle = '#8fa3bd';
+      c.fillText(label, 8, y + 6);
+      c.globalAlpha = 0.25; c.fillStyle = cl;
+      c.fillRect(28, y, w - 40, 6);
+      c.globalAlpha = 0.85; c.fillRect(28, y, (w - 40) * v / 100, 6);
+    });
+    c.globalAlpha = 0.85; c.fillStyle = col;
+    c.fillText('FPS ' + (45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + Math.floor(tt / 60) + 'm', 8, h - 5);
+    if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
+  },
   // QA: daftar hasil tes
   bugs(c, w, h, t, col) {
     c.font = '6px monospace';

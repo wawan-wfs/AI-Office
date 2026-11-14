@@ -8174,3 +8174,9 @@
 - Bukti live CDP: state agen di-set 'meeting' → redrawStatus → pixel dot label = rgb(96,165,250) = #60A5FA (STATUS_HEX.meet) — warna dot terbukti mengikuti state di scene nyata; screenshot ck3.png menampilkan dot label warna variasi (hijau/biru/amber).
 - Catatan debugging: 2 build awal crash 'W/tex is not defined' (refactor mk lupa const W & uiTexture) — tertangkap e2e probe sebelum push, dikoreksi; esc_chain 332 flaky saat suite penuh (lalu pass isolated & rerun penuh hijau).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 07:05 WIB — Siklus 531: monitor kedua meja lead hidup (renderer 'sysdash', efek layar ke-11)
+- Gap visual: layar kedua di meja utama (rm2Screen) hanya BoxGeometry gelap 0x051015 tanpa kanvas — satu-satunya monitor mati di kampus padahal posisinya paling menonjol (meja lead, depan kamera overview).
+- Fix: rm2Screen jadi PlaneGeometry kanvas live 128×76 via screenData (ikut stagger drawScreen throttle 6 frame); renderer 'sysdash' baru di SCREEN_RENDERERS (effects.js): 4 bar metrik CPU/MEM/GPU/NET (sin dengan fase berbeda, guard rentang 5–95), footer FPS/UPTIME live, dot hijau periodik — kontrak painter (ctx,w,h,t,hex), t = detik nyata (264).
+- Guard anti-poisoning: t non-finite → 0 (paritas drawScreenFrame); test baru screen_sysdash.test.js (7): tabel renderer, 4 label, footer deterministik, tanpa 'NaN' di teks utk 6 nilai t, lebar bar 8 rect dalam rentang, dot periodik, pipeline drawScreenFrame via stub. effects.test.js daftar 11 tipe renderer diperbarui (+sysdash).
+- Verifikasi: vitest 411 file, 4458 passed + 6 skipped (+7, +1 file); build PWA exit 0; dist → ~/wfs-hq (grep sysdash bundle = 2); shot.sh scene 515KB >500KB (hidup); e2e_errors.py exit 0 tanpa error.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
