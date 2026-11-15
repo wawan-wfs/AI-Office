@@ -60,7 +60,27 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).some(o => o.t.includes('DISK 20%'))).toBe(true);
       // siklus 552: CFG count (custom_cfg) di footer (deterministik, custom_cfg=3)
       expect(texts(c).some(o => o.t.includes('CFG 3'))).toBe(true);
+      // siklus 554: NET throughput nyata di footer (1.0+0.5=1.5 → 'NET 1.5M')
+      expect(texts(c).some(o => o.t.includes('NET 1.5M'))).toBe(true);
     } finally { delete global.window; }
+  });
+  it('siklus 554: NET footer — <1 MB/s → KB, korup/hilang → tanpa segmen NET', () => {
+    const cases = [
+      [{ net_rx_mb_s: 0.022, net_tx_mb_s: 0.006 }, (t) => t.includes('NET 29K')],   // 0.028*1024 ≈ 29
+      [{ net_rx_mb_s: -1, net_tx_mb_s: 0.5 }, (t) => t.includes('NET 512K')],        // clamp 0 + 0.5
+      [{ uptime_s: 60 }, (t) => !t.includes('NET ')],
+      [{ uptime_s: 60, net_rx_mb_s: NaN, net_tx_mb_s: 1 }, (t) => !t.includes('NET ')],
+      [{ uptime_s: 60, net_rx_mb_s: 0.5, net_tx_mb_s: NaN }, (t) => !t.includes('NET ')],
+    ];
+    for (const [H, chk] of cases) {
+      const c = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c, 128, 76, 1, '#60a5fa');
+        const all = texts(c).map(o => o.t).join('|');
+        expect(chk(all), JSON.stringify(H)).toBe(true);
+      } finally { delete global.window; }
+    }
   });
   it('siklus 549: DISK korup/hilang/negatif → tanpa segmen DISK di footer', () => {
     const c = mockCtx();

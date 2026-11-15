@@ -191,7 +191,16 @@ export const SCREEN_RENDERERS = {
     // — dulu field tak pernah dikonsumsi frontend. Tak valid → tanpa segmen.
     const cfgTxt = H && Number.isFinite(+H.custom_cfg) && +H.custom_cfg >= 0
       ? ' · CFG ' + Math.round(+H.custom_cfg) : '';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + diskTxt + loadTxt + cfgTxt, 8, h - 5);
+    // Siklus 554: NET throughput nyata di footer (H.net_rx_mb_s/net_tx_mb_s —
+    // paritas strip HOST papan proyek 544): rx+tx ≥1 MB/s → 'N.NM', <1 → KB.
+    // rx/tx tak valid → tanpa segmen (tanpa 'NET NaN'); negatif di-clamp 0.
+    const nRx = H && Number.isFinite(+H.net_rx_mb_s) ? Math.max(0, +H.net_rx_mb_s) : null;
+    const nTx = H && Number.isFinite(+H.net_tx_mb_s) ? Math.max(0, +H.net_tx_mb_s) : null;
+    const netTxt = nRx != null && nTx != null
+      ? ' · NET ' + ((nRx + nTx) >= 1
+          ? (nRx + nTx).toFixed(1) + 'M'
+          : Math.round((nRx + nTx) * 1024) + 'K') : '';
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + diskTxt + loadTxt + cfgTxt + netTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes

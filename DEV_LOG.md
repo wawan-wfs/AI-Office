@@ -8325,3 +8325,10 @@
 - Test: projectboard_runtime +1 (window.__hostRes agents 14→15 → 'AGEN 15' tampil; custom_cfg 0→3 → 'CFG 3' tampil). Total 412 file, 4489 passed + 6 skipped.
 - Verifikasi: vitest targeted 3 file 100/100; npm test penuh exit 0 (412 file, ~524s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 702KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 02:24 WIB — Siklus 554: NET throughput nyata di footer sysdash (paritas papan 544)
+- Audit siklus 543–553: semua field /api/status sudah dikonsumsi kecuali net_rx_mb_s/net_tx_mb_s di footer sysdash — strip HOST papan sudah menampilkan NET sejak 544, footer belum (satu-satunya field gateway tanpa paritas).
+- effects.js sysdash footer: segmen ` · NET N.NM` (rx+tx ≥1 MB/s) / ` · NET NK` (<1 MB/s, KB bulat) setelah CFG; guard rx/tx non-finite → tanpa segmen (tanpa 'NET NaN'), negatif di-clamp 0 — format identik dgn papan.
+- Test: screen_sysdash +1 (NET 1.5M host-live; 0.028→NET 29K; clamp negatif →512K; korup/hilang/NaN → tanpa 'NET ') → file 17 test. Total 412 file, npm test penuh exit 0 (~513s).
+- Verifikasi: build PWA exit 0 ('· NET' ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 705KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
