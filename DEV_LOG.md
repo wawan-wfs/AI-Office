@@ -8282,3 +8282,10 @@
 - Test: screen_sysdash +1 assert `AGEN 3` pada host live (agents=3) → 14 test file; total 412 file, 4484 passed + 6 skipped.
 - Verifikasi: npm run build exit 0 (AGEN ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err_probe OK (agents=26, zone=5, init_failed=False, shot 703028B >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 21:44 WIB — Siklus 548: MEM bebas nyata di footer sysdash
+- Lanjutan 543–547: mem_available_mb (gateway /proc/meminfo) sudah lama ada di /api/status tapi hanya dipakai bar MEM; kini juga tampil di footer monitor lead: `MEM 2G`/`MEM 512M` antara AGEN dan LOAD (footer `FPS N · UPTIME .. · AGEN N · MEM .. · LOAD X.XX`).
+- effects.js sysdash: memTxt guard non-finite/negatif → tanpa segmen (tanpa 'MEM NaN'); ≥1024 MB → GB 1 desimal, <1024 → MB bulat.
+- Test: screen_sysdash +1 (2000 MB→'MEM 2G' host-live; 512→'MEM 512M'; NaN/korup/hilang → tanpa 'MEM ') → 15 test file; total 412 file, 4485 passed + 6 skipped.
+- Verifikasi: vitest file pass 15/15; npm test penuh exit 0 (412 file, Duration ~517s); build PWA exit 0; dist → ~/wfs-hq (MEM ada di bundle OfficeScene); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 697KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

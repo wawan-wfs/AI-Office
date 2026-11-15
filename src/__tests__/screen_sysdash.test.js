@@ -54,7 +54,25 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).some(o => o.t.includes('LOAD 1.20'))).toBe(true);
       // siklus 547: jumlah agen nyata di footer (deterministik, agents=3)
       expect(texts(c).some(o => o.t.includes('AGEN 3'))).toBe(true);
+      // siklus 548: MEM bebas nyata di footer (2000 MB → 2G)
+      expect(texts(c).some(o => o.t.includes('MEM 2G'))).toBe(true);
     } finally { delete global.window; }
+  });
+  it('siklus 548: MEM <1024 MB → M; korup/hilang → tanpa segmen MEM', () => {
+    const c = mockCtx();
+    global.window = { __hostRes: { ok: true, uptime_s: 60, mem_available_mb: 512 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 1, '#60a5fa');
+      expect(texts(c).some(o => o.t.includes('MEM 512M'))).toBe(true);
+    } finally { delete global.window; }
+    for (const H of [{ ok: true, uptime_s: 60, mem_available_mb: NaN }, { ok: true, uptime_s: 60, mem_available_mb: 'banyak' }, { ok: true, uptime_s: 60 }]) {
+      const c2 = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c2, 128, 76, 1, '#60a5fa');
+        expect(texts(c2).every(o => !String(o.t).includes('MEM '))).toBe(true);
+      } finally { delete global.window; }
+    }
   });
   it('siklus 546: LOAD footer hanya saat H.load valid; korup → tanpa LOAD', () => {
     const c = mockCtx();
