@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   computePct, clip, cardY, CARD_H, COLUMN_BOTTOM, subtitle, bannerParts, bannerNames, bannerLayout,
   columnItems, stripSegments, clampStripTenant, stripLayout, BASE_DROP_ORDER, OMNI_DROP_ORDER, STRIP_GAP,
+  hostSegments,
   normalizeTaskStatus, formatTaskId, formatCardStatus, formatCardTitle, cardMeta,
 } from '../scene/parts/projectboard_data.js'
 
@@ -159,6 +160,22 @@ describe('stripSegments', () => {
     expect(texts).toContain('be1 ●')
     expect(texts).toContain('qa1 ○')
   })
+  it('siklus 535: nama agen panjang dipangkas di batas kata (maks 12 char)', () => {
+    const segs = stripSegments({ agents: [{ name: 'sbx-proj-wfs-landing-3d-motion', status: 'Up' }] })
+    const ag = segs.find(s => s.txt.endsWith('●'))
+    expect(ag.txt.length).toBeLessThanOrEqual(15) // 12 + '…' + ' ●' = 15
+    expect(ag.txt).toMatch(/…? ●$/)
+    // nama pendek tak berubah
+    const short = stripSegments({ agents: [{ name: 'be1', status: 'Up' }] })
+    expect(short.find(s => s.txt.endsWith('●')).txt).toBe('be1 ●')
+  })
+  it('siklus 535: strip membatasi 3 agen + "+N lagi"', () => {
+    const ags = ['a1','a2','a3','a4','a5','a6'].map(n => ({ name: n, status: 'Up' }))
+    const texts = stripSegments({ agents: ags }).map(s => s.txt)
+    expect(texts.filter(t => t.endsWith('●'))).toHaveLength(3)
+    expect(texts).toContain('+3 lagi')
+    expect(texts).not.toContain('a5 ●')
+  })
   it('fallback tenants dari array bila stats.tenants hilang', () => {
     const segs = stripSegments({ saas: { online: true, tenants: [{}, {}, {}] } })
     expect(segs.map(s => s.txt)).toContain('3 tenant')
@@ -194,6 +211,45 @@ describe('stripSegments', () => {
     expect(segsOffline.map(s => s.txt)).toContain('offline')
     const offOmni = segsOffline.find(s => s.txt === 'offline' && s.__isOmni)
     expect(offOmni.col).toBe('#EF4444')
+  })
+})
+
+describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () => {
+  const HR = { load: 1.2, mem_total_mb: 7500, mem_available_mb: 2000, disk_used_gb: 25, disk_total_gb: 50 }
+  it('host penuh: HOST + CPU/MEM/DISK dengan persen terhitung', () => {
+    const segs = hostSegments(HR)
+    expect(segs.map(s => s.txt)).toEqual(['HOST', 'CPU 12%', 'MEM 73%', 'DISK 50%'])
+    expect(segs[0].col).toBe('#60A5FA') // accent
+    expect(segs[1].col).toBe('#10E5A0') // <75% ok
+  })
+  it('nilai tinggi memicu warna warn/err', () => {
+    const segs = hostSegments({ ...HR, load: 8, mem_available_mb: 500 })
+    const cpu = segs.find(s => s.txt.startsWith('CPU'))
+    const mem = segs.find(s => s.txt.startsWith('MEM'))
+    expect(cpu.txt).toBe('CPU 80%'); expect(cpu.col).toBe('#F59E0B') // warn (TASK_STATUS_COLORS.running)
+    expect(mem.txt).toBe('MEM 93%'); expect(mem.col).toBe('#EF4444') // err
+  })
+  it('clamp 1..99: disk penuh tak pernah 100%', () => {
+    const segs = hostSegments({ ...HR, disk_used_gb: 50 })
+    expect(segs.find(s => s.txt.startsWith('DISK')).txt).toBe('DISK 99%')
+  })
+  it('nilai parsial: metrik non-finite dilewati tanpa NaN', () => {
+    const segs = hostSegments({ load: 1, mem_total_mb: 'banyak', mem_available_mb: NaN, disk_total_gb: 0 })
+    expect(segs.map(s => s.txt)).toEqual(['HOST', 'CPU 10%'])
+    expect(segs.every(s => !s.txt.includes('NaN'))).toBe(true)
+  })
+  it('hostRes null / bukan objek / kosong → [] (strip lama utuh)', () => {
+    expect(hostSegments(null)).toEqual([])
+    expect(hostSegments('x')).toEqual([])
+    expect(hostSegments({})).toEqual([]) // hanya label tanpa metrik → kosong
+  })
+  it('stripSegments memasukkan segmen host; stripLayout membuang host paling akhir', () => {
+    const snap = { saas: { online: true, stats: { tenants: 1, conversations: 1, messages: 1 } }, agents: [{ name: 'be1', status: 'Up' }] }
+    const segs = stripSegments(snap, HR)
+    expect(segs.map(s => s.txt)).toContain('CPU 12%')
+    const { kept, dropped } = stripLayout(snap, { budget: 700, gap: 26, text: t => t.length * 10 }, HR)
+    expect(dropped).toContain('host')
+    expect(kept.some(s => s.txt === 'be1 ●')).toBe(true)
   })
 })
 
@@ -235,7 +291,7 @@ describe('stripLayout', () => {
   })
   it('budget sangat sempit → hanya segmen wajib (SaaS + agen)', () => {
     const { kept, dropped } = stripLayout(snap, m(400))
-    expect(dropped).toEqual(['latest', 'messages', 'chats', 'online'])
+    expect(dropped).toEqual(['latest', 'messages', 'chats', 'online', 'host'])
     expect(kept.every(s => !['latest', 'messages', 'chats', 'online'].includes(s.txt))).toBe(true)
     expect(kept.map(s => s.txt)).toContain('be1 ●')
   })
@@ -268,13 +324,13 @@ describe('stripLayout', () => {
 })
 
 describe('drop order — prioritas buang segmen strip', () => {
-  it('BASE_DROP_ORDER: terbaru → pesan → chat → online', () => {
-    expect(BASE_DROP_ORDER).toEqual(['latest', 'messages', 'chats', 'online'])
+  it('BASE_DROP_ORDER: terbaru → pesan → chat → online → host', () => {
+    expect(BASE_DROP_ORDER).toEqual(['latest', 'messages', 'chats', 'online', 'host'])
   })
   it('OMNI_DROP_ORDER menyisipkan omni sebelum online (omni dikorbankan dulu)', () => {
-    expect(OMNI_DROP_ORDER).toEqual(['latest', 'messages', 'chats', 'omni', 'online'])
+    expect(OMNI_DROP_ORDER).toEqual(['latest', 'messages', 'chats', 'omni', 'online', 'host'])
     // invariant: urutan BASE adalah prefix OMNI minus 'omni'
-    const base = BASE_DROP_ORDER.filter(k => k !== 'omni')
+    const base = BASE_DROP_ORDER.filter(k => k !== 'omni' && k !== 'host')
     expect(base).toEqual(['latest', 'messages', 'chats', 'online'])
     expect(OMNI_DROP_ORDER.indexOf('omni')).toBeLessThan(OMNI_DROP_ORDER.indexOf('online'))
   })

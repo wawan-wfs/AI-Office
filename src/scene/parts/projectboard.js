@@ -148,7 +148,7 @@ export function createProjectBoard(office, THREE) {
       budget: W - STRIP_LEFT - STRIP_RIGHT - 26,
       gap: STRIP_GAP,
       text: t => g.measureText(t).width,
-    })
+    }, (typeof window !== 'undefined' && window.__hostRes) || null)
     g.font = '22px sans-serif'; g.textAlign = 'left'
     let sx = STRIP_LEFT
     // Badge koneksi gateway (paritas chip HUD .conn-chip): titik berwarna + label
@@ -165,7 +165,20 @@ export function createProjectBoard(office, THREE) {
     tex.needsUpdate = true
   }
 
-  // SaaS line: gambar ringkasan SaaS di strip bawah frame? (opsional di scene: cukup papan task)
+  // Siklus 535: snapshot host NYATA untuk segmen strip HOST. Saat papan
+  // menggambar (pull/tick), __hostRes poll terpisah 20 dtk (pollStatus) —
+  // bila ada perubahan host, papan repaint murah (draw() penuh).
+  let hostResKey = ''
+  function hostKey(hr) {
+    if (!hr || typeof hr !== 'object') return ''
+    const n = (v) => (Number.isFinite(+v) ? +v : '?')
+    return [n(hr.load), n(hr.mem_total_mb), n(hr.mem_available_mb), n(hr.disk_used_gb), n(hr.disk_total_gb)].join(',')
+  }
+  function drawIfHostChanged() {
+    const k = hostKey(typeof window !== 'undefined' ? window.__hostRes : null)
+    if (k !== hostResKey) { hostResKey = k; draw() }
+  }
+  const hostIv = setInterval(drawIfHostChanged, 20000)
   // Polling adaptif: rantai setTimeout — delay dari tracker (60 dtk sehat,
   // backoff eksponensial 5→80s saat gateway mati, pulih → 60 dtk lagi).
   // Jadwal pertama menyusul pull awal selesai, agar delay dihitung dari tracker segar.
@@ -235,7 +248,7 @@ export function createProjectBoard(office, THREE) {
   function destroy() {
     pollStopped = true // hentikan rantai poll adaptif
     if (pollTimer !== null) clearTimeout(pollTimer)
-    clearInterval(connIv); clearInterval(forceVisible); document.removeEventListener('visibilitychange', onVis)
+    clearInterval(connIv); clearInterval(forceVisible); clearInterval(hostIv); document.removeEventListener('visibilitychange', onVis)
   }
   return { destroy, refresh: pull, mesh, frame }
 }

@@ -163,7 +163,7 @@ export function columnItems(T, i) {
 }
 
 // segmen strip bawah [{txt, col}] dari snapshot penuh (saas + agents + omniroute)
-export function stripSegments(snap) {
+export function stripSegments(snap, hostRes = null) {
   // Siklus 381 — warna delegasi palet kanonik (dulu literal drift):
   //   aksen label  = review  (biru), ok = done, error = failed,
   //   teks sekunder = muted, divider = pending gelap kustom.
@@ -190,7 +190,15 @@ export function stripSegments(snap) {
   if (ags.length) {
     segs.push({ txt: '·', col: div })
     segs.push({ txt: 'AGENT', col: accent })
-    ags.forEach(a => segs.push({ txt: a.name + ' ' + (a.status === 'Up' ? '●' : '○'), col: a.status === 'Up' ? ok : err }))
+    // Siklus 535: nama agen dipangkas di batas kata (pola clampStripTenant) dan
+    // jumlah agen dibatasi 4 + "+N" — 9 agen sandbox × nama panjang makan seluruh
+    // budget strip dan mendorong segmen lain (termasuk HOST) keluar layar.
+    const MAX_AG = 3
+    ags.slice(0, MAX_AG).forEach(a => {
+      const nm = clip(a.name, 12)
+      segs.push({ txt: nm + ' ' + (a.status === 'Up' ? '●' : '○'), col: a.status === 'Up' ? ok : err })
+    })
+    if (ags.length > MAX_AG) segs.push({ txt: '+' + (ags.length - MAX_AG) + ' lagi', col: dim })
   }
   const omni = (snap && snap.omniroute) || null
   if (omni) {
@@ -202,7 +210,47 @@ export function stripSegments(snap) {
       __isOmni: true,
     })
   }
+  // Siklus 535 — metrik host NYATA (window.__hostRes dari /wfs-api/status,
+  // paritas monitor sysdash 532/533): CPU/MEM/DISK di ujung strip. Host
+  // invalid/korup → tidak ada segmen (strip lama tak berubah). Semua segmen
+  // host ditandai __drop:'host' — prioritas buang paling rendah (setelah online).
+  const host = hostSegments(hostRes)
+  if (host.length) {
+    segs.push({ txt: '·', col: div, __drop: 'host' })
+    host.forEach(sg => segs.push(sg))
+  }
   return segs
+}
+
+// Segmen strip HOST dari snapshot /wfs-api/status (murni, diuji unit).
+// Format teks 'CPU 23%' — nilai di-clamp 1..99, non-finite → segmen dilewati
+// (tanpa 'CPU NaN%'); hostRes null/bukan objek → [] (fallback strip lama).
+export function hostSegments(hostRes) {
+  if (!hostRes || typeof hostRes !== 'object') return []
+  const accent = TASK_STATUS_COLORS.review
+  const ok = TASK_STATUS_COLORS.done
+  const warn = TASK_STATUS_COLORS.running
+  const err = TASK_STATUS_COLORS.failed
+  const num = (v) => (Number.isFinite(+v) ? +v : null)
+  const clamp = (v) => Math.min(99, Math.max(1, Math.round(v)))
+  const col = (pct) => (pct < 75 ? ok : pct < 90 ? warn : err)
+  const segs = [{ txt: 'HOST', col: accent }]
+  const load = num(hostRes.load)
+  if (load != null) {
+    const pct = clamp(load * 10)
+    segs.push({ txt: 'CPU ' + pct + '%', col: col(pct) })
+  }
+  const tot = num(hostRes.mem_total_mb), av = num(hostRes.mem_available_mb)
+  if (tot != null && tot > 0 && av != null) {
+    const pct = clamp(100 * (tot - av) / tot)
+    segs.push({ txt: 'MEM ' + pct + '%', col: col(pct) })
+  }
+  const dTot = num(hostRes.disk_total_gb), dUsed = num(hostRes.disk_used_gb)
+  if (dTot != null && dTot > 0 && dUsed != null) {
+    const pct = clamp(100 * dUsed / dTot)
+    segs.push({ txt: 'DISK ' + pct + '%', col: col(pct) })
+  }
+  return segs.length > 1 ? segs : []
 }
 
 // Nama tenant di strip dipangkas di batas kata (pola clip) — nama panjang
@@ -219,11 +267,13 @@ export function clampStripTenant(name, max = 24) {
 // stripLayout() memangkas segmen prioritas-rendah dari kanan sampai muat:
 // urutan buang: 'terbaru: …' → '… pesan' → '… chat' → omniroute → online.
 export const STRIP_GAP = 26, STRIP_LEFT = 44, STRIP_RIGHT = 44
-export const BASE_DROP_ORDER = ['latest', 'messages', 'chats', 'online']
-export const OMNI_DROP_ORDER = ['latest', 'messages', 'chats', 'omni', 'online']
+// Siklus 535: segmen HOST (metrik nyata via hostRes) dibuang paling akhir —
+// lebih penting dari 'terbaru'. BASE tanpa host: urutan lama utuh (test regresi).
+export const BASE_DROP_ORDER = ['latest', 'messages', 'chats', 'online', 'host']
+export const OMNI_DROP_ORDER = ['latest', 'messages', 'chats', 'omni', 'online', 'host']
 
-export function stripLayout(snap, measure) {
-  const segs = stripSegments(snap).map(sg => ({ ...sg }))
+export function stripLayout(snap, measure, hostRes = null) {
+  const segs = stripSegments(snap, hostRes).map(sg => ({ ...sg }))
   const hasOmni = !!(snap && snap.omniroute)
   const dropOrder = hasOmni ? OMNI_DROP_ORDER : BASE_DROP_ORDER
   // tandai segmen yang boleh dibuang
