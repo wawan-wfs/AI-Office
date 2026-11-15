@@ -8296,3 +8296,10 @@
 - Test: screen_sysdash +2 (DISK 20% host-live 10/50GB; korup/hilang/negatif/total-0 → tanpa 'DISK ') → 17 test file; total 412 file.
 - Verifikasi: vitest file pass 17/17; npm test penuh exit 0 (412 file, ~506s; catatan: esc_chain_332 flaky di full-run, pass sendirian — timing jsdom, tak terkait); build PWA exit 0; dist → ~/wfs-hq (DISK ada di bundle OfficeScene); curl /api/status live disk 41.9/49.1 GB; e2e_err.py OK (agents=26, init_failed=False, shot 703KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 23:15 WIB — Siklus 550: jumlah agen nyata di strip HOST papan proyek
+- Lanjutan 546–549: field `agents` (len AGENTS_META gateway) sudah tampil di footer sysdash (547) tapi strip HOST papan proyek masih tanpa segmen agen — paritas dilengkapi.
+- projectboard_data.js hostSegments: segmen `AGEN N` (Math.round, guard non-finite/negatif → dilewati, tanpa 'AGEN NaN') setelah LOAD, sebelum DISK.
+- Test: projectboard_data +1 (AGEN 15; 8.7→9; -1/NaN/hilang → tanpa segmen) → 61 test file; total 412 file, 4487 passed + 6 skipped.
+- Verifikasi: vitest file 60/60 pass; npm test penuh exit 0 (412 file, ~509s, tanpa flaky); build PWA exit 0; dist → ~/wfs-hq (AGEN ada di bundle); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 702KB >500KB, hygiene 41 refs 0 missing); live /api/status agents=15.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

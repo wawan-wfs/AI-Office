@@ -256,6 +256,10 @@ export function hostSegments(hostRes) {
   // sendiri (dulu cuma fallback CPU). Non-finite → segmen dilewati.
   const ld = num(hostRes.load)
   if (ld != null) segs.push({ txt: 'LOAD ' + ld.toFixed(2), col: ld < 2 ? ok : ld < 4 ? warn : err })
+  // Siklus 550 — jumlah agen nyata (agents, len AGENTS_META gateway; paritas
+  // footer sysdash 547). Non-finite/negatif → segmen dilewati (tanpa 'AGEN NaN').
+  const ag = num(hostRes.agents)
+  if (ag != null && ag >= 0) segs.push({ txt: 'AGEN ' + Math.round(ag), col: accent })
   const dTot = num(hostRes.disk_total_gb), dUsed = num(hostRes.disk_used_gb)
   if (dTot != null && dTot > 0 && dUsed != null) {
     const pct = clamp(100 * dUsed / dTot)

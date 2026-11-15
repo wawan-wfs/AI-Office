@@ -279,6 +279,15 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
     expect(hostSegments({ ...HR, net_rx_mb_s: NaN }).find(s => s.txt.startsWith('NET'))).toBeUndefined()
     expect(hostSegments({ ...HR, net_rx_mb_s: 'banyak', net_tx_mb_s: 0 }).find(s => s.txt.startsWith('NET'))).toBeUndefined()
   })
+  it('siklus 550: AGEN count nyata di strip HOST; korup/hilang → tanpa segmen', () => {
+    expect(hostSegments({ ...HR, agents: 15 }).find(s => s.txt.startsWith('AGEN')).txt).toBe('AGEN 15')
+    // 8.7 dibulatkan (paritas footer sysdash 547)
+    expect(hostSegments({ ...HR, agents: 8.7 }).find(s => s.txt.startsWith('AGEN')).txt).toBe('AGEN 9')
+    // negatif / non-finite / hilang → segmen dilewati (tanpa 'AGEN NaN')
+    expect(hostSegments({ ...HR, agents: -1 }).find(s => s.txt.startsWith('AGEN'))).toBeUndefined()
+    expect(hostSegments({ ...HR, agents: NaN }).find(s => s.txt.startsWith('AGEN'))).toBeUndefined()
+    expect(hostSegments({ ...HR }).find(s => s.txt.startsWith('AGEN'))).toBeUndefined()
+  })
   it('stripSegments memasukkan segmen host; stripLayout membuang host paling akhir', () => {
     const snap = { saas: { online: true, stats: { tenants: 1, conversations: 1, messages: 1 } }, agents: [{ name: 'be1', status: 'Up' }] }
     const segs = stripSegments(snap, HR)
