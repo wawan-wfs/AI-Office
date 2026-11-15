@@ -35,7 +35,7 @@ describe('SCREEN_RENDERERS.sysdash', () => {
   });
   it('host live: bar CPU/MEM/NET + angka % di ujung bar dari window.__hostRes', () => {
     const c = mockCtx();
-    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, disk_used_gb: 10, disk_total_gb: 50, agents: 3, uptime_s: 3600, net_rx_mb_s: 1.0, net_tx_mb_s: 0.5 } };
+    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, disk_used_gb: 10, disk_total_gb: 50, agents: 3, uptime_s: 3600, net_rx_mb_s: 1.0, net_tx_mb_s: 0.5, custom_cfg: 3 } };
     try {
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
       const pctTexts = texts(c).map(o => o.t).filter(t => t.endsWith('%'));
@@ -58,6 +58,8 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).some(o => o.t.includes('MEM 2G'))).toBe(true);
       // siklus 549: DISK terpakai % di footer (10/50 GB → DISK 20%)
       expect(texts(c).some(o => o.t.includes('DISK 20%'))).toBe(true);
+      // siklus 552: CFG count (custom_cfg) di footer (deterministik, custom_cfg=3)
+      expect(texts(c).some(o => o.t.includes('CFG 3'))).toBe(true);
     } finally { delete global.window; }
   });
   it('siklus 549: DISK korup/hilang/negatif → tanpa segmen DISK di footer', () => {

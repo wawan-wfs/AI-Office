@@ -8310,3 +8310,11 @@
 - Test: projectboard_data +1 (AGEN 15; 8.7→9; -1/NaN/hilang → tanpa segmen) → 61 test file; total 412 file, 4487 passed + 6 skipped.
 - Verifikasi: vitest file 60/60 pass; npm test penuh exit 0 (412 file, ~509s, tanpa flaky); build PWA exit 0; dist → ~/wfs-hq (AGEN ada di bundle); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 702KB >500KB, hygiene 41 refs 0 missing); live /api/status agents=15.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 00:55 WIB — Siklus 552: segmen CFG (agen key kustom) tampil di strip HOST & footer sysdash
+- Field `custom_cfg` (jumlah agen dgn API key kustom, gateway sum load_cfg di /api/status) sudah lama dikirim tapi tak pernah dikonsumsi frontend mana pun.
+- projectboard_data.js hostSegments: segmen `CFG N` (dim, setelah AGEN sebelum DISK); Math.round, non-finite/negatif → dilewati (tanpa 'CFG NaN'); 0 tetap tampil (paritas NET 0K).
+- effects.js sysdash footer: `· CFG N` setelah LOAD; guard sama — satu pola paritas 546–550.
+- Test: projectboard_data +1 (CFG 3, 2.6→3, 0, guard korup); screen_sysdash assert CFG 3 host-live (fixture + custom_cfg: 3). Total 412 file, 4488 passed + 6 skipped.
+- Verifikasi: vitest 2 file 77/77 pass; npm test penuh exit 0 (533s); build PWA exit 0 (CFG ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 703KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

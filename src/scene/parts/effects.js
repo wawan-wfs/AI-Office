@@ -187,7 +187,11 @@ export const SCREEN_RENDERERS = {
     const dUsed = H && Number.isFinite(+H.disk_used_gb) ? +H.disk_used_gb : null;
     const diskTxt = dTot != null && dTot > 0 && dUsed != null && dUsed >= 0
       ? ' · DISK ' + Math.max(1, Math.min(99, Math.round(100 * dUsed / dTot))) + '%' : '';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + diskTxt + loadTxt, 8, h - 5);
+    // Siklus 552: jumlah agen dgn API key kustom (H.custom_cfg dari /api/status)
+    // — dulu field tak pernah dikonsumsi frontend. Tak valid → tanpa segmen.
+    const cfgTxt = H && Number.isFinite(+H.custom_cfg) && +H.custom_cfg >= 0
+      ? ' · CFG ' + Math.round(+H.custom_cfg) : '';
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + diskTxt + loadTxt + cfgTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes

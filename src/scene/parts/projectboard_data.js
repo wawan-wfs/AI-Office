@@ -243,6 +243,7 @@ export function hostSegments(hostRes) {
   const ok = TASK_STATUS_COLORS.done
   const warn = TASK_STATUS_COLORS.running
   const err = TASK_STATUS_COLORS.failed
+  const dim = '#8fa3bd'
   const num = (v) => (Number.isFinite(+v) ? +v : null)
   const clamp = (v) => Math.min(99, Math.max(1, Math.round(v)))
   const col = (pct) => (pct < 75 ? ok : pct < 90 ? warn : err)
@@ -272,6 +273,11 @@ export function hostSegments(hostRes) {
   // footer sysdash 547). Non-finite/negatif → segmen dilewati (tanpa 'AGEN NaN').
   const ag = num(hostRes.agents)
   if (ag != null && ag >= 0) segs.push({ txt: 'AGEN ' + Math.round(ag), col: accent })
+  // Siklus 552 — jumlah agen dgn API key kustom (custom_cfg, gateway sum
+  // load_cfg key) — field sudah lama ada di /api/status tapi tak pernah tampil.
+  // Non-finite/negatif → segmen dilewati (tanpa 'CFG NaN').
+  const cfg = num(hostRes.custom_cfg)
+  if (cfg != null && cfg >= 0) segs.push({ txt: 'CFG ' + Math.round(cfg), col: dim })
   const dTot = num(hostRes.disk_total_gb), dUsed = num(hostRes.disk_used_gb)
   if (dTot != null && dTot > 0 && dUsed != null) {
     const pct = clamp(100 * dUsed / dTot)

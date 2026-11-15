@@ -290,6 +290,16 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
     expect(hostSegments({ ...HR, agents: NaN }).find(s => s.txt.startsWith('AGEN'))).toBeUndefined()
     expect(hostSegments({ ...HR }).find(s => s.txt.startsWith('AGEN'))).toBeUndefined()
   })
+  it('siklus 552: CFG count (agen key kustom) di strip HOST; korup → tanpa segmen', () => {
+    expect(hostSegments({ ...HR, custom_cfg: 3 }).find(s => s.txt.startsWith('CFG')).txt).toBe('CFG 3')
+    // 2.6 dibulatkan; 0 tetap segmen (paritas NET 0K)
+    expect(hostSegments({ ...HR, custom_cfg: 2.6 }).find(s => s.txt.startsWith('CFG')).txt).toBe('CFG 3')
+    expect(hostSegments({ ...HR, custom_cfg: 0 }).find(s => s.txt.startsWith('CFG')).txt).toBe('CFG 0')
+    // negatif / non-finite / hilang → segmen dilewati (tanpa 'CFG NaN')
+    expect(hostSegments({ ...HR, custom_cfg: -1 }).find(s => s.txt.startsWith('CFG'))).toBeUndefined()
+    expect(hostSegments({ ...HR, custom_cfg: NaN }).find(s => s.txt.startsWith('CFG'))).toBeUndefined()
+    expect(hostSegments({ ...HR }).find(s => s.txt.startsWith('CFG'))).toBeUndefined()
+  })
   it('stripSegments memasukkan segmen host; stripLayout membuang host paling akhir', () => {
     const snap = { saas: { online: true, stats: { tenants: 1, conversations: 1, messages: 1 } }, agents: [{ name: 'be1', status: 'Up' }] }
     const segs = stripSegments(snap, HR)
