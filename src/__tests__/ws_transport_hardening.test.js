@@ -27,10 +27,10 @@ const NIGHT = ALL.filter((f) => /e2e_(sky|wall|ceil|board|title|trim)_night\.py$
 const REST = ALL.filter((f) => !NIGHT.includes(f))
 
 describe('ws_transport_hardening siklus 197 — census', () => {
-  it('census: 58 file non-night + 6 night = 64 file WS', () => {
-    expect(ALL.length).toBe(64)
+  it('census: 59 file non-night + 6 night = 65 file WS (siklus 560: + e2e_scene_probe.py)', () => {
+    expect(ALL.length).toBe(65)
     expect(NIGHT.length).toBe(6)
-    expect(REST.length).toBe(58)
+    expect(REST.length).toBe(59)
   })
 })
 
@@ -88,6 +88,7 @@ describe('ws_transport_hardening siklus 197 — e2a reply-hilang aman (58 non-ni
     const ok = /return None {2}# siklus 197:/.test(src) ||
       src.includes('raise TimeoutError') ||
       /except \(socket\.timeout, TimeoutError\)/.test(src) ||
+      /except \(socket\.timeout, ConnectionError\)/.test(src) ||  // siklus 560: probe scene (deadline + EOF guard)
       /\(\(r or \{\}\)\.get\("result"\)/.test(src) ||
       (src.includes('def pump') && src.includes('msgq') && /except queue\.Empty:[\s\S]{0,200}?return None/.test(src))
     expect(ok).toBe(true)

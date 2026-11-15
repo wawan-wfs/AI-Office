@@ -8363,3 +8363,9 @@
 - Test: screen_sysdash +1 (cpu_pct 37.5→CPU 38% & fallback 99 tak dipakai; 0→CPU 1%; NaN+load 4.0→CPU 40%; korup/hilang/negatif → tanpa 'CPU ' & tanpa NaN). Total 412 file, 4492 passed + 6 skipped, 0 fail (522s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_err.py (/tmp) exit 0 tanpa 'Scene init failed' (agents=26 via __agentData).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+## 16/11/2026 06:00 WIB — Siklus 560: probe E2E scene dipindah ke repo (scripts/e2e_scene_probe.py)
+- Skrip verifikasi scene (headless Chromium + CDP, deteksi 'Scene init failed') sebelumnya hidup di cache scratch /tmp — mudah ter-prune dan sudah dua kali hilang antar-siklus; kini ter-track git di scripts/e2e_scene_probe.py + drift-gate vitest (src/__tests__/e2e_scene_probe_drift.test.js: ada, executable, URL default :9503/?e2e=1, flag swiftshader, pesan gagal standar).
+- Verifikasi: vitest targeted 2/2; build PWA exit 0; dist → ~/wfs-hq; probe dari lokasi repo exit 0 tanpa 'Scene init failed' (pekerjaan probe dijalankan manual pada :9503 live sesuai aturan — tidak memicu task engine).
+- Full-run npm test dijalankan background (log /tmp/test560.log) — hasil dicatat di commit berikut bila sebelum push.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+- Lanjutan 560: full-run pertama menangkap 5 fail (census transport tak update utk file baru); WS probe diganti kelas WS ter-deadline (pola shot.py 197: timeout + EOF guard handshake), urlopen timeout=10; census 64→65 & guard reply-hilang diperluas. Full-run kedua BERSIH: 413 file, 4498 passed + 6 skipped, 0 fail (~510s). Commit penuh.
