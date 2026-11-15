@@ -8224,3 +8224,8 @@
 - Test (+1, 12 test di file): fps 57.4→'FPS 57', uptime 5j2m; fps NaN → fallback deterministik + tanpa NaN; 59m tetap '59m'. Test lama UPTIME 60m → 'UPTIME 1j'.
 - Verifikasi: npm test 412 file, 4475 passed + 6 skipped (+1); build PWA exit 0; dist → ~/wfs-hq (grep __fps bundle OfficeScene ada); e2e_err.py OK (agents=26, init_failed=False, shot 675KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 13:55 WIB — Siklus 539: bugfix FPS sysdash baca sumber salah (H.fps → window.__fps)
+- Bug regresi 538: footer sysdash membaca FPS dari __hostRes.fps (gateway /wfs-api/status TIDAK PERNAH mengirim field fps — dicek live), sehingga baris FPS selalu jatuh ke fallback pola sin dekoratif; data nyata __fps (EMA di animate) tak pernah dikonsumsi.
+- Fix effects.js sysdash: fps kini dari window.__fps (guard non-finite → fallback lama, anti-NaN tetap). Test 538 yang mem-palui __hostRes.fps dikoreksi memakai __fps (3 kasus: live 57.4, NaN→fallback, 45 pas).
+- Verifikasi: vitest file 11 test pass; npm test penuh exit 0 (412 file, Duration 503s); build PWA exit 0; dist → ~/wfs-hq (grep __fps OfficeScene bundle ada); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 686KB >500KB, hygiene 41 refs 0 missing); grep live gateway konfirmasi tanpa field fps.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

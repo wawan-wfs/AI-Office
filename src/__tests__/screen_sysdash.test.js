@@ -106,24 +106,25 @@ describe('SCREEN_RENDERERS.sysdash', () => {
     expect(texts(c).length).toBeGreaterThan(0);
   });
 });
-  // Siklus 538: FPS nyata dari __hostRes.fps + UPTIME format j/m paritas strip 537.
-  it('FPS live dari __hostRes.fps; tanpa fps → fallback; UPTIME format j/m', () => {
-    global.window = { __hostRes: { ok: true, fps: 57.4, uptime_s: 3600 * 5 + 120 } };
+  // Siklus 539 (bugfix 538): FPS live dari window.__fps (bukan __hostRes.fps —
+  // gateway tak kirim fps); tanpa __fps → fallback; UPTIME format j/m.
+  it('FPS live dari window.__fps; tanpa __fps → fallback; UPTIME format j/m', () => {
+    global.window = { __hostRes: { ok: true, uptime_s: 3600 * 5 + 120 }, __fps: 57.4 };
     try {
       const c = mockCtx();
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
       const foot = texts(c).find(o => o.t.startsWith('FPS ')).t;
       expect(foot).toBe('FPS 57 · UPTIME 5j2m');
     } finally { delete global.window; }
-    global.window = { __hostRes: { ok: true, fps: NaN, uptime_s: 7200 } };
+    global.window = { __hostRes: { ok: true, fps: 57.4, uptime_s: 7200 }, __fps: NaN };
     try {
       const c = mockCtx();
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
       const foot = texts(c).find(o => o.t.startsWith('FPS ')).t;
-      expect(foot).toBe('FPS 61 · UPTIME 2j'); // 45+floor(|sin(21 rad)|*20)
+      expect(foot).toBe('FPS 61 · UPTIME 2j'); // fallback 45+floor(|sin(21 rad)|*20)
       expect(foot).not.toContain('NaN');
     } finally { delete global.window; }
-    global.window = { __hostRes: { ok: true, fps: 45, uptime_s: 3540 } };
+    global.window = { __hostRes: { ok: true, uptime_s: 3540 }, __fps: 45 };
     try {
       const c = mockCtx();
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');

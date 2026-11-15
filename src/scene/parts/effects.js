@@ -144,7 +144,11 @@ export const SCREEN_RENDERERS = {
     // Siklus 538: FPS nyata dari window.__fps (diisi animate tiap frame — EMA
     // 1/delta), dulu angka dekoratif 45+|sin|*20; tanpa __fps → fallback pola
     // lama (guard anti-poisoning, tetap tanpa NaN).
-    const fps = H ? num(H.fps, NaN) : NaN;
+    // Siklus 539 (bugfix 538): FPS nyata di window.__fps (hook scene, EMA 1/delta
+    // oleh animate) — bukan H.fps (gateway /wfs-api/status tak pernah mengirim
+    // field fps, jadi footer 538 selalu jatuh ke pola sin dekoratif). Tanpa
+    // __fps → fallback pola lama (guard anti-NaN tetap).
+    const fps = (typeof window !== 'undefined' && Number.isFinite(+window.__fps)) ? +window.__fps : NaN;
     // Siklus 538: UPTIME host ≥60 mnt → 'Nj Nm' / 'Nj' / 'Nm' (paritas strip
     // papan proyek 537); fallback t → menit lama.
     const up = H && Number.isFinite(+H.uptime_s) && +H.uptime_s > 0
