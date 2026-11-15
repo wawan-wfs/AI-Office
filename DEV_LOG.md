@@ -8376,3 +8376,9 @@
 - Test: activity_badge_561 6 test (count min-9, kosong 0, reset saat open, event recompute, seen → 0, render badge/null). Total 414 file, 4504 passed + 6 skipped, 0 fail (~520s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed' (0 EXC/CON).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+## 16/11/2026 07:30 WIB — Siklus 562: badge Log per-ID seen (fix bug 561)
+- Bug: ActivityBadge 561 memakai satu timestamp global 'wfs_activity_seen' — setelah dialog dibuka SEKALI, markSeen() menulis timestamp ≠0 dan kondisi seen===0 tak pernah tercapai lagi → badge mati permanen untuk semua item baru.
+- Fix: seen jadi set ID item ('wfs_activity_seen' array, cap 200 >> ACTIVITY_LOG_MAX 50); unread = id belum di seen; item tanpa id dihitung unread (tidak hilang diam-diam); guard seen/log korup.
+- Test: activity_badge_561 diperluas 6→12 (item baru setelah dibuka tetap badge, storage event, markSeen ids, cap 200, guard korup/no-id). Full-run: 414 file, 4510 passed + 6 skipped, 0 fail (~520s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed'; push OK.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
