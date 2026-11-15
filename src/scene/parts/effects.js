@@ -114,7 +114,11 @@ export const SCREEN_RENDERERS = {
     // pollStatus → dulu fake sin; gateway offline → fallback pola lama).
     const H = (typeof window !== 'undefined' && window.__hostRes) || null;
     const num = (v, fb) => (Number.isFinite(+v) ? +v : fb);
-    const cpu = H ? Math.min(95, Math.max(5, num(H.load != null ? num(H.load, 0) * 10 : NaN, 0))) : null;
+    const cpu = H
+      ? (Number.isFinite(+H.cpu_pct) && +H.cpu_pct >= 0 && +H.cpu_pct <= 100
+          ? Math.min(95, Math.max(5, +H.cpu_pct))                    // siklus 545: utilitas sejati /proc/stat
+          : Math.min(95, Math.max(5, num(H.load != null ? num(H.load, 0) * 10 : NaN, 0)))) // fallback load*10 (pola 532)
+      : null;
     const ramPct = H && H.mem_total_mb ? Math.min(95, Math.max(5, 100 * (num(H.mem_total_mb, 1) - num(H.mem_available_mb, 0)) / num(H.mem_total_mb, 1))) : null;
     // Siklus 533: GPU bar palsu (sin) diganti DISK nyata — gateway kirim
     // disk_used_gb/disk_total_gb; offline → fallback sin lama.

@@ -351,6 +351,58 @@ def _parse_loadavg(text):
 _NET_DEV_STATE = {"rx": 0.0, "tx": 0.0, "t": 0.0}
 
 
+def _parse_cpu_jiffies(text):
+    """Parse baris pertama /proc/stat -> total jiffies semua core (int) / None.
+
+    Siklus 545: CPU% host sejati (persentase utilitas, bukan proxy load*10 —
+    load tinggi di server 2-core berarti >100% persen-per-core). Baris
+    'cpu  user nice system idle iowait irq softirq steal ...' dijumlahkan;
+    idle = idle + iowait (konvensi top/htop). Input kosong/malformed -> None
+    (guard anti-poisoning, pola _parse_loadavg; tidak pernah melempar).
+    """
+    try:
+        cols = text.splitlines()[0].split()
+        if not cols or cols[0] != "cpu":
+            return None
+        vals = [int(x) for x in cols[1:]]  # ValueError utk token non-numerik
+        if len(vals) < 5:
+            return None
+        total = sum(vals)
+        idle = vals[3] + (vals[4] if len(vals) > 4 else 0)
+        return {"total": total, "idle": idle}
+    except (IndexError, ValueError, AttributeError):
+        return None
+
+
+_CPU_STAT_STATE = {"total": 0, "idle": 0, "t": 0.0}
+
+
+def _cpu_pct(text, now):
+    """Delta /proc/stat antar panggilan -> {'cpu_pct': 0..100} atau None.
+
+    Panggilan pertama / delta<=0 / parser None / idle mundur (reboot counter)
+    -> None (frontend memakai fallback; tidak pernah melempar). Nilai di-clamp
+    0..100 — delta negatif (counter reset) tidak boleh jadi persen negatif.
+    """
+    try:
+        cur = _parse_cpu_jiffies(text)
+        if cur is None:
+            return None
+        prev = _CPU_STAT_STATE
+        dt = float(now) - prev["t"]
+        if not (dt > 0) or prev["t"] <= 0:
+            prev["total"], prev["idle"], prev["t"] = cur["total"], cur["idle"], float(now)
+            return None
+        d_total = cur["total"] - prev["total"]
+        d_idle = cur["idle"] - prev["idle"]
+        prev["total"], prev["idle"], prev["t"] = cur["total"], cur["idle"], float(now)
+        if d_total <= 0 or d_idle < 0:
+            return None
+        return {"cpu_pct": max(0.0, min(100.0, 100.0 * (d_total - d_idle) / d_total))}
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+
+
 def _net_rates_mb(text, now):
     """Parse /proc/net/dev -> {'net_rx_mb_s','net_tx_mb_s'} (delta antar panggilan).
 
@@ -476,8 +528,16 @@ def status():
         net = _net_rates_mb(open("/proc/net/dev").read(), time.time())
     except OSError:
         net = {"net_rx_mb_s": 0.0, "net_tx_mb_s": 0.0}
+    # Siklus 545: CPU% utilitas sejati (delta /proc/stat antar poll frontend
+    # 20 dtk) — bukan proxy load*10. Panggilan pertama -> None -> field None
+    # (frontend memakai fallback; tak pernah 'CPU NaN').
+    try:
+        cpu = _cpu_pct(open("/proc/stat").read(), time.time())
+    except OSError:
+        cpu = None
     return {"ok": True,
             "load": load1,
+            "cpu_pct": round(cpu["cpu_pct"], 1) if cpu else None,
             "net_rx_mb_s": round(net["net_rx_mb_s"], 3),
             "net_tx_mb_s": round(net["net_tx_mb_s"], 3),
             "disk_used_gb": round(du.used / 2**30, 1) if du else 0.0,

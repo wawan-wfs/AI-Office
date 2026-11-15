@@ -8258,3 +8258,12 @@
 - Test baru +1 (57 test di projectboard_data.test.js): 1.2M, 31K, clamp negatif 0K, NaN/'banyak' dilewati.
 - Verifikasi: vitest file pass 57/57 (+screen_sysdash 12 → 69/69); npm test penuh exit 0 (412 file, 505s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, init_failed=False, shot 682KB >500KB, hygiene 41 refs 0 missing); curl /api/status live kirim net_rx 0.012/net_tx 0.008 MB/s.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 18:55 WIB — Siklus 545: CPU% utilitas sejati /proc/stat (bukan proxy load×10)
+- Lanjutan 532/536: CPU di sysdash & papan proyek = load×10 — proxy beban, bukan utilitas (load 5.58 di server 2-core = 558%? persen-per-core menyesatkan). Pola sama dgn 543 (NET): angka turunan dikonsumsi seolah metrik nyata.
+- Gateway backend_live/wfs_server.py: parser _parse_cpu_jiffies (baris 'cpu' /proc/stat, idle=idle+iowait konvensi top) + _cpu_pct (delta antar poll frontend 20 dtk → % utilitas 0..100, clamp; panggilan pertama/dt≤0/idle mundur/malformed → None, tidak pernah melempar). /api/status kirim field cpu_pct (null saat belum ada delta).
+- Frontend: effects.js sysdash — bar CPU = cpu_pct valid (0..100) → fallback load×10 (pola 532) → fallback sin lama; projectboard_data.js hostSegments — CPU% dari cpu_pct, fallback load×10, dua-duanya tak valid → segmen dilewati (tanpa 'CPU NaN%'). hostKey papan +cpu_pct (repaint saat utilitas berganti).
+- Deploy via scripts/apply_wfs_server.py --apply (backup → compile-check → restart wfs-office → smoke strict OK). Live: curl /api/status → cpu_pct 99.8→100.0 (mesin sedang sibuk npm test), load 5.58, net rx 0.006/tx 0.028 MB/s.
+- Test: backend superset +1 (test_cpu_pct_delta_proc_stat: delta 50%, baseline None, clamp, malformed ×6) → 28 passed; vitest screen_sysdash +1 (38% dari cpu_pct 37.5, bukan clamp 95; 150→fallback load×10; NaN→sin tanpa NaN) & projectboard_data +1 (58 test file) → total 412 file, 4482 passed + 6 skipped.
+- Verifikasi: build PWA exit 0 (cpu_pct ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err.py OK (agents=26, init_failed=False, shot 702KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

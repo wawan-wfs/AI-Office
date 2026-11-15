@@ -236,9 +236,16 @@ export function hostSegments(hostRes) {
   const col = (pct) => (pct < 75 ? ok : pct < 90 ? warn : err)
   const segs = [{ txt: 'HOST', col: accent }]
   const load = num(hostRes.load)
-  if (load != null) {
-    const pct = clamp(load * 10)
-    segs.push({ txt: 'CPU ' + pct + '%', col: col(pct) })
+  // Siklus 545 — CPU% utilitas sejati (cpu_pct dari delta /proc/stat gateway,
+  // paritas sysdash 545): 0 diizinkan (bukan fallback), di-clamp 1..99 utk teks;
+  // cpu_pct tak valid → fallback load*10 (pola 532), dua-duanya tak valid →
+  // segmen CPU dilewati (tanpa 'CPU NaN%').
+  let pct = null
+  if (num(hostRes.cpu_pct) != null) pct = num(hostRes.cpu_pct)
+  else if (load != null) pct = load * 10
+  if (pct != null) {
+    const p = clamp(pct)
+    segs.push({ txt: 'CPU ' + p + '%', col: col(p) })
   }
   const tot = num(hostRes.mem_total_mb), av = num(hostRes.mem_available_mb)
   if (tot != null && tot > 0 && av != null) {

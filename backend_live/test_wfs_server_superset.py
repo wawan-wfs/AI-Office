@@ -134,6 +134,29 @@ def test_proc_parsers_tolerant():
     assert server._clamp_int("x", 60, 1, 600) == 60
 
 
+def test_cpu_pct_delta_proc_stat(monkeypatch):
+    """Siklus 545: CPU% utilitas sejati dari delta /proc/stat antar panggilan."""
+    # Panggilan pertama (baseline) -> None, state tersimpan
+    server._CPU_STAT_STATE.update({"total": 0, "idle": 0, "t": 0.0})
+    t0 = "cpu  100 0 100 700 0 0 0 0 0 0\n"  # total=900, idle=700
+    assert server._cpu_pct(t0, 100.0) is None
+    # Delta 50% busy (total 900→1100, idle 700→800) -> 50.0%
+    assert server._cpu_pct("cpu  200 0 100 800 0 0 0 0 0 0\n", 110.0)["cpu_pct"] == 50.0
+    # Clamp 0..100: idle mundur (counter reset) -> None
+    assert server._cpu_pct("cpu  100 0 100 100 0 0 0 0 0 0\n", 120.0) is None
+    # dt<=0 -> None
+    assert server._cpu_pct("cpu  200 0 200 900 0 0 0 0 0 0\n", 120.0) is None
+    # Malformed / baris salah -> None, tanpa lempar
+    assert server._parse_cpu_jiffies("junk") is None
+    assert server._parse_cpu_jiffies("") is None
+    assert server._parse_cpu_jiffies("cpu0 1 2 3") is None
+    assert server._parse_cpu_jiffies("cpu  1 x 3 4 5") is None
+    assert server._cpu_pct("junk", 130.0) is None
+    # Parser murni: baris cpu valid -> {total, idle} (idle = idle+iowait)
+    r = server._parse_cpu_jiffies("cpu  10 0 10 60 5 0 0 0 0 0")
+    assert r == {"total": 85, "idle": 65}
+
+
 def test_config_endpoint_never_leaks_full_key():
     cfg = {"be1": {"key": "sk-super-secret-1234567890", "base": "http://x", "model": "m"}}
     class FakeCfg:

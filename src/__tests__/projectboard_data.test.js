@@ -250,6 +250,16 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
     expect(hostSegments({ ...HR, uptime_s: NaN }).find(s => s.txt.startsWith('UP'))).toBeUndefined()
     expect(hostSegments({ uptime_s: -5 })).toEqual([])
   })
+  it('siklus 545: CPU% sejati cpu_pct (bukan load*10), fallback & guard', () => {
+    // cpu_pct valid → dipakai apa adanya (0 sah), BUKAN load*10
+    expect(hostSegments({ ...HR, cpu_pct: 37.5 }).find(s => s.txt.startsWith('CPU')).txt).toBe('CPU 38%')
+    expect(hostSegments({ ...HR, cpu_pct: 0, load: 9.9 }).find(s => s.txt.startsWith('CPU')).txt).toBe('CPU 1%')
+    // cpu_pct tak valid → fallback load*10 (pola 532)
+    expect(hostSegments({ ...HR, cpu_pct: NaN }).find(s => s.txt.startsWith('CPU')).txt).toBe('CPU 12%')
+    expect(hostSegments({ ...HR, cpu_pct: 'banyak' }).find(s => s.txt.startsWith('CPU')).txt).toBe('CPU 12%')
+    // dua-duanya tak valid → segmen CPU dilewati (tanpa 'CPU NaN%')
+    expect(hostSegments({ cpu_pct: NaN, load: NaN }).find(s => s.txt.startsWith('CPU'))).toBeUndefined()
+  })
   it('siklus 544: NET throughput nyata (rx+tx MB/s → M/K, guard)', () => {
     // ≥1 MB/s → 'N.NM' (toFixed 1 desimal)
     expect(hostSegments({ ...HR, net_rx_mb_s: 1.0, net_tx_mb_s: 0.2 }).find(s => s.txt.startsWith('NET')).txt).toBe('NET 1.2M')

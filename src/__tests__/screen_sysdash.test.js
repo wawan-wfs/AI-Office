@@ -128,7 +128,6 @@ describe('SCREEN_RENDERERS.sysdash', () => {
     expect(s.tex.needsUpdate).toBe(true);
     expect(texts(c).length).toBeGreaterThan(0);
   });
-});
   // Siklus 539 (bugfix 538): FPS live dari window.__fps (bukan __hostRes.fps —
   // gateway tak kirim fps); tanpa __fps → fallback; UPTIME format j/m.
   it('FPS live dari window.__fps; tanpa __fps → fallback; UPTIME format j/m', () => {
@@ -154,3 +153,28 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).find(o => o.t.startsWith('FPS ')).t).toBe('FPS 45 · UPTIME 59m');
     } finally { delete global.window; }
   });
+  // Siklus 545: CPU% utilitas sejati (cpu_pct /proc/stat) — bukan proxy load*10;
+  // cpu_pct tak valid → fallback load*10; keduanya korup → fallback sin tanpa NaN.
+  it('CPU live: cpu_pct sejati dipakai, fallback load*10, tanpa NaN', () => {
+    global.window = { __hostRes: { ok: true, cpu_pct: 37.5, load: 9.9 } };
+    try {
+      const c = mockCtx();
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      const pctTexts = texts(c).map(o => o.t).filter(t => t.endsWith('%'));
+      expect(pctTexts).toContain('38%');
+      expect(pctTexts).not.toContain('95%');
+    } finally { delete global.window; }
+    global.window = { __hostRes: { ok: true, cpu_pct: 150, load: 4.0 } };
+    try {
+      const c = mockCtx();
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      expect(texts(c).map(o => o.t)).toContain('40%');
+    } finally { delete global.window; }
+    global.window = { __hostRes: { ok: true, cpu_pct: NaN, load: 'banyak' } };
+    try {
+      const c = mockCtx();
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      texts(c).forEach(o => expect(o.t).not.toContain('NaN'));
+    } finally { delete global.window; }
+  });
+});
