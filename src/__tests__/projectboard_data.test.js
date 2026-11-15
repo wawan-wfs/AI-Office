@@ -250,6 +250,17 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
     expect(hostSegments({ ...HR, uptime_s: NaN }).find(s => s.txt.startsWith('UP'))).toBeUndefined()
     expect(hostSegments({ uptime_s: -5 })).toEqual([])
   })
+  it('siklus 544: NET throughput nyata (rx+tx MB/s → M/K, guard)', () => {
+    // ≥1 MB/s → 'N.NM' (toFixed 1 desimal)
+    expect(hostSegments({ ...HR, net_rx_mb_s: 1.0, net_tx_mb_s: 0.2 }).find(s => s.txt.startsWith('NET')).txt).toBe('NET 1.2M')
+    // <1 MB/s → KB bulat: (0.02+0.01)*1024 ≈ 30.7 → 31K
+    expect(hostSegments({ ...HR, net_rx_mb_s: 0.02, net_tx_mb_s: 0.01 }).find(s => s.txt.startsWith('NET')).txt).toBe('NET 31K')
+    // negatif di-clamp 0; 0 MB/s → 'NET 0K' (tetap segmen, bar trafik nol)
+    expect(hostSegments({ ...HR, net_rx_mb_s: -1, net_tx_mb_s: 0 }).find(s => s.txt.startsWith('NET')).txt).toBe('NET 0K')
+    // rx/tx tak valid → segmen dilewati (tanpa 'NET NaN')
+    expect(hostSegments({ ...HR, net_rx_mb_s: NaN }).find(s => s.txt.startsWith('NET'))).toBeUndefined()
+    expect(hostSegments({ ...HR, net_rx_mb_s: 'banyak', net_tx_mb_s: 0 }).find(s => s.txt.startsWith('NET'))).toBeUndefined()
+  })
   it('stripSegments memasukkan segmen host; stripLayout membuang host paling akhir', () => {
     const snap = { saas: { online: true, stats: { tenants: 1, conversations: 1, messages: 1 } }, agents: [{ name: 'be1', status: 'Up' }] }
     const segs = stripSegments(snap, HR)

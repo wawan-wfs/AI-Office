@@ -260,6 +260,17 @@ export function hostSegments(hostRes) {
       : mins + 'm'
     segs.push({ txt: 'UP ' + txt, col: accent })
   }
+  // Siklus 544 — NET throughput nyata (net_rx_mb_s/net_tx_mb_s, paritas bar
+  // sysdash 543): rx+tx ≥1 MB/s → 'NET 1.2M', <1 → KB bulat 'NET 31K'; rx/tx
+  // negatif di-clamp 0, rx/tx tak valid → segmen dilewati (tanpa 'NET NaN').
+  // Sengaja TIDAK masuk hostKey papan (projectboard.js): throughput berubah
+  // tiap detik — memasukkannya memicu repaint penuh tiap 20 dtk.
+  const rx = num(hostRes.net_rx_mb_s), tx = num(hostRes.net_tx_mb_s)
+  if (rx != null && tx != null) {
+    const mb = Math.max(0, rx) + Math.max(0, tx)
+    const txt = mb >= 1 ? mb.toFixed(1) + 'M' : Math.max(0, Math.round(mb * 1024)) + 'K'
+    segs.push({ txt: 'NET ' + txt, col: accent })
+  }
   return segs.length > 1 ? segs : []
 }
 
