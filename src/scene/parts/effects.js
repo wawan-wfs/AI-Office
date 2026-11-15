@@ -117,11 +117,14 @@ export const SCREEN_RENDERERS = {
     const cpu = H ? Math.min(95, Math.max(5, num(H.load != null ? num(H.load, 0) * 10 : NaN, 0))) : null;
     const ramPct = H && H.mem_total_mb ? Math.min(95, Math.max(5, 100 * (num(H.mem_total_mb, 1) - num(H.mem_available_mb, 0)) / num(H.mem_total_mb, 1))) : null;
     const NETW = H && Number.isFinite(+H.agents) ? Math.min(95, Math.max(5, 8 + (+H.agents) * 3)) : null;
+    // Siklus 533: GPU bar palsu (sin) diganti DISK nyata — gateway kirim
+    // disk_used_gb/disk_total_gb; offline → fallback sin lama.
+    const disk = H && H.disk_total_gb ? Math.min(95, Math.max(5, 100 * num(H.disk_used_gb, 0) / num(H.disk_total_gb, 1))) : null;
     c.font = '6px monospace';
     const rows = [
       ['CPU', cpu != null ? cpu : 22 + Math.sin(tt * 0.7) * 12, col],
       ['MEM', ramPct != null ? ramPct : 48 + Math.sin(tt * 0.4 + 2) * 8, '#4ade80'],
-      ['GPU', 65 + Math.sin(tt * 1.1 + 4) * 15, '#fbbf24'],
+      ['DISK', disk != null ? disk : 65 + Math.sin(tt * 1.1 + 4) * 15, '#fbbf24'],
       ['NET', NETW != null ? NETW : 30 + Math.sin(tt * 2.2) * 25, '#60a5fa'],
     ];
     const val = (v) => Math.round(Math.min(95, Math.max(5, v)));

@@ -8186,3 +8186,9 @@
 - Test baru di screen_sysdash.test.js (+2): host live (CPU 12% load 1.2, MEM 50%, UPTIME 60m) & fallback tanpa __hostRes/nilai korup tanpa NaN. scene_hooks.js: '__hostRes' didaftarkan (test cakupan menangkap hook baru).
 - Verifikasi: vitest 411 file, 4461 passed + 6 skipped (+2); build PWA exit 0; dist → ~/wfs-hq (grep __hostRes bundle ada); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 687KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 09:05 WIB — Siklus 533: bar DISK nyata di monitor sysdash (GPU sin dihapus)
+- Lanjutan 531/532: bar GPU masih pola sin dekoratif, padahal /wfs-api/status kirim disk_used_gb/disk_total_gb yang tak dipakai. Bar ke-3 diganti 'DISK' = 100×used/total (guard clamp 5–95); gateway offline/korup → fallback sin lama tanpa NaN.
+- Test: label CPU/MEM/GPU/NET → CPU/MEM/DISK/NET; +1 test DISK live (25/50 GB → '50%') & 3 kasus korup (NaN/'banyak'/null) tanpa NaN; host-live test diberi disk 10/50 → '20%'.
+- Verifikasi: vitest 411 file, 4462 passed + 6 skipped (+1); build PWA exit 0; dist → ~/wfs-hq (grep DISK OfficeScene bundle ada); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 684KB, hygiene 41 refs 0 missing).
+- Catatan: npm test penuh kini ~8 menit (411 isolate workers) — pertimbangkan isolate:false.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

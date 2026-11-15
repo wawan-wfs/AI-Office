@@ -21,11 +21,11 @@ describe('SCREEN_RENDERERS.sysdash', () => {
   it('terdaftar di tabel renderer', () => {
     expect(typeof SCREEN_RENDERERS.sysdash).toBe('function');
   });
-  it('menggambar 4 label metrik (CPU/MEM/GPU/NET)', () => {
+  it('menggambar 4 label metrik (CPU/MEM/DISK/NET)', () => {
     const c = mockCtx();
     SCREEN_RENDERERS.sysdash(c, 128, 76, 0, '#60A5FA');
-    const labels = texts(c).map(o => o.t).filter(t => ['CPU', 'MEM', 'GPU', 'NET'].includes(t));
-    expect(labels).toEqual(['CPU', 'MEM', 'GPU', 'NET']);
+    const labels = texts(c).map(o => o.t).filter(t => ['CPU', 'MEM', 'DISK', 'NET'].includes(t));
+    expect(labels).toEqual(['CPU', 'MEM', 'DISK', 'NET']);
   });
   it('baris footer berisi FPS & UPTIME (deterministik utk t tetap)', () => {
     const c = mockCtx();
@@ -35,18 +35,35 @@ describe('SCREEN_RENDERERS.sysdash', () => {
   });
   it('host live: bar CPU/MEM/NET + angka % di ujung bar dari window.__hostRes', () => {
     const c = mockCtx();
-    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, agents: 3, uptime_s: 3600 } };
+    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, disk_used_gb: 10, disk_total_gb: 50, agents: 3, uptime_s: 3600 } };
     try {
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
       const pctTexts = texts(c).map(o => o.t).filter(t => t.endsWith('%'));
       expect(pctTexts).toHaveLength(4);
       pctTexts.forEach(t => { const n = parseFloat(t); expect(n).toBeGreaterThanOrEqual(5); expect(n).toBeLessThanOrEqual(95); });
-      // CPU = load*10 = 12%; MEM = 2000/4000 = 50%
+      // CPU = load*10 = 12%; MEM = 2000/4000 = 50%; DISK = 10/50 GB = 20%
       expect(pctTexts).toContain('12%');
       expect(pctTexts).toContain('50%');
+      expect(pctTexts).toContain('20%');
       // UPTIME dari host nyata: 3600/60 = 60m (bukan floor(t/60)=0m)
       expect(texts(c).some(o => o.t.includes('UPTIME 60m'))).toBe(true);
     } finally { delete global.window; }
+  });
+  it('DISK live dari disk_used_gb/disk_total_gb; korup → fallback tanpa NaN', () => {
+    const c = mockCtx();
+    global.window = { __hostRes: { ok: true, disk_used_gb: 25, disk_total_gb: 50 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 4, '#fbbf24');
+      expect(texts(c).some(o => o.t === '50%')).toBe(true); // 25/50 GB
+    } finally { delete global.window; }
+    for (const H of [null, { ok: true, disk_used_gb: NaN }, { ok: true, disk_used_gb: 'banyak' }]) {
+      const c2 = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c2, 128, 76, 2, '#fbbf24');
+        expect(texts(c2).every(o => !String(o.t).includes('NaN'))).toBe(true);
+      } finally { delete global.window; }
+    }
   });
   it('tanpa __hostRes / nilai korup → fallback pola lama, tanpa NaN (anti-poisoning)', () => {
     for (const H of [null, undefined, { ok: true, load: 'x', ram_mb: NaN, agents: 'banyak' }, { ok: true }]) {
