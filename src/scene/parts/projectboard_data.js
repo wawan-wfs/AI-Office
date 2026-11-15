@@ -250,6 +250,16 @@ export function hostSegments(hostRes) {
     const pct = clamp(100 * dUsed / dTot)
     segs.push({ txt: 'DISK ' + pct + '%', col: col(pct) })
   }
+  // Siklus 537 — UPTIME (uptime_s, detik; paritas sysdash 'Nn'):
+  // ≥60 mnt → 'Nj', <60 mnt → 'Nm'; non-finite/≤0 → segmen dilewati.
+  const up = num(hostRes.uptime_s)
+  if (up != null && up > 0) {
+    const mins = Math.floor(up / 60)
+    const txt = mins >= 60
+      ? Math.floor(mins / 60) + 'j'
+      : mins + 'm'
+    segs.push({ txt: 'UP ' + txt, col: accent })
+  }
   return segs.length > 1 ? segs : []
 }
 

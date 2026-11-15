@@ -243,6 +243,13 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
     expect(hostSegments('x')).toEqual([])
     expect(hostSegments({})).toEqual([]) // hanya label tanpa metrik → kosong
   })
+  it('siklus 537: UP uptime — jam/menit, guard non-finite/≤0', () => {
+    expect(hostSegments({ ...HR, uptime_s: 3600 * 5 + 120 }).find(s => s.txt.startsWith('UP')).txt).toBe('UP 5j')
+    expect(hostSegments({ ...HR, uptime_s: 59 * 60 }).find(s => s.txt.startsWith('UP')).txt).toBe('UP 59m')
+    expect(hostSegments({ ...HR, uptime_s: 0 }).find(s => s.txt.startsWith('UP'))).toBeUndefined()
+    expect(hostSegments({ ...HR, uptime_s: NaN }).find(s => s.txt.startsWith('UP'))).toBeUndefined()
+    expect(hostSegments({ uptime_s: -5 })).toEqual([])
+  })
   it('stripSegments memasukkan segmen host; stripLayout membuang host paling akhir', () => {
     const snap = { saas: { online: true, stats: { tenants: 1, conversations: 1, messages: 1 } }, agents: [{ name: 'be1', status: 'Up' }] }
     const segs = stripSegments(snap, HR)

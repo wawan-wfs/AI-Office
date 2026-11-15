@@ -8212,3 +8212,9 @@
 - Bukti live: curl /api/status → {"load":"6.46", disk 41.9/49.1, mem 2670/7623} — CPU = load×10 sudah dikonsumsi hostSegments() (535) & sysdash (532) tanpa perubahan frontend (tambah 1 test regresi load→CPU, guard 'banyak' tanpa NaN).
 - Verifikasi: npm test 412 file, 4472 passed + 6 skipped (drift-gate server hijau kembali); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 683KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 12:30 WIB — Siklus 537: segmen UPTIME host di strip papan proyek
+- Lanjutan 535/536: strip HOST papan proyek hanya CPU/MEM/DISK, padahal __hostRes.uptime_s (gateway /wfs-api/status) tersedia tapi tak dimanfaatkan — umur server tak terlihat di papan.
+- Fix murni di parts/projectboard_data.js hostSegments: segmen 'UP Nj' (≥60 mnt, paritas sysdash 'Nj') / 'UP Nm' (<60 mnt), warna accent; guard non-finite/≤0 → segmen dilewati (tanpa 'UP NaNm').
+- Test baru (+1): 3600s+120 → 'UP 5j', 59 mnt → 'UP 59m', 0/NaN/-5 dilewati; file projectboard_data.test.js = 53 test.
+- Verifikasi: vitest 412 file, 4474 passed + 6 skipped; build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 672KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
