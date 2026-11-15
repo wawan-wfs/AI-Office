@@ -180,7 +180,7 @@ export function createProjectBoard(office, THREE) {
   function hostKey(hr) {
     if (!hr || typeof hr !== 'object') return ''
     const n = (v) => (Number.isFinite(+v) ? +v : '?')
-    return [n(hr.load), n(hr.mem_total_mb), n(hr.mem_available_mb), n(hr.disk_used_gb), n(hr.disk_total_gb)].join(',')
+    return [n(hr.load), n(hr.mem_total_mb), n(hr.mem_available_mb), n(hr.disk_used_gb), n(hr.disk_total_gb), n(hr.uptime_s)].join(',')
   }
   function drawIfHostChanged() {
     const k = hostKey(typeof window !== 'undefined' ? window.__hostRes : null)

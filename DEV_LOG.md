@@ -8236,6 +8236,10 @@
 - Test baru +3 (file projectboard_data.test.js = 56 test): teks/warna 3 tingkat, non-finite → null, clamp negatif.
 - Verifikasi: vitest file pass 56/56; npm test penuh exit 0 (412 file, Duration 505.7s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 696KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 15:45 WIB — Siklus 542: mikro-fix hostKey + uptime_s (repaint tepat setelah restart host)
+- Tutup catatan audit 541: hostKey projectboard.js kini menyertakan `uptime_s` — repaint strip HOST tak lagi tertahan hingga 20 dtk setelah restart/serah terima host (uptime berubah = host berubah).
+- Verifikasi: vitest projectboard_data 56/56 pass; npm test penuh exit 0 (412 file, 500s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 684KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
 ## 15/11/2026 15:01 WIB — Siklus 541: audit lanjutan 540 — tidak ada gap, baseline stabil
 - Audit pasca-540 (nitpick round): (a) hostKey projectboard.js masih tanpa uptime_s — bisa menahan repaint hingga 20 dtk setelah restart host; (b) fpsSegment ≥30/≥15 sudah sejalan sysdash. Keduanya dinilai: (a) dijadwalkan perbaikan mikro berikutnya (bukan bug tampilan, hanya latensi), (b) OK.
 - Verifikasi tanpa perubahan kode: vitest projectboard_data 56/56 pass; build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 681KB >500KB, hygiene 41 refs 0 missing).
