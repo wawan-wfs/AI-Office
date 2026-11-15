@@ -8192,3 +8192,8 @@
 - Verifikasi: vitest 411 file, 4462 passed + 6 skipped (+1); build PWA exit 0; dist → ~/wfs-hq (grep DISK OfficeScene bundle ada); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 684KB, hygiene 41 refs 0 missing).
 - Catatan: npm test penuh kini ~8 menit (411 isolate workers) — pertimbangkan isolate:false.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 09:45 WIB — Siklus 534: eksperimen isolate:false gagal, kembali isolate penuh
+- Eksperimen dari catatan 533: vite.config.js test.isolate:false → suite full 3m18s (dari ~8m20s), TAPI 58 file failed / 61 test failed — state bocor antar-file (suite full tak bisa dipercaya). KONFIG DIKEMBALIKAN (blok test dihapus).
+- Baseline dikonfirmasi: vitest run penuh 4462 passed + 6 skipped (503.6s, exit 0, 411 workers). Vitest sendiri menyatakan potensi ~304s hemat dengan isolate:false — cadangan masa depan bila 58 file itu dibereskan (per-file state leak audit).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 683KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
