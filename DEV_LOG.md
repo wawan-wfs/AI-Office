@@ -8318,3 +8318,10 @@
 - Test: projectboard_data +1 (CFG 3, 2.6→3, 0, guard korup); screen_sysdash assert CFG 3 host-live (fixture + custom_cfg: 3). Total 412 file, 4488 passed + 6 skipped.
 - Verifikasi: vitest 2 file 77/77 pass; npm test penuh exit 0 (533s); build PWA exit 0 (CFG ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 703KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 01:50 WIB — Siklus 553: hostKey papan memasukkan agents & custom_cfg (repaint strip HOST saat jumlah agen berubah)
+- Bug: segmen AGEN/CFG strip HOST papan proyek (550/552) digambar dari window.__hostRes, tapi hostKey (kunci repaint drawIfHostChanged) tidak memasukkan kedua field — perubahan jumlah agen tak memicu repaint; papan bisa stuck 'AGEN 14' padahal gateway kirim 'AGEN 15' sampai field lain (load/disk/uptime) berubah.
+- projectboard.js: hostKey + agents & custom_cfg (paritas segmen yang digambar).
+- Test: projectboard_runtime +1 (window.__hostRes agents 14→15 → 'AGEN 15' tampil; custom_cfg 0→3 → 'CFG 3' tampil). Total 412 file, 4489 passed + 6 skipped.
+- Verifikasi: vitest targeted 3 file 100/100; npm test penuh exit 0 (412 file, ~524s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 702KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

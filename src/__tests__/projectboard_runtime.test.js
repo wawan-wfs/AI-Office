@@ -341,4 +341,21 @@ describe('createProjectBoard — anti-poisoning stempel waktu & paritas d.at (si
     expect(src).toMatch(/import\s*\{[^}]*parseTimestampMs[^}]*\}\s*from\s*['"][^'"]*kanban_date\.js['"]/)
     expect(src).not.toMatch(/new\s+Date\(\s*lastOk\s*\)\.toLocaleTimeString/)
   })
+
+  // Siklus 553 — hostKey memasukkan agents & custom_cfg: segmen AGEN/CFG strip
+  // HOST digambar dari field ini; dulu tak ada di kunci → perubahan jumlah agen
+  // tidak memicu repaint strip (papan stuck 'AGEN 14' saat gateway 'AGEN 15').
+  it('hostKey memasukkan agents & custom_cfg — perubahan jumlah agen memicu repaint strip HOST', async () => {
+    window.__hostRes = { ok: true, load: 1.2, cpu_pct: 20, mem_total_mb: 4000, mem_available_mb: 2000, disk_used_gb: 10, disk_total_gb: 50, uptime_s: 3600, agents: 14, custom_cfg: 0 }
+    await mount()
+    texts.length = 0
+    window.__hostRes = { ...window.__hostRes, agents: 15 }
+    await vi.advanceTimersByTimeAsync(20_000) // hostIv drawIfHostChanged
+    expect(texts.some(t => t === 'AGEN 15')).toBe(true)
+    texts.length = 0
+    window.__hostRes = { ...window.__hostRes, custom_cfg: 3 }
+    await vi.advanceTimersByTimeAsync(20_000)
+    expect(texts.some(t => t === 'CFG 3')).toBe(true)
+    delete window.__hostRes
+  })
 })

@@ -180,7 +180,10 @@ export function createProjectBoard(office, THREE) {
   function hostKey(hr) {
     if (!hr || typeof hr !== 'object') return ''
     const n = (v) => (Number.isFinite(+v) ? +v : '?')
-    return [n(hr.load), n(hr.cpu_pct), n(hr.mem_total_mb), n(hr.mem_available_mb), n(hr.disk_used_gb), n(hr.disk_total_gb), n(hr.uptime_s)].join(',')
+    // Siklus 553 — agents & custom_cfg ikut kunci: segmen AGEN/CFG (550/552)
+    // digambar dari field ini, tapi dulu tidak ada di hostKey → perubahan
+    // jumlah agen tidak memicu repaint strip HOST sampai field lain berubah.
+    return [n(hr.load), n(hr.cpu_pct), n(hr.mem_total_mb), n(hr.mem_available_mb), n(hr.disk_used_gb), n(hr.disk_total_gb), n(hr.uptime_s), n(hr.agents), n(hr.custom_cfg)].join(',')
   }
   function drawIfHostChanged() {
     const k = hostKey(typeof window !== 'undefined' ? window.__hostRes : null)
