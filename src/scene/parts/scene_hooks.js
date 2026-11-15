@@ -62,7 +62,7 @@ export const SCENE_HOOKS = [
   // pedestal dasar kampus (parts/pedestal.js — siklus 239, hook A/B visual)
   '__pedestal',
   // TV lounge & whiteboard (parts/lounge.js, parts/room.js)
-  '__tvCanvas', '__tvData', '__lastTvDrawAt', '__tvPullErr', '__lastWbDrawAt',
+  '__tvCanvas', '__tvData', '__lastTvDrawAt', '__tvPullErr', '__lastWbDrawAt', '__hostRes',
   // controls scene utuh (jembatan destroy/probe E2E — memegang seluruh closure)
   '__wfsSceneControls',
   // hitungan dispose graph scene terakhir (siklus 124 — dibaca probe remount

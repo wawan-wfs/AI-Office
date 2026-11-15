@@ -110,13 +110,21 @@ export const SCREEN_RENDERERS = {
   // dgn bar mini + FPS hidup. t = detik nyata (kontrak drawScreenFrame 264).
   sysdash(c, w, h, t, col) {
     const tt = Number.isFinite(t) ? t : 0; // guard anti-poisoning (paritas 264)
+    // Siklus 532: angka CPU/NET dari gateway NYATA (window.__hostRes, diisi
+    // pollStatus → dulu fake sin; gateway offline → fallback pola lama).
+    const H = (typeof window !== 'undefined' && window.__hostRes) || null;
+    const num = (v, fb) => (Number.isFinite(+v) ? +v : fb);
+    const cpu = H ? Math.min(95, Math.max(5, num(H.load != null ? num(H.load, 0) * 10 : NaN, 0))) : null;
+    const ramPct = H && H.mem_total_mb ? Math.min(95, Math.max(5, 100 * (num(H.mem_total_mb, 1) - num(H.mem_available_mb, 0)) / num(H.mem_total_mb, 1))) : null;
+    const NETW = H && Number.isFinite(+H.agents) ? Math.min(95, Math.max(5, 8 + (+H.agents) * 3)) : null;
     c.font = '6px monospace';
     const rows = [
-      ['CPU', 22 + Math.sin(tt * 0.7) * 12, col],
-      ['MEM', 48 + Math.sin(tt * 0.4 + 2) * 8, '#4ade80'],
+      ['CPU', cpu != null ? cpu : 22 + Math.sin(tt * 0.7) * 12, col],
+      ['MEM', ramPct != null ? ramPct : 48 + Math.sin(tt * 0.4 + 2) * 8, '#4ade80'],
       ['GPU', 65 + Math.sin(tt * 1.1 + 4) * 15, '#fbbf24'],
-      ['NET', 30 + Math.sin(tt * 2.2) * 25, '#60a5fa'],
+      ['NET', NETW != null ? NETW : 30 + Math.sin(tt * 2.2) * 25, '#60a5fa'],
     ];
+    const val = (v) => Math.round(Math.min(95, Math.max(5, v)));
     rows.forEach(([label, pct, cl], i) => {
       const v = Math.min(95, Math.max(5, pct)); // guard rentang bar
       const y = 10 + i * 17;
@@ -125,9 +133,13 @@ export const SCREEN_RENDERERS = {
       c.globalAlpha = 0.25; c.fillStyle = cl;
       c.fillRect(28, y, w - 40, 6);
       c.globalAlpha = 0.85; c.fillRect(28, y, (w - 40) * v / 100, 6);
+      // angka persen di ujung bar (bar live = nilai terlihat, bukan dekor)
+      c.globalAlpha = 0.9; c.fillStyle = cl;
+      c.fillText(val(pct) + '%', w - 10, y + 6);
     });
     c.globalAlpha = 0.85; c.fillStyle = col;
-    c.fillText('FPS ' + (45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + Math.floor(tt / 60) + 'm', 8, h - 5);
+    const up = H && Number.isFinite(+H.uptime_s) ? Math.floor(+H.uptime_s / 60) + 'm' : Math.floor(tt / 60) + 'm';
+    c.fillText('FPS ' + (45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes

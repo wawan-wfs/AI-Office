@@ -33,6 +33,32 @@ describe('SCREEN_RENDERERS.sysdash', () => {
     const foot = texts(c).find(o => o.t.startsWith('FPS '));
     expect(foot.t).toBe('FPS 64 · UPTIME 2m'); // 45+floor(|sin(360 rad)|*20)
   });
+  it('host live: bar CPU/MEM/NET + angka % di ujung bar dari window.__hostRes', () => {
+    const c = mockCtx();
+    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, agents: 3, uptime_s: 3600 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      const pctTexts = texts(c).map(o => o.t).filter(t => t.endsWith('%'));
+      expect(pctTexts).toHaveLength(4);
+      pctTexts.forEach(t => { const n = parseFloat(t); expect(n).toBeGreaterThanOrEqual(5); expect(n).toBeLessThanOrEqual(95); });
+      // CPU = load*10 = 12%; MEM = 2000/4000 = 50%
+      expect(pctTexts).toContain('12%');
+      expect(pctTexts).toContain('50%');
+      // UPTIME dari host nyata: 3600/60 = 60m (bukan floor(t/60)=0m)
+      expect(texts(c).some(o => o.t.includes('UPTIME 60m'))).toBe(true);
+    } finally { delete global.window; }
+  });
+  it('tanpa __hostRes / nilai korup → fallback pola lama, tanpa NaN (anti-poisoning)', () => {
+    for (const H of [null, undefined, { ok: true, load: 'x', ram_mb: NaN, agents: 'banyak' }, { ok: true }]) {
+      const c = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c, 128, 76, 2, '#60A5FA');
+        expect(texts(c).every(o => !String(o.t).includes('NaN'))).toBe(true);
+        expect(texts(c).filter(t => String(t.t).endsWith('%')).length).toBe(4);
+      } finally { delete global.window; }
+    }
+  });
   it('teks TIDAK pernah mengandung NaN (guard anti-poisoning)', () => {
     for (const t of [0, 1.5, 37, 999.9, NaN, Infinity]) {
       const c = mockCtx();

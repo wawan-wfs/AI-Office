@@ -1343,6 +1343,15 @@ window.__spawnBubble=(x,y,z,text,color,anchor)=>createBubble(x,y,z,text,color,an
             if(pollStopped)return; // guard kedua: fetch tasks juga bisa kejar scene mati
             window.__wfsRunningTasks={byAgent:buildRunningByAgent(agents,tasks)};
           }catch{ /* respons non-JSON */ }
+          // Siklus 532: metrik host NYATA utk monitor sysdash (window.__hostRes).
+          // Fetch ketiga dalam poll gabungan (satu siklus 20 dtk, bukan interval
+          // baru); gateway offline → __hostRes null → sysdash fallback pola lama.
+          try{
+            const r3=await fetchWithTimeout('/wfs-api/status');
+            if(pollStopped)return;
+            const s3=await r3.json();
+            window.__hostRes=s3&&s3.ok?s3:null;
+          }catch{ if(!pollStopped)window.__hostRes=null; }
       if(pollStopped)return; // guard ketiga: aksi badge/bubble tidak boleh menyentuh graph mati
       // SATU fetch utk badge + bangun + alert + task running (dulu 2 interval fetch terpisah)
       statusPollActions(agentData,agents,im,prevFailed,findByGid).forEach(act=>{
