@@ -52,6 +52,8 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).some(o => o.t.includes('UPTIME 1j'))).toBe(true);
       // siklus 546: LOAD avg 1-mnt nyata di footer (deterministik, load=1.2)
       expect(texts(c).some(o => o.t.includes('LOAD 1.20'))).toBe(true);
+      // siklus 547: jumlah agen nyata di footer (deterministik, agents=3)
+      expect(texts(c).some(o => o.t.includes('AGEN 3'))).toBe(true);
     } finally { delete global.window; }
   });
   it('siklus 546: LOAD footer hanya saat H.load valid; korup → tanpa LOAD', () => {

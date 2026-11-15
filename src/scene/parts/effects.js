@@ -166,9 +166,13 @@ export const SCREEN_RENDERERS = {
       : Math.floor(tt / 60) + 'm';
     // Siklus 546: LOAD avg 1-mnt nyata (H.load, gateway /proc/loadavg) — dulu
     // hanya dipakai fallback CPU, tak pernah tampil. Tanpa data → tanpa segmen.
+    // Siklus 547: jumlah agen nyata (H.agents dari /api/status) di footer —
+    // dulu hanya dipakai proxy bar NET sintetis. Tanpa data → tanpa segmen.
+    const agenTxt = H && Number.isFinite(+H.agents) && +H.agents >= 0
+      ? ' · AGEN ' + Math.round(+H.agents) : '';
     const loadTxt = H && Number.isFinite(+H.load)
       ? ' · LOAD ' + (+H.load).toFixed(2) : '';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + loadTxt, 8, h - 5);
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + loadTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes

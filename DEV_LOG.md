@@ -8275,3 +8275,10 @@
 - Test: projectboard_data +1 (teks/warna 3 tingkat, guard korup) → 59 test file; screen_sysdash +1 + assert LOAD 1.20 pada host live → 70 test file. Total 412 file, 4484 passed + 6 skipped.
 - Verifikasi: npm run build exit 0; dist → ~/wfs-hq; npm test penuh exit 0 (Duration 511s); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 699KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 20:50 WIB — Siklus 547: jumlah agen nyata di footer sysdash
+- Lanjutan 543–546: field `agents` di /api/status (len AGENTS_META) dulu hanya dipakai proxy bar NET sintetis 8+agents*3; kini tampil nyata di footer monitor lead: `AGEN N` antara UPTIME dan LOAD (footer kini `FPS N · UPTIME .. · AGEN N · LOAD X.XX`).
+- effects.js sysdash: agenTxt dari H.agents, guard non-finite/negatif → tanpa segmen (tanpa 'AGEN NaN').
+- Test: screen_sysdash +1 assert `AGEN 3` pada host live (agents=3) → 14 test file; total 412 file, 4484 passed + 6 skipped.
+- Verifikasi: npm run build exit 0 (AGEN ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err_probe OK (agents=26, zone=5, init_failed=False, shot 703028B >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
