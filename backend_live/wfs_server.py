@@ -433,7 +433,12 @@ def status():
         uptime_s = _parse_uptime_s(open("/proc/uptime").read())
     except OSError:
         uptime_s = 0
+    try:
+        load1 = _parse_loadavg(open("/proc/loadavg").read())
+    except OSError:
+        load1 = "0.00"
     return {"ok": True,
+            "load": load1,
             "disk_used_gb": round(du.used / 2**30, 1) if du else 0.0,
             "disk_total_gb": round(du.total / 2**30, 1) if du else 0.0,
             "mem_available_mb": mem["MemAvailable"], "mem_total_mb": mem["MemTotal"],
