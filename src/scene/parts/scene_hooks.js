@@ -22,7 +22,7 @@ export const SCENE_HOOKS = [
   // graph & runtime scene
   '__scene', '__agentData', '__screens', '__bubbles', '__bubbleCount',
   '__lastBubble', '__lastBubbleAt', '__meetFigs', '__collabCount', '__collabLast',
-  '__animFrames', '__perf', '__labelFrac',
+  '__animFrames', '__perf', '__labelFrac', '__fps',
   // kamera & renderer
   '__cam', '__camCam', '__renderer', '__spawnBubble', '__resizeScene',
   // orbit keyboard (siklus 177 — probe murni utk e2e, tanpa mutasi scene)

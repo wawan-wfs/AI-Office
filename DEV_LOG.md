@@ -8218,3 +8218,9 @@
 - Test baru (+1): 3600s+120 → 'UP 5j', 59 mnt → 'UP 59m', 0/NaN/-5 dilewati; file projectboard_data.test.js = 53 test.
 - Verifikasi: vitest 412 file, 4474 passed + 6 skipped; build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 672KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 13:20 WIB — Siklus 538: FPS nyata di monitor sysdash + UPTIME format jam
+- Lanjutan 531–537: footer sysdash masih menampilkan FPS palsu `45+|sin(t)|*20` (angka dekoratif, bukan pengukuran) dan UPTIME host >60 mnt tampil 'Nmm' (mis. server 57 j tampil '3453m').
+- Fix: (1) animate() OfficeScene mengukur FPS nyata via EMA α≈0.1 pada 1/delta → window.__fps (hook baru, terdaftar di scene_hooks SCENE_HOOKS — purge destroy tetap lengkap, higiene 41 refs 0 missing). (2) sysdash: footer FPS = Math.round(__fps) saat tersedia, fallback pola lama bila hook kosong/non-finite (anti-NaN). (3) UPTIME host ≥60 mnt → 'Nj'/'Nj Nm' (<60 → 'Nm'), paritas strip papan 537; fallback t→menit lama.
+- Test (+1, 12 test di file): fps 57.4→'FPS 57', uptime 5j2m; fps NaN → fallback deterministik + tanpa NaN; 59m tetap '59m'. Test lama UPTIME 60m → 'UPTIME 1j'.
+- Verifikasi: npm test 412 file, 4475 passed + 6 skipped (+1); build PWA exit 0; dist → ~/wfs-hq (grep __fps bundle OfficeScene ada); e2e_err.py OK (agents=26, init_failed=False, shot 675KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

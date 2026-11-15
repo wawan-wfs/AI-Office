@@ -141,8 +141,17 @@ export const SCREEN_RENDERERS = {
       c.fillText(val(pct) + '%', w - 10, y + 6);
     });
     c.globalAlpha = 0.85; c.fillStyle = col;
-    const up = H && Number.isFinite(+H.uptime_s) ? Math.floor(+H.uptime_s / 60) + 'm' : Math.floor(tt / 60) + 'm';
-    c.fillText('FPS ' + (45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up, 8, h - 5);
+    // Siklus 538: FPS nyata dari window.__fps (diisi animate tiap frame — EMA
+    // 1/delta), dulu angka dekoratif 45+|sin|*20; tanpa __fps → fallback pola
+    // lama (guard anti-poisoning, tetap tanpa NaN).
+    const fps = H ? num(H.fps, NaN) : NaN;
+    // Siklus 538: UPTIME host ≥60 mnt → 'Nj Nm' / 'Nj' / 'Nm' (paritas strip
+    // papan proyek 537); fallback t → menit lama.
+    const up = H && Number.isFinite(+H.uptime_s) && +H.uptime_s > 0
+      ? (() => { const m = Math.floor(+H.uptime_s / 60), j = Math.floor(m / 60);
+          return j > 0 ? (m % 60 ? j + 'j' + (m % 60) + 'm' : j + 'j') : m + 'm'; })()
+      : Math.floor(tt / 60) + 'm';
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes

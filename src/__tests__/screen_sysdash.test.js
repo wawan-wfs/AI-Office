@@ -45,8 +45,8 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(pctTexts).toContain('12%');
       expect(pctTexts).toContain('50%');
       expect(pctTexts).toContain('20%');
-      // UPTIME dari host nyata: 3600/60 = 60m (bukan floor(t/60)=0m)
-      expect(texts(c).some(o => o.t.includes('UPTIME 60m'))).toBe(true);
+      // UPTIME dari host nyata: 3600s = 1j (format j/m siklus 538)
+      expect(texts(c).some(o => o.t.includes('UPTIME 1j'))).toBe(true);
     } finally { delete global.window; }
   });
   it('DISK live dari disk_used_gb/disk_total_gb; korup → fallback tanpa NaN', () => {
@@ -106,3 +106,27 @@ describe('SCREEN_RENDERERS.sysdash', () => {
     expect(texts(c).length).toBeGreaterThan(0);
   });
 });
+  // Siklus 538: FPS nyata dari __hostRes.fps + UPTIME format j/m paritas strip 537.
+  it('FPS live dari __hostRes.fps; tanpa fps → fallback; UPTIME format j/m', () => {
+    global.window = { __hostRes: { ok: true, fps: 57.4, uptime_s: 3600 * 5 + 120 } };
+    try {
+      const c = mockCtx();
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      const foot = texts(c).find(o => o.t.startsWith('FPS ')).t;
+      expect(foot).toBe('FPS 57 · UPTIME 5j2m');
+    } finally { delete global.window; }
+    global.window = { __hostRes: { ok: true, fps: NaN, uptime_s: 7200 } };
+    try {
+      const c = mockCtx();
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      const foot = texts(c).find(o => o.t.startsWith('FPS ')).t;
+      expect(foot).toBe('FPS 61 · UPTIME 2j'); // 45+floor(|sin(21 rad)|*20)
+      expect(foot).not.toContain('NaN');
+    } finally { delete global.window; }
+    global.window = { __hostRes: { ok: true, fps: 45, uptime_s: 3540 } };
+    try {
+      const c = mockCtx();
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
+      expect(texts(c).find(o => o.t.startsWith('FPS ')).t).toBe('FPS 45 · UPTIME 59m');
+    } finally { delete global.window; }
+  });

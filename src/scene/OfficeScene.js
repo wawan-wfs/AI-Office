@@ -1567,6 +1567,8 @@ let frame=0;
 // 0.4 FPS animasi layar ~150× lebih lambat, monitor praktis beku di kiosk).
 // __screenT di-update di animate() SEBELUM forEach (urutan aman: frame 0 → 0).
 let __screenT=0;
+// Siklus 538: EMA FPS (window.__fps) — milik scene, dibersihkan purgeSceneHooks.
+let __fpsEma=60;
 // Siklus 481: gate refresh per-layar kini WAKTU-NYATA (screenTickGate, state
 // __screenGate per layar) — dulu frame-count (shouldRedrawScreenAt) membuat
 // refresh layar 4–20 DETIK sekali di GPU lambat (frame 6 @0.4 FPS) meski waktu
@@ -1884,6 +1886,10 @@ function animate(){
   // → ribuan sub-step dalam satu frame saat resume).
   const rawDelta=timer.getDelta();
   const delta=Math.min(Number.isFinite(rawDelta)?rawDelta:.05,4);
+  // Siklus 538: FPS nyata (EMA α≈0.1 pada 1/delta) → window.__fps — monitor
+  // sysdash menampilkan FPS sungguhan, bukan angka dekoratif.
+  __fpsEma = __fpsEma * 0.9 + (1 / Math.max(delta, 1e-4)) * 0.1;
+  window.__fps = Math.round(__fpsEma);
   deltaFrame=delta;
   relayoutDelta += delta;
   __dustAcc += delta; // siklus 264: akumulasi waktu nyata antar tick dust (pola relayoutDelta 251/263)
