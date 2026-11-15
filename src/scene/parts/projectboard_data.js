@@ -263,6 +263,18 @@ export function hostSegments(hostRes) {
   return segs.length > 1 ? segs : []
 }
 
+// Segmen FPS papan proyek (siklus 540) — sumber window.__fps (EMA animate,
+// paritas sysdash 539). Fungsi terpisah agar hostSegments tetap murni-data:
+// hostRes = data gateway, fps = pengukuran renderer. Non-finite → null
+// (papan melukis tanpa segmen FPS; tanpa 'FPS NaN').
+export function fpsSegment(fps) {
+  const f = Number.isFinite(+fps) ? +fps : null
+  if (f == null) return null
+  const r = Math.max(0, Math.round(f))
+  const col = r >= 30 ? TASK_STATUS_COLORS.done : r >= 15 ? TASK_STATUS_COLORS.running : TASK_STATUS_COLORS.failed
+  return { txt: 'FPS ' + r, col }
+}
+
 // Nama tenant di strip dipangkas di batas kata (pola clip) — nama panjang
 // tidak boleh memakan seluruh lebar strip dan mendorong segmen agen keluar.
 export function clampStripTenant(name, max = 24) {

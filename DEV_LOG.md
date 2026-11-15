@@ -8229,3 +8229,10 @@
 - Fix effects.js sysdash: fps kini dari window.__fps (guard non-finite → fallback lama, anti-NaN tetap). Test 538 yang mem-palui __hostRes.fps dikoreksi memakai __fps (3 kasus: live 57.4, NaN→fallback, 45 pas).
 - Verifikasi: vitest file 11 test pass; npm test penuh exit 0 (412 file, Duration 503s); build PWA exit 0; dist → ~/wfs-hq (grep __fps OfficeScene bundle ada); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 686KB >500KB, hygiene 41 refs 0 missing); grep live gateway konfirmasi tanpa field fps.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 14:37 WIB — Siklus 540: segmen FPS nyata di strip papan proyek
+- Lanjutan 538/539: window.__fps (EMA animate) hanya dikonsumsi sysdash; papan proyek belum menampilkan FPS renderer.
+- projectboard_data.js: fungsi baru fpsSegment(fps) — 'FPS N' dibulatkan, warna ≥30 ok / ≥15 running / <15 failed; non-finite → null (tanpa 'FPS NaN'), negatif di-clamp 0.
+- projectboard.js: strip bawah menggambar segmen FPS dari window.__fps setelah badge koneksi, prioritas tertinggi (tak ikut dibuang stripLayout).
+- Test baru +3 (file projectboard_data.test.js = 56 test): teks/warna 3 tingkat, non-finite → null, clamp negatif.
+- Verifikasi: vitest file pass 56/56; npm test penuh exit 0 (412 file, Duration 505.7s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 696KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

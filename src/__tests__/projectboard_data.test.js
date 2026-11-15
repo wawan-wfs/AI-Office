@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   computePct, clip, cardY, CARD_H, COLUMN_BOTTOM, subtitle, bannerParts, bannerNames, bannerLayout,
   columnItems, stripSegments, clampStripTenant, stripLayout, BASE_DROP_ORDER, OMNI_DROP_ORDER, STRIP_GAP,
-  hostSegments,
+  hostSegments, fpsSegment,
   normalizeTaskStatus, formatTaskId, formatCardStatus, formatCardTitle, cardMeta,
 } from '../scene/parts/projectboard_data.js'
 
@@ -257,6 +257,26 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
     const { kept, dropped } = stripLayout(snap, { budget: 700, gap: 26, text: t => t.length * 10 }, HR)
     expect(dropped).toContain('host')
     expect(kept.some(s => s.txt === 'be1 ●')).toBe(true)
+  })
+})
+
+describe('fpsSegment — FPS nyata papan proyek (siklus 540)', () => {
+  it('57.4 → FPS 57 (ok), 20 → warn, 10 → err', () => {
+    expect(fpsSegment(57.4)).toEqual({ txt: 'FPS 57', col: expect.any(String) })
+    expect(fpsSegment(20)).toEqual({ txt: 'FPS 20', col: expect.any(String) })
+    const ok = fpsSegment(60).col, warn = fpsSegment(20).col, err = fpsSegment(10).col
+    expect(warn).not.toBe(ok)
+    expect(err).not.toBe(ok)
+    expect(err).not.toBe(warn)
+  })
+  it('non-finite → null (tanpa FPS NaN)', () => {
+    expect(fpsSegment(NaN)).toBeNull()
+    expect(fpsSegment(undefined)).toBeNull()
+    expect(fpsSegment('x')).toBeNull()
+    expect(fpsSegment(-Infinity)).toBeNull()
+  })
+  it('nilai negatif di-clamp 0 (tanpa FPS negatif)', () => {
+    expect(fpsSegment(-5).txt).toBe('FPS 0')
   })
 })
 

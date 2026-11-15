@@ -3,7 +3,7 @@
 // diperbarui otomatis setiap 60 detik. Jika fetch gagal → fallback ke data terakhir.
 // Modul murni-canvas; dipasang di OfficeScene dengan satu pemanggilan.
 
-import { computePct, clip, cardY, CARD_H, subtitle as subLine, bannerParts, bannerLayout, columnItems, cardMeta, stripLayout, STRIP_GAP, STRIP_LEFT, STRIP_RIGHT } from './projectboard_data.js'
+import { computePct, clip, cardY, CARD_H, subtitle as subLine, bannerParts, bannerLayout, columnItems, cardMeta, stripLayout, fpsSegment, STRIP_GAP, STRIP_LEFT, STRIP_RIGHT } from './projectboard_data.js'
 import { applyPollResult, connectionBadge, nextPollDelay, POLL_SCENE_HEALTHY_MS, CONN_TICK_MS } from '../../lib/connection_spec.js'
 import { fetchWithTimeout } from '../../lib/fetch_timeout.js'
 import { parseTimestampMs } from '../../lib/kanban_date.js'
@@ -151,6 +151,14 @@ export function createProjectBoard(office, THREE) {
     }, (typeof window !== 'undefined' && window.__hostRes) || null)
     g.font = '22px sans-serif'; g.textAlign = 'left'
     let sx = STRIP_LEFT
+    // Siklus 540 — segmen FPS nyata (window.__fps, paritas sysdash 539):
+    // digambar pertama setelah badge, tak pernah ikut dibuang stripLayout.
+    const fpsSeg = fpsSegment(typeof window !== 'undefined' ? window.__fps : null)
+    if (fpsSeg) {
+      g.fillStyle = fpsSeg.col
+      g.fillText(fpsSeg.txt, sx, 817)
+      sx += g.measureText(fpsSeg.txt).width + STRIP_GAP
+    }
     // Badge koneksi gateway (paritas chip HUD .conn-chip): titik berwarna + label
     // di awal strip, prioritas tertinggi (tak pernah ikut dibuang stripLayout).
     const cb = connectionBadge(conn)
