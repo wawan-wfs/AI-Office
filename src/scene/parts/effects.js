@@ -176,6 +176,9 @@ export const SCREEN_RENDERERS = {
     // Siklus 548: MEM bebas nyata di footer (gateway /proc/meminfo) —
     // mem_available_mb sudah ada sejak lama tapi hanya dipakai bar MEM;
     // format MB/GB sama dgn strip HOST papan proyek. Tak valid → tanpa segmen.
+    // Siklus 556: urutan segmen footer diselaraskan dgn strip HOST papan
+    // (LOAD · AGEN · CFG · MEM · DISK · NET) — dulu acak (AGEN · MEM · DISK ·
+    // LOAD · CFG · NET), dua permukaan kini konsisten utk dibaca berdampingan.
     const memTxt = H && Number.isFinite(+H.mem_available_mb) && +H.mem_available_mb >= 0
       ? ' · MEM ' + (+H.mem_available_mb >= 1024
           ? Math.round(+H.mem_available_mb / 1024 * 10) / 10 + 'G'
@@ -200,7 +203,7 @@ export const SCREEN_RENDERERS = {
       ? ' · NET ' + ((nRx + nTx) >= 1
           ? (nRx + nTx).toFixed(1) + 'M'
           : Math.round((nRx + nTx) * 1024) + 'K') : '';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + diskTxt + loadTxt + cfgTxt + netTxt, 8, h - 5);
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + loadTxt + agenTxt + cfgTxt + memTxt + diskTxt + netTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes
