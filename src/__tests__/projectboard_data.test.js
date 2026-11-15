@@ -253,6 +253,8 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
   })
   it('siklus 537: UP uptime — jam/menit, guard non-finite/≤0', () => {
     expect(hostSegments({ ...HR, uptime_s: 3600 * 5 + 120 }).find(s => s.txt.startsWith('UP')).txt).toBe('UP 5j')
+    // Siklus 551: ≥1 hari → 'Nd' (live 40 hari sebelumnya salah '971j')
+    expect(hostSegments({ ...HR, uptime_s: 3600 * 24 * 40 + 3600 }).find(s => s.txt.startsWith('UP')).txt).toBe('UP 40d')
     expect(hostSegments({ ...HR, uptime_s: 59 * 60 }).find(s => s.txt.startsWith('UP')).txt).toBe('UP 59m')
     expect(hostSegments({ ...HR, uptime_s: 0 }).find(s => s.txt.startsWith('UP'))).toBeUndefined()
     expect(hostSegments({ ...HR, uptime_s: NaN }).find(s => s.txt.startsWith('UP'))).toBeUndefined()

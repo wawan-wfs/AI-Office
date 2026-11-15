@@ -8297,6 +8297,13 @@
 - Verifikasi: vitest file pass 17/17; npm test penuh exit 0 (412 file, ~506s; catatan: esc_chain_332 flaky di full-run, pass sendirian — timing jsdom, tak terkait); build PWA exit 0; dist → ~/wfs-hq (DISK ada di bundle OfficeScene); curl /api/status live disk 41.9/49.1 GB; e2e_err.py OK (agents=26, init_failed=False, shot 703KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
 
+## 15/11/2026 23:59 WIB — Siklus 551: bug uptime ≥1 hari (live '971j' → '40d')
+- Bug nyata live: uptime host /api/status 3.497.655 s (±40 hari) — strip HOST papan proyek tampil `UP 971j` dan footer sysdash `960jm` karena formatter menghitung jam tapi tak pernah menangani hari (menit tak diformat j→hari). Unit: formatter lama & baru sama di <24 jam; divergen mulai ≥24 jam (971 'j' vs 40 'd').
+- projectboard_data.js: formatter diekstrak jadi `fmtUptime(sec)` (≥1440 mnt → 'Nd', ≥60 → 'Nj', <60 → 'Nm'; non-finite/≤0 → null) — hostSegments memakainya; effects.js sysdash footer kini import formatter yang sama (satu sumber, paritas papan/sysdash).
+- Test: projectboard_data +1 assert UP 40d; screen_sysdash assert footer 40d & format 5j (tanpa menit sisa). Total 412 file, 4487 passed + 6 skipped.
+- Verifikasi: npm run build exit 0; dist → ~/wfs-hq; npm test penuh exit 0 (525s, tanpa flaky); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 705KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
 ## 15/11/2026 23:15 WIB — Siklus 550: jumlah agen nyata di strip HOST papan proyek
 - Lanjutan 546–549: field `agents` (len AGENTS_META gateway) sudah tampil di footer sysdash (547) tapi strip HOST papan proyek masih tanpa segmen agen — paritas dilengkapi.
 - projectboard_data.js hostSegments: segmen `AGEN N` (Math.round, guard non-finite/negatif → dilewati, tanpa 'AGEN NaN') setelah LOAD, sebelum DISK.

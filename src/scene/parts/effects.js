@@ -1,6 +1,7 @@
 // Efek visual WFS Project: layar monitor, dokumen melayang, detail meja, tema waktu.
 // Ditulis ulang: tiap layar = fungsi renderer terpisah dalam tabel, bukan rangkaian if/else.
 import { tvPct } from './tv_canvas.js';
+import { fmtUptime } from './projectboard_data.js';
 
 const GRID = (c, w, h, step, col, alpha) => {
   c.strokeStyle = col; c.globalAlpha = alpha; c.lineWidth = 0.5;
@@ -158,11 +159,11 @@ export const SCREEN_RENDERERS = {
     // field fps, jadi footer 538 selalu jatuh ke pola sin dekoratif). Tanpa
     // __fps → fallback pola lama (guard anti-NaN tetap).
     const fps = (typeof window !== 'undefined' && Number.isFinite(+window.__fps)) ? +window.__fps : NaN;
-    // Siklus 538: UPTIME host ≥60 mnt → 'Nj Nm' / 'Nj' / 'Nm' (paritas strip
-    // papan proyek 537); fallback t → menit lama.
-    const up = H && Number.isFinite(+H.uptime_s) && +H.uptime_s > 0
-      ? (() => { const m = Math.floor(+H.uptime_s / 60), j = Math.floor(m / 60);
-          return j > 0 ? (m % 60 ? j + 'j' + (m % 60) + 'm' : j + 'j') : m + 'm'; })()
+    // Siklus 538/551: UPTIME host — formatter fmtUptime papan (≥1 hari → 'Nd',
+    // sebelumnya 40 hari live salah tampil '971j'); fallback t → menit lama.
+    const upTxt = H ? fmtUptime(H.uptime_s) : null
+    const up = upTxt
+      ? upTxt
       : Math.floor(tt / 60) + 'm';
     // Siklus 546: LOAD avg 1-mnt nyata (H.load, gateway /proc/loadavg) — dulu
     // hanya dipakai fallback CPU, tak pernah tampil. Tanpa data → tanpa segmen.

@@ -7,6 +7,18 @@ const CARD_TOP = 248, CARD_STEP = 88
 export const CARD_H = 78, COLUMN_BOTTOM = 788
 export function cardY(i) { return CARD_TOP + i * CARD_STEP }
 
+// Siklus 551 — format uptime detik → 'Nd' (≥1 hari) / 'Nj' (≥60 mnt) / 'Nm'.
+// Diekstrak dari hostSegments agar footer sysdash (effects.js) memakai formatter
+// yang sama — live uptime 40 hari sebelumnya salah tampil '971j' (jam dibaca
+// sebagai hari). Non-finite/≤0 → null (pemanggil melewatkan segmen).
+export function fmtUptime(sec) {
+  if (!Number.isFinite(+sec) || +sec <= 0) return null
+  const mins = Math.floor(+sec / 60)
+  if (mins >= 1440) return Math.floor(mins / 1440) + 'd'
+  if (mins >= 60) return Math.floor(mins / 60) + 'j'
+  return mins + 'm'
+}
+
 // judul dipotong di batas kata, diberi '…' bila terpotong (jangan memotong di tengah kata)
 import { clip } from '../../lib/clip.js'
 import { pctDone } from '../../lib/math_util.js'
@@ -265,15 +277,13 @@ export function hostSegments(hostRes) {
     const pct = clamp(100 * dUsed / dTot)
     segs.push({ txt: 'DISK ' + pct + '%', col: col(pct) })
   }
-  // Siklus 537 — UPTIME (uptime_s, detik; paritas sysdash 'Nn'):
-  // ≥60 mnt → 'Nj', <60 mnt → 'Nm'; non-finite/≤0 → segmen dilewati.
+  // Siklus 537/551 — UPTIME (uptime_s, detik): ≥1 hari → 'Nd', ≥60 mnt → 'Nj',
+  // <60 mnt → 'Nm'; non-finite/≤0 → segmen dilewati. Format via fmtUptime
+  // (diekstrak agar dipakai bersama footer sysdash — live 971j → 40d).
   const up = num(hostRes.uptime_s)
   if (up != null && up > 0) {
-    const mins = Math.floor(up / 60)
-    const txt = mins >= 60
-      ? Math.floor(mins / 60) + 'j'
-      : mins + 'm'
-    segs.push({ txt: 'UP ' + txt, col: accent })
+    const txt = fmtUptime(up)
+    if (txt) segs.push({ txt: 'UP ' + txt, col: accent })
   }
   // Siklus 544 — NET throughput nyata (net_rx_mb_s/net_tx_mb_s, paritas bar
   // sysdash 543): rx+tx ≥1 MB/s → 'NET 1.2M', <1 → KB bulat 'NET 31K'; rx/tx

@@ -184,7 +184,7 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       const c = mockCtx();
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
       const foot = texts(c).find(o => o.t.startsWith('FPS ')).t;
-      expect(foot).toBe('FPS 57 · UPTIME 5j2m');
+      expect(foot).toBe('FPS 57 · UPTIME 5j'); // siklus 551: formatter papan (tanpa menit)
     } finally { delete global.window; }
     global.window = { __hostRes: { ok: true, fps: 57.4, uptime_s: 7200 }, __fps: NaN };
     try {
