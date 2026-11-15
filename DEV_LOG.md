@@ -8289,3 +8289,10 @@
 - Test: screen_sysdash +1 (2000 MB→'MEM 2G' host-live; 512→'MEM 512M'; NaN/korup/hilang → tanpa 'MEM ') → 15 test file; total 412 file, 4485 passed + 6 skipped.
 - Verifikasi: vitest file pass 15/15; npm test penuh exit 0 (412 file, Duration ~517s); build PWA exit 0; dist → ~/wfs-hq (MEM ada di bundle OfficeScene); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 697KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 22:40 WIB — Siklus 549: DISK terpakai % di footer sysdash
+- Lanjutan 546–548: disk_used_gb/disk_total_gb (shutil.disk_usage gateway) dulu hanya dipakai bar DISK (fallback sin sintetis); kini tampil nyata di footer monitor lead: `DISK N%` antara MEM dan LOAD.
+- effects.js sysdash: diskTxt guard total>0 & keduanya valid & ≥0 → clamp 1..99; korup/hilang → tanpa segmen (tanpa 'DISK NaN%').
+- Test: screen_sysdash +2 (DISK 20% host-live 10/50GB; korup/hilang/negatif/total-0 → tanpa 'DISK ') → 17 test file; total 412 file.
+- Verifikasi: vitest file pass 17/17; npm test penuh exit 0 (412 file, ~506s; catatan: esc_chain_332 flaky di full-run, pass sendirian — timing jsdom, tak terkait); build PWA exit 0; dist → ~/wfs-hq (DISK ada di bundle OfficeScene); curl /api/status live disk 41.9/49.1 GB; e2e_err.py OK (agents=26, init_failed=False, shot 703KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

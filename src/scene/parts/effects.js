@@ -179,7 +179,14 @@ export const SCREEN_RENDERERS = {
       ? ' · MEM ' + (+H.mem_available_mb >= 1024
           ? Math.round(+H.mem_available_mb / 1024 * 10) / 10 + 'G'
           : Math.round(+H.mem_available_mb) + 'M') : '';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + loadTxt, 8, h - 5);
+    // Siklus 549: DISK terpakai % di footer (H.disk_used_gb/disk_total_gb dari
+    // shutil.disk_usage gateway) — dulu hanya dipakai bar DISK (fallback sin).
+    // Guard: total >0 & keduanya valid; else tanpa segmen (tanpa 'DISK NaN%').
+    const dTot = H && Number.isFinite(+H.disk_total_gb) ? +H.disk_total_gb : null;
+    const dUsed = H && Number.isFinite(+H.disk_used_gb) ? +H.disk_used_gb : null;
+    const diskTxt = dTot != null && dTot > 0 && dUsed != null && dUsed >= 0
+      ? ' · DISK ' + Math.max(1, Math.min(99, Math.round(100 * dUsed / dTot))) + '%' : '';
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + agenTxt + memTxt + diskTxt + loadTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes

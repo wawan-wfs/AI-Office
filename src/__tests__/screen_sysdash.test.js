@@ -56,7 +56,25 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).some(o => o.t.includes('AGEN 3'))).toBe(true);
       // siklus 548: MEM bebas nyata di footer (2000 MB → 2G)
       expect(texts(c).some(o => o.t.includes('MEM 2G'))).toBe(true);
+      // siklus 549: DISK terpakai % di footer (10/50 GB → DISK 20%)
+      expect(texts(c).some(o => o.t.includes('DISK 20%'))).toBe(true);
     } finally { delete global.window; }
+  });
+  it('siklus 549: DISK korup/hilang/negatif → tanpa segmen DISK di footer', () => {
+    const c = mockCtx();
+    global.window = { __hostRes: { ok: true, uptime_s: 60, disk_used_gb: 10, disk_total_gb: 50 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 1, '#60a5fa');
+      expect(texts(c).some(o => o.t.includes('DISK 20%'))).toBe(true);
+    } finally { delete global.window; }
+    for (const H of [{ ok: true, uptime_s: 60, disk_used_gb: 10 }, { ok: true, uptime_s: 60, disk_used_gb: NaN, disk_total_gb: 50 }, { ok: true, uptime_s: 60, disk_used_gb: -1, disk_total_gb: 50 }, { ok: true, uptime_s: 60, disk_used_gb: 10, disk_total_gb: 0 }]) {
+      const c2 = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c2, 128, 76, 1, '#60a5fa');
+        expect(texts(c2).every(o => !String(o.t).includes('DISK '))).toBe(true);
+      } finally { delete global.window; }
+    }
   });
   it('siklus 548: MEM <1024 MB → M; korup/hilang → tanpa segmen MEM', () => {
     const c = mockCtx();
