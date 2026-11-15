@@ -8357,3 +8357,9 @@
 - TaskModal.jsx: textarea Brief kini maxLength=4000 (judul sudah 200) — guard payload besar ke task engine; +1 test paritas.
 - Verifikasi: vitest task_modal 14/14; build PWA exit 0; dist → ~/wfs-hq; e2e_err_probe.py OK (agents=26, zone=5, init_failed=false, shot 697075B >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+## 16/11/2026 05:25 WIB — Siklus 559: segmen CPU% di footer sysdash (paritas papan 545)
+- Audit paritas 543–558: strip HOST papan sudah punya segmen teks CPU (cpu_pct sejati / fallback load*10) sejak 545, tapi footer sysdash hanya punya bar CPU tanpa segmen teks — satu-satunya metrik host tanpa paritas teks.
+- effects.js sysdash footer: segmen ` · CPU N%` setelah LOAD (urutan kini LOAD · CPU · AGEN · CFG · MEM · DISK · NET). cpu_pct valid (0 sah) → teks clamp 1..99; cpu_pct tak valid → fallback load*10 (pola papan 532); keduanya korup → tanpa segmen (tanpa 'CPU NaN%').
+- Test: screen_sysdash +1 (cpu_pct 37.5→CPU 38% & fallback 99 tak dipakai; 0→CPU 1%; NaN+load 4.0→CPU 40%; korup/hilang/negatif → tanpa 'CPU ' & tanpa NaN). Total 412 file, 4492 passed + 6 skipped, 0 fail (522s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_err.py (/tmp) exit 0 tanpa 'Scene init failed' (agents=26 via __agentData).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

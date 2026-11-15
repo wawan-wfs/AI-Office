@@ -64,6 +64,44 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(texts(c).some(o => o.t.includes('NET 1.5M'))).toBe(true);
     } finally { delete global.window; }
   });
+  // Siklus 559: CPU% segmen teks di footer (paritas strip HOST papan 545) —
+  // cpu_pct sejati dipakai (0 sah), fallback load*10, korup → tanpa segmen.
+  it('siklus 559: CPU% footer — cpu_pct sejati, fallback load*10, korup → tanpa segmen', () => {
+    // cpu_pct sejati: 37.5 → 'CPU 38%' (bukan fallback load*10)
+    const c = mockCtx();
+    global.window = { __hostRes: { ok: true, uptime_s: 60, cpu_pct: 37.5, load: 9.9 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 1, '#60a5fa');
+      const foot = texts(c).map(o => o.t).join('|');
+      expect(foot).toContain('CPU 38%');
+      expect(foot).not.toContain('CPU 99%'); // fallback load*10=99 tidak dipakai
+    } finally { delete global.window; }
+    // cpu_pct 0 sah (bukan fallback), di-clamp teks 1..99
+    const c0 = mockCtx();
+    global.window = { __hostRes: { ok: true, uptime_s: 60, cpu_pct: 0, load: 9.9 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c0, 128, 76, 1, '#60a5fa');
+      expect(texts(c0).map(o => o.t).join('|')).toContain('CPU 1%');
+    } finally { delete global.window; }
+    // cpu_pct tak valid → fallback load*10: load 4.0 → 'CPU 40%'
+    const c2 = mockCtx();
+    global.window = { __hostRes: { ok: true, uptime_s: 60, cpu_pct: NaN, load: 4.0 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c2, 128, 76, 1, '#60a5fa');
+      expect(texts(c2).map(o => o.t).join('|')).toContain('CPU 40%');
+    } finally { delete global.window; }
+    // keduanya korup/hilang → tanpa 'CPU ' segmen, tanpa NaN
+    for (const H of [{ ok: true, uptime_s: 60 }, { ok: true, uptime_s: 60, cpu_pct: NaN, load: 'banyak' }, { ok: true, uptime_s: 60, cpu_pct: -5, load: NaN }]) {
+      const c3 = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c3, 128, 76, 1, '#60a5fa');
+        const all = texts(c3).map(o => String(o.t)).join('|');
+        expect(all).not.toContain('CPU ');
+        expect(all).not.toContain('NaN');
+      } finally { delete global.window; }
+    }
+  });
   it('siklus 554: NET footer — <1 MB/s → KB, korup/hilang → tanpa segmen NET', () => {
     const cases = [
       [{ net_rx_mb_s: 0.022, net_tx_mb_s: 0.006 }, (t) => t.includes('NET 29K')],   // 0.028*1024 ≈ 29

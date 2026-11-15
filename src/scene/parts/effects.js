@@ -173,6 +173,15 @@ export const SCREEN_RENDERERS = {
       ? ' · AGEN ' + Math.round(+H.agents) : '';
     const loadTxt = H && Number.isFinite(+H.load)
       ? ' · LOAD ' + (+H.load).toFixed(2) : '';
+    // Siklus 559: CPU% di footer (paritas strip HOST papan 545) — dulu hanya
+    // bar CPU sysdash, tanpa segmen teks. cpu_pct valid (0 sah) → clamp 1..99;
+    // cpu_pct tak valid → fallback load*10 (pola papan); keduanya korup →
+    // tanpa segmen (tanpa 'CPU NaN%').
+    const cpuVal = H && Number.isFinite(+H.cpu_pct) && +H.cpu_pct >= 0
+      ? +H.cpu_pct
+      : (H && Number.isFinite(+H.load) ? +H.load * 10 : null);
+    const cpuTxt = cpuVal != null
+      ? ' · CPU ' + Math.min(99, Math.max(1, Math.round(cpuVal))) + '%' : '';
     // Siklus 548: MEM bebas nyata di footer (gateway /proc/meminfo) —
     // mem_available_mb sudah ada sejak lama tapi hanya dipakai bar MEM;
     // format MB/GB sama dgn strip HOST papan proyek. Tak valid → tanpa segmen.
@@ -203,7 +212,7 @@ export const SCREEN_RENDERERS = {
       ? ' · NET ' + ((nRx + nTx) >= 1
           ? (nRx + nTx).toFixed(1) + 'M'
           : Math.round((nRx + nTx) * 1024) + 'K') : '';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + loadTxt + agenTxt + cfgTxt + memTxt + diskTxt + netTxt, 8, h - 5);
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + loadTxt + cpuTxt + agenTxt + cfgTxt + memTxt + diskTxt + netTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes
