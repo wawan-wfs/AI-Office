@@ -218,7 +218,7 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
   const HR = { load: 1.2, mem_total_mb: 7500, mem_available_mb: 2000, disk_used_gb: 25, disk_total_gb: 50 }
   it('host penuh: HOST + CPU/MEM/DISK dengan persen terhitung', () => {
     const segs = hostSegments(HR)
-    expect(segs.map(s => s.txt)).toEqual(['HOST', 'CPU 12%', 'MEM 73%', 'DISK 50%'])
+    expect(segs.map(s => s.txt)).toEqual(['HOST', 'CPU 12%', 'MEM 73%', 'LOAD 1.20', 'DISK 50%'])
     expect(segs[0].col).toBe('#60A5FA') // accent
     expect(segs[1].col).toBe('#10E5A0') // <75% ok
   })
@@ -235,13 +235,21 @@ describe('hostSegments — metrik host nyata di strip papan (siklus 535)', () =>
   })
   it('nilai parsial: metrik non-finite dilewati tanpa NaN', () => {
     const segs = hostSegments({ load: 1, mem_total_mb: 'banyak', mem_available_mb: NaN, disk_total_gb: 0 })
-    expect(segs.map(s => s.txt)).toEqual(['HOST', 'CPU 10%'])
+    expect(segs.map(s => s.txt)).toEqual(['HOST', 'CPU 10%', 'LOAD 1.00'])
     expect(segs.every(s => !s.txt.includes('NaN'))).toBe(true)
   })
   it('hostRes null / bukan objek / kosong → [] (strip lama utuh)', () => {
     expect(hostSegments(null)).toEqual([])
     expect(hostSegments('x')).toEqual([])
     expect(hostSegments({})).toEqual([]) // hanya label tanpa metrik → kosong
+  })
+  it('siklus 546: LOAD avg 1-mnt sebagai metrik sendiri; warna tingkat & guard', () => {
+    expect(hostSegments({ ...HR }).find(s => s.txt.startsWith('LOAD')).txt).toBe('LOAD 1.20')
+    expect(hostSegments({ ...HR }).find(s => s.txt.startsWith('LOAD')).col).toBe('#10E5A0') // <2 ok
+    expect(hostSegments({ ...HR, load: 3 }).find(s => s.txt.startsWith('LOAD')).col).toBe('#F59E0B') // 2..4 warn
+    expect(hostSegments({ ...HR, load: 5 }).find(s => s.txt.startsWith('LOAD')).col).toBe('#EF4444') // ≥4 err
+    expect(hostSegments({ mem_total_mb: 100, mem_available_mb: 50 }).find(s => s.txt.startsWith('LOAD'))).toBeUndefined()
+    expect(hostSegments({ load: 'banyak' }).every(s => !s.txt.includes('NaN'))).toBe(true)
   })
   it('siklus 537: UP uptime — jam/menit, guard non-finite/≤0', () => {
     expect(hostSegments({ ...HR, uptime_s: 3600 * 5 + 120 }).find(s => s.txt.startsWith('UP')).txt).toBe('UP 5j')

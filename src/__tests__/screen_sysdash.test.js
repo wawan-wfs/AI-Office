@@ -50,6 +50,16 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(parseFloat(net)).toBeCloseTo(20 + 24 * Math.log2(2.5), 0);
       // UPTIME dari host nyata: 3600s = 1j (format j/m siklus 538)
       expect(texts(c).some(o => o.t.includes('UPTIME 1j'))).toBe(true);
+      // siklus 546: LOAD avg 1-mnt nyata di footer (deterministik, load=1.2)
+      expect(texts(c).some(o => o.t.includes('LOAD 1.20'))).toBe(true);
+    } finally { delete global.window; }
+  });
+  it('siklus 546: LOAD footer hanya saat H.load valid; korup → tanpa LOAD', () => {
+    const c = mockCtx();
+    global.window = { __hostRes: { ok: true, uptime_s: 60, load: NaN } };
+    try {
+      SCREEN_RENDERERS.sysdash(c, 128, 76, 1, '#60a5fa');
+      expect(texts(c).every(o => !String(o.t).includes('LOAD'))).toBe(true);
     } finally { delete global.window; }
   });
   it('NET live dari throughput nyata net_rx_mb_s/net_tx_mb_s (siklus 543)', () => {

@@ -8267,3 +8267,11 @@
 - Test: backend superset +1 (test_cpu_pct_delta_proc_stat: delta 50%, baseline None, clamp, malformed ×6) → 28 passed; vitest screen_sysdash +1 (38% dari cpu_pct 37.5, bukan clamp 95; 150→fallback load×10; NaN→sin tanpa NaN) & projectboard_data +1 (58 test file) → total 412 file, 4482 passed + 6 skipped.
 - Verifikasi: build PWA exit 0 (cpu_pct ada di bundle OfficeScene); dist → ~/wfs-hq; e2e_err.py OK (agents=26, init_failed=False, shot 702KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 19:30 WIB — Siklus 546: LOAD avg 1-mnt ditampilkan nyata (footer sysdash + strip HOST papan)
+- Lanjutan 543–545: loadavg sudah dibaca gateway (_parse_loadavg) tapi hanya dipakai fallback CPU — metrik nyata yang ada tak pernah tampil.
+- effects.js sysdash: footer kini 'FPS N · UPTIME .. · LOAD X.XX' dari H.load (toFixed 2); H.load tak valid → tanpa segmen LOAD (tanpa NaN).
+- projectboard_data.js hostSegments: segmen baru 'LOAD X.XX', warna tingkat <2 ok / 2–4 warn / ≥4 err; non-finite → dilewati. Sengaja TIDAK masuk hostKey (load berubah tiap detik, cegah repaint penuh per 20 dtk).
+- Test: projectboard_data +1 (teks/warna 3 tingkat, guard korup) → 59 test file; screen_sysdash +1 + assert LOAD 1.20 pada host live → 70 test file. Total 412 file, 4484 passed + 6 skipped.
+- Verifikasi: npm run build exit 0; dist → ~/wfs-hq; npm test penuh exit 0 (Duration 511s); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 699KB >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

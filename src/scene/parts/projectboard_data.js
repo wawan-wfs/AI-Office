@@ -252,6 +252,10 @@ export function hostSegments(hostRes) {
     const pct = clamp(100 * (tot - av) / tot)
     segs.push({ txt: 'MEM ' + pct + '%', col: col(pct) })
   }
+  // Siklus 546 — LOAD avg 1-mnt (load, /proc/loadavg): tampil sebagai metrik
+  // sendiri (dulu cuma fallback CPU). Non-finite → segmen dilewati.
+  const ld = num(hostRes.load)
+  if (ld != null) segs.push({ txt: 'LOAD ' + ld.toFixed(2), col: ld < 2 ? ok : ld < 4 ? warn : err })
   const dTot = num(hostRes.disk_total_gb), dUsed = num(hostRes.disk_used_gb)
   if (dTot != null && dTot > 0 && dUsed != null) {
     const pct = clamp(100 * dUsed / dTot)

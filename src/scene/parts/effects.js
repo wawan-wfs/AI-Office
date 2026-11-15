@@ -164,7 +164,11 @@ export const SCREEN_RENDERERS = {
       ? (() => { const m = Math.floor(+H.uptime_s / 60), j = Math.floor(m / 60);
           return j > 0 ? (m % 60 ? j + 'j' + (m % 60) + 'm' : j + 'j') : m + 'm'; })()
       : Math.floor(tt / 60) + 'm';
-    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up, 8, h - 5);
+    // Siklus 546: LOAD avg 1-mnt nyata (H.load, gateway /proc/loadavg) — dulu
+    // hanya dipakai fallback CPU, tak pernah tampil. Tanpa data → tanpa segmen.
+    const loadTxt = H && Number.isFinite(+H.load)
+      ? ' · LOAD ' + (+H.load).toFixed(2) : '';
+    c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + loadTxt, 8, h - 5);
     if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes
