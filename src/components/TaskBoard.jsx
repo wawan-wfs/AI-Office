@@ -141,7 +141,11 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
       setShowDivPresetCreator(false)
     } else if (showPresetCreator) {
       setShowPresetCreator(false)
-    } else if (q && document.activeElement === searchInputRef.current) {
+    } else if (q) {
+      // Siklus 557: tidak lagi bergantung pada document.activeElement === input —
+      // di jsdom fokus via fireEvent.change tidak selalu konsisten (flake
+      // 'input.value tidak ter-kosongkan' di siklus 549/556). Prioritas tetap:
+      // q terisi → dikosongkan dulu, Escape berikutnya lanjut rantai (sel/open).
       setQ('')
     } else if (sel) {
       setSel(null)

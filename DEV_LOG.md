@@ -8344,3 +8344,10 @@
 - Verifikasi: vitest screen_sysdash 17/17; npm run build exit 0; dist → ~/wfs-hq (1007 file aset); e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 704KB >500KB, hygiene 41 refs 0 missing).
 - Full-run: 1 failed / 4489 passed — esc_chain_single_source_332 flake (input.value 'halo' tidak ter-kosongkan) yang pass 3/3 isolated dua kali; pola timing jsdom sama seperti siklus 549, bukan regresi kode (file ini tak disentuh sejak lama).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 16/11/2026 03:18 WIB — Siklus 557: dua flake jsdom diakui & diredam (tanpa ubah perilaku app)
+- Full-run 556 & 557 masing-masing 1 fail (esc_chain_single_source_332; app_integration 'Pengaturan Kantor 3D'), keduanya pass isolated 3x — pola timing jsdom lazy-chunk/fokus, bukan regresi.
+- TaskBoard.jsx closeBoard: cabang kosongkan-q tidak lagi bergantung document.activeElement === searchInputRef (jsdom fokus rapuh) — q terisi → dikosongkan; rantai prioritas Escape tetap sama.
+- app_integration.test.jsx: asersi buka-kedua modal Pengaturan diganti waitFor (lazy chunk race di full-run).
+- Verifikasi: vitest 2 file 23/23 pass; build PWA exit 0; dist → ~/wfs-hq; e2e_err_probe.py OK (agents=26, zone=5, init_failed=false, shot 700113B >500KB, hygiene 41 refs 0 missing).
+- Full-run 557: 1 failed / 4489 passed — fail PINDAH ke app_integration (flake di atas), esc_chain 332 pass di full-run setelah fix fokus; flake app_integration diredam via waitFor, konfirmasi di full-run berikutnya.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.

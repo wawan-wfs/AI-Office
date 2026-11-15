@@ -141,7 +141,9 @@ describe('App — integrasi UI', () => {
     // Buka via tombol dock 'Atur' — mount-on-demand: komponen tetap ada pasca
     // close pertama (show=false → null), open kedua sinkron via state.
     fireEvent.click(screen.getByRole('button', { name: 'Pengaturan' }))
-    expect(screen.getByText('Pengaturan Kantor 3D')).toBeTruthy()
+    // Siklus 557: waitFor juga di buka kedua — full-run kadang kehilangan race
+    // lazy-chunk jsdom (flake 'Unable to find Pengaturan Kantor 3D').
+    await waitFor(() => expect(screen.getByText('Pengaturan Kantor 3D')).toBeTruthy())
   })
 
   it('klik kanan (contextmenu) pada tombol Suara membuka modal pengaturan', async () => {
