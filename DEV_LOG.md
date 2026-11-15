@@ -8369,3 +8369,10 @@
 - Full-run npm test dijalankan background (log /tmp/test560.log) — hasil dicatat di commit berikut bila sebelum push.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 - Lanjutan 560: full-run pertama menangkap 5 fail (census transport tak update utk file baru); WS probe diganti kelas WS ter-deadline (pola shot.py 197: timeout + EOF guard handshake), urlopen timeout=10; census 64→65 & guard reply-hilang diperluas. Full-run kedua BERSIH: 413 file, 4498 passed + 6 skipped, 0 fail (~510s). Commit penuh.
+
+## 16/11/2026 07:00 WIB — Siklus 561: badge unread tombol dock "Log" (ActivityBadge)
+- Tombol dock "Log" kini menampilkan badge merah jumlah item log saat ada aktivitas task yang belum dilihat; hilang setelah dialog dibuka (klik atau shortcut L). Komponen baru ActivityBadge.jsx (hook useUnreadActivity mendengarkan CustomEvent 'wfs-activity-updated' yang di-dispatch pushLog + flag seen 'wfs_activity_seen' di localStorage), CSS .log-badge, tanpa prop drilling.
+- Shortcut L (TOGGLE_LOG) juga menandai seen saat membuka; badge clamp 1..9; guard try/catch localStorage.
+- Test: activity_badge_561 6 test (count min-9, kosong 0, reset saat open, event recompute, seen → 0, render badge/null). Total 414 file, 4504 passed + 6 skipped, 0 fail (~520s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed' (0 EXC/CON).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

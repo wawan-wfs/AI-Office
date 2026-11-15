@@ -233,6 +233,13 @@ button { font-family: inherit; }
   box-shadow: 0 0 16px rgba(var(--c-accent-rgb),0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .ibtn:disabled { opacity: .38; cursor: not-allowed; }
+/* Siklus 561: badge unread tombol dock "Log" (ActivityBadge) — pojok kanan-atas ikon */
+.ibtn .log-badge {
+  position: absolute; top: 4px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 8px; background: var(--c-failed, #e5484d); color: var(--ix-09090b, #09090b);
+  font-size: 10px; font-weight: 700; line-height: 16px; text-align: center;
+  box-shadow: 0 0 8px rgba(229, 72, 77, 0.5); pointer-events: none; font-style: normal;
+}
 .ibtn.accent {
   background: linear-gradient(135deg, var(--c-running) 0%, var(--c-failed) 100%); color: var(--ix-09090b); font-weight: 700;
   box-shadow: 0 4px 16px rgba(var(--c-running-rgb),0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3);

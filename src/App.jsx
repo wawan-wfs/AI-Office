@@ -19,6 +19,7 @@ import TaskModal from './components/TaskModal'
 import ConfirmModal from './components/ConfirmModal'
 import ProjectPanel from './components/ProjectPanel'
 import ActivityLog from './components/ActivityLog'
+import { useUnreadActivity, activityMarkSeen, ActivityBadge } from './components/ActivityBadge'
 import AgentInspector from './components/AgentInspector'
 // Siklus 190: ShConsole (38K) & SettingsModal (22K) kini lazy + mount-on-demand
 // juga — komponen modal POLLED (show via prop dari App-state, BUKAN CustomEvent)
@@ -151,6 +152,7 @@ export default function App() {
   const [toast, setToast] = useState(null)          // {msg, err}
   const connRef = useRef(conn); connRef.current = conn
   const [showLog, setShowLog] = useState(false)
+  const logUnread = useUnreadActivity(showLog)
   // Siklus 189: papan task di-mount ON-DEMAND (chunk lazy ~76K tak diunduh
   // sampai ada keinginan membuka papan). Gerbang (taskboard_gate) memicu
   // setTbWanted saat event papan pertama datang; TaskBoard ter-mount lalu
@@ -191,6 +193,10 @@ export default function App() {
   const [logItems, setLogItems] = useState(() => loadActivityLog())
   const pushLog = useCallback((e) => {
     setLogItems(prev => saveActivityLog([e, ...prev]))
+    // Siklus 561: log aktivitas kini dibroadcast via CustomEvent
+    // 'wfs-activity-updated' — tombol dock "Log" dpt badge unread tanpa
+    // prop drilling state ke Header-like dock (App merender tombol itu inline).
+    try { window.dispatchEvent(new CustomEvent('wfs-activity-updated')) } catch { /* abaikan */ }
   }, [])
   const clearLog = () => { setLogItems([]); clearActivityLog() }
 
@@ -635,7 +641,7 @@ export default function App() {
         setShowSettings(v => !v)
       } else if (actType === 'TOGGLE_LOG') {
         e.preventDefault()
-        setShowLog(v => !v)
+        setShowLog(v => { if (!v) activityMarkSeen(); return !v })
       } else if (actType === 'TOGGLE_HELP') {
         e.preventDefault()
         setShowHelp(v => !v)
@@ -873,8 +879,8 @@ export default function App() {
           </span>
           <span className="lb">{muted ? 'Suara Mati' : 'Suara'}</span>
         </button>
-        <button className="ibtn" onClick={() => setShowLog(true)} title="Log aktivitas kantor — shortcut L" aria-label="Log aktivitas">
-          <span className="ic"><IconScroll size={19} /><span className="sr-only">📜</span></span>
+        <button className="ibtn" onClick={() => { setShowLog(true); activityMarkSeen() }} title="Log aktivitas kantor — shortcut L" aria-label="Log aktivitas">
+          <span className="ic"><IconScroll size={19} /><span className="sr-only">📜</span>{logUnread > 0 && <ActivityBadge count={logUnread} />}</span>
           <span className="lb">Log</span>
         </button>
         <span className="sep" />
