@@ -8251,3 +8251,10 @@
 - Test: screen_sysdash +1 (NET live 1.5 MB/s ≈ 52%, 0 MB/s → 20%, korup → fallback sin deterministik); test lama host-live diberi field net.
 - Verifikasi: parser diuji live (delta 0.3 dtk, malformed → 0.0, kolom rx/tx benar); curl /api/status kirim net_rx_mb_s/net_tx_mb_s; vitest 412 file, 4479 passed + 6 skipped (+5 net); build PWA exit 0; dist → ~/wfs-hq (net_rx_mb_s ada di OfficeScene bundle); e2e_err.py OK (agents=26, init_failed=False, shot 683KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 15/11/2026 17:58 WIB — Siklus 544: segmen NET throughput nyata di strip HOST papan proyek
+- Lanjutan 543: metrik NET nyata (net_rx_mb_s/net_tx_mb_s gateway /api/status) baru dikonsumsi sysdash; strip HOST papan proyek belum menampilkannya.
+- projectboard_data.js hostSegments: segmen 'NET X.XM' (≥1 MB/s) / 'NET NK' (<1 MB/s, KB bulat); rx/tx negatif di-clamp 0, tak valid → segmen dilewati (tanpa 'NET NaN'). Sengaja TIDAK masuk hostKey papan — throughput berubah tiap detik, memasukkannya memicu repaint penuh tiap 20 dtk.
+- Test baru +1 (57 test di projectboard_data.test.js): 1.2M, 31K, clamp negatif 0K, NaN/'banyak' dilewati.
+- Verifikasi: vitest file pass 57/57 (+screen_sysdash 12 → 69/69); npm test penuh exit 0 (412 file, 505s); build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, init_failed=False, shot 682KB >500KB, hygiene 41 refs 0 missing); curl /api/status live kirim net_rx 0.012/net_tx 0.008 MB/s.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
