@@ -1,33 +1,52 @@
-// Siklus 561: badge unread tombol "Log" di dock.
+// Siklus 562: badge unread tombol "Log" di dock — per-item seen (paritas TaskBoard).
 //
 // Tombol Log dirender inline di App.jsx (bukan komponen terpisah), sementara
 // item log ditulis lewat pushLog → localStorage. Daripada prop drilling state
 // baru ke JSX dock, badge ini mendengarkan CustomEvent 'wfs-activity-updated'
 // (di-dispatch pushLog setiap status task berubah) + memantau localStorage
-// 'wfs_activity' saat mount/siap-siap. Badge hilang setelah dialog log dibuka.
+// 'wfs_activity' saat mount/berubah. Badge hilang setelah dialog log dibuka.
+//
+// Siklus 561 memakai satu timestamp "terakhir dibuka" — cacatnya: setelah
+// dialog dibuka SEKALI, markSeen() menulis timestamp dan badge tidak akan
+// pernah muncul lagi untuk item baru (seen === 0 tak tercapai kembali).
+// Sekarang: set ID item yang pernah dilihat ('wfs_activity_seen' — array,
+// cap 200). Item log punya id task unik; pushLog selalu mengirim id, item
+// tanpa id dihitung unread agar tidak hilang diam-diam.
 import React, { useState, useEffect } from 'react'
-import { loadActivityLog, PREF_ACTIVITY_KEY } from '../lib/storage_prefs.js'
+import { loadActivityLog, ACTIVITY_LOG_MAX } from '../lib/storage_prefs.js'
 
-// listener storage hanya fire di tab LAIN — di tab ini kita dengar event
-// + flag 'sudah dilihat' (timestamp terakhir dialog dibuka) di localStorage.
-const SEEN_KEY = 'wfs_activity_seen'
+export const SEEN_KEY = 'wfs_activity_seen'
+const SEEN_CAP = 200 // >> ACTIVITY_LOG_MAX(50) — ruang geser aman
+
+const loadSeen = () => {
+  try {
+    const raw = localStorage.getItem(SEEN_KEY)
+    const arr = raw ? JSON.parse(raw) : []
+    return Array.isArray(arr) ? arr.filter(x => typeof x === 'string' || typeof x === 'number') : []
+  } catch { return [] }
+}
+
+const saveSeen = (ids) => {
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids.slice(-SEEN_CAP))) } catch { /* abaikan */ }
+}
 
 const markSeen = () => {
-  try { localStorage.setItem(SEEN_KEY, String(Date.now())) } catch { /* abaikan */ }
+  const seen = new Set(loadSeen())
+  loadActivityLog().forEach(x => { if (x && x.id !== undefined && x.id !== null) seen.add(String(x.id)) })
+  saveSeen([...seen])
 }
 
 export const activityMarkSeen = markSeen
+export const activitySeenIds = loadSeen
 
 export function useUnreadActivity(open) {
   const [count, setCount] = useState(0)
   useEffect(() => {
     const compute = () => {
       try {
-        const items = loadActivityLog()
-        const seen = Number(localStorage.getItem(SEEN_KEY)) || 0
-        // item ber-stempel waktu 'HH.MM' — bandingkan via urutan array dgn
-        // seen ts tidak mudah; cukup: ada item & belum dibuka sejak mount → badge.
-        setCount(seen === 0 && items.length > 0 ? Math.min(items.length, 9) : 0)
+        const seen = new Set(loadSeen())
+        const unread = loadActivityLog().filter(x => !x || x.id === undefined || x.id === null || !seen.has(String(x.id)))
+        setCount(Math.min(unread.length, 9))
       } catch { setCount(0) }
     }
     compute()
