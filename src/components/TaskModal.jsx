@@ -75,7 +75,7 @@ export default function TaskModal({ show, onClose, onDone }) {
         <label htmlFor="tm-role">Role / agent</label>
         <select id="tm-role" value={role} onChange={e => setRole(e.target.value)}>{ROLES.map(r => <option key={r}>{r}</option>)}</select>
         <label htmlFor="tm-prompt">Brief (opsional)</label>
-        <textarea id="tm-prompt" rows={4} value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Detail yang harus dikerjakan agent" />
+        <textarea id="tm-prompt" rows={4} maxLength={4000} value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Detail yang harus dikerjakan agent" />
         {err && <div id="tm-err" role="alert" className="msg err" style={{ maxWidth: '100%', marginTop: 10 }}>{err}</div>}
         <div className="modal-actions">
           <button type="button" className="btn" onClick={onClose}>Batal</button>

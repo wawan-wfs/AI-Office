@@ -39,6 +39,11 @@ describe('components/TaskModal', () => {
     expect(api).not.toHaveBeenCalled()
   })
 
+  it('textarea Brief dibatasi maxLength 4000 (guard payload task engine)', () => {
+    render(h(TaskModal, base))
+    expect(screen.getByLabelText('Brief (opsional)').getAttribute('maxLength')).toBe('4000')
+  })
+
   it('submit valid → api POST tasks + onDone + onClose + input dibersihkan', async () => {
     api.mockResolvedValue({ task_id: 77 })
     render(h(TaskModal, base))

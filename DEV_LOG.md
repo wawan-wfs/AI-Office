@@ -8351,3 +8351,9 @@
 - Verifikasi: vitest 2 file 23/23 pass; build PWA exit 0; dist → ~/wfs-hq; e2e_err_probe.py OK (agents=26, zone=5, init_failed=false, shot 700113B >500KB, hygiene 41 refs 0 missing).
 - Full-run 557: 1 failed / 4489 passed — fail PINDAH ke app_integration (flake di atas), esc_chain 332 pass di full-run setelah fix fokus; flake app_integration diredam via waitFor, konfirmasi di full-run berikutnya.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 16/11/2026 04:48 WIB — Siklus 558: full-run bersih (flake terkonfirmasi redam) + guard maxLength brief task
+- Konfirmasi siklus 557: npm test penuh 412 file, 4490 passed + 6 skipped, 0 fail (517s) — esc_chain & app_integration flake benar-benar redam.
+- TaskModal.jsx: textarea Brief kini maxLength=4000 (judul sudah 200) — guard payload besar ke task engine; +1 test paritas.
+- Verifikasi: vitest task_modal 14/14; build PWA exit 0; dist → ~/wfs-hq; e2e_err_probe.py OK (agents=26, zone=5, init_failed=false, shot 697075B >500KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
