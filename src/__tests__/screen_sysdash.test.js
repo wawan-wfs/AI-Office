@@ -35,7 +35,7 @@ describe('SCREEN_RENDERERS.sysdash', () => {
   });
   it('host live: bar CPU/MEM/NET + angka % di ujung bar dari window.__hostRes', () => {
     const c = mockCtx();
-    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, disk_used_gb: 10, disk_total_gb: 50, agents: 3, uptime_s: 3600 } };
+    global.window = { __hostRes: { ok: true, load: 1.2, mem_available_mb: 2000, mem_total_mb: 4000, disk_used_gb: 10, disk_total_gb: 50, agents: 3, uptime_s: 3600, net_rx_mb_s: 1.0, net_tx_mb_s: 0.5 } };
     try {
       SCREEN_RENDERERS.sysdash(c, 128, 76, 7, '#60A5FA');
       const pctTexts = texts(c).map(o => o.t).filter(t => t.endsWith('%'));
@@ -45,9 +45,32 @@ describe('SCREEN_RENDERERS.sysdash', () => {
       expect(pctTexts).toContain('12%');
       expect(pctTexts).toContain('50%');
       expect(pctTexts).toContain('20%');
+      // NET nyata (siklus 543): rx+tx = 1.5 MB/s → 20+24*log2(2.5) ≈ 52%
+      const net = pctTexts.find(t => !['12%','50%','20%'].includes(t));
+      expect(parseFloat(net)).toBeCloseTo(20 + 24 * Math.log2(2.5), 0);
       // UPTIME dari host nyata: 3600s = 1j (format j/m siklus 538)
       expect(texts(c).some(o => o.t.includes('UPTIME 1j'))).toBe(true);
     } finally { delete global.window; }
+  });
+  it('NET live dari throughput nyata net_rx_mb_s/net_tx_mb_s (siklus 543)', () => {
+    // trafik 0 MB/s → bar minimum 20% (bukan 5%)
+    const c0 = mockCtx();
+    global.window = { __hostRes: { ok: true, net_rx_mb_s: 0, net_tx_mb_s: 0 } };
+    try {
+      SCREEN_RENDERERS.sysdash(c0, 128, 76, 2, '#60a5fa');
+      const pct = texts(c0).map(o => o.t).filter(t => t.endsWith('%'));
+      expect(pct[3]).toBe('20%');
+    } finally { delete global.window; }
+    // korup → fallback sin lama (deterministik utk t=2), tanpa NaN
+    for (const H of [{ ok: true, net_rx_mb_s: NaN }, { ok: true, net_rx_mb_s: 'banyak' }, { ok: true }]) {
+      const c2 = mockCtx();
+      global.window = { __hostRes: H };
+      try {
+        SCREEN_RENDERERS.sysdash(c2, 128, 76, 2, '#60a5fa');
+        const pct = texts(c2).map(o => o.t).filter(t => t.endsWith('%'));
+        expect(pct[3]).toBe(String(Math.round(30 + Math.sin(2 * 2.2) * 25)) + '%');
+      } finally { delete global.window; }
+    }
   });
   it('DISK live dari disk_used_gb/disk_total_gb; korup → fallback tanpa NaN', () => {
     const c = mockCtx();

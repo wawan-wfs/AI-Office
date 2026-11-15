@@ -347,6 +347,41 @@ def _parse_loadavg(text):
     except (IndexError, AttributeError):
         return "0.00"
 
+
+_NET_DEV_STATE = {"rx": 0.0, "tx": 0.0, "t": 0.0}
+
+
+def _net_rates_mb(text, now):
+    """Parse /proc/net/dev -> {'net_rx_mb_s','net_tx_mb_s'} (delta antar panggilan).
+
+    Siklus 543: bar NET sysdash dulu sintetis 8+agents*3 (proxy, bukan trafik).
+    Kini throughput nyata: jumlah rx/tx semua interface non-lo, dibagi delta-waktu
+    panggilan ini vs panggilan sebelumnya (state global — dipanggil /api/status
+    yang di-poll frontend). Panggilan pertama / delta<=0 / OSError -> 0.0
+    (bukan None, agar frontend tetap konsumsi) — tidak pernah melempar.
+    """
+    try:
+        rx = tx = 0
+        for line in text.splitlines()[2:]:  # 2 baris header
+            parts = line.split(":")
+            if len(parts) != 2:
+                continue
+            if parts[0].strip() in ("lo", ""):
+                continue
+            cols = parts[1].split()
+            rx += int(cols[0]); tx += int(cols[8])
+        t = float(now) if now and now > 0 else time.time()
+        prev = _NET_DEV_STATE
+        dt = t - prev["t"]
+        out = {"net_rx_mb_s": 0.0, "net_tx_mb_s": 0.0}
+        if dt > 0 and prev["t"] > 0:
+            out["net_rx_mb_s"] = max(0.0, (rx - prev["rx"]) / dt / 2**20)
+            out["net_tx_mb_s"] = max(0.0, (tx - prev["tx"]) / dt / 2**20)
+        prev["rx"], prev["tx"], prev["t"] = rx, tx, t
+        return out
+    except (OSError, ValueError, IndexError, AttributeError):
+        return {"net_rx_mb_s": 0.0, "net_tx_mb_s": 0.0}
+
 # ---------- models ----------
 class ChatIn(BaseModel):
     agent_id: str
@@ -437,8 +472,14 @@ def status():
         load1 = _parse_loadavg(open("/proc/loadavg").read())
     except OSError:
         load1 = "0.00"
+    try:
+        net = _net_rates_mb(open("/proc/net/dev").read(), time.time())
+    except OSError:
+        net = {"net_rx_mb_s": 0.0, "net_tx_mb_s": 0.0}
     return {"ok": True,
             "load": load1,
+            "net_rx_mb_s": round(net["net_rx_mb_s"], 3),
+            "net_tx_mb_s": round(net["net_tx_mb_s"], 3),
             "disk_used_gb": round(du.used / 2**30, 1) if du else 0.0,
             "disk_total_gb": round(du.total / 2**30, 1) if du else 0.0,
             "mem_available_mb": mem["MemAvailable"], "mem_total_mb": mem["MemTotal"],

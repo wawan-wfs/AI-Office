@@ -116,10 +116,15 @@ export const SCREEN_RENDERERS = {
     const num = (v, fb) => (Number.isFinite(+v) ? +v : fb);
     const cpu = H ? Math.min(95, Math.max(5, num(H.load != null ? num(H.load, 0) * 10 : NaN, 0))) : null;
     const ramPct = H && H.mem_total_mb ? Math.min(95, Math.max(5, 100 * (num(H.mem_total_mb, 1) - num(H.mem_available_mb, 0)) / num(H.mem_total_mb, 1))) : null;
-    const NETW = H && Number.isFinite(+H.agents) ? Math.min(95, Math.max(5, 8 + (+H.agents) * 3)) : null;
     // Siklus 533: GPU bar palsu (sin) diganti DISK nyata — gateway kirim
     // disk_used_gb/disk_total_gb; offline → fallback sin lama.
     const disk = H && H.disk_total_gb ? Math.min(95, Math.max(5, 100 * num(H.disk_used_gb, 0) / num(H.disk_total_gb, 1))) : null;
+    // Siklus 543: bar NET dulu sintetis 8+agents*3 (proxy, bukan trafik). Kini
+    // throughput jaringan nyata dari __hostRes.net_rx_mb_s/net_tx_mb_s — bar
+    // di-skala log2: 0.1 MB/s→45%, 1→75%, 8+→95%; offline/tak valid → fallback sin lama.
+    const netBps = H && Number.isFinite(+H.net_rx_mb_s) && Number.isFinite(+H.net_tx_mb_s)
+      ? Math.max(0, +H.net_rx_mb_s) + Math.max(0, +H.net_tx_mb_s) : null;
+    const NETW = netBps != null ? Math.min(95, Math.max(5, 20 + 24 * Math.log2(1 + netBps))) : null;
     c.font = '6px monospace';
     const rows = [
       ['CPU', cpu != null ? cpu : 22 + Math.sin(tt * 0.7) * 12, col],

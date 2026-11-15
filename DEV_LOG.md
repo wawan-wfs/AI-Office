@@ -8244,3 +8244,10 @@
 - Audit pasca-540 (nitpick round): (a) hostKey projectboard.js masih tanpa uptime_s — bisa menahan repaint hingga 20 dtk setelah restart host; (b) fpsSegment ≥30/≥15 sudah sejalan sysdash. Keduanya dinilai: (a) dijadwalkan perbaikan mikro berikutnya (bukan bug tampilan, hanya latensi), (b) OK.
 - Verifikasi tanpa perubahan kode: vitest projectboard_data 56/56 pass; build PWA exit 0; dist → ~/wfs-hq; e2e_err.py OK (agents=26, zone=5, init_failed=False, shot 681KB >500KB, hygiene 41 refs 0 missing).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
+## 15/11/2026 16:56 WIB — Siklus 543: bar NET sysdash dari throughput nyata /proc/net/dev
+- Lanjutan 531–540: bar NET monitor sysdash masih sintetis `8 + agents*3` (proxy jumlah agen, bukan trafik jaringan). Pola sama dgn 532/533: angka dekoratif dikonsumsi seolah metrik nyata.
+- Gateway backend_live/wfs_server.py: parser baru _net_rates_mb (pola toleran _parse_loadavg) — jumlah rx/tx semua interface non-lo dari /proc/net/dev, delta per pemanggilan (state global; /api/status di-poll frontend) → field `net_rx_mb_s`/`net_tx_mb_s` di /api/status. Guard: panggilan pertama/delta≤0/malformed/OSError → 0.0, tidak pernah melempar. Deploy via scripts/apply_wfs_server.py --apply (smoke strict OK).
+- Frontend effects.js sysdash: NET = rx+tx MB/s, skala log2 (0→bar min 20%, 1 MB/s→75%); field hilang/korup → fallback pola lama, tanpa NaN.
+- Test: screen_sysdash +1 (NET live 1.5 MB/s ≈ 52%, 0 MB/s → 20%, korup → fallback sin deterministik); test lama host-live diberi field net.
+- Verifikasi: parser diuji live (delta 0.3 dtk, malformed → 0.0, kolom rx/tx benar); curl /api/status kirim net_rx_mb_s/net_tx_mb_s; vitest 412 file, 4479 passed + 6 skipped (+5 net); build PWA exit 0; dist → ~/wfs-hq (net_rx_mb_s ada di OfficeScene bundle); e2e_err.py OK (agents=26, init_failed=False, shot 683KB, hygiene 41 refs 0 missing).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push - deploy key belum didaftarkan; (d) keputusan omniroute.
