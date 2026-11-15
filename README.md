@@ -697,3 +697,14 @@ PostgreSQL data from the running database.
 - [Phase 32 scoped gate](docs/REA_PHASE32.md)
 - [Phase 32 systemd runbook](docs/PHASE32_SYSTEMD_LEASE_RUNBOOK.md)
 - [Next Phase 33 implementation prompt](docs/NEXT_PHASE33_PROMPT.md)
+
+## Phase 33 — catch up a lagging release-journal anchor
+
+A bounded offline command verifies consecutive signed archive windows
+and advances existing custody only to an independently pinned tip.
+It cannot recreate a missing anchor or authorize a release. The
+normal live mTLS path remains required.
+
+- [Phase 33 scoped gate](docs/REA_PHASE33.md)
+- [Phase 33 archive recovery runbook](docs/PHASE33_ARCHIVE_RECOVERY_RUNBOOK.md)
+- [Next Phase 34 implementation prompt](docs/NEXT_PHASE34_PROMPT.md)

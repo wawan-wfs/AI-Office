@@ -1064,6 +1064,71 @@ print('outbound IPv4 denied for both targets')
         finally:
             shutil.rmtree(private_custody)
 
+    # Offline archive catch-up is separate from the live mTLS decision.
+    from preview_release_archive import recover_archived_anchor
+
+    archive_dir = root / "phase33-archives"
+    archive_dir.mkdir(mode=0o700)
+    first, second = (archive_dir / name for name in ("1-64.json", "64-127.json"))
+    first.write_text(json.dumps({"entries": archived_window}))
+    lagging_dir = root / "phase33-lagging"
+    lagging_dir.mkdir(mode=0o700)
+    lagging = lagging_dir / "head.json"
+    lagging.write_text(json.dumps({"version": 1, "key_fingerprint": journal.fingerprint,
+                                   "sequence": 1, "sha256": journal.hashes[0]}))
+    lagging.chmod(0o600)
+    while len(journal.entries) < MAX_RECORDS - 1:
+        journal.append()
+    final_archive_tip = journal.append(now=int(time.time()) - 541)
+    assert final_archive_tip == 127 and len(journal.entries) == MAX_RECORDS
+    second.write_bytes(journal.journal.read_bytes())
+    final_archive_hash = journal.hashes[-1]
+    assert journal.rotate() == 128
+
+    def deny_live(call, expected):
+        try:
+            call()
+        except AdmissionDenied as exc:
+            if expected in str(exc):
+                return
+            raise
+        raise AssertionError("expected journal denial")
+
+    with journal.server() as current_port:
+        def policy_for(state):
+            return RemoteReleasePolicy(journal.endpoint(current_port), journal.policy_key,
+                                       journal.fingerprint, final_archive_tip,
+                                       final_archive_hash, custody_path=state)
+
+        project, port, token = names[1], ports[1], tokens[1]
+        neighbor = open_manager(release, policy_for(lagging))
+        deny_live(lambda: neighbor.logs(project, token), "rollback or fork")
+        missing = lagging.with_name("missing.json")
+        options = dict(archives=[first, second], key_path=journal.policy_key,
+                       fingerprint=journal.fingerprint, target_sequence=final_archive_tip,
+                       target_sha256=final_archive_hash)
+        deny_live(lambda: recover_archived_anchor(state_path=missing, **options), "anchor unavailable")
+        assert not missing.exists()
+        recovered_anchor = recover_archived_anchor(state_path=lagging, **options)
+        assert recovered_anchor["archives_verified"] == 2
+        assert recovered_anchor["release_authorized"] is False
+        assert json.loads(lagging.read_text())["sequence"] == final_archive_tip
+        deny_live(lambda: neighbor.logs(project, token), "expired or clock")
+        assert json.loads(lagging.read_text())["sequence"] == 128
+        assert journal.append() == 129
+        assert neighbor.restart(project, token)["phase"] == "running"
+        assert health(port, token, tokens[0])
+        verify_frontend_http(port, reviewed_files["frontend"])
+        assert json.loads(lagging.read_text())["sequence"] == 129
+
+    proof["phase33_journal_archive_recovery"] = {
+        "full_archived_windows": 2, "live_head_sequence": 129,
+        "lagging_operator_denied_before_recovery": True,
+        "lost_anchor_not_recreated": True, "stale_rotated_allow_denied": True,
+        "fresh_mtls_decision_recovers_signed_http": True,
+        "independent_host_proven": False, "host_reboot_exercised": False,
+    }
+
 finally:
     errors=[]
     for project,token in zip(names,tokens):
