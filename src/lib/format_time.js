@@ -84,6 +84,17 @@ export function clockFromMinutes(min) {
 }
 
 /**
+ * Siklus 567: stempel waktu log aktivitas jadi epoch ms terukur.
+ * Sebelumnya hanya 'HH.MM' (tidak bisa diurutkan/dikoreksi). Masukan Date
+ * rusak → null (pemanggil pakai 0, pola guard log). Murni & testable.
+ */
+export function clockStampMs(d = new Date()) {
+  if (typeof d?.getTime !== 'function') return null
+  const ms = d.getTime()
+  return Number.isFinite(ms) ? ms : null
+}
+
+/**
  * Siklus 345: satu sumber jam 'HH.MM' id-ID dari Date saat ini.
  * Pengganti salinan `new Date().toLocaleTimeString('id-ID', {hour,minute})`
  * di App.jsx (stempel log aktivitas). Date rusak → null.

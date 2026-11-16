@@ -2,6 +2,7 @@ import React, { useRef, useCallback, useEffect } from 'react'
 import { useDialogA11y } from '../lib/dialogA11y'
 import { IconClose } from './Icons'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
+import { fmtStampId } from '../lib/format_time.js'
 import { PURE_TEXT } from '../lib/ui_palette.js';
 
 // Warna status delegasi ke satu sumber (siklus 373) — dulu failed/pending drift.
@@ -37,7 +38,10 @@ export default function ActivityLog({ show, items, onClose, onClear }) {
                   index hanya utk item tanpa id. */}
               {items.map((x, i) => (
                 <li key={x?.id !== undefined && x?.id !== null ? `t-${x.id}` : `i-${i}`} style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.08)', fontSize: 13 }}>
-                  <span style={{ color: TASK_STATUS_COLORS.pending, marginRight: 8 }}>{x.t}</span>
+                  {/* Siklus 567: stempel epoch ms (App pushLog) → 'HH.MM.SS' id-ID
+                      satu sumber fmtStampId; item lama 'HH.MM' string atau 0
+                      (stempel gagal) tetap tampil apa adanya. */}
+                  <span style={{ color: TASK_STATUS_COLORS.pending, marginRight: 8 }}>{fmtStampId(x.t) || x.t || ''}</span>
                   <span style={{ color: COL[x.status] || PURE_TEXT, fontWeight: 600 }}>{x.label}</span>
                   {' '}#{x.id} {x.title}
                 </li>

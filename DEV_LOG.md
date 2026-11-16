@@ -8413,3 +8413,10 @@
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scene probe (scripts/e2e_scene_probe.py + /tmp/e2e_err.py) exit 0 tanpa EXC/CON/'Scene init failed'.
 - Catatan: skrip verifikasi di ~/.hermes/cache/scratch sudah ter-prune lagi — versi ter-track ada di scripts/e2e_scene_probe.py; /tmp/e2e_err.py masih hidup (butuh chromium-1254, probe repo pakai chromium-1243).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 10:55 WIB — Siklus 567: stempel log aktivitas epoch ms (dapat diurutkan)
+- Lanjutan audit log: stempel `t` hanya 'HH.MM' (clockNowShortId) — tanpa detik, tidak bisa diurutkan/dikoreksi, format berubah per locale. App pushLog kini memakai clockStampMs() baru (format_time.js): epoch ms finite, Date rusak → null → fallback 0 (pola guard log).
+- ActivityLog merender via fmtStampId satu sumber → 'HH.MM.SS' id-ID; item lama (string 'HH.MM') atau 0 tetap tampil apa adanya, tanpa 'Invalid Date'.
+- Test: clock_stamp_567 baru (3 kasus); drift-gate stamp_single_source_345 disesuaikan (clockStampMs menggantikan clockNowShortId di App). Full-run: 416 file, 4522 passed + 6 skipped, 0 fail (~600s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scene probe exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

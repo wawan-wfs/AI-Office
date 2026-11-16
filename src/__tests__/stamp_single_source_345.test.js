@@ -15,7 +15,10 @@ describe('fmtStampId (siklus 345)', () => {
     expect(appSrc).not.toContain("toLocaleTimeString('id-ID'")
     expect(tvSrc).not.toContain("toLocaleTimeString('id-ID'")
     expect(pbSrc).not.toContain("toLocaleTimeString('id-ID'")
-    expect(appSrc).toContain('clockNowShortId')
+    // Siklus 567: stempel log aktivitas kini clockStampMs (epoch ms) —
+    // ActivityLog merender via fmtStampId (satu sumber tetap terjaga).
+    expect(appSrc).toContain('clockStampMs')
+    expect(appSrc).toContain("from './lib/format_time.js'")
     expect(tvSrc).toContain('fmtStampId')
     expect(pbSrc).toContain('fmtStampId')
   })
