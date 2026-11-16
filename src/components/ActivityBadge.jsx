@@ -39,6 +39,16 @@ const markSeen = () => {
 export const activityMarkSeen = markSeen
 export const activitySeenIds = loadSeen
 
+// Siklus 565: bersihkan log & set seen sekaligus — "Bersihkan" di dialog Log
+// sebelumnya hanya menghapus 'wfs_activity', set seen dibiarkan menumpuk
+// sampai cap 200 (ID task lama tak pernah terpakai lagi).
+export const activityClearAll = () => {
+  saveSeen([])
+  try {
+    if (typeof localStorage !== 'undefined') localStorage.removeItem('wfs_activity')
+  } catch { /* abaikan */ }
+}
+
 export function useUnreadActivity(open) {
   const [count, setCount] = useState(0)
   const openRef = useRef(open)

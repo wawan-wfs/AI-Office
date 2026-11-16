@@ -6,7 +6,7 @@
 import React from 'react'
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, cleanup, act } from '@testing-library/react'
-import { ActivityBadge, useUnreadActivity, activityMarkSeen, activitySeenIds, SEEN_KEY } from '../components/ActivityBadge'
+import { ActivityBadge, useUnreadActivity, activityMarkSeen, activityClearAll, activitySeenIds, SEEN_KEY } from '../components/ActivityBadge'
 
 afterEach(() => { cleanup(); localStorage.clear(); document.body.innerHTML = '' })
 
@@ -121,5 +121,21 @@ describe('ActivityBadge unread (per-ID seen)', () => {
     expect(container.querySelector('.log-badge').textContent).toBe('4')
     rerender(<ActivityBadge count={0} />)
     expect(container.querySelector('.log-badge')).toBeNull()
+  })
+
+  it('activityClearAll menghapus log & set seen (fix 565: tombol Bersihkan)', () => {
+    localStorage.setItem(LOG_KEY, JSON.stringify([item(1), item(2)]))
+    activityMarkSeen()
+    expect(activitySeenIds().length).toBe(2)
+    activityClearAll()
+    expect(localStorage.getItem(LOG_KEY)).toBeNull()
+    expect(activitySeenIds()).toEqual([])
+  })
+
+  it('activityClearAll tahan storage gagal (tanpa crash)', () => {
+    const orig = Storage.prototype.setItem
+    Storage.prototype.setItem = () => { throw new Error('quota') }
+    try { activityClearAll() } finally { Storage.prototype.setItem = orig }
+    expect(activitySeenIds()).toEqual([]) // saveSeen gagal diam → tetap []
   })
 })

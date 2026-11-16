@@ -8397,3 +8397,10 @@
 - Test activity_badge_561 +1 (item baru saat dialog terbuka → badge 0, id masuk seen, tetap 0 setelah ditutup); 13/13 pass. Full-run: 414 file, 4512 passed + 6 skipped, 0 fail (~600s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 09:10 WIB — Siklus 565: tombol "Bersihkan" Log membersihkan set seen + aria-label unread
+- Audit lanjutan ActivityBadge: (1) tombol "Bersihkan" hanya menghapus 'wfs_activity' — set seen 'wfs_activity_seen' dibiarkan menumpuk sampai cap 200 dengan ID task lama yang tak terpakai lagi; (2) tombol dock Log tanpa aria-label dinamis — screen reader tak tahu jumlah item belum dilihat walau badge visual merah tampil.
+- ActivityBadge.jsx: export activityClearAll() (saveSeen([]) + removeItem wfs_activity, guard try/catch). App.jsx clearLog → activityClearAll; tombol dock Log aria-label = "Log aktivitas — N item belum dilihat" saat unread>0.
+- Test activity_badge_561 +2 (clearAll hapus log & seen; clearAll tahan storage gagal tanpa crash) → 15/15. Full-run: exit 0, 414 file pass (523s, tanpa fail).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa EXC/CON/'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

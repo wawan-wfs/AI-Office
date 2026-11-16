@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react'
 import { clip } from './lib/clip.js'
 import { SCENE_ID_TO_NAME } from './scene/parts/agent_identity.js'
-import { viewModePref, setViewModePref, neonPrefOn, audioMutedPref, loadActivityLog, saveActivityLog, clearActivityLog, takeOpenDashboardFlag } from './lib/storage_prefs.js'
+import { viewModePref, setViewModePref, neonPrefOn, audioMutedPref, loadActivityLog, saveActivityLog, takeOpenDashboardFlag } from './lib/storage_prefs.js'
 import { clockNowShortId, clockFromMinutes, dayMinutesNow } from './lib/format_time.js'
 import { useVisibilityPoll, useWindowEvent } from './lib/dialogA11y'
 import HUD from './components/HUD'
@@ -19,7 +19,7 @@ import TaskModal from './components/TaskModal'
 import ConfirmModal from './components/ConfirmModal'
 import ProjectPanel from './components/ProjectPanel'
 import ActivityLog from './components/ActivityLog'
-import { useUnreadActivity, activityMarkSeen, ActivityBadge } from './components/ActivityBadge'
+import { useUnreadActivity, activityMarkSeen, activityClearAll, ActivityBadge } from './components/ActivityBadge'
 import AgentInspector from './components/AgentInspector'
 // Siklus 190: ShConsole (38K) & SettingsModal (22K) kini lazy + mount-on-demand
 // juga — komponen modal POLLED (show via prop dari App-state, BUKAN CustomEvent)
@@ -213,7 +213,7 @@ export default function App() {
     // prop drilling state ke Header-like dock (App merender tombol itu inline).
     try { window.dispatchEvent(new CustomEvent('wfs-activity-updated')) } catch { /* abaikan */ }
   }, [])
-  const clearLog = () => { setLogItems([]); clearActivityLog() }
+  const clearLog = () => { setLogItems([]); activityClearAll() } // 565: bersihkan juga set seen
 
   const flash = useCallback((msg, err = false) => {
     setToast({ msg, err })
@@ -894,7 +894,7 @@ export default function App() {
           </span>
           <span className="lb">{muted ? 'Suara Mati' : 'Suara'}</span>
         </button>
-        <button className="ibtn" onClick={() => { setShowLog(true); activityMarkSeen() }} title="Log aktivitas kantor — shortcut L" aria-label="Log aktivitas">
+        <button className="ibtn" onClick={() => { setShowLog(true); activityMarkSeen() }} title="Log aktivitas kantor — shortcut L" aria-label={logUnread > 0 ? `Log aktivitas — ${logUnread} item belum dilihat` : 'Log aktivitas'}>
           <span className="ic"><IconScroll size={19} /><span className="sr-only">📜</span>{logUnread > 0 && <ActivityBadge count={logUnread} />}</span>
           <span className="lb">Log</span>
         </button>
