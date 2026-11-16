@@ -8500,6 +8500,14 @@
 - Catatan: e2e_err.py di scratch masih tidak ada — dipakai scripts/e2e_scene_probe.py (sama seperti siklus 574).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 
+## 16/11/2026 21:35 WIB — Siklus 580: kartu inspektur agen jadi dialog penuh (a11y fokus)
+- Penutup audit a11y dialog (pola 572–579): AgentInspector satu-satunya overlay tanpa useDialogA11y — masih role="region", fokus tak dipindah saat kartu terbuka, Tab bisa "kabur" ke UI di balik kartu, dan fokus tak dikembalikan ke pemicu saat ditutup.
+- Fix: kartu kini role="dialog" + aria-modal="true" (label tetap "Profil <nama>"); useDialogA11y({ ref: cardRef, initialFocus: closeRef }) — fokus awal ke tombol tutup, focus-trap Tab/Shift+Tab, restore fokus ke pemicu saat kartu ditutup. Pelajaran tercatat: ref ke tombol (bukan elemen dialog) membuat trap tanpa akar — Tab tetap lolos; ref harus menunjuk elemen role=dialog itu sendiri, initialFocus terpisah.
+- Tanpa perubahan visual.
+- Test: agent_inspector +3 (role=dialog+aria-modal+fokus awal ke tombol tutup; fokus trap Tab dari elemen terakhir → kembali ke tombol tutup; fokus restore ke pemicu saat kartu ditutup) + offsetParent jsdom patch pola dialog_a11y.test.jsx. Full-run: 425 file, 4559 passed + 6 skipped, 0 fail.
+- Verifikasi: build PWA exit 0 (precache 47, 1972.97 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
 ## 16/11/2026 20:27 WIB — Siklus 579: aria-describedby error dialog pada Dashboard & WfsPanel
 - Lanjutan audit a11y dialog (pola 572–578): Dashboard dan WfsPanel punya banner error role=alert tanpa id — saat fetch gagal, "Data belum lengkap…" / error muat agent hanya announcement sekali, tidak terasosiasi ke dialog.
 - Fix: id stabil `db-err` / `wp-err` + `aria-describedby={err ? '…' : undefined}` pada elemen role=dialog — atribut tak dirender saat tak ada error. Tanpa perubahan visual.

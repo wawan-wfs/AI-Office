@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { IconClose, IconChat, IconUser } from './Icons'
 import { getAgentCompetency } from '../scene/parts/agent_competencies.js'
 import { TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
@@ -8,7 +8,7 @@ import { findTeamByAgent } from '../scene/parts/team_spec.js'
 import { agentLiveStatus, findAgentLiveEntry, agentLiveLevel, floorZoneName, floorZonePrefix, FLOOR_ZONE_PREFIX } from '../scene/parts/agent_status.js'
 import { dispatchTaskBoardEvent } from '../lib/taskboard_gate.js'
 import { useModalFlag } from '../lib/modal'
-import { useEscapeClose, useVisibilityPoll } from '../lib/dialogA11y'
+import { useDialogA11y, useEscapeClose, useVisibilityPoll } from '../lib/dialogA11y'
 
 // Kartu Inspektur Agen Interaktif — Tampil saat agen 3D diklik di ruangan
 export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloor, onOpenConsole }) {
@@ -42,6 +42,14 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
   // handler window keydown stopPropagation+onClose; kontrak stopPropagation
   // kini milik useEscapeClose.
   useEscapeClose(!!agent, onClose, { stopPropagation: true })
+  // Siklus 580: kartu kini role=dialog + aria-modal (paritas panel lain). Fokus
+  // awal ke tombol tutup & dikembalikan ke pemicu (klik agent 3D / dock) saat
+  // tertutup. DUA ref: `cardRef` = elemen dialog (sumber focus-trap & aria),
+  // `closeRef` = initialFocus. (Pelajaran: ref ke tombol membuat trap tak punya
+  // akar → Tab lolos keluar dialog.)
+  const cardRef = useRef(null)
+  const closeRef = useRef(null)
+  useDialogA11y({ open: !!agent, onClose, ref: cardRef, initialFocus: closeRef })
 
   if (!agent) return null
 
@@ -54,7 +62,9 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
   return (
     <aside
       className="agent-inspector panel"
-      role="region"
+      ref={cardRef}
+      role="dialog"
+      aria-modal="true"
       aria-label={`Profil ${agent.name}`}
       style={{
         position: 'fixed',
@@ -96,6 +106,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
         </div>
         <button
           className="x"
+          ref={closeRef}
           onClick={onClose}
           aria-label="Tutup kartu agen"
           title="Tutup profil agen (Esc)"

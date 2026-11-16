@@ -1,9 +1,17 @@
 // @vitest-environment jsdom
 import React from 'react'
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import AgentInspector from '../components/AgentInspector'
 import { taskBoardGateReset, taskBoardGateFlush } from '../lib/taskboard_gate.js'
+
+// jsdom tidak mengimplementasikan layout: offsetParent selalu null (patch
+// pola dialog_a11y.test.jsx supaya filter "tersembunyi" di useDialogA11y
+// tidak menyaring semua elemen).
+Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+  configurable: true,
+  get() { return this.style.display === 'none' ? null : (this.ownerDocument && this.ownerDocument.body) },
+})
 
 afterEach(() => { cleanup(); document.body.innerHTML = '' })
 
@@ -173,5 +181,48 @@ describe('AgentInspector — kartu profil agen 3D', () => {
 
     delete window.__wfsRunningTasks
     dispatchSpy.mockRestore()
+  })
+
+  // Siklus 580: kartu inspektur jadi dialog penuh (role=dialog + aria-modal),
+  // fokus awal ke tombol tutup, dikembalikan ke pemicu saat kartu ditutup —
+  // paritas panel lain yang sudah memakai useDialogA11y (572–579).
+  it('inspector_dialog_a11y_580: role=dialog + aria-modal + fokus awal tombol tutup', async () => {
+    render(<AgentInspector agent={mockAgent} onClose={vi.fn()} onChatWith={vi.fn()} />)
+    const dlg = screen.getByRole('dialog', { name: /Profil Wahyu Fajar Setiawan/ })
+    expect(dlg.getAttribute('aria-modal')).toBe('true')
+    // fokus awal: tombol tutup (elemen fokusabel pertama di kartu)
+    const close = screen.getByLabelText('Tutup kartu agen')
+    await waitFor(() => expect(document.activeElement).toBe(close))
+  })
+
+  it('inspector_dialog_a11y_580: Tab terkunci di dalam kartu (fokus trap)', async () => {
+    render(<AgentInspector agent={mockAgent} onClose={vi.fn()} onChatWith={vi.fn()} />)
+    const dlg = screen.getByRole('dialog')
+    const focusables = [...dlg.querySelectorAll('button')]
+    expect(focusables.length).toBeGreaterThan(1)
+    await waitFor(() => expect(document.activeElement).toBe(focusables[0]))
+    // fokus di elemen terakhir + Tab → kembali ke elemen fokusabel PERTAMA
+    // dalam urutan DOM (tombol tutup di header), bukan pertama hasil query —
+    // dialogA11y trap menghitung ulang items dari DOM.
+    const trapFirst = [...dlg.querySelectorAll('button')].find(b => b.getAttribute('aria-label') === 'Tutup kartu agen')
+    focusables[focusables.length - 1].focus()
+    // listener useDialogA11y terpasang di useEffect — tunggu sebelum keydown
+    await new Promise(r => setTimeout(r, 50))
+    fireEvent.keyDown(document, { key: 'Tab' })
+    expect(dlg.contains(document.activeElement)).toBe(true)
+    expect(document.activeElement).toBe(trapFirst)
+  })
+
+  it('inspector_dialog_a11y_580: fokus dikembalikan ke pemicu saat kartu ditutup', () => {
+    const { rerender } = render(<AgentInspector agent={mockAgent} onClose={vi.fn()} onChatWith={vi.fn()} />)
+    const trigger = document.createElement('button')
+    trigger.textContent = 'pemicu'
+    document.body.appendChild(trigger)
+    trigger.focus()
+    // kartu terbuka (rerender) lalu ditutup → fokus kembali ke pemicu
+    rerender(<AgentInspector agent={mockAgent} onClose={vi.fn()} onChatWith={vi.fn()} />)
+    rerender(<AgentInspector agent={null} onClose={vi.fn()} onChatWith={vi.fn()} />)
+    expect(document.activeElement).toBe(trigger)
+    trigger.remove()
   })
 })
