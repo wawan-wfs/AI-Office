@@ -8584,3 +8584,10 @@
 - TIDAK ada perubahan kode — audit bersih; semua poin sudah diimplement di siklus sebelumnya.
 - Verifikasi: build PWA exit 0; FULL suite npx vitest run — 431 file, 4573 passed + 6 skipped, 0 fail (~569 s); scripts/e2e_scene_probe.py exit 0 (tanpa 'Scene init failed'; e2e_err.py di scratch tidak ada — pakai probe resmi); dist → ~/wfs-hq.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 07:10 WIB — Siklus 590: verifikasi pasca-audit (build, full-suite, deploy) + pemindaian sisa utang teknis
+
+- Siklus audit lanjutan: pemindaian repo-wide untuk sisa utang teknis — `console.log` di src (0, di luar test), TODO/FIXME/XXX (0). Dukungan a11y motion/tema: prefers-reduced-motion hadir di index.css (4 rule), landing.css, OrbitalSculpture.jsx, dan scene auto-rotate — lengkap.
+- TIDAK ada perubahan kode (dua siklus berturut audit bersih); siklus ini memastikan kembali hijau penuh: build PWA exit 0, FULL suite `npm test` 431 file / 4573 pass + 6 skip / 0 fail (~565 s), probe scene exit 0 tanpa "Scene init failed", dist → ~/wfs-hq.
+- Catatan perf (dari vitest, belum dieksekusi): isolate:false bisa hemat ~340 s per run — kandidat eksperimen siklus berikut.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
