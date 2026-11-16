@@ -8591,3 +8591,10 @@
 - TIDAK ada perubahan kode (dua siklus berturut audit bersih); siklus ini memastikan kembali hijau penuh: build PWA exit 0, FULL suite `npm test` 431 file / 4573 pass + 6 skip / 0 fail (~565 s), probe scene exit 0 tanpa "Scene init failed", dist → ~/wfs-hq.
 - Catatan perf (dari vitest, belum dieksekusi): isolate:false bisa hemat ~340 s per run — kandidat eksperimen siklus berikut.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 07:20 WIB — Siklus 591: eksperimen isolate:false vitest — HASIL NEGATIF, tidak diadopsi
+
+- Eksperimen backlog siklus 590: `npx vitest run --isolate=false` — durasi turun drastis 565 s → 182 s (real 3m5s), TAPI korektness hancur: 87 test file failed / 344 passed (431), 261 tests failed / 4063 passed / 5 skipped (4329). Contoh kegagalan: HUD test (getByText gagal) — kontaminasi DOM/state antar file karena worker tidak diisolasi.
+- Keputusan: TIDAK diadopsi; konfigurasi vitest TIDAK diubah. Hasil negatif dicatat agar eksperimen serupa tidak diulang. Kandidat lanjutan bila perf test dibutuhkan: pool 'forks' atau pembagian shard, belum dieksekusi.
+- TIDAK ada perubahan kode siklus ini. Suite normal tidak diulang penuh (state kode identik sejak commit 5792b5b yang full-run hijau 4573 pass; run eksperimen di atas bukan bagian gate).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
