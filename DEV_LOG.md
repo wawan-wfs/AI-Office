@@ -8382,3 +8382,11 @@
 - Test: activity_badge_561 diperluas 6→12 (item baru setelah dibuka tetap badge, storage event, markSeen ids, cap 200, guard korup/no-id). Full-run: 414 file, 4510 passed + 6 skipped, 0 fail (~520s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed'; push OK.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 07:55 WIB — Siklus 563: pushLog tahan persist gagal (localStorage penuh/blokir)
+- Audit lanjutan ActivityBadge/log: pushLog di App.jsx memanggil saveActivityLog tanpa try — jika safeSet throw (localStorage quota/blokir) exception merambat ke refreshStatus poll, menginterupsi toast + suara task; item baru juga tidak pernah tampil di dialog Log di sesi itu.
+- Fix: saveActivityLog dibungkus try; hasil simpanan (sudah terpotong CAP 50) dibaca balik sebagai sumber setLogItems; bila persist gagal → fallback loadActivityLog() sehingga item tetap terlihat di UI. Ref paralel logItemsRef (pushLog tetap dep-stabil, tanpa stale closure).
+- Test: app_integration +1 (setItem wfs_activity throw → toast task tampil, dialog Log menampilkan item, tanpa crash). Targeted 4 file activity/log: 42/42 pass.
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed'. Full-run berjalan background (/tmp/test563.log).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+- Lanjutan 563: full-run BERSIH — 414 file, 4511 passed + 6 skipped, 0 fail (~543s).

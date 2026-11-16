@@ -191,8 +191,23 @@ export default function App() {
   const actionMenuApi = useRef(null) // diisi ActionMenu: {toggleNames, toggleRotate} utk shortcut K/R
   const amRef = actionMenuApi
   const [logItems, setLogItems] = useState(() => loadActivityLog())
+  // Ref paralel (siklus 563): pushLog tetap stabil (dep []) tapi selalu
+  // membaca daftar log terkini — tanpa ini item lama bisa tertimpa stale.
+  const logItemsRef = useRef(logItems)
+  logItemsRef.current = logItems
   const pushLog = useCallback((e) => {
-    setLogItems(prev => saveActivityLog([e, ...prev]))
+    // Siklus 563: saveActivityLog dulu (bisa throw — safeSet) dan hasil
+    // simpanan terpotong CAP dibaca balik; jika persist gagal (localStorage
+    // penuh/blokir), item tetap masuk state UI via fallback loadActivityLog
+    // — tidak hilang diam-diam dari dialog di sesi ini.
+    let saved = null
+    try {
+      saved = saveActivityLog([e, ...(logItemsRef.current || [])])
+    } catch { /* persist gagal — fallback di bawah */ }
+    if (!saved) {
+      try { saved = [...loadActivityLog()] } catch { saved = [] }
+    }
+    setLogItems(saved)
     // Siklus 561: log aktivitas kini dibroadcast via CustomEvent
     // 'wfs-activity-updated' — tombol dock "Log" dpt badge unread tanpa
     // prop drilling state ke Header-like dock (App merender tombol itu inline).

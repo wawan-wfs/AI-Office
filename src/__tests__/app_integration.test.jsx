@@ -220,6 +220,37 @@ describe('App — integrasi UI', () => {
     expect(localStorage.store.wfs_activity).toBeUndefined()
   })
 
+  it('log aktivitas: localStorage penuh (setItem throw) → item TETAP tampil di UI (fallback load), tak crash', async () => {
+    // Siklus 563: persist gagal (quota throw) → pushLog memuat fallback dari
+    // localStorage (item lama tetap) dan setLogItems(item) sesi — UI tidak hilang.
+    let flip = false
+    window.addEventListener('online', () => { flip = true })
+    vi.stubGlobal('fetch', vi.fn(async (url) => {
+      const u = String(url)
+      const tasks = flip
+        ? [{ id: 1, title: 'API invoice', agent_id: 'be1', status: 'pending' },
+           { id: 2, title: 'Fix UI', agent_id: 'fe1', status: 'done' }]
+        : TASKS
+      if (u.includes('tasks/paused')) return { ok: true, json: async () => ({ paused: false }) }
+      return { ok: true, json: async () => ({ tasks }) }
+    }))
+    localStorage.setItem('wfs_view_mode', '3d')
+    // pre-seed item lama agar fallback load tidak kosong
+    localStorage.store.wfs_activity = JSON.stringify([{ t: '09:00', id: 1, status: 'pending', label: 'antri', title: 'API invoice' }])
+    const origSet = localStorage.setItem.bind(localStorage)
+    localStorage.setItem = (k, v) => {
+      if (k === 'wfs_activity') throw new Error('QuotaExceededError')
+      return origSet(k, v)
+    }
+    render(<App />)
+    await waitFor(() => expect(screen.getByText('1 jalan · 1 antri')).toBeTruthy(), { timeout: 3000 })
+    await act(async () => { window.dispatchEvent(new Event('online')) })
+    await waitFor(() => expect(screen.getByText(/Task #2 selesai/)).toBeTruthy(), { timeout: 3000 })
+    // Log dialog menampilkan item baru meski persist gagal
+    fireEvent.keyDown(window, { key: 'l' })
+    await waitFor(() => expect(screen.getAllByText(/#2/).length).toBeGreaterThan(0))
+  })
+
   it('mode neon persist di localStorage: tombol dock Neon langsung aktif (aria-pressed=true & class on)', () => {
     localStorage.store.wfs_neon = '1'
     stubFetch([])
