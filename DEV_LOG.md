@@ -8404,3 +8404,12 @@
 - Test activity_badge_561 +2 (clearAll hapus log & seen; clearAll tahan storage gagal tanpa crash) → 15/15. Full-run: exit 0, 414 file pass (523s, tanpa fail).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa EXC/CON/'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 09:50 WIB — Siklus 566: dedup baris kembar log aktivitas + key stabil ActivityLog
+- Audit lanjutan ActivityBadge/ActivityLog: (1) pushLog bisa dipanggil dua kali dgn transisi status sama (race antar poll rid) → dialog Log menampilkan baris kembar id+status identik & badge unread menghitung ganda; (2) ActivityLog memakai key={i} indeks — semua <li> bergeser saat item terlama terpotong CAP 50 (announcer screen reader kacau).
+- dedupeLogHead(items, e) baru di lib/storage_prefs.js (murni, diuji terpisah): entri baru (items[0]) dibandingkan dgn head log lama (items[1]); identik → salinan lama dibuang; transisi sah A→B→A tidak tersentuh. pushLog memakainya lalu persist ulang versi ter-dedup (guard try/catch).
+- ActivityLog.jsx: key stabil `t-<id>` per item, fallback `i-<i>` hanya utk item tanpa id.
+- Test baru activity_dedup_566 (5 kasus: duplikat, A→B→A, id beda, guard, label beda); drift-gate single_source_348 prefFns disesuaikan (clearActivityLog→activityClearAll di 565, +dedupeLogHead). Full-run: 415 file, 4519 passed + 6 skipped, 0 fail.
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scene probe (scripts/e2e_scene_probe.py + /tmp/e2e_err.py) exit 0 tanpa EXC/CON/'Scene init failed'.
+- Catatan: skrip verifikasi di ~/.hermes/cache/scratch sudah ter-prune lagi — versi ter-track ada di scripts/e2e_scene_probe.py; /tmp/e2e_err.py masih hidup (butuh chromium-1254, probe repo pakai chromium-1243).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

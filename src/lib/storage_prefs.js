@@ -87,6 +87,20 @@ export const clearActivityLog = () => {
   } catch { /* abaikan */ }
 }
 
+// Siklus 566: dedup baris kembar berurutan — pushLog bisa dipanggil dua kali
+// dgn transisi yang sama (race antar poll rid) → log berisi baris kembar & 
+// badge unread menghitung ganda. Aturan: entri baru dibandingkan dgn HEAD LOG
+// LAMA (items[1], karena items[0] = entri baru itu sendiri); bila identik,
+// salinan lama dibuang, entri baru tetap. Transisi berbeda tak tersentuh.
+export const dedupeLogHead = (items, e) => {
+  if (!Array.isArray(items) || !e || items.length < 2) return items
+  const prev = items[1]
+  if (prev && prev.id === e.id && prev.status === e.status && prev.label === e.label) {
+    return [items[0], ...items.slice(2)]
+  }
+  return items
+}
+
 // Siklus 349: flag handshake landing→app satu sumber.
 // Landing (public/landing.html) menulis 'wfs_open_dashboard'=1 sebelum redirect;
 // App.jsx membaca+hapus sekali lalu dispatch event dashboard. Dipindah ke sini

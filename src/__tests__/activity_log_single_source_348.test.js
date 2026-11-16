@@ -21,7 +21,9 @@ beforeEach(() => {
 })
 
 const j = (name) => JSON.stringify(name)
-const prefFns = ['loadActivityLog', 'saveActivityLog', 'clearActivityLog']
+// Siklus 565: clearActivityLog diganti activityClearAll (ActivityBadge.jsx —
+// bersihkan log + set seen sekaligus). Siklus 566 menambah dedupeLogHead.
+const prefFns = ['loadActivityLog', 'saveActivityLog', 'dedupeLogHead']
 
 it('salinan inline wfs_activity hilang di App.jsx — 3 titik (read/write/clear)', () => {
   expect(appSrc.includes("localStorage.getItem('wfs_activity')")).toBe(false)

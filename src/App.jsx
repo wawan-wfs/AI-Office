@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react'
 import { clip } from './lib/clip.js'
 import { SCENE_ID_TO_NAME } from './scene/parts/agent_identity.js'
-import { viewModePref, setViewModePref, neonPrefOn, audioMutedPref, loadActivityLog, saveActivityLog, takeOpenDashboardFlag } from './lib/storage_prefs.js'
+import { viewModePref, setViewModePref, neonPrefOn, audioMutedPref, loadActivityLog, saveActivityLog, dedupeLogHead, takeOpenDashboardFlag } from './lib/storage_prefs.js'
 import { clockNowShortId, clockFromMinutes, dayMinutesNow } from './lib/format_time.js'
 import { useVisibilityPoll, useWindowEvent } from './lib/dialogA11y'
 import HUD from './components/HUD'
@@ -206,6 +206,15 @@ export default function App() {
     } catch { /* persist gagal — fallback di bawah */ }
     if (!saved) {
       try { saved = [...loadActivityLog()] } catch { saved = [] }
+    }
+    // Siklus 566: dedup — pushLog bisa dipanggil dua kali dgn transisi sama
+    // (race antar poll rid) → baris kembar & badge unread hitung ganda.
+    // dedupeLogHead membandingkan entri baru (saved[0]) dgn head log lama.
+    const before = saved.length
+    saved = dedupeLogHead(saved, e)
+    if (saved.length < before) {
+      // persist ulang versi ter-dedup; bila gagal, state UI tetap benar
+      try { saveActivityLog(saved) } catch { /* abaikan */ }
     }
     setLogItems(saved)
     // Siklus 561: log aktivitas kini dibroadcast via CustomEvent

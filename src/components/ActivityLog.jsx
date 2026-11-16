@@ -32,8 +32,11 @@ export default function ActivityLog({ show, items, onClose, onClear }) {
         {items.length === 0
           ? <p>Belum ada perubahan status task sejak log dipantau.</p>
           : <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: '55dvh', overflowY: 'auto' }}>
+              {/* Siklus 566: key stabil per-item — key={i} indeks menggeser semua
+                  <li> saat item terlama terpotong CAP 50. id task unik; fallback
+                  index hanya utk item tanpa id. */}
               {items.map((x, i) => (
-                <li key={i} style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.08)', fontSize: 13 }}>
+                <li key={x?.id !== undefined && x?.id !== null ? `t-${x.id}` : `i-${i}`} style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.08)', fontSize: 13 }}>
                   <span style={{ color: TASK_STATUS_COLORS.pending, marginRight: 8 }}>{x.t}</span>
                   <span style={{ color: COL[x.status] || PURE_TEXT, fontWeight: 600 }}>{x.label}</span>
                   {' '}#{x.id} {x.title}
