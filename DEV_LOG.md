@@ -8477,3 +8477,10 @@
 - Test: task_modal_focus_575 baru (2 kasus: fokus → input Judul, describedby null→tm-err saat error). Full-run: 422 file, 4546 passed + 6 skipped, 1 fail flaky lazy-chunk app_integration ('o' pengaturan — pola flake dikenal siklus 557); pass saat targeted rerun (21/21) — belum full-run kedua.
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 18:15 WIB — Siklus 576: ShConsole drawer aria-modal + describedby error dialog
+- Audit a11y modal lanjutan (pola 572–575): drawer "Konsol Software House" (ShConsole) adalah satu-satunya role=dialog tanpa aria-modal — screen reader tidak mengumumkannya sebagai modal; ditambah aria-modal="true".
+- Banner error (role=alert) kini ber-id "sc-err" dan dialog aria-describedby={err ? 'sc-err' : undefined} — pesan error API (overview/projects/tasks/…) dibaca sebagai deskripsi dialog, bukan hanya announcement sekali. Tanpa perubahan visual.
+- Test: shconsole_a11y_576 baru (4 kasus: aria-modal, tanpa error → describedby null, api reject → sc-err role=alert di dalam dialog, poll pulih → null lagi; visibilityState diset 'visible' karena jsdom default menggerbangi useVisibilityPoll). Full-run: 423 file, 4551 passed + 6 skipped, 0 fail.
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

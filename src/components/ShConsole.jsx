@@ -394,7 +394,7 @@ export default function ShConsole({ show, onClose }) {
 
   return (
     <div style={STYLE.overlay} role="presentation" onClick={onClose}>
-      <div ref={drawerRef} style={STYLE.drawer} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Konsol Software House">
+      <div ref={drawerRef} style={STYLE.drawer} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Konsol Software House" aria-describedby={err ? 'sc-err' : undefined}>
         <div style={STYLE.head}>
           <h2 style={STYLE.title}>WFS PROJECT · Konsol</h2>
           <button className="ibtn" onClick={onClose} aria-label="Tutup konsol" title="Tutup">✕</button>
@@ -405,7 +405,7 @@ export default function ShConsole({ show, onClose }) {
           ))}
         </div>
         <div style={STYLE.body}>
-          {err && <div style={STYLE.err} role="alert">⚠ {err}</div>}
+          {err && <div id="sc-err" style={STYLE.err} role="alert">⚠ {err}</div>}
           {tab === 'overview' && <Overview ov={ov} liveLogs={liveLogs} esState={esState} />}
           {tab === 'projects' && <Projects projects={projects} onRefresh={loadProjects} onOpenWorkspace={(pid) => { setTab('ws'); selectWsProject(pid) }} />}
           {tab === 'tasks' && (
