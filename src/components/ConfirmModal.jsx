@@ -13,15 +13,16 @@ export default function ConfirmModal({ show, title, text, confirmLabel = 'Ya, la
   const cancelViaA11y = useCallback(() => onCancelRef.current(), [])
   useDialogA11y({ open: show, onClose: cancelViaA11y, ref: box })
   if (!show) return null
+  const textId = text ? 'cf-d' : undefined
   return (
     <div className="modal-scrim" role="presentation" onClick={onCancel}>
-      <div ref={box} className="modal" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" onClick={e => e.stopPropagation()}>
+      <div ref={box} className="modal" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" aria-describedby={textId} onClick={e => e.stopPropagation()}>
         <button type="button" className="x" onClick={onCancel} title="Batal (Esc)" aria-label="Tutup dialog konfirmasi">
           <IconClose size={16} />
           <span className="sr-only">✕</span>
         </button>
         <h3 id="cf-t" style={{ paddingRight: 32 }}>{title}</h3>
-        <p>{text}</p>
+        <p id="cf-d">{text}</p>
         <div className="modal-actions">
           <button className="btn" onClick={onCancel}>Batal</button>
           <button className="btn primary" style={danger ? { background: TASK_STATUS_COLORS.failed, color: PURE_TEXT } : null} disabled={busy} onClick={onConfirm} autoFocus>{busy ? 'Memproses…' : confirmLabel}</button>

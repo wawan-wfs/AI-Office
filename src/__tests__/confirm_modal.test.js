@@ -56,6 +56,17 @@ describe('components/ConfirmModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
+  it('aria-describedby menunjuk teks (cf-d) saat text ada; tanpa text → tanpa aria-describedby', () => {
+    const { rerender, container } = render(
+      h(ConfirmModal, { show: true, title: 'Hapus task?', text: 'Yakin ingin menghapus?', onConfirm: vi.fn(), onCancel: vi.fn() })
+    )
+    const dlg = screen.getByRole('alertdialog')
+    expect(dlg.getAttribute('aria-describedby')).toBe('cf-d')
+    expect(container.querySelector('#cf-d').textContent).toBe('Yakin ingin menghapus?')
+    rerender(h(ConfirmModal, { show: true, title: 'Hapus task?', onConfirm: vi.fn(), onCancel: vi.fn() }))
+    expect(screen.getByRole('alertdialog').getAttribute('aria-describedby')).toBeNull()
+  })
+
   it('Escape menutup dialog melalui useDialogA11y', () => {
     const onCancel = vi.fn()
     render(h(ConfirmModal, { show: true, title: 't', onConfirm: vi.fn(), onCancel }))

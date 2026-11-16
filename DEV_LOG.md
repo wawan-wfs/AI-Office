@@ -8450,3 +8450,10 @@
 - Test: log_announce_571 baru (3 kasus: region ada & polite, jumlah 0→2 mengikuti rerender, label tunggal 1). Full-run pertama 1 fail acak (app_integration flaky timeout konteks — pass saat targeted & di rerun), rerun bersih: 420 file, 4541 passed + 6 skipped, 0 fail (~570s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 15:15 WIB — Siklus 572: ConfirmModal aria-describedby (deskripsi dialog a11y)
+- Audit a11y: ConfirmModal (role alertdialog) hanya punya aria-labelledby — teks penjelasan ("tidak bisa dikembalikan") tidak terasosiasi ke dialog, screen reader hanya membaca judul tanpa konteks konsekuensi aksi destruktif.
+- Fix: <p> teks diberi id="cf-d"; dialog aria-describedby="cf-d" saat text ada, tanpa text → atribut tidak dirender. Tidak ada perubahan visual.
+- Test confirm_modal.test.js +1 (describedby → cf-d + isi teks; tanpa text → null). Full-run: exit 0, 420 file, 0 fail (~535s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
