@@ -8577,3 +8577,10 @@
 - TIDAK ada perubahan kode siklus ini — audit bersih; jaga agar tidak mengarang fix.
 - Verifikasi: vitest subset a11y (8 file) 84/84 pass; build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'. Full-suite run panjang (>9 mnt) belum diulang siklus ini — state kode tidak berubah sejak commit 00f38a4 yang full-run hijau 4573 pass.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 06:15 WIB — Siklus 589: audit PWA & UX menyeluruh pasca-588 — nol cacat kritis, nol perubahan kode
+
+- Audit PWA/UX menyeluruh (pasca deret a11y 583–588): (1) manifest.webmanifest lengkap (nama/lang/start_url/standalone/3 ikon + maskable) — tidak ada shortcuts tapi bukan cacat; (2) index.html: canonical, og:*, twitter:*, apple-touch-icon, preload font woff2, theme-color, viewport maximum-scale=5.0 (zoom tak diblokir) — semua ADA; (3) robots.txt Disallow /app/ + /api/ + sitemap XML konsisten dgn og:url; (4) source map hidden (siklus 433) aman; (5) UX: polling adaptif + offline awareness + visibilitychange refresh (324) di App; Wake Lock kiosk (lib/wakelock.js, diuji); SW prompt-mode banner muat ulang (192); lazy chunk pre-warm idle (577); Ticker marquee aria-live terpisah (tiket live) + track aria-hidden; skeleton loading pakai role=status; error handling api() timeout & 401 pesan lokal.
+- TIDAK ada perubahan kode — audit bersih; semua poin sudah diimplement di siklus sebelumnya.
+- Verifikasi: build PWA exit 0; FULL suite npx vitest run — 431 file, 4573 passed + 6 skipped, 0 fail (~569 s); scripts/e2e_scene_probe.py exit 0 (tanpa 'Scene init failed'; e2e_err.py di scratch tidak ada — pakai probe resmi); dist → ~/wfs-hq.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
