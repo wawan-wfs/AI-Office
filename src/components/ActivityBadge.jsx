@@ -12,7 +12,7 @@
 // Sekarang: set ID item yang pernah dilihat ('wfs_activity_seen' — array,
 // cap 200). Item log punya id task unik; pushLog selalu mengirim id, item
 // tanpa id dihitung unread agar tidak hilang diam-diam.
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { loadActivityLog, ACTIVITY_LOG_MAX } from '../lib/storage_prefs.js'
 
 export const SEEN_KEY = 'wfs_activity_seen'
@@ -41,8 +41,14 @@ export const activitySeenIds = loadSeen
 
 export function useUnreadActivity(open) {
   const [count, setCount] = useState(0)
+  const openRef = useRef(open)
+  openRef.current = open
   useEffect(() => {
     const compute = () => {
+      // Siklus 564: dialog Log terbuka → semua item terlihat user; tandai seen
+      // & sembunyikan badge (sebelumnya badge tetap muncul utk item yang baru
+      // masuk SELAGI dialog terbuka, dan item itu tak pernah di-mark seen).
+      if (openRef.current) { markSeen(); setCount(0); return }
       try {
         const seen = new Set(loadSeen())
         const unread = loadActivityLog().filter(x => !x || x.id === undefined || x.id === null || !seen.has(String(x.id)))

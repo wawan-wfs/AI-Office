@@ -46,9 +46,24 @@ describe('ActivityBadge unread (per-ID seen)', () => {
     const { getByTestId, rerender } = render(<Host open={false} />)
     rerender(<Host open />) // dibuka sekali → id 1 seen
     expect(getByTestId('n').textContent).toBe('0')
+    rerender(<Host open={false} />) // ditutup kembali (realistis)
     localStorage.setItem(LOG_KEY, JSON.stringify([item(1), item(2)]))
     act(() => { window.dispatchEvent(new CustomEvent('wfs-activity-updated')) })
     expect(getByTestId('n').textContent).toBe('1') // hanya id 2 yang unread
+  })
+
+  it('item baru saat dialog SEDANG terbuka → badge tetap 0 & item di-mark seen (fix 564)', () => {
+    localStorage.setItem(LOG_KEY, JSON.stringify([item(1)]))
+    const { getByTestId, rerender } = render(<Host open />)
+    expect(getByTestId('n').textContent).toBe('0')
+    localStorage.setItem(LOG_KEY, JSON.stringify([item(1), item(2)]))
+    act(() => { window.dispatchEvent(new CustomEvent('wfs-activity-updated')) })
+    expect(getByTestId('n').textContent).toBe('0') // dialog terbuka → tak ada badge
+    expect(activitySeenIds()).toContain('2')       // item terlihat di dialog → seen
+    // setelah ditutup, item yang sudah dilihat tetap tidak memunculkan badge
+    rerender(<Host open={false} />)
+    act(() => { window.dispatchEvent(new CustomEvent('wfs-activity-updated')) })
+    expect(getByTestId('n').textContent).toBe('0')
   })
 
   it('event wfs-activity-updated memicu hitung ulang', () => {

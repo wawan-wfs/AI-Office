@@ -8390,3 +8390,10 @@
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed'. Full-run berjalan background (/tmp/test563.log).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 - Lanjutan 563: full-run BERSIH — 414 file, 4511 passed + 6 skipped, 0 fail (~543s).
+
+## 16/11/2026 08:35 WIB — Siklus 564: badge Log saat dialog terbuka (fix 562/563)
+- Lanjutan audit ActivityBadge: saat dialog Log TERBUKA dan pushLog masuk, compute() tetap menghitung unread → badge merah muncul di tombol dock untuk item yang sedang terlihat user, dan item itu tak pernah di-mark seen (badge langgeng setelah dialog ditutup).
+- Fix ActivityBadge.jsx useUnreadActivity: openRef paralel; compute() dengan open=true → markSeen() + count 0 (semua item di dialog = terlihat). Tanpa perubahan perilaku saat tertutup.
+- Test activity_badge_561 +1 (item baru saat dialog terbuka → badge 0, id masuk seen, tetap 0 setelah ditutup); 13/13 pass. Full-run: 414 file, 4512 passed + 6 skipped, 0 fail (~600s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
