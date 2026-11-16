@@ -129,6 +129,21 @@ describe('kanban_search — getSearchMatchSegments', () => {
     const seg2 = getSearchMatchSegments('Task [Core] testing (v1.2)', '[Core]');
     expect(seg2.some((s) => s.match && s.text === '[Core]')).toBe(true);
   });
+
+  it('siklus 581: menyorot kecocokan SUBSTRING (paritas dgn matchTaskSearch)', () => {
+    // query parsial "deplo": filter task (matchTaskSearch substring) mencocokkan
+    // judul tsb, jadi highlight juga harus menandai bagian "deplo" di "Deploy".
+    const segs = getSearchMatchSegments('Deploy gateway v2', 'deplo');
+    expect(segs).toEqual([
+      { text: 'Deplo', match: true },
+      { text: 'y gateway v2', match: false },
+    ]);
+    // beberapa token parsial sekaligus
+    const segs2 = getSearchMatchSegments('Auth middleware deploy', 'auth mid');
+    expect(segs2.filter((s) => s.match).map((s) => s.text)).toEqual(['Auth', 'mid']);
+    // kata utuh tetap benar (regresi)
+    expect(getSearchMatchSegments('Fix auth bug', 'auth').some((s) => s.match && s.text === 'auth')).toBe(true);
+  });
 });
 
 describe('kanban_search — calcSearchStats', () => {

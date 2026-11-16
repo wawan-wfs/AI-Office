@@ -8500,6 +8500,14 @@
 - Catatan: e2e_err.py di scratch masih tidak ada — dipakai scripts/e2e_scene_probe.py (sama seperti siklus 574).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 
+## 16/11/2026 22:45 WIB — Siklus 581: highlight pencarian Kanban paritas substring dengan filter
+
+- Bug UX nyata: filter pencarian task (matchTaskSearch, kanban_spec) memakai kecocokan SUBSTRING — query parsial "deplo" menyaring task berjudul "Deploy gateway v2" masuk — tapi sorotan kartu (getSearchMatchSegments) hanya menandai KATA UTUH, jadi judul yang cocok tampil tanpa <mark> seolah tak berhubungan dgn query.
+- Fix: getSearchMatchSegments kini menandai kecocokan substring (case-insensitive, per token); escape regex & perilaku kosong/null tak berubah. Tanpa perubahan visual selain mark yang kini benar.
+- Test: kanban_search +1 kasus (substring "deplo"→"Deplo" disorot; multi-token parsial "auth mid"; regresi kata utuh). Full-run: 425 file, 4560 passed + 6 skipped, 0 fail (~553s).
+- Verifikasi: build PWA exit 0 (precache 47, 1972.95 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
 ## 16/11/2026 21:35 WIB — Siklus 580: kartu inspektur agen jadi dialog penuh (a11y fokus)
 - Penutup audit a11y dialog (pola 572–579): AgentInspector satu-satunya overlay tanpa useDialogA11y — masih role="region", fokus tak dipindah saat kartu terbuka, Tab bisa "kabur" ke UI di balik kartu, dan fokus tak dikembalikan ke pemicu saat ditutup.
 - Fix: kartu kini role="dialog" + aria-modal="true" (label tetap "Profil <nama>"); useDialogA11y({ ref: cardRef, initialFocus: closeRef }) — fokus awal ke tombol tutup, focus-trap Tab/Shift+Tab, restore fokus ke pemicu saat kartu ditutup. Pelajaran tercatat: ref ke tombol (bukan elemen dialog) membuat trap tanpa akar — Tab tetap lolos; ref harus menunjuk elemen role=dialog itu sendiri, initialFocus terpisah.

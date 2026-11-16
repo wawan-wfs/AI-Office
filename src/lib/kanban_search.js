@@ -34,16 +34,19 @@ export function getSearchMatchSegments(text, query) {
 
   if (!tokens.length) return [{ text, match: false }];
 
+  // Siklus 581: kecocokan SUBSTRING (bukan hanya kata utuh). Filter pencarian
+  // (matchTaskSearch) memakai includes substring — highlight kartu yang hanya
+  // menandai kata utuh membuat query parsial ("deplo", "auth") menyaring task
+  // masuk tapi judulnya tampak tidak tersorot (bug UX: teks cocok tak terlihat).
   const escaped = tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
 
   const parts = text.split(regex);
   const segments = [];
 
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
+  for (const part of parts) {
     if (!part) continue;
-    const isMatch = tokens.some((t) => t.toLowerCase() === part.toLowerCase());
+    const isMatch = tokens.some((t) => part.toLowerCase().includes(t.toLowerCase()));
     segments.push({ text: part, match: isMatch });
   }
 
