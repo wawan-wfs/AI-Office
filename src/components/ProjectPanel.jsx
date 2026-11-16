@@ -76,7 +76,7 @@ export default function ProjectPanel() {
         <span className="ic"><IconRocket size={19} /><span className="sr-only">🚀</span></span><span className="lb">Proyek</span>
       </button>
       {open && (
-        <section ref={box} id="project-panel" className="panel left" role="dialog" aria-label="Proyek dibantuin.com" aria-modal="true">
+        <section ref={box} id="project-panel" className="panel left" role="dialog" aria-label="Proyek dibantuin.com" aria-modal="true" aria-describedby={err ? 'pp-err' : undefined}>
           <div className="ph">
             <div className="t">
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -91,7 +91,7 @@ export default function ProjectPanel() {
             </button>
           </div>
           <div style={{ padding: '12px 14px', overflowY: 'auto' }}>
-            {err && <div className="msg err" role="alert">Gagal memuat data proyek. <button className="btn" onClick={() => load()}>Coba lagi</button></div>}
+            {err && <div id="pp-err" className="msg err" role="alert">Gagal memuat data proyek. <button className="btn" onClick={() => load()}>Coba lagi</button></div>}
             {!d && !err && <div className="skeleton">Memuat data proyek…</div>}
             {d && (
               <>

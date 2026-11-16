@@ -608,7 +608,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
         <span className="lb">Papan</span>
       </button>
       {open && (
-        <section ref={board} id="task-board" className={`panel left${viewMode === 'kanban' && !sel ? ' wide-kanban' : ''}`} role="dialog" aria-label="Papan task" aria-modal="true">
+        <section ref={board} id="task-board" className={`panel left${viewMode === 'kanban' && !sel ? ' wide-kanban' : ''}`} role="dialog" aria-label="Papan task" aria-modal="true" aria-describedby={err ? 'tb-err' : undefined}>
           <div className="ph">
             <div className="t">
               Papan Task
@@ -1467,7 +1467,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                   </div>
                 )}
               </div>
-              {err && <div style={{ padding: '0 12px 8px' }}><div className="msg err" role="alert">Gagal memuat task. <button className="btn" onClick={() => load()}>Coba lagi</button></div></div>}
+              {err && <div id="tb-err" style={{ padding: '0 12px 8px' }}><div className="msg err" role="alert">Gagal memuat task. <button className="btn" onClick={() => load()}>Coba lagi</button></div></div>}
               {!tasks && !err && <div style={{ padding: '0 12px 12px' }}><div className="skeleton" role="status">Memuat task…</div></div>}
               {tasks && <div role="status" aria-live="polite" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', clipPath: 'inset(50%)', whiteSpace: 'nowrap' }}>{`${list.length} task ditampilkan`}</div>}
               {tasks && list.length === 0 && <div style={{ padding: '0 12px 12px' }}><div className="skeleton">Tidak ada task yang cocok.</div></div>}

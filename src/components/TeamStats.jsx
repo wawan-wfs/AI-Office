@@ -77,7 +77,7 @@ export default function TeamStats() {
   return (
     <>
       {open && (
-        <div ref={box} id="team-stats" className="panel left" role="dialog" aria-label="Statistik tim" aria-modal="true">
+        <div ref={box} id="team-stats" className="panel left" role="dialog" aria-label="Statistik tim" aria-modal="true" aria-describedby={err ? 'ts-err' : undefined}>
           <div className="ph">
             <div className="t">Statistik Tim<small>task engine · refresh 15 dtk</small></div>
             <button className="x" onClick={() => setOpen(false)} aria-label="Tutup statistik" title="Tutup statistik (Esc)">
@@ -87,7 +87,7 @@ export default function TeamStats() {
           </div>
           <div style={{ padding: '4px 14px 14px', overflowY: 'auto' }} aria-live="polite">
             {!data && !err && <div className="skeleton" role="status">Memuat statistik…</div>}
-            {err && <div role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>Gateway offline. <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={() => load()}>Coba lagi</button></div>}
+            {err && <div id="ts-err" role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>Gateway offline. <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={() => load()}>Coba lagi</button></div>}
             {data && data.length === 0 && <div className="skeleton">Belum ada task. Klik ＋ Task untuk membuat.</div>}
             {data && data.length > 0 && (
               <>

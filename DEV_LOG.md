@@ -8491,3 +8491,11 @@
 - Test: shconsole_a11y_576 baru (4 kasus: aria-modal, tanpa error → describedby null, api reject → sc-err role=alert di dalam dialog, poll pulih → null lagi; visibilityState diset 'visible' karena jsdom default menggerbangi useVisibilityPoll). Full-run: 423 file, 4551 passed + 6 skipped, 0 fail.
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 19:45 WIB — Siklus 578: aria-describedby error pada panel Papan Task, Proyek, Statistik Tim
+- Lanjutan audit a11y dialog (pola 572–576): tiga panel dialog (TaskBoard, ProjectPanel, TeamStats) menampilkan banner error role=alert TANPA id, jadi dialog hanya punya nama (aria-label) tanpa deskripsi — saat fetch gagal, screen reader tidak mengasosiasikan "Gagal memuat…" / "Gateway offline" sebagai isi dialog, hanya announcement sekali (dan pengumuman itu bisa terlewat bila error muncul sebelum fokus masuk dialog).
+- Fix: id stabil per panel (`tb-err`, `pp-err`, `ts-err`) + `aria-describedby={err ? '…' : undefined}` pada elemen role=dialog — atribut tidak dirender saat tak ada error (tidak merujuk id hantu). Tanpa perubahan visual.
+- Test: panel_err_describedby_578 baru (3 kasus: TaskBoard describedby→tb-err + role=alert di dalam dialog; ProjectPanel gagal→pp-err lalu pulih→null; TeamStats gagal→ts-err lalu pulih→null).
+- Full-run: 424 file, 4554 passed + 6 skipped, 0 fail (~544s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Catatan: e2e_err.py di scratch masih tidak ada — dipakai scripts/e2e_scene_probe.py (sama seperti siklus 574).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
