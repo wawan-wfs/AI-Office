@@ -81,6 +81,10 @@ describe('WfsPanel — gateway chat AI + konfigurasi agent', () => {
     const chatTab = screen.getByRole('tab', { name: /Chat/ })
     const cfgTab = screen.getByRole('tab', { name: /Model API/ })
     expect(chatTab.getAttribute('aria-selected')).toBe('true')
+    // Siklus 573: log percakapan punya nama aksesibel (dulu role=log polos).
+    const logRegion = screen.getByRole('log')
+    expect(logRegion.getAttribute('aria-label')).toBe('Percakapan dengan agent')
+    expect(logRegion.getAttribute('aria-live')).toBe('polite')
     // ArrowRight memindahkan fokus ke tab berikutnya (roving tabindex)
     fireEvent.keyDown(tablist, { key: 'ArrowRight' })
     await waitFor(() => expect(document.activeElement).toBe(cfgTab))

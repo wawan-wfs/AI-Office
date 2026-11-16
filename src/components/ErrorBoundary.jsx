@@ -21,6 +21,7 @@ export default class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.err) {
+      const msg = String(this.state.err && this.state.err.message || this.state.err)
       return (
         <div className="error-boundary" role="alert">
           <h1>Terjadi kesalahan tampilan</h1>
@@ -28,7 +29,10 @@ export default class ErrorBoundary extends React.Component {
             Bagian antarmuka mengalami error, tapi kantor 3D masih berjalan.
             Coba muat ulang halaman — jika berlanjut, lapor ke WFS Project.
           </p>
-          <pre>{String(this.state.err && this.state.err.message || this.state.err)}</pre>
+          {/* Siklus 573: <pre> pesan error kini ber-id stabil "eb-msg"
+              (target aria-describedby bagi container alert) — screen reader
+              membaca detail error, bukan hanya judul. */}
+          <pre id="eb-msg">{msg}</pre>
           <button onClick={() => { this.setState({ err: null }) }}>Coba lagi</button>
           <button onClick={() => location.reload()}>Muat ulang</button>
         </div>

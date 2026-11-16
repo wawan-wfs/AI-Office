@@ -8451,6 +8451,12 @@
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 
+## 16/11/2026 16:05 WIB — Siklus 573: audit a11y lintas panel (ErrorBoundary, log chat, log Dashboard)
+- Audit a11y lanjutan pasca-572: tiga titik masih bocor. (1) ErrorBoundary fallback: <pre> pesan error polos tanpa id stabil → screen reader hanya baca judul 'Terjadi kesalahan tampilan' tanpa detail error; kini <pre> ber-id 'eb-msg' (target aria-describedby bagi container role=alert). (2) WfsPanel log percakapan: role="log" aria-live TANPA nama → region anonim di rotor screen reader; kini aria-label 'Percakapan dengan agent'. (3) Dashboard dash-log: hanya aria-label, tanpa aria-live → baris log baru masuk diam-diam; kini aria-live="polite". Tanpa perubahan visual.
+- Test: error_boundary +1 (pre ber-id eb-msg berisi pesan + di dalam role=alert), wfs_panel +3 assertion (log role=log bernama + aria-live polite). Full-run: 420 file, 4543 passed + 6 skipped, 0 fail (~640s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 (tanpa 'Scene init failed').
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
 ## 16/11/2026 15:15 WIB — Siklus 572: ConfirmModal aria-describedby (deskripsi dialog a11y)
 - Audit a11y: ConfirmModal (role alertdialog) hanya punya aria-labelledby — teks penjelasan ("tidak bisa dikembalikan") tidak terasosiasi ke dialog, screen reader hanya membaca judul tanpa konteks konsekuensi aksi destruktif.
 - Fix: <p> teks diberi id="cf-d"; dialog aria-describedby="cf-d" saat text ada, tanpa text → atribut tidak dirender. Tidak ada perubahan visual.

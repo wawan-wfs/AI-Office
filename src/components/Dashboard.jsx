@@ -199,7 +199,9 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                 </div>
 
                 <div className="dash-sec" style={{ marginTop: 10 }}><span>Log aktivitas terbaru</span></div>
-                <div className="dash-log" aria-label="Log aktivitas">
+                <div className="dash-log" aria-label="Log aktivitas" aria-live="polite">
+                  {/* Siklus 573: aria-live polite — baris log baru diumumkan
+                      ke screen reader tanpa memindahkan fokus. */}
                   {(stats.logs || []).slice(0, 8).map(l => (
                     <div key={l.id} className="dash-log-row">
                       <span className="dash-log-t">{fmtTime(l.timestamp)}</span>

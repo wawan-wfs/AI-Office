@@ -47,4 +47,16 @@ describe('components/ErrorBoundary', () => {
     expect(screen.getByText('pulih')).toBeTruthy()
     expect(screen.queryByRole('alert')).toBeNull()
   })
+
+  // Siklus 573: pesan error fallback diekspos ke aksesibilitas — dulu <pre>
+  // polos tanpa id stabil; kini ber-id eb-msg (target aria-describedby
+  // dari container alert) + detail error terbaca screen reader.
+  it('fallback a11y: <pre> ber-id eb-msg di dalam role=alert', () => {
+    render(h(ErrorBoundary, null, h(Boom)))
+    const pre = document.getElementById('eb-msg')
+    expect(pre).toBeTruthy()
+    expect(pre.textContent).toContain('boom!')
+    expect(screen.getByRole('alert').contains(pre)).toBe(true)
+    expect(screen.queryByRole('log')).toBeNull() // tidak ada role log di fallback
+  })
 })

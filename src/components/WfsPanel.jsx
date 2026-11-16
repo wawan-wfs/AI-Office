@@ -190,7 +190,8 @@ export default function WfsPanel() {
           {tab === 'chat' ? (
             <>
               <div id="wfs-tabpanel-chat" role="tabpanel" aria-labelledby="wfs-tab-chat" style={{ display: 'contents' }}>
-              <div ref={logRef} role="log" aria-live="polite" style={{ flex: 1, overflowY: 'auto', padding: '4px 12px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 160 }}>
+              <div ref={logRef} role="log" aria-live="polite" aria-label="Percakapan dengan agent" style={{ flex: 1, overflowY: 'auto', padding: '4px 12px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 160 }}>
+              {/* Siklus 573: aria-label log chat — dulu role=log polos tanpa nama. */}
                 {log.length === 0 && <div className="note" style={{ textAlign: 'center', margin: 'auto' }}>Tanya apa saja ke {sel ? sel.name : 'agent'}…</div>}
                 {log.map((m, i) => (
                   <div key={i} className={'msg ' + (m.who === 'me' ? 'me' : m.who === 'err' ? 'err' : '')} role={m.who === 'err' ? 'alert' : undefined}>
