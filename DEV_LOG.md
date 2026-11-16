@@ -8530,3 +8530,11 @@
 - Test: taskboard_date_a11y_582 baru (3 kasus: valid → tanpa invalid/describedby; terbalik → kedua input invalid + describedby ke #tb-date-err role=alert; diperbaiki → atribut null lagi).
 - Full-run: 426 file, 4563 passed + 6 skipped, 0 fail (~552s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 00:55 WIB — Siklus 583: paritas a11y baris task list TaskBoard dengan kartu kanban (type=button, aria-label, title)
+
+- Audit a11y tampilan list TaskBoard: elemen baris task (`<button className="taskrow">`) belum memiliki `type="button"`, `aria-label`, dan `title` konsisten seperti kartu kanban (`aria-label={`Task #${t.id}: ${t.title}`}` dan `title={`Buka task #${t.id}: ${t.title}`}`). Pada mode list, screen reader sebelumnya membaca potongan anak tombol tanpa label terstruktur yang jelas.
+- Fix: tambahkan `type="button"`, `aria-label={`Task #${t.id}: ${t.title}`}`, dan `title={`Buka task #${t.id}: ${t.title}`}` pada tombol `.taskrow` di `src/components/TaskBoard.jsx`.
+- Test: `kanban_card_kbd_583.test.jsx` baru (3 kasus: kartu kanban Enter membuka detail, badge agen Enter memicu fokus agen, baris list task row membawa type/aria-label/title yang sesuai).
+- Verifikasi: build PWA exit 0 (precache 47, 1973.25 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

@@ -1700,7 +1700,10 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                     return (
                       <button
                         key={t.id}
+                        type="button"
                         className="taskrow"
+                        aria-label={`Task #${t.id}: ${t.title}`}
+                        title={`Buka task #${t.id}: ${t.title}`}
                         onClick={() => {
                           if (t.priority === 'urgent') sfx.playTaskUrgent()
                           else sfx.playSelect()
