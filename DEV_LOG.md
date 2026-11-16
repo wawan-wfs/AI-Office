@@ -8570,3 +8570,10 @@
 - Test: `button_type_repo_587.test.jsx` (guard repo-wide — scan semua .jsx, gagal bila ada button tanpa type) mencegah regresi.
 - Full-run: 431 file, 4573 passed + 6 skipped, 0 fail (~571s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 05:20 WIB — Siklus 588: audit a11y menyeluruh post-587 — nol cacat baru ditemukan
+
+- Audit menyeluruh pasca-siklus 583–587 (semua skrip scan AST/regex, bukan tebakan): (1) 176 tombol di src/ — 0 tombol ikon-only tanpa aria-label; (2) semua input/select/textarea membawa aria-label (13/13 terverifikasi, termasuk slider HUD & SecureProjectPanel); (3) semua target aria-controls/describedby/labelledby ada (0 referensi mati); (4) 16 elemen interaktif non-<button> — semua role="button"+tabIndex+onKeyDown Enter/Space kecuali nol; scrim overlay role="presentation" konsisten; (5) semua emoji/symbol span beraria-hidden atau sr-only; (6) 9 toggle memakai aria-pressed pada <button> sah; 2 tablist (ShConsole 7 tab via aria-pressed teruji, WfsPanel roving tabindex + panah Home/End); (7) guard regresi sudah ada: button_type_repo_587 (scan repo-wide), dialog_a11y, dsb.
+- TIDAK ada perubahan kode siklus ini — audit bersih; jaga agar tidak mengarang fix.
+- Verifikasi: vitest subset a11y (8 file) 84/84 pass; build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'. Full-suite run panjang (>9 mnt) belum diulang siklus ini — state kode tidak berubah sejak commit 00f38a4 yang full-run hijau 4573 pass.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
