@@ -211,6 +211,7 @@ export default function SettingsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="sm-title"
+        aria-describedby="sm-desc"
         tabIndex={-1}
         onClick={e => e.stopPropagation()}
         style={{ maxWidth: 460 }}
@@ -230,7 +231,7 @@ export default function SettingsModal({
           <IconGear size={20} style={{ color: 'var(--teal)' }} />
           Pengaturan Kantor 3D
         </h3>
-        <p style={{ margin: '0 0 16px 0', fontSize: 13, color: 'var(--text-secondary)' }}>
+        <p id="sm-desc" style={{ margin: '0 0 16px 0', fontSize: 13, color: 'var(--text-secondary)' }}>
           Kustomisasi audio notifikasi Web Audio, tingkat volume, dan kontrol visual kantor.
         </p>
 

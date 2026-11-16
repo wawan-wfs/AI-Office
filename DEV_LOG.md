@@ -8463,3 +8463,11 @@
 - Test confirm_modal.test.js +1 (describedby → cf-d + isi teks; tanpa text → null). Full-run: exit 0, 420 file, 0 fail (~535s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 16:40 WIB — Siklus 574: SettingsModal aria-describedby (deskripsi dialog)
+- Lanjutan audit a11y modal pasca-572/573: SettingsModal (role=dialog) hanya punya aria-labelledby — paragraf penjelas "Kustomisasi audio notifikasi Web Audio, tingkat volume, dan kontrol visual kantor." tidak terasosiasi, screen reader membuka dialog tanpa konteks isi.
+- Fix: <p> pengantar diberi id="sm-desc"; dialog aria-describedby="sm-desc" (pola cf-d ConfirmModal 572). Tanpa perubahan visual.
+- Test: settings_modal_a11y_574 baru (2 kasus: describedby → sm-desc berisi teks & di dalam dialog, labelledby sm-title tetap). Full-run: 421 file, 4545 passed + 6 skipped, 0 fail (~530s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Catatan: e2e_err.py di scratch sudah tidak ada (dipakai scripts/e2e_scene_probe.py).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
