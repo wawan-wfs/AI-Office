@@ -17,11 +17,13 @@ const COL = {
 }
 
 // Log aktivitas: perubahan status task yang terdeteksi UI (disimpan di localStorage).
-export default function ActivityLog({ show, items, onClose, onClear }) {
+export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
   const box = useRef(null)
   const onCloseRef = useRef(onClose)
+  const onClearRef = useRef(onClear)
+  const onAskRef = useRef(onAsk)
   const [copied, setCopied] = useState(false)
-  useEffect(() => { onCloseRef.current = onClose })
+  useEffect(() => { onCloseRef.current = onClose; onClearRef.current = onClear; onAskRef.current = onAsk })
   useEffect(() => { if (show) setCopied(false) }, [show])
   const closeLog = useCallback(() => onCloseRef.current(), [])
   useDialogA11y({ open: show, onClose: closeLog, ref: box })
@@ -88,7 +90,26 @@ export default function ActivityLog({ show, items, onClose, onClear }) {
               aria-label="Unduh log aktivitas sebagai file .txt"
             >Unduh</button>
           )}
-          {items.length > 0 && <button className="btn" onClick={onClear}>Bersihkan</button>}
+          {items.length > 0 && (
+            <button
+              className="btn"
+              onClick={() => {
+                // Siklus 570: konfirmasi dulu — pembersihan tak bisa dibatalkan
+                // (log & set seen hilang permanen). Tanpa onAsk (App lama/test)
+                // → perilaku lama langsung clear.
+                if (onAskRef.current) {
+                  onAskRef.current({
+                    title: 'Bersihkan log aktivitas?',
+                    body: 'Seluruh riwayat perubahan status task dihapus dan tidak bisa dikembalikan.',
+                    ok: 'Ya, bersihkan',
+                    onOk: () => onClearRef.current(),
+                  })
+                } else onClearRef.current()
+              }}
+              title="Bersihkan log aktivitas"
+              aria-label="Bersihkan log aktivitas"
+            >Bersihkan</button>
+          )}
           <button className="btn" onClick={onClose}>Tutup</button>
         </div>
       </div>

@@ -939,7 +939,7 @@ export default function App() {
         }}
       />
 
-      <ActivityLog show={showLog} items={logItems} onClose={() => setShowLog(false)} onClear={clearLog} />
+      <ActivityLog show={showLog} items={logItems} onClose={() => setShowLog(false)} onClear={clearLog} onAsk={setAsk} />
       {/* Siklus 190: mount-on-demand — pasca open pertama tetap ter-render
           (show=false → null; kontrak ShConsole tanpa unmount tetap utuh). */}
       {(scWanted || showConsoleS) && <Suspense fallback={null}><ShConsole show={showConsole} onClose={() => setShowConsole(false)} /></Suspense>}

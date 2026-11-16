@@ -216,7 +216,9 @@ describe('App — integrasi UI', () => {
     localStorage.setItem('wfs_view_mode', '3d'); render(<App />)
     fireEvent.keyDown(window, { key: 'l' })
     await waitFor(() => expect(screen.getByText(/#1/)).toBeTruthy())
+    // Siklus 570: "Bersihkan" kini lewat dialog konfirmasi (onAsk/ConfirmModal)
     fireEvent.click(screen.getByText('Bersihkan'))
+    fireEvent.click(screen.getByText('Ya, bersihkan'))
     expect(localStorage.store.wfs_activity).toBeUndefined()
   })
 

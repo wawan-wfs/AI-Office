@@ -127,10 +127,11 @@ describe('ActivityLog', () => {
     const { rerender } = render(<ActivityLog show items={items} onClose={onClose} onClear={onClear} />)
     expect(screen.getByText('Log Aktivitas')).toBeTruthy()
     expect(screen.getByText(/Fix UI/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Bersihkan' })).toBeTruthy()
+    // Siklus 570: tombol Bersihkan kini punya aria-label eksplisit & konfirmasi
+    expect(screen.getByRole('button', { name: 'Bersihkan log aktivitas' })).toBeTruthy()
     const xBtn = screen.getByRole('button', { name: 'Tutup log aktivitas' })
     expect(xBtn.getAttribute('title')).toBe('Tutup log aktivitas (Esc)')
-    fireEvent.click(screen.getByRole('button', { name: 'Bersihkan' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Bersihkan log aktivitas' }))
     expect(onClear).toHaveBeenCalledTimes(1)
     rerender(<ActivityLog show items={[]} onClose={onClose} onClear={onClear} />)
     expect(screen.getByText(/Belum ada perubahan/)).toBeTruthy()

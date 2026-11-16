@@ -57,7 +57,7 @@ describe('ActivityLog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
     fireEvent.click(screen.getByRole('button', { name: 'Tutup' }))
     expect(onClose).toHaveBeenCalledTimes(2)
-    fireEvent.click(screen.getByRole('button', { name: 'Bersihkan' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Bersihkan log aktivitas' }))
     expect(onClear).toHaveBeenCalledTimes(1)
   })
 })

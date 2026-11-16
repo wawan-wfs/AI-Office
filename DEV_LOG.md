@@ -8435,3 +8435,11 @@
 - Test: log_download_569 baru (7 kasus: nama file, Date rusak, header+isi, kosong, now rusak, klik → spy downloadExportFile dgn nama .txt & teks #id, tombol hilang saat items kosong). Full-run: 418 file, 4534 passed + 6 skipped, 0 fail (~520s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 13:30 WIB — Siklus 570: tombol "Bersihkan" log lewat dialog konfirmasi
+- Audit lanjutan log: tombol "Bersihkan" menghapus permanen log 'wfs_activity' + set seen dalam SATU klik tanpa konfirmasi — salah klik di dialog Log menghapus riwayat laporan task tanpa jalan kembali.
+- Fix: ActivityLog menerima prop onAsk; klik Bersihkan → dialog konfirmasi generik ConfirmModal App ('Bersihkan log aktivitas?', body 'tidak bisa dikembalikan', label 'Ya, bersihkan') → clear hanya setelah Ya. Tanpa onAsk → perilaku lama (kompatibel). Tombol juga kini punya aria-label 'Bersihkan log aktivitas'.
+- Test: log_clear_confirm_570 baru (4 kasus: konfirmasi muncul & onClear hanya setelah onOk, batal → utuh, tanpa onAsk langsung clear, tombol hilang saat kosong). Kontrak test lama disesuaikan: app_integration (klik 'Ya, bersihkan'), remaining_components + activitylog (aria-label baru).
+- Full-run: 419 file, 4538 passed + 6 skipped, 0 fail (~570s); run pertama gagal 3 test (kontrak lama) — diperbaiki sebelum push.
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
