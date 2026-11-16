@@ -8538,3 +8538,11 @@
 - Test: `kanban_card_kbd_583.test.jsx` baru (3 kasus: kartu kanban Enter membuka detail, badge agen Enter memicu fokus agen, baris list task row membawa type/aria-label/title yang sesuai).
 - Verifikasi: build PWA exit 0 (precache 47, 1973.25 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 01:45 WIB — Siklus 584: kepatuhan type tombol & role radiogroup semu di TaskBoard
+
+- Audit button semantics: `<button>` tanpa `type` eksplisit default ke `submit` — di luar `<form>` tak berbahaya, tapi TIDAK konsisten dengan TaskModal (semua bertipe). TaskBoard punya 48 tombol; sebagian besar (chip/tag/kanban/detail) sudah `type="button"` eksplisit, sisanya (tombol Batal creator div preset, tombol ikon/warna picker div preset, dsb) kini semuanya `type="button"` eksplisit; satu-satunya `type="submit"` tetap tombol Simpan Preset tag di `<form>`.
+- A11y role correction: dua container picker preset divisi memakai `role="radiogroup"` tanpa `role="radio"` di anaknya (tidak ada navigasi roving tabindex / arrow keys) — atribut semu menyesatkan screen reader; dikoreksi ke `role="group"` (polanya sama dgn picker di creator preset tag).
+- Test: `form_button_a11y_584.test.jsx` baru (2 kasus: form creator preset tag — semua tombol `type` eksplisit, Batal=button, ada satu submit, picker `aria-pressed` sinkron dgn state `.active`; creator preset divisi — semua tombol `type="button"`).
+- Full-run: 428 file, 4568 passed + 6 skipped, 0 fail (~561s). Build PWA exit 0 (precache 47, 1973.24 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed' (e2e_err.py di scratch tetap tidak ada).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

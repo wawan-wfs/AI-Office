@@ -1145,7 +1145,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         autoFocus
                       />
 
-                      <div className="div-preset-icon-picker" role="radiogroup" aria-label="Pilih ikon preset divisi">
+                      <div className="div-preset-icon-picker" role="group" aria-label="Pilih ikon preset divisi">
                         {DIVISION_PRESET_ICONS.map((icon) => (
                           <button
                             key={icon}
@@ -1159,7 +1159,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         ))}
                       </div>
 
-                      <div className="div-preset-color-picker" role="radiogroup" aria-label="Pilih warna preset divisi">
+                      <div className="div-preset-color-picker" role="group" aria-label="Pilih warna preset divisi">
                         {TAG_PALETTE.map((c) => (
                           <button
                             key={c}
