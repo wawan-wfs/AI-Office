@@ -8478,6 +8478,13 @@
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 
+## 16/11/2026 19:05 WIB — Siklus 577: pre-warm chunk lazy saat idle (anti-flake & buka instan)
+
+- Buka pertama modal lazy (SettingsModal via shortcut 'o'/'Atur', ShConsole, TaskBoard, CsWidget) menunggu unduhan chunk — sumber flake lazy-chunk app_integration (siklus 557/575) dan jeda nyata di jaringan lambat. Kini App memicu import() keempat chunk saat idle: requestIdleCallback (timeout 3000ms) atau fallback setTimeout 1200ms — sekali saja saat modul dievaluasi.
+- Verifikasi chunk ref di App bundle cocok dgn file di dist & ~/wfs-hq; TIDAK ada perubahan pada modulePreload (chunk lazy tetap tak di-preload di t=0 — niat siklus 189/190 tetap; pre-warm justru setelah idle).
+- Full-run pertama (post-change): 423 file, durasi 537s, exit 0 — 0 fail. Probe scene: scripts/e2e_scene_probe.py exit 0, tanpa 'Scene init failed'. Build PWA exit 0; dist → ~/wfs-hq (aset yatim chunk lama dibersihkan, semua referensi chunk terverifikasi ada).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
 ## 16/11/2026 18:15 WIB — Siklus 576: ShConsole drawer aria-modal + describedby error dialog
 - Audit a11y modal lanjutan (pola 572–575): drawer "Konsol Software House" (ShConsole) adalah satu-satunya role=dialog tanpa aria-modal — screen reader tidak mengumumkannya sebagai modal; ditambah aria-modal="true".
 - Banner error (role=alert) kini ber-id "sc-err" dan dialog aria-describedby={err ? 'sc-err' : undefined} — pesan error API (overview/projects/tasks/…) dibaca sebagai deskripsi dialog, bukan hanya announcement sekali. Tanpa perubahan visual.

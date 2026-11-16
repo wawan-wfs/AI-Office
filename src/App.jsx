@@ -29,6 +29,13 @@ import AgentInspector from './components/AgentInspector'
 // pasca open pertama komponen terus ter-render (show=false hanya render null).
 const ShConsole = lazy(() => import('./components/ShConsole'))
 const SettingsModal = lazy(() => import('./components/SettingsModal'))
+// Siklus 577: pre-warm chunk lazy saat idle (requestIdleCallback / fallback
+// setTimeout) — buka pertama shortcut 'o' / tombol Atur tidak lagi menunggu
+// unduhan chunk (sumber flake lazy-chunk siklus 557/575 di jsdom & jeda di
+// jaringan lambat). Impor sekali saja; modul di-cache browser.
+const warmLazyChunks = () => { import('./components/SettingsModal'); import('./components/ShConsole'); import('./components/TaskBoard'); import('./components/CsWidget') }
+if (typeof requestIdleCallback === 'function') requestIdleCallback(warmLazyChunks, { timeout: 3000 })
+else setTimeout(warmLazyChunks, 1200)
 // Mount-on-demand: TaskBoard hanya ter-render setelah ada keinginan membuka
 // papan (event via gerbang) — tanpa itu React.lazy memuat chunk di render
 // pertama juga (bukti diag siklus 189: modulepreload + entry 'script' t=0).
