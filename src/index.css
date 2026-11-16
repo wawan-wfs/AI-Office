@@ -566,7 +566,13 @@ button { font-family: inherit; }
   background: rgba(255, 255, 255, .06); color: var(--ix-fff); border: 1px solid rgba(255, 255, 255, .12);
   border-radius: 12px; font-size: 14px; font-family: inherit; transition: border-color .15s, box-shadow .15s;
 }
-.fld:focus, .sel:focus {
+.fld:focus-visible, .sel:focus-visible {
+  border-color: var(--teal); outline: 2px solid var(--teal); outline-offset: 1px; box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb),.22);
+}
+/* Siklus 585: modal field focus ganda — outline default global + box-shadow
+   input bersamaan; diselaraskan dgn .fld (outline dihapus, indikator cukup
+   border+ring box-shadow). */
+.modal input:focus-visible, .modal textarea:focus-visible, .modal select:focus-visible {
   border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb),.22);
 }
 .msg {
@@ -648,6 +654,11 @@ button { font-family: inherit; }
   transition: border-color .15s, box-shadow .15s;
 }
 .modal input:focus, .modal textarea:focus, .modal select:focus {
+  border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb),.22);
+}
+/* Siklus 585: modal field sebelumnya outline default global + box-shadow
+   bersamaan; outline dihapus — indikator cukup border+ring box-shadow. */
+.modal input:focus-visible, .modal textarea:focus-visible, .modal select:focus-visible {
   border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px rgba(var(--c-accent-rgb),.22);
 }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
@@ -2125,6 +2136,16 @@ button { font-family: inherit; }
   font: inherit;
   cursor: pointer;
   outline: none;
+}
+/* Siklus 585: keyboard focus terlihat — chip-main sebelumnya outline:none tanpa
+   focus-visible, pengguna keyboard tidak melihat fokus pada preset chip. */
+.task-preset-chip-main:focus-visible,
+.div-preset-chip-main:focus-visible,
+.div-preset-chip:focus-visible,
+.task-preset-chip:focus-visible {
+  outline: 2px solid var(--ix-38bdf8);
+  outline-offset: 1px;
+  border-radius: 6px;
 }
 
 .task-preset-del-btn {

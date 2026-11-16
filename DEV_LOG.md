@@ -8546,3 +8546,12 @@
 - Test: `form_button_a11y_584.test.jsx` baru (2 kasus: form creator preset tag — semua tombol `type` eksplisit, Batal=button, ada satu submit, picker `aria-pressed` sinkron dgn state `.active`; creator preset divisi — semua tombol `type="button"`).
 - Full-run: 428 file, 4568 passed + 6 skipped, 0 fail (~561s). Build PWA exit 0 (precache 47, 1973.24 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed' (e2e_err.py di scratch tetap tidak ada).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 02:30 WIB — Siklus 585: keyboard focus terlihat (focus-visible) chip preset & field
+
+- Audit CSS focus: 5 elemen memakai `outline: none` TANPA rule focus-visible pengganti — pengguna keyboard tidak melihat fokus: `.task-preset-chip-main` & `.div-preset-chip-main` (tombol utama preset chip), `.div-preset-chip`, `.task-preset-chip` (container aktif), dan `.div-preset-input`/`.task-preset-input` sebenarnya sudah punya `:focus` (ring box-shadow) — aman.
+- Fix CSS: rule `:focus-visible` baru (outline 2px biru + offset) untuk keempat selector chip; `.fld/.sel:focus` dipindah ke `:focus-visible` (outline tetap ada via ring box-shadow, mouse-click kini tidak memunculkan ring); rule `.modal input:focus` diduplikasi ke `:focus-visible` (outline:none konsisten, indikator cukup border+ring).
+- Audit lintah: semua elemen dengan `outline: none` kini punya padanan focus rule (script scan CSS); tombol dock/panel punya rule focus-visible eksplisit (3073-3080).
+- Test: focus_visible_css_585.test.jsx baru (2 kasus: chip-main adalah <button> fokusable + aria-pressed toggle; input search & preset kreator menerima fokus keyboard).
+- Full-run: 429 file, 4570 passed + 6 skipped, 0 fail (~559s). Build PWA exit 0 (precache 47, 1973.75 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
