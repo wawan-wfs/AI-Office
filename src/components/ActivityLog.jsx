@@ -36,6 +36,10 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
           <span className="sr-only">✕</span>
         </button>
         <h3>Log Aktivitas</h3>
+        {/* Siklus 571: region aria-live sr-only di bawah <h3> — jumlah item
+            diumumkan ke screen reader setiap daftar berubah (dulu diam-diam).
+            Di luar cabang bersyarat agar tetap ada saat items kosong. */}
+        <p className="sr-only" aria-live="polite">{items.length} perubahan status task</p>
         {items.length === 0
           ? <p>Belum ada perubahan status task sejak log dipantau.</p>
           : <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: '55dvh', overflowY: 'auto' }}>

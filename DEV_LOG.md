@@ -8443,3 +8443,10 @@
 - Full-run: 419 file, 4538 passed + 6 skipped, 0 fail (~570s); run pertama gagal 3 test (kontrak lama) — diperbaiki sebelum push.
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 14:40 WIB — Siklus 571: dialog Log umumkan jumlah item ke screen reader (aria-live)
+- Audit lanjutan log: daftar item di dialog Log berubah tanpa pengumuman apa pun ke screen reader — user SR tidak tahu item baru masuk/terhapus saat dialog terbuka.
+- ActivityLog.jsx: region sr-only aria-live="polite" di bawah <h3> ("N perubahan status task"), selalu ada (termasuk items kosong) — jumlah berubah → diumumkan. Tanpa perubahan visual.
+- Test: log_announce_571 baru (3 kasus: region ada & polite, jumlah 0→2 mengikuti rerender, label tunggal 1). Full-run pertama 1 fail acak (app_integration flaky timeout konteks — pass saat targeted & di rerun), rerun bersih: 420 file, 4541 passed + 6 skipped, 0 fail (~570s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
