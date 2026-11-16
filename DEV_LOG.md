@@ -8522,3 +8522,11 @@
 - Test: panel_err_describedby_579 baru (2 kasus: Dashboard gagal→db-err di dalam dialog; WfsPanel gagal→wp-err lalu pulih→null). Full-run: 425 file, 4556 passed + 6 skipped, 0 fail (~548s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 23:30 WIB — Siklus 582: a11y validasi tanggal kustom TaskBoard (aria-invalid + describedby)
+
+- Lanjutan audit a11y: panel rentang tanggal kustom TaskBoard menampilkan error "Tanggal awal tidak boleh melebihi tanggal akhir" (role=alert) hanya sebagai announcement sekali — kedua input date TIDAK menandai invalid, screen reader tak tahu input mana yang bermasalah.
+- Fix: input Dari & s/d kini aria-invalid="true" saat rentang terbalik + aria-describedby="tb-date-err" (error span diberi id stabil); atribut tak dirender saat valid (tanpa id hantu). Pola aria-invalid aria-describedby = TaskModal (tm-err).
+- Test: taskboard_date_a11y_582 baru (3 kasus: valid → tanpa invalid/describedby; terbalik → kedua input invalid + describedby ke #tb-date-err role=alert; diperbaiki → atribut null lagi).
+- Full-run: 426 file, 4563 passed + 6 skipped, 0 fail (~552s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

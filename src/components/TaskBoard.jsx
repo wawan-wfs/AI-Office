@@ -964,6 +964,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                           sfx.playSelect()
                         }}
                         aria-label="Tanggal awal kustom"
+                        aria-invalid={customRangeNorm.isReversed ? 'true' : undefined}
+                        aria-describedby={customRangeNorm.isReversed ? 'tb-date-err' : undefined}
                         title="Pilih tanggal awal filter"
                       />
                       <label htmlFor="task-custom-end" className="task-custom-date-label">s/d:</label>
@@ -977,6 +979,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                           sfx.playSelect()
                         }}
                         aria-label="Tanggal akhir kustom"
+                        aria-invalid={customRangeNorm.isReversed ? 'true' : undefined}
+                        aria-describedby={customRangeNorm.isReversed ? 'tb-date-err' : undefined}
                         title="Pilih tanggal akhir filter"
                       />
                       {(customStartDate || customEndDate) && (
@@ -997,7 +1001,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                     </div>
                     <div className="task-custom-date-info">
                       {customRangeNorm.isReversed ? (
-                        <span className="task-custom-date-error" role="alert">
+                        <span id="tb-date-err" className="task-custom-date-error" role="alert">
                           ⚠️ Tanggal awal tidak boleh melebihi tanggal akhir
                         </span>
                       ) : (
