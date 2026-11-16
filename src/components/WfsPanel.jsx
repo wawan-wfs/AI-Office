@@ -156,7 +156,7 @@ export default function WfsPanel() {
         <span className="ic"><IconChat size={19} /><span className="sr-only">💬</span></span><span className="lb">Chat</span>
       </button>
       {open && (
-        <div ref={box} id="wfs-panel" className="panel" role="dialog" aria-label="Chat dan konfigurasi agent" aria-modal="true">
+        <div ref={box} id="wfs-panel" className="panel" role="dialog" aria-label="Chat dan konfigurasi agent" aria-modal="true" aria-describedby={loadErr ? 'wp-err' : undefined}>
           <div className="ph">
             <div className="t">{sel ? sel.name : 'Chat AI Team'}<small>{sel ? sel.role : ''} · {tab === 'chat' ? 'percakapan' : 'konfigurasi model'}</small></div>
             <button className="x" onClick={() => setOpen(false)} aria-label="Tutup panel chat" title="Tutup panel chat (Esc)">
@@ -176,7 +176,7 @@ export default function WfsPanel() {
           </div>
           <div style={{ padding: '8px 12px 0' }}>
             {loading && <div className="skeleton" role="status">Memuat agent…</div>}
-            {loadErr && <div role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>{loadErr} <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={loadAgents}>Muat ulang</button></div>}
+            {loadErr && <div id="wp-err" role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>{loadErr} <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={loadAgents}>Muat ulang</button></div>}
             {agents.length > 0 && (
               <select className="sel" aria-label="Pilih agent" value={sel ? sel.id : ''} onChange={e => choose(agents.find(a => a.id === e.target.value))}>
                 {agents.map(a => <option key={a.id} value={a.id}>{a.name} — {a.role}</option>)}

@@ -8499,3 +8499,10 @@
 - Full-run: 424 file, 4554 passed + 6 skipped, 0 fail (~544s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Catatan: e2e_err.py di scratch masih tidak ada — dipakai scripts/e2e_scene_probe.py (sama seperti siklus 574).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 20:27 WIB — Siklus 579: aria-describedby error dialog pada Dashboard & WfsPanel
+- Lanjutan audit a11y dialog (pola 572–578): Dashboard dan WfsPanel punya banner error role=alert tanpa id — saat fetch gagal, "Data belum lengkap…" / error muat agent hanya announcement sekali, tidak terasosiasi ke dialog.
+- Fix: id stabil `db-err` / `wp-err` + `aria-describedby={err ? '…' : undefined}` pada elemen role=dialog — atribut tak dirender saat tak ada error. Tanpa perubahan visual.
+- Test: panel_err_describedby_579 baru (2 kasus: Dashboard gagal→db-err di dalam dialog; WfsPanel gagal→wp-err lalu pulih→null). Full-run: 425 file, 4556 passed + 6 skipped, 0 fail (~548s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

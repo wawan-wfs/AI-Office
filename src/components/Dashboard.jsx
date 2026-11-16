@@ -112,7 +112,7 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
     <>
       {open && createPortal(
         <div className="dashboard-overlay">
-        <div ref={box} id="dashboard" className="panel wide" role="dialog" aria-label="Dashboard" aria-modal="true">
+        <div ref={box} id="dashboard" className="panel wide" role="dialog" aria-label="Dashboard" aria-modal="true" aria-describedby={err ? 'db-err' : undefined}>
           <div className="ph">
             <div className="t">Dashboard<small>overview software house · refresh 10 dtk</small></div>
             <button className="x" onClick={() => setOpen(false)} aria-label="Tutup dashboard" title="Tutup dashboard (Esc)">
@@ -127,7 +127,7 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
             </nav>
             <SecureProjectPanel />
             {!stats && !err && <div className="skeleton" role="status">Memuat dashboard…</div>}
-            {err && <div role="alert" className="msg err" style={{ maxWidth: '100%' }}>Data belum lengkap — sebagian layanan tidak dapat dihubungi. <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={() => load()}>Coba lagi</button></div>}
+            {err && <div id="db-err" role="alert" className="msg err" style={{ maxWidth: '100%' }}>Data belum lengkap — sebagian layanan tidak dapat dihubungi. <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={() => load()}>Coba lagi</button></div>}
             {stats && (
               <>
                 <div className="dash-grid">
