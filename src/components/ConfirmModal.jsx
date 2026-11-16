@@ -24,8 +24,8 @@ export default function ConfirmModal({ show, title, text, confirmLabel = 'Ya, la
         <h3 id="cf-t" style={{ paddingRight: 32 }}>{title}</h3>
         <p id="cf-d">{text}</p>
         <div className="modal-actions">
-          <button className="btn" onClick={onCancel}>Batal</button>
-          <button className="btn primary" style={danger ? { background: TASK_STATUS_COLORS.failed, color: PURE_TEXT } : null} disabled={busy} onClick={onConfirm} autoFocus>{busy ? 'Memproses…' : confirmLabel}</button>
+          <button type="button" className="btn" onClick={onCancel}>Batal</button>
+          <button type="button" className="btn primary" style={danger ? { background: TASK_STATUS_COLORS.failed, color: PURE_TEXT } : null} disabled={busy} onClick={onConfirm} autoFocus>{busy ? 'Memproses…' : confirmLabel}</button>
         </div>
       </div>
     </div>

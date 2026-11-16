@@ -81,7 +81,7 @@ export default function ActionMenu({ sceneRef, onFlash, actionMenuRef, onOpenSet
       {open && (
         <div ref={pop} className="pop" role="menu" aria-label="Aksi tim" style={{ left: 0 }} onKeyDown={menuKeys}>
           {items.map(([ic, label, key, msg]) => (
-            <button key={key} role="menuitem" onClick={() => act(key, msg)} title={msg}>
+            <button type="button" key={key} role="menuitem" onClick={() => act(key, msg)} title={msg}>
               <span className="pop-ic">
                 {ic === '📢' ? <IconMeeting size={16} /> : ic === '☕' ? <IconCoffee size={16} /> : ic === '💼' ? <IconBriefcase size={16} /> : <IconWalk size={16} />}
                 <span className="sr-only">{ic}</span>
@@ -90,18 +90,18 @@ export default function ActionMenu({ sceneRef, onFlash, actionMenuRef, onOpenSet
             </button>
           ))}
           <hr />
-          <button role="menuitemcheckbox" aria-checked={namesOn} title={namesOn ? 'Sembunyikan label nama agent & zona' : 'Tampilkan label nama agent & zona'} onClick={() => { if (scene() && scene().toggleNames) { scene().toggleNames(); if (scene().isNamesVisible) setNamesOn(scene().isNamesVisible()); else setNamesOn(v => !v) } }}>
+          <button type="button" role="menuitemcheckbox" aria-checked={namesOn} title={namesOn ? 'Sembunyikan label nama agent & zona' : 'Tampilkan label nama agent & zona'} onClick={() => { if (scene() && scene().toggleNames) { scene().toggleNames(); if (scene().isNamesVisible) setNamesOn(scene().isNamesVisible()); else setNamesOn(v => !v) } }}>
             <span className="pop-ic"><IconTag size={16} /><span className="sr-only">🏷️</span></span>
             {namesOn ? 'Sembunyikan' : 'Tampilkan'} nama
           </button>
-          <button role="menuitemcheckbox" aria-checked={rotOn} title={rotOn ? 'Hentikan rotasi kamera otomatis' : 'Nyalakan rotasi kamera otomatis'} onClick={() => { if (scene() && scene().setAutoRotate) { scene().setAutoRotate(!rotOn); if (scene().isAutoRotate) setRotOn(scene().isAutoRotate()); else setRotOn(v => !v) } }}>
+          <button type="button" role="menuitemcheckbox" aria-checked={rotOn} title={rotOn ? 'Hentikan rotasi kamera otomatis' : 'Nyalakan rotasi kamera otomatis'} onClick={() => { if (scene() && scene().setAutoRotate) { scene().setAutoRotate(!rotOn); if (scene().isAutoRotate) setRotOn(scene().isAutoRotate()); else setRotOn(v => !v) } }}>
             <span className="pop-ic"><IconRotate size={16} /><span className="sr-only">🔄</span></span>
             Putar otomatis: {rotOn ? 'ON' : 'OFF'}
           </button>
           {onOpenSettings && (
             <>
               <hr />
-              <button role="menuitem" onClick={() => { onOpenSettings(); setOpen(false) }} title="Buka pengaturan audio & tampilan kantor (O)">
+              <button type="button" role="menuitem" onClick={() => { onOpenSettings(); setOpen(false) }} title="Buka pengaturan audio & tampilan kantor (O)">
                 <span className="pop-ic"><IconGear size={16} /><span className="sr-only">⚙️</span></span>
                 Pengaturan...
               </button>
@@ -109,7 +109,7 @@ export default function ActionMenu({ sceneRef, onFlash, actionMenuRef, onOpenSet
           )}
         </div>
       )}
-      <button className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-haspopup="menu" aria-label="Aksi" title="Aksi cepat tim (Meeting, Break, Tour)">
+      <button type="button" className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-haspopup="menu" aria-label="Aksi" title="Aksi cepat tim (Meeting, Break, Tour)">
         <span className="ic"><IconBolt size={19} /><span className="sr-only">⚡</span></span>
         <span className="lb">Aksi</span>
       </button>

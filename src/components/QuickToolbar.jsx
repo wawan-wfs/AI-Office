@@ -17,34 +17,34 @@ export default function QuickToolbar({ onAddTask, onPauseAll, onResumeAll, onTog
   useEscapeClose(open, () => setOpen(false)) // Siklus 333: satu sumber Escape
   return (
     <>
-      <button className="ibtn accent" onClick={onAddTask} title="Tambah task baru ke papan proyek" aria-label="Tambah task baru">
+      <button type="button" className="ibtn accent" onClick={onAddTask} title="Tambah task baru ke papan proyek" aria-label="Tambah task baru">
         <span className="ic"><IconPlus size={19} /><span className="sr-only">＋</span></span>
         <span className="lb">Task</span>
       </button>
       {paused
-        ? <button className="ibtn good" onClick={onResumeAll} title="Lanjutkan semua task" aria-label="Lanjutkan semua task">
+        ? <button type="button" className="ibtn good" onClick={onResumeAll} title="Lanjutkan semua task" aria-label="Lanjutkan semua task">
             <span className="ic"><IconPlay size={18} /><span className="sr-only">▶</span></span>
             <span className="lb">Lanjut</span>
             <span className="dot" />
           </button>
-        : <button className="ibtn" onClick={onPauseAll} title="Jeda semua task" aria-label="Jeda semua task">
+        : <button type="button" className="ibtn" onClick={onPauseAll} title="Jeda semua task" aria-label="Jeda semua task">
             <span className="ic"><IconPause size={18} /><span className="sr-only">⏸</span></span>
             <span className="lb">Jeda</span>
           </button>}
       {sceneEnabled && <>
       <span className="sep" />
-      <button className="ibtn" onClick={onZoomOut} title="Zoom out — lihat lebih luas (shortcut -)" aria-label="Perkecil">
+      <button type="button" className="ibtn" onClick={onZoomOut} title="Zoom out — lihat lebih luas (shortcut -)" aria-label="Perkecil">
         <span className="ic"><IconZoomOut size={19} /><span className="sr-only">🔍</span></span>
         <span className="lb">Jauh</span>
       </button>
-      <button className="ibtn" onClick={onZoomIn} title="Zoom in — perbesar ruangan (shortcut +)" aria-label="Perbesar">
+      <button type="button" className="ibtn" onClick={onZoomIn} title="Zoom in — perbesar ruangan (shortcut +)" aria-label="Perbesar">
         <span className="ic"><IconZoomIn size={19} /><span className="sr-only">🔎</span></span>
         <span className="lb">Dekat</span>
       </button>
       {/* Siklus 176: padanan mobile tombol Escape — kamera balik ke overview &
           seleksi dihapus (kontrak resetFocus scene; dulu hanya ada di keyboard). */}
       {onGoHome && (
-        <button className="ibtn" onClick={onGoHome} title="Kembali ke tampilan awal (shortcut Esc)" aria-label="Kembali ke tampilan awal">
+        <button type="button" className="ibtn" onClick={onGoHome} title="Kembali ke tampilan awal (shortcut Esc)" aria-label="Kembali ke tampilan awal">
           <span className="ic"><IconHome size={19} /><span className="sr-only">🏠</span></span>
           <span className="lb">Rumah</span>
         </button>
@@ -52,7 +52,7 @@ export default function QuickToolbar({ onAddTask, onPauseAll, onResumeAll, onTog
       {/* Siklus 178: FOTO — unduh PNG kanvas 3D (snapshot satu klik; dulu satu-satunya
           cara = screenshot browser. Prop opsional — tanpa prop tak dirender, kompat). */}
       {onSnapshot && (
-        <button className="ibtn" onClick={onSnapshot} title="Simpan foto kantor sebagai PNG (screenshot 3D bersih tanpa tombol)" aria-label="Simpan foto kantor">
+        <button type="button" className="ibtn" onClick={onSnapshot} title="Simpan foto kantor sebagai PNG (screenshot 3D bersih tanpa tombol)" aria-label="Simpan foto kantor">
           <span className="ic"><IconCamera size={19} /><span className="sr-only">📷</span></span>
           <span className="lb">Foto</span>
         </button>
@@ -60,7 +60,7 @@ export default function QuickToolbar({ onAddTask, onPauseAll, onResumeAll, onTog
       {/* Siklus 182: AGEN — paritas tombol dgn shortcut C (siklus fokus agen).
           Paritas pola G↔FOTO (179): prop opsional — tanpa prop tak dirender. */}
       {onCycleAgent && (
-        <button className="ibtn" onClick={() => onCycleAgent(false)} title="Fokus ke agen berikutnya (shortcut C)" aria-label="Agen berikutnya">
+        <button type="button" className="ibtn" onClick={() => onCycleAgent(false)} title="Fokus ke agen berikutnya (shortcut C)" aria-label="Agen berikutnya">
           <span className="ic"><IconUserNext size={19} /><span className="sr-only">👤</span></span>
           <span className="lb">Agen</span>
         </button>
@@ -68,20 +68,20 @@ export default function QuickToolbar({ onAddTask, onPauseAll, onResumeAll, onTog
       {/* Siklus 183: AGEN MUNDUR — paritas tombol dgn Shift+C (pola pasangan
           Jauh/Dekat & Iso/Depan/Atas). Prop opsional — tanpa prop tak dirender. */}
       {onCycleAgentBack && (
-        <button className="ibtn" onClick={() => onCycleAgentBack(true)} title="Fokus ke agen sebelumnya (shortcut Shift+C)" aria-label="Agen sebelumnya">
+        <button type="button" className="ibtn" onClick={() => onCycleAgentBack(true)} title="Fokus ke agen sebelumnya (shortcut Shift+C)" aria-label="Agen sebelumnya">
           <span className="ic"><IconUserPrev size={19} /><span className="sr-only">👤</span></span>
           <span className="lb">Mundur</span>
         </button>
       )}
       {['iso', 'front', 'top'].map(v => (
-        <button key={v} className="ibtn" onClick={() => onSetView(v)} title={'Kamera ' + (v === 'iso' ? 'isometrik (shortcut 1)' : v === 'front' ? 'samping (shortcut 2)' : 'dari atas (shortcut 3)')} aria-label={'Kamera ' + v}>
+        <button type="button" key={v} className="ibtn" onClick={() => onSetView(v)} title={'Kamera ' + (v === 'iso' ? 'isometrik (shortcut 1)' : v === 'front' ? 'samping (shortcut 2)' : 'dari atas (shortcut 3)')} aria-label={'Kamera ' + v}>
           <span className="ic">
             {v === 'iso' ? <><IconIso size={19} /><span className="sr-only">🧊</span></> : v === 'front' ? <><IconFront size={19} /><span className="sr-only">↔</span></> : <><IconTop size={19} /><span className="sr-only">🗺️</span></>}
           </span>
           <span className="lb">{v === 'iso' ? 'Iso' : v === 'front' ? 'Depan' : 'Atas'}</span>
         </button>
       ))}
-      <button
+      <button type="button"
         className={'ibtn' + (!theme ? ' on' : '')}
         onClick={onToggleTheme}
         aria-pressed={!theme}

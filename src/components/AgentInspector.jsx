@@ -104,7 +104,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             </div>
           </div>
         </div>
-        <button
+        <button type="button"
           className="x"
           ref={closeRef}
           onClick={onClose}
@@ -314,7 +314,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
           📋 Papan Kanban {findTeamByAgent(agent.name)?.shortName ? `(${findTeamByAgent(agent.name).shortName})` : ''}
         </button>
 
-        <button
+        <button type="button"
           className="btn primary"
           style={{
             display: 'flex',

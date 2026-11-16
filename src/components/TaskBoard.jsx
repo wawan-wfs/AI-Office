@@ -603,7 +603,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
 
   return (
     <>
-      <button className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="task-board" aria-label="Papan task" title="Papan task (Kanban) — shortcut T">
+      <button type="button" className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="task-board" aria-label="Papan task" title="Papan task (Kanban) — shortcut T">
         <span className="ic"><IconBoard size={19} /><span className="sr-only">📋</span></span>
         <span className="lb">Papan</span>
       </button>
@@ -672,7 +672,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                 </button>
               </div>
             )}
-            <button className="x" onClick={() => setOpen(false)} aria-label="Tutup papan task" title="Tutup papan task (Esc)">
+            <button type="button" className="x" onClick={() => setOpen(false)} aria-label="Tutup papan task" title="Tutup papan task (Esc)">
               <IconClose size={18} />
               <span className="sr-only">✕</span>
             </button>
@@ -701,7 +701,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
           )}
           {sel ? (
             <div style={{ padding: 14, overflowY: 'auto' }}>
-              <button className="btn" onClick={() => {
+              <button type="button" className="btn" onClick={() => {
                 sfx.playSelect()
                 setSel(null)
               }} style={{ marginBottom: 10 }}>← Kembali</button>
@@ -814,13 +814,13 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                 })}
               </div>
               {sel.status !== 'running' && sel.status !== 'done' && (
-                <button className="btn primary" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => ask(sel)}>
+                <button type="button" className="btn primary" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => ask(sel)}>
                   <IconPlay size={14} />
                   <span>Jalankan task</span>
                 </button>
               )}
               {sel.status === 'done' && (
-                <button className="btn" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => ask(sel)}>
+                <button type="button" className="btn" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => ask(sel)}>
                   <IconRotate size={14} />
                   <span>Jalankan ulang</span>
                 </button>
@@ -1467,11 +1467,11 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
               )}
                 {viewMode === 'list' && (
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
-                    {FILTERS.map(([k, l]) => <button key={k} className={'btn' + (filter === k ? ' primary' : '')} style={{ minHeight: 34, padding: '0 10px', fontSize: 12 }} aria-pressed={filter === k} onClick={() => setFilter(k)}>{l} {count(k)}</button>)}
+                    {FILTERS.map(([k, l]) => <button type="button" key={k} className={'btn' + (filter === k ? ' primary' : '')} style={{ minHeight: 34, padding: '0 10px', fontSize: 12 }} aria-pressed={filter === k} onClick={() => setFilter(k)}>{l} {count(k)}</button>)}
                   </div>
                 )}
               </div>
-              {err && <div id="tb-err" style={{ padding: '0 12px 8px' }}><div className="msg err" role="alert">Gagal memuat task. <button className="btn" onClick={() => load()}>Coba lagi</button></div></div>}
+              {err && <div id="tb-err" style={{ padding: '0 12px 8px' }}><div className="msg err" role="alert">Gagal memuat task. <button type="button" className="btn" onClick={() => load()}>Coba lagi</button></div></div>}
               {!tasks && !err && <div style={{ padding: '0 12px 12px' }}><div className="skeleton" role="status">Memuat task…</div></div>}
               {tasks && <div role="status" aria-live="polite" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', clipPath: 'inset(50%)', whiteSpace: 'nowrap' }}>{`${list.length} task ditampilkan`}</div>}
               {tasks && list.length === 0 && <div style={{ padding: '0 12px 12px' }}><div className="skeleton">Tidak ada task yang cocok.</div></div>}

@@ -8563,3 +8563,10 @@
 - Test: `shconsole_button_type_586.test.jsx` baru (2 kasus: statis — tak ada `<button>` tanpa type di source; runtime — tab Overview & tombol Tambah task ter-render dengan type button dan klik tab berfungsi).
 - Full-run: 430 file, 4572 passed + 6 skipped, 0 fail (~572s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 04:30 WIB — Siklus 587: paritas type tombol seluruh repo (82 tombol sisa)
+
+- Audit repo-wide: meski ShConsole/TaskBoard sudah patuh (siklus 584/586), 82 `<button>` lain di 16 file masih tanpa `type` eksplisit (implisit submit) — QuickToolbar 11, WfsPanel 10, App 9, SecureProjectPanel/Dashboard 8, OverlayHelp/ActivityLog/ActionMenu 5, dsb. Kini SEMUA tombol di src/ `type="button"` (scan regex repo-wide: 0 sisa).
+- Test: `button_type_repo_587.test.jsx` (guard repo-wide — scan semua .jsx, gagal bila ada button tanpa type) mencegah regresi.
+- Full-run: 431 file, 4573 passed + 6 skipped, 0 fail (~571s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

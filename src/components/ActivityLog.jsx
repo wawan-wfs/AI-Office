@@ -31,7 +31,7 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
   return (
     <div className="modal-scrim" role="presentation" onClick={onClose}>
       <div ref={box} className="modal" role="dialog" aria-label="Log aktivitas" aria-modal="true" onClick={e => e.stopPropagation()}>
-        <button className="x" onClick={onClose} title="Tutup log aktivitas (Esc)" aria-label="Tutup log aktivitas">
+        <button type="button" className="x" onClick={onClose} title="Tutup log aktivitas (Esc)" aria-label="Tutup log aktivitas">
           <IconClose size={16} />
           <span className="sr-only">✕</span>
         </button>
@@ -59,7 +59,7 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
             </ul>}
         <div className="modal-actions">
           {items.length > 0 && (
-            <button
+            <button type="button"
               className="btn"
               onClick={() => {
                 // Siklus 568: salin isi log sebagai teks; clipboard bisa
@@ -78,7 +78,7 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
             >{copied ? 'Tersalin ✓' : 'Salin'}</button>
           )}
           {items.length > 0 && (
-            <button
+            <button type="button"
               className="btn"
               onClick={() => {
                 // Siklus 569: unduh log sebagai file .txt — pelengkap Salin;
@@ -95,7 +95,7 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
             >Unduh</button>
           )}
           {items.length > 0 && (
-            <button
+            <button type="button"
               className="btn"
               onClick={() => {
                 // Siklus 570: konfirmasi dulu — pembersihan tak bisa dibatalkan
@@ -114,7 +114,7 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
               aria-label="Bersihkan log aktivitas"
             >Bersihkan</button>
           )}
-          <button className="btn" onClick={onClose}>Tutup</button>
+          <button type="button" className="btn" onClick={onClose}>Tutup</button>
         </div>
       </div>
     </div>

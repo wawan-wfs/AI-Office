@@ -115,19 +115,19 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
         <div ref={box} id="dashboard" className="panel wide" role="dialog" aria-label="Dashboard" aria-modal="true" aria-describedby={err ? 'db-err' : undefined}>
           <div className="ph">
             <div className="t">Dashboard<small>overview software house · refresh 10 dtk</small></div>
-            <button className="x" onClick={() => setOpen(false)} aria-label="Tutup dashboard" title="Tutup dashboard (Esc)">
+            <button type="button" className="x" onClick={() => setOpen(false)} aria-label="Tutup dashboard" title="Tutup dashboard (Esc)">
               <IconClose size={18} />
               <span className="sr-only">✕</span>
             </button>
           </div>
           <div className="dash-body" aria-live="polite">
             <nav className="dash-nav" aria-label="Navigasi dashboard">
-              <button className="btn" onClick={() => { setOpen(false); onOpenBoard?.() }}>Buka papan task</button>
-              <button className="btn" onClick={() => { setOpen(false); onOpenProjects?.() }}>Buka daftar proyek</button>
+              <button type="button" className="btn" onClick={() => { setOpen(false); onOpenBoard?.() }}>Buka papan task</button>
+              <button type="button" className="btn" onClick={() => { setOpen(false); onOpenProjects?.() }}>Buka daftar proyek</button>
             </nav>
             <SecureProjectPanel />
             {!stats && !err && <div className="skeleton" role="status">Memuat dashboard…</div>}
-            {err && <div id="db-err" role="alert" className="msg err" style={{ maxWidth: '100%' }}>Data belum lengkap — sebagian layanan tidak dapat dihubungi. <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={() => load()}>Coba lagi</button></div>}
+            {err && <div id="db-err" role="alert" className="msg err" style={{ maxWidth: '100%' }}>Data belum lengkap — sebagian layanan tidak dapat dihubungi. <button type="button" className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={() => load()}>Coba lagi</button></div>}
             {stats && (
               <>
                 <div className="dash-grid">
@@ -145,12 +145,12 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                   <section aria-label="Proyek">
                     <div className="dash-sec">
                       <span>Proyek</span>
-                      <button className="btn" style={{ minHeight: 28 }} onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}>Buka panel proyek</button>
+                      <button type="button" className="btn" style={{ minHeight: 28 }} onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}>Buka panel proyek</button>
                     </div>
                     {projects === null && <p>Data proyek tidak tersedia.</p>}
                     {projects?.length === 0 && <div className="skeleton">Belum ada proyek.</div>}
                     {(projects || []).slice(0, 6).map(p => (
-                      <button key={p.id} className="dash-row" onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}
+                      <button type="button" key={p.id} className="dash-row" onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}
                         aria-label={`Proyek ${p.name} status ${p.status}`}
                         title={p.preview_url ? `Preview: ${p.preview_url}` : 'Belum ada sandbox'}>
                         <span className="dash-row-t">
@@ -166,7 +166,7 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                     {tasks === null && <p>Data task tidak tersedia.</p>}
                     {tasks?.length === 0 && <div className="skeleton">Belum ada task. Klik ＋ Task.</div>}
                     {(tasks || []).slice(0, 7).map(t => (
-                      <button key={t.id} className="dash-row" style={{ borderLeft: `3px solid ${taskStatusColor(t.status) || TASK_STATUS_COLORS.review}` }}
+                      <button type="button" key={t.id} className="dash-row" style={{ borderLeft: `3px solid ${taskStatusColor(t.status) || TASK_STATUS_COLORS.review}` }}
                         onClick={() => { setOpen(false); onOpenBoard && onOpenBoard() }}
                         aria-label={`Task ${t.id}: ${t.title} status ${t.status}`}>
                         <span className="dash-row-t">{clip(t.title, 30)}</span>
@@ -222,7 +222,7 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
         </div>
         </div>, document.body
       )}
-      <button className="ibtn accent" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="dashboard" aria-label="Dashboard" title="Dashboard — overview proyek, task, agen, sandbox (shortcut D)">
+      <button type="button" className="ibtn accent" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="dashboard" aria-label="Dashboard" title="Dashboard — overview proyek, task, agen, sandbox (shortcut D)">
         <span className="ic"><IconStats size={19} /><span className="sr-only">📊</span></span><span className="lb">Dashboard</span>
       </button>
     </>

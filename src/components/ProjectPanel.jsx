@@ -72,7 +72,7 @@ export default function ProjectPanel() {
 
   return (
     <>
-      <button className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="project-panel" aria-label="Proyek dibantuin.com" title="Ringkasan proyek live dibantuin.com — shortcut P">
+      <button type="button" className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="project-panel" aria-label="Proyek dibantuin.com" title="Ringkasan proyek live dibantuin.com — shortcut P">
         <span className="ic"><IconRocket size={19} /><span className="sr-only">🚀</span></span><span className="lb">Proyek</span>
       </button>
       {open && (
@@ -85,13 +85,13 @@ export default function ProjectPanel() {
               </span>
               <small>{err ? 'gagal memuat' : 'data live · refresh 15 dtk'}</small>
             </div>
-            <button className="x" onClick={() => setOpen(false)} aria-label="Tutup panel proyek" title="Tutup panel proyek (Esc)">
+            <button type="button" className="x" onClick={() => setOpen(false)} aria-label="Tutup panel proyek" title="Tutup panel proyek (Esc)">
               <IconClose size={18} />
               <span className="sr-only">✕</span>
             </button>
           </div>
           <div style={{ padding: '12px 14px', overflowY: 'auto' }}>
-            {err && <div id="pp-err" className="msg err" role="alert">Gagal memuat data proyek. <button className="btn" onClick={() => load()}>Coba lagi</button></div>}
+            {err && <div id="pp-err" className="msg err" role="alert">Gagal memuat data proyek. <button type="button" className="btn" onClick={() => load()}>Coba lagi</button></div>}
             {!d && !err && <div className="skeleton">Memuat data proyek…</div>}
             {d && (
               <>

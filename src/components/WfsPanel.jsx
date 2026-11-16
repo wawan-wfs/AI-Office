@@ -152,31 +152,31 @@ export default function WfsPanel() {
 
   return (
     <>
-      <button className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="wfs-panel" aria-label="Chat AI Team" title="Chat langsung dengan AI Team">
+      <button type="button" className="ibtn" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="wfs-panel" aria-label="Chat AI Team" title="Chat langsung dengan AI Team">
         <span className="ic"><IconChat size={19} /><span className="sr-only">💬</span></span><span className="lb">Chat</span>
       </button>
       {open && (
         <div ref={box} id="wfs-panel" className="panel" role="dialog" aria-label="Chat dan konfigurasi agent" aria-modal="true" aria-describedby={loadErr ? 'wp-err' : undefined}>
           <div className="ph">
             <div className="t">{sel ? sel.name : 'Chat AI Team'}<small>{sel ? sel.role : ''} · {tab === 'chat' ? 'percakapan' : 'konfigurasi model'}</small></div>
-            <button className="x" onClick={() => setOpen(false)} aria-label="Tutup panel chat" title="Tutup panel chat (Esc)">
+            <button type="button" className="x" onClick={() => setOpen(false)} aria-label="Tutup panel chat" title="Tutup panel chat (Esc)">
               <IconClose size={18} />
               <span className="sr-only">✕</span>
             </button>
           </div>
           <div className="tabs" role="tablist" aria-label="Panel chat / konfigurasi" onKeyDown={e => tabKeys(e, setTab)}>
-            <button role="tab" id="wfs-tab-chat" tabIndex={tab === 'chat' ? 0 : -1} aria-selected={tab === 'chat'} aria-controls="wfs-tabpanel-chat" onClick={() => setTab('chat')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <button type="button" role="tab" id="wfs-tab-chat" tabIndex={tab === 'chat' ? 0 : -1} aria-selected={tab === 'chat'} aria-controls="wfs-tabpanel-chat" onClick={() => setTab('chat')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <IconChat size={15} />
               <span>Chat</span>
             </button>
-            <button role="tab" id="wfs-tab-config" tabIndex={tab === 'config' ? 0 : -1} aria-selected={tab === 'config'} aria-controls="wfs-tabpanel-config" onClick={() => setTab('config')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <button type="button" role="tab" id="wfs-tab-config" tabIndex={tab === 'config' ? 0 : -1} aria-selected={tab === 'config'} aria-controls="wfs-tabpanel-config" onClick={() => setTab('config')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <IconGear size={15} />
               <span>Model API</span>
             </button>
           </div>
           <div style={{ padding: '8px 12px 0' }}>
             {loading && <div className="skeleton" role="status">Memuat agent…</div>}
-            {loadErr && <div id="wp-err" role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>{loadErr} <button className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={loadAgents}>Muat ulang</button></div>}
+            {loadErr && <div id="wp-err" role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>{loadErr} <button type="button" className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={loadAgents}>Muat ulang</button></div>}
             {agents.length > 0 && (
               <select className="sel" aria-label="Pilih agent" value={sel ? sel.id : ''} onChange={e => choose(agents.find(a => a.id === e.target.value))}>
                 {agents.map(a => <option key={a.id} value={a.id}>{a.name} — {a.role}</option>)}
@@ -196,7 +196,7 @@ export default function WfsPanel() {
                 {log.map((m, i) => (
                   <div key={i} className={'msg ' + (m.who === 'me' ? 'me' : m.who === 'err' ? 'err' : '')} role={m.who === 'err' ? 'alert' : undefined}>
                     {m.text}
-                    {m.retry && i === log.length - 1 && <div><button className="btn" style={{ minHeight: 32, marginTop: 6 }} onClick={() => { setInput(m.retry); inputRef.current && inputRef.current.focus() }}>Kirim ulang</button></div>}
+                    {m.retry && i === log.length - 1 && <div><button type="button" className="btn" style={{ minHeight: 32, marginTop: 6 }} onClick={() => { setInput(m.retry); inputRef.current && inputRef.current.focus() }}>Kirim ulang</button></div>}
                   </div>
                 ))}
                 {chatBusy && <div className="note" style={{ color: 'var(--amber)' }}>⏳ {sel ? sel.name : 'Agent'} mengetik…</div>}
@@ -205,7 +205,7 @@ export default function WfsPanel() {
                 <input ref={inputRef} className="fld" style={{ marginBottom: 0 }} value={input} aria-label="Pesan" placeholder="Ketik pesan… (Enter kirim)"
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); send() } }} />
-                <button className="btn primary" onClick={send} disabled={chatBusy || !input.trim() || !sel}>Kirim</button>
+                <button type="button" className="btn primary" onClick={send} disabled={chatBusy || !input.trim() || !sel}>Kirim</button>
               </div>
               </div>
             </>
@@ -218,15 +218,15 @@ export default function WfsPanel() {
               <input className="fld" aria-label="Model" placeholder="Model (mis. gpt-4o-mini)" value={cfg.model} onChange={e => setCfg({ ...cfg, model: e.target.value })} />
               <textarea className="fld" aria-label="Instruksi khusus agent" style={{ height: 70, resize: 'vertical' }} placeholder="Instruksi khusus agent" value={cfg.instructions} onChange={e => setCfg({ ...cfg, instructions: e.target.value })} />
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                <button className="btn primary" onClick={() => saveCfg(false)} disabled={cfgBusy || !sel} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <button type="button" className="btn primary" onClick={() => saveCfg(false)} disabled={cfgBusy || !sel} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <IconSave size={15} />
                   <span>Simpan</span>
                 </button>
-                <button className="btn" onClick={testCfg} disabled={cfgBusy || !sel} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <button type="button" className="btn" onClick={testCfg} disabled={cfgBusy || !sel} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <IconPlay size={14} />
                   <span>Test</span>
                 </button>
-                <button className="btn" onClick={() => saveCfg(true)} disabled={cfgBusy || !sel} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <button type="button" className="btn" onClick={() => saveCfg(true)} disabled={cfgBusy || !sel} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <IconRotate size={14} />
                   <span>Reset default</span>
                 </button>

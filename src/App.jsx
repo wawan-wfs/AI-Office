@@ -818,7 +818,7 @@ export default function App() {
       <div className="vignette" aria-hidden="true" />
 
       <div className="view-mode-switch" role="group" aria-label="Mode tampilan">
-        <button className="btn" onClick={() => switchView(viewMode === '3d' ? '2d' : '3d')}>
+        <button type="button" className="btn" onClick={() => switchView(viewMode === '3d' ? '2d' : '3d')}>
           {viewMode === '3d' ? 'Gunakan mode ringan 2D' : 'Aktifkan kantor 3D'}
         </button>
       </div>
@@ -827,9 +827,9 @@ export default function App() {
         <p>Mode ringan 2D — data pekerjaan dari task engine, tanpa memuat ruangan 3D.</p>
         <nav aria-label="Mulai bekerja">
           <a className="btn" href="/" style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>Kembali ke beranda</a>
-          <button className="btn" onClick={() => window.dispatchEvent(new CustomEvent('wfs-toggle-dashboard'))}>Lihat dashboard</button>
-          <button className="btn" onClick={() => dispatchTaskBoardEvent('wfs-open-task-board', { view: 'kanban' })}>Buka papan task</button>
-          <button className="btn" onClick={() => window.dispatchEvent(new CustomEvent('wfs-open-project-panel', { detail: {} }))}>Buka proyek</button>
+          <button type="button" className="btn" onClick={() => window.dispatchEvent(new CustomEvent('wfs-toggle-dashboard'))}>Lihat dashboard</button>
+          <button type="button" className="btn" onClick={() => dispatchTaskBoardEvent('wfs-open-task-board', { view: 'kanban' })}>Buka papan task</button>
+          <button type="button" className="btn" onClick={() => window.dispatchEvent(new CustomEvent('wfs-open-project-panel', { detail: {} }))}>Buka proyek</button>
         </nav>
         <p>Kantor 3D opsional: 26 avatar dan aktivitas ambient adalah simulasi, bukan bukti agen sedang menjalankan pekerjaan. Status task berasal dari backend.</p>
       </main>}
@@ -904,28 +904,28 @@ export default function App() {
         <Dashboard onOpenBoard={() => dispatchTaskBoardEvent('wfs-open-task-board', { view: 'kanban' })} onOpenProjects={() => window.dispatchEvent(new CustomEvent('wfs-open-project-panel', { detail: {} }))} />
         <ProjectPanel />
         <TeamStats />
-        <button className="ibtn" onClick={toggleMute} onContextMenu={(e) => { e.preventDefault(); setShowSettings(true) }} title={muted ? 'Nyalakan suara notifikasi (shortcut M) — Klik kanan untuk opsi volume' : 'Bisukan suara notifikasi (shortcut M) — Klik kanan untuk opsi volume'} aria-label={muted ? 'Nyalakan suara' : 'Bisukan suara'} aria-pressed={muted}>
+        <button type="button" className="ibtn" onClick={toggleMute} onContextMenu={(e) => { e.preventDefault(); setShowSettings(true) }} title={muted ? 'Nyalakan suara notifikasi (shortcut M) — Klik kanan untuk opsi volume' : 'Bisukan suara notifikasi (shortcut M) — Klik kanan untuk opsi volume'} aria-label={muted ? 'Nyalakan suara' : 'Bisukan suara'} aria-pressed={muted}>
           <span className="ic">
             {muted ? <><IconVolumeMute size={19} /><span className="sr-only">🔇</span></> : <><IconVolume size={19} /><span className="sr-only">🔊</span></>}
           </span>
           <span className="lb">{muted ? 'Suara Mati' : 'Suara'}</span>
         </button>
-        <button className="ibtn" onClick={() => { setShowLog(true); activityMarkSeen() }} title="Log aktivitas kantor — shortcut L" aria-label={logUnread > 0 ? `Log aktivitas — ${logUnread} item belum dilihat` : 'Log aktivitas'}>
+        <button type="button" className="ibtn" onClick={() => { setShowLog(true); activityMarkSeen() }} title="Log aktivitas kantor — shortcut L" aria-label={logUnread > 0 ? `Log aktivitas — ${logUnread} item belum dilihat` : 'Log aktivitas'}>
           <span className="ic"><IconScroll size={19} /><span className="sr-only">📜</span>{logUnread > 0 && <ActivityBadge count={logUnread} />}</span>
           <span className="lb">Log</span>
         </button>
         <span className="sep" />
         <WfsPanel />
         <Suspense fallback={null}><CsWidget /></Suspense>
-        <button className="ibtn" onClick={() => setShowConsole(true)} title="Konsol Software House (Overview · Projects · Buat project)" aria-label="Konsol Software House">
+        <button type="button" className="ibtn" onClick={() => setShowConsole(true)} title="Konsol Software House (Overview · Projects · Buat project)" aria-label="Konsol Software House">
           <span className="ic"><span aria-hidden="true">🖥️</span><span className="sr-only">🖥️</span></span>
           <span className="lb">Konsol</span>
         </button>
-        <button className="ibtn" onClick={() => setShowSettings(true)} title="Pengaturan audio & tampilan kantor — shortcut O" aria-label="Pengaturan">
+        <button type="button" className="ibtn" onClick={() => setShowSettings(true)} title="Pengaturan audio & tampilan kantor — shortcut O" aria-label="Pengaturan">
           <span className="ic"><IconGear size={19} /><span className="sr-only">⚙️</span></span>
           <span className="lb">Atur</span>
         </button>
-        <button className="ibtn" onClick={() => setShowHelp(true)} title="Panduan penggunaan kantor — shortcut H atau ?" aria-label="Bantuan">
+        <button type="button" className="ibtn" onClick={() => setShowHelp(true)} title="Panduan penggunaan kantor — shortcut H atau ?" aria-label="Bantuan">
           <span className="ic"><IconHelp size={19} /><span className="sr-only">❔</span></span>
           <span className="lb">Bantuan</span>
         </button>

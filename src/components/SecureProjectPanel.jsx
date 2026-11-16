@@ -152,7 +152,7 @@ export default function SecureProjectPanel() {
           <strong>WFS Secure Control</strong>
           <small>Brief coding, QA artifact, preview inspection & billing audit · backend nyata · Phase 7</small>
         </div>
-        <button className="btn" onClick={() => expanded ? close() : setExpanded(true)}
+        <button type="button" className="btn" onClick={() => expanded ? close() : setExpanded(true)}
           aria-expanded={expanded} aria-controls="wfs-secure-body">
           {expanded ? 'Tutup & hapus token' : 'Buka kontrol proyek'}
         </button>
@@ -171,7 +171,7 @@ export default function SecureProjectPanel() {
                 spellCheck={false} value={token} onChange={e => setToken(e.target.value)}
                 placeholder="Token dari operator lokal" />
             </label>
-            <button className="btn" onClick={() => act('refresh')} disabled={busy}>
+            <button type="button" className="btn" onClick={() => act('refresh')} disabled={busy}>
               {busy ? 'Menghubungkan…' : 'Muat data nyata'}
             </button>
           </div>
@@ -195,7 +195,7 @@ export default function SecureProjectPanel() {
                   <option value="backend2">Python Backend 2</option>
                 </select>
               </label>
-              <button className="btn" disabled={busy} onClick={() => act('create')}>
+              <button type="button" className="btn" disabled={busy} onClick={() => act('create')}>
                 Buat task & antrekan
               </button>
             </div>
@@ -209,10 +209,10 @@ export default function SecureProjectPanel() {
           </div>}
           {jobs !== null && <div className="wfs-secure-inspector" aria-label="Inspeksi backend nyata">
             <div>
-              <button className="btn" onClick={() => act('preview')} disabled={busy}>
+              <button type="button" className="btn" onClick={() => act('preview')} disabled={busy}>
                 Periksa preview read-only
               </button>
-              <button className="btn" onClick={() => act('invoice')} disabled={busy}>
+              <button type="button" className="btn" onClick={() => act('invoice')} disabled={busy}>
                 Audit invoice proyek
               </button>
             </div>
@@ -239,7 +239,7 @@ export default function SecureProjectPanel() {
                 <div className="wfs-secure-enqueue">
                   <input aria-label="Task ID numerik" value={taskId}
                     onChange={e => setTaskId(e.target.value)} placeholder="Task ID" />
-                  <button className="btn" onClick={() => act('enqueue')} disabled={busy}>Enqueue</button>
+                  <button type="button" className="btn" onClick={() => act('enqueue')} disabled={busy}>Enqueue</button>
                 </div>
               </div>
               <div className="wfs-secure-jobs" aria-label="Daftar antrean nyata">
@@ -249,10 +249,10 @@ export default function SecureProjectPanel() {
                     <div><b>{job.role}</b> <span>{job.status}</span>
                       <small>{job.id}</small></div>
                     {job.status === 'completed' &&
-                      <button className="btn" disabled={busy}
+                      <button type="button" className="btn" disabled={busy}
                         onClick={() => act('evidence', job.id)}>Bukti QA</button>}
                     {(job.status === 'queued' || job.status === 'leased') &&
-                      <button className="btn" disabled={busy}
+                      <button type="button" className="btn" disabled={busy}
                         onClick={() => act('cancel', job.id)}>Batalkan</button>}
                   </div>
                 ))}

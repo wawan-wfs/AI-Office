@@ -33,8 +33,8 @@ export default class ErrorBoundary extends React.Component {
               (target aria-describedby bagi container alert) — screen reader
               membaca detail error, bukan hanya judul. */}
           <pre id="eb-msg">{msg}</pre>
-          <button onClick={() => { this.setState({ err: null }) }}>Coba lagi</button>
-          <button onClick={() => location.reload()}>Muat ulang</button>
+          <button type="button" onClick={() => { this.setState({ err: null }) }}>Coba lagi</button>
+          <button type="button" onClick={() => location.reload()}>Muat ulang</button>
         </div>
       )
     }

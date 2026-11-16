@@ -26,7 +26,7 @@ export default function CsWidget() {
               <IconHeadset size={14} />
               <span>AI CS DIBANTUIN</span>
             </div>
-            <button className="x" onClick={() => setOpen(false)} aria-label="Tutup widget CS" title="Tutup widget CS (Esc)">
+            <button type="button" className="x" onClick={() => setOpen(false)} aria-label="Tutup widget CS" title="Tutup widget CS (Esc)">
               <IconClose size={18} />
               <span className="sr-only">✕</span>
             </button>
@@ -34,7 +34,7 @@ export default function CsWidget() {
           <iframe src={import.meta.env.VITE_CS_WIDGET_URL || '/cs-widget/'} style={{ border: 0, width: '100%', flex: 1 }} title="AI CS dibantuin" />
         </div>
       )}
-      <button className="ibtn" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="cs-widget" aria-label="Buka widget AI CS" title="AI Customer Service Widget">
+      <button type="button" className="ibtn" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="cs-widget" aria-label="Buka widget AI CS" title="AI Customer Service Widget">
         <span className="ic"><IconHeadset size={19} /><span className="sr-only">🛎</span></span><span className="lb">AI CS</span>
       </button>
     </>
