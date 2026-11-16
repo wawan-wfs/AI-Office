@@ -124,6 +124,27 @@ export const formatLogText = (items) => {
   return lines.join('\n')
 }
 
+// Siklus 569: ekspor log ke FILE (.txt) — pelengkap Salin (clipboard sering
+// ditolak di browser mobile). Murni & diuji terpisah; unduhan via
+// downloadExportFile (satu sumber kanban_export) di ActivityLog.
+const pad2 = (n) => String(n).padStart(2, '0')
+
+export const formatLogFilename = (now) => {
+  const d = now instanceof Date ? now : new Date(now)
+  if (!d || Number.isNaN(d.getTime())) return null
+  const Y = d.getFullYear(), M = pad2(d.getMonth() + 1), D = pad2(d.getDate())
+  const h = pad2(d.getHours()), m = pad2(d.getMinutes()), s = pad2(d.getSeconds())
+  return `log-aktivitas-${Y}${M}${D}-${h}${m}${s}.txt`
+}
+
+export const formatLogFileText = (items, now) => {
+  const fname = formatLogFilename(now)
+  const stamp = fname ? fname.replace(/^log-aktivitas-/, '').replace(/\.txt$/, '') : ''
+  const head = `Log Aktivitas WFS${stamp ? ` — diekspor ${stamp}` : ''}`
+  const body = formatLogText(items)
+  return body ? `${head}\n${'-'.repeat(24)}\n${body}\n` : `${head}\n`
+}
+
 // Siklus 349: flag handshake landing→app satu sumber.
 // Landing (public/landing.html) menulis 'wfs_open_dashboard'=1 sebelum redirect;
 // App.jsx membaca+hapus sekali lalu dispatch event dashboard. Dipindah ke sini

@@ -8428,3 +8428,10 @@
 - Test: clock_stamp_567 baru (3 kasus); drift-gate stamp_single_source_345 disesuaikan (clockStampMs menggantikan clockNowShortId di App). Full-run: 416 file, 4522 passed + 6 skipped, 0 fail (~600s).
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scene probe exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 12:45 WIB — Siklus 569: tombol "Unduh" log aktivitas (file .txt)
+- Lanjutan audit log: tombol "Salin" (568) bergantung navigator.clipboard yang sering ditolak/di-restrict di browser mobile & http non-secure → laporan task tak bisa diekspor. Ditambah tombol "Unduh" di modal-actions log.
+- formatLogFilename (log-aktivitas-YYYYMMDD-HHMMSS.txt, Date rusak → null) & formatLogFileText (header 'Log Aktivitas WFS — diekspor …' + pemisah + isi formatLogText) baru di lib/storage_prefs.js, murni & diuji terpisah. Unduhan via downloadExportFile (satu sumber kanban_export), guard try/catch.
+- Test: log_download_569 baru (7 kasus: nama file, Date rusak, header+isi, kosong, now rusak, klik → spy downloadExportFile dgn nama .txt & teks #id, tombol hilang saat items kosong). Full-run: 418 file, 4534 passed + 6 skipped, 0 fail (~520s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
