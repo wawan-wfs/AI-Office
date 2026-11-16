@@ -8598,3 +8598,10 @@
 - Keputusan: TIDAK diadopsi; konfigurasi vitest TIDAK diubah. Hasil negatif dicatat agar eksperimen serupa tidak diulang. Kandidat lanjutan bila perf test dibutuhkan: pool 'forks' atau pembagian shard, belum dieksekusi.
 - TIDAK ada perubahan kode siklus ini. Suite normal tidak diulang penuh (state kode identik sejak commit 5792b5b yang full-run hijau 4573 pass; run eksperimen di atas bukan bagian gate).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 08:00 WIB — Siklus 592: eksperimen pool forks vitest — hasil negatif (lebih lambat), tidak diadopsi
+
+- Eksperimen backlog siklus 591: `npx vitest run --pool=forks` (tanpa mengubah konfigurasi) — hasil korektness PENUH: 431 file passed / 4573 pass + 6 skip / 0 fail, TAPI durasi 579,7 s (real 9m42s) — sedikit LEBIH LAMBAT dari baseline threads 565 s (fork ~817 ms startup/file, 431 worker).
+- Keputusan: TIDAK diadopsi. Dua kandidat perf sudah dievaluasi dan ditolak: isolate:false (cepat tapi rusak) dan pool:forks (benar tapi lambat). Baseline threads tetap.
+- TIDAK ada perubahan kode. Suite normal tidak diulang (run eksperimen di atas sendiri adalah full-suite hijau 4573 pass pada state kode 5792b5b).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
