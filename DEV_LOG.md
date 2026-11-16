@@ -8471,3 +8471,9 @@
 - Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Catatan: e2e_err.py di scratch sudah tidak ada (dipakai scripts/e2e_scene_probe.py).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 16/11/2026 17:20 WIB — Siklus 575: TaskModal fokus awal ke input Judul + describedby dialog ke error
+- Lanjutan audit a11y modal: modal Task Baru membuka fokus di tombol ✕ (elemen fokusabel pertama) — keyboard/SR harus Tab mundur sebelum bisa mengetik judul; ditambah initialFocus ke input Judul (first, pola WfsPanel inputRef). Error validasi (role=alert) kini juga terasosiasi ke dialog via aria-describedby={err ? 'tm-err' : undefined} — SR membaca pesan error sebagai deskripsi dialog, bukan hanya announcement sekali.
+- Test: task_modal_focus_575 baru (2 kasus: fokus → input Judul, describedby null→tm-err saat error). Full-run pertama 1 fail flaky lazy-chunk (app_integration 'o' — pass targeted & pola flake dikenal siklus 557); full-run rerun: 422 file, 4548 passed + 6 skipped, 0 fail (~535s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

@@ -41,7 +41,7 @@ export default function TaskModal({ show, onClose, onDone }) {
   }, [show])
 
   const closeViaA11y = useCallback(() => onCloseRef.current(), [])
-  useDialogA11y({ open: show, onClose: closeViaA11y, ref: box })
+  useDialogA11y({ open: show, onClose: closeViaA11y, ref: box, initialFocus: first })
 
   if (!show) return null
   const submit = async (run) => {
@@ -64,7 +64,7 @@ export default function TaskModal({ show, onClose, onDone }) {
   }
   return (
     <div className="modal-scrim" role="presentation" onClick={onClose}>
-      <form ref={box} className="modal" role="dialog" aria-modal="true" aria-labelledby="tm-t" onClick={e => e.stopPropagation()} onSubmit={e => { e.preventDefault(); submit(false) }}>
+      <form ref={box} className="modal" role="dialog" aria-modal="true" aria-labelledby="tm-t" aria-describedby={err ? 'tm-err' : undefined} onClick={e => e.stopPropagation()} onSubmit={e => { e.preventDefault(); submit(false) }}>
         <button type="button" className="x" onClick={onClose} title="Tutup form task (Esc)" aria-label="Tutup form task">
           <IconClose size={16} />
           <span className="sr-only">✕</span>
