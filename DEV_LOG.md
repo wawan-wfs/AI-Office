@@ -8414,6 +8414,14 @@
 - Catatan: skrip verifikasi di ~/.hermes/cache/scratch sudah ter-prune lagi — versi ter-track ada di scripts/e2e_scene_probe.py; /tmp/e2e_err.py masih hidup (butuh chromium-1254, probe repo pakai chromium-1243).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
 
+## 16/11/2026 11:35 WIB — Siklus 568: tombol "Salin" log aktivitas (teks ke clipboard)
+- Lanjutan audit log: dialog Log tak punya cara mengekspor isinya — laporan task ke user harus copy-paste manual per baris. Ditambah tombol "Salin" di modal-actions.
+- formatLogText() baru di lib/storage_prefs.js (murni, diuji terpisah): baris 'HH.MM.SS | label | #id title'; stempel epoch ms dirender fmtStampId, item rusak → fallback '[?]', baris kembar identik dihilangkan. ActivityLog memanggil navigator.clipboard.writeText dengan guard sync+Promise (izin ditolak → tanpa crash/unhandled rejection), label 'Tersalin ✓' reset saat dialog dibuka.
+- Catatan proses: patch pertama tak sengaja menghapus tombol "Bersihkan" (4 test gagal di full-run pertama) — dipulihkan sesuai kontrak test (hanya tampil saat items>0), lalu full-run bersih.
+- Test: log_copy_568 baru (5 kasus: format, multi-baris, dedup teks, guard, item rusak). Full-run: 417 file, 4527 passed + 6 skipped, 0 fail (~520s).
+- Verifikasi: build PWA exit 0; dist → ~/wfs-hq; probe /tmp/e2e_err.py exit 0 tanpa 'Scene init failed' (0 match); scripts/e2e_scene_probe.py exit 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
 ## 16/11/2026 10:55 WIB — Siklus 567: stempel log aktivitas epoch ms (dapat diurutkan)
 - Lanjutan audit log: stempel `t` hanya 'HH.MM' (clockNowShortId) — tanpa detik, tidak bisa diurutkan/dikoreksi, format berubah per locale. App pushLog kini memakai clockStampMs() baru (format_time.js): epoch ms finite, Date rusak → null → fallback 0 (pola guard log).
 - ActivityLog merender via fmtStampId satu sumber → 'HH.MM.SS' id-ID; item lama (string 'HH.MM') atau 0 tetap tampil apa adanya, tanpa 'Invalid Date'.

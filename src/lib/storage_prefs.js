@@ -1,4 +1,6 @@
 // Siklus 346: preferensi scene satu sumber — lib/storage_prefs.js
+import { fmtStampId } from './format_time.js'
+
 // Keys: wfs_names (default true), wfs_autorot (default false).
 // Sebelumnya 4 salinan try/catch localStorage.getItem tersebar di ActionMenu,
 // SettingsModal, OfficeScene (+2 salinan set di OfficeScene) — rawan drift
@@ -99,6 +101,27 @@ export const dedupeLogHead = (items, e) => {
     return [items[0], ...items.slice(2)]
   }
   return items
+}
+
+// Siklus 568: builder teks log untuk tombol "Salin" — murni & diuji terpisah,
+// tanpa clipboard/petunjuk UI. Baris: 'HH.MM.SS | label | #id title';
+// stempel rusak/lama → fallback apa adanya; item tanpa id → '[?]' dihapus
+// duplikasi antar baris agar tak dobel di teks.
+export const formatLogText = (items) => {
+  if (!Array.isArray(items) || items.length === 0) return ''
+  const seen = new Set()
+  const lines = []
+  for (const x of items) {
+    const id = x && x.id !== undefined && x.id !== null ? `#${x.id}` : '[?]'
+    const stamp = (x && fmtStampId(x.t)) || (x && x.t) || ''
+    const label = (x && x.label) || ''
+    const title = (x && x.title) || ''
+    const line = `${stamp} | ${label} | ${id} ${title}`.replace(/\s+$/, '')
+    if (seen.has(line)) continue
+    seen.add(line)
+    lines.push(line)
+  }
+  return lines.join('\n')
 }
 
 // Siklus 349: flag handshake landing→app satu sumber.
