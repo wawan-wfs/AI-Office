@@ -397,11 +397,11 @@ export default function ShConsole({ show, onClose }) {
       <div ref={drawerRef} style={STYLE.drawer} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Konsol Software House" aria-describedby={err ? 'sc-err' : undefined}>
         <div style={STYLE.head}>
           <h2 style={STYLE.title}>WFS PROJECT · Konsol</h2>
-          <button className="ibtn" onClick={onClose} aria-label="Tutup konsol" title="Tutup">✕</button>
+          <button type="button"  className="ibtn" onClick={onClose} aria-label="Tutup konsol" title="Tutup">✕</button>
         </div>
         <div style={STYLE.tabbar}>
           {[['overview', 'Overview'], ['projects', 'Projects'], ['tasks', 'Tasks'], ['agents', 'Agents'], ['ws', 'Workspace'], ['approvals', 'Approvals'], ['new', 'Project Baru']].map(([k, label]) => (
-            <button key={k} aria-label={'Tab ' + label} aria-pressed={tab === k} style={{ ...STYLE.tab, ...(tab === k ? STYLE.tabActive : {}) }} onClick={() => setTab(k)}>{label}</button>
+            <button type="button"  key={k} aria-label={'Tab ' + label} aria-pressed={tab === k} style={{ ...STYLE.tab, ...(tab === k ? STYLE.tabActive : {}) }} onClick={() => setTab(k)}>{label}</button>
           ))}
         </div>
         <div style={STYLE.body}>
@@ -417,12 +417,12 @@ export default function ShConsole({ show, onClose }) {
                   {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
                 <textarea style={{ ...STYLE.input, minHeight: 70, resize: 'vertical' }} placeholder="Prompt / instruksi detail (opsional)…" aria-label="Prompt task" value={tPrompt} onChange={(e) => setTPrompt(e.target.value)} />
-                <button style={STYLE.btn} onClick={createTask} disabled={busy}>{busy ? 'Menyimpan…' : 'Tambah task'}</button>
+                <button type="button"  style={STYLE.btn} onClick={createTask} disabled={busy}>{busy ? 'Menyimpan…' : 'Tambah task'}</button>
               </div>
               <div style={STYLE.card}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ fontWeight: 700 }}>Daftar task ({tasks.length})</div>
-                  <button style={STYLE.btnGhost} onClick={(e) => { e?.stopPropagation?.(); runAllPending() }} disabled={bulkBusy} aria-busy={bulkBusy} title="Jalankan semua task pending/review/failed">▶ Jalankan Semua Pending</button>
+                  <button type="button"  style={STYLE.btnGhost} onClick={(e) => { e?.stopPropagation?.(); runAllPending() }} disabled={bulkBusy} aria-busy={bulkBusy} title="Jalankan semua task pending/review/failed">▶ Jalankan Semua Pending</button>
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <select style={STYLE.select} aria-label="Filter project" disabled={bulkBusy} value={tFilter} onChange={(e) => setTFilter(e.target.value)}>
@@ -439,7 +439,7 @@ export default function ShConsole({ show, onClose }) {
                     </div>
                     <span style={STYLE.tag}>{t.status}</span>
                     {(t.status === 'pending' || t.status === 'failed' || t.status === 'review') && (
-                      <button style={STYLE.btnGhost} onClick={() => runTask(t.id)} disabled={runningTask.has(t.id)} aria-busy={runningTask.has(t.id)} title={runningTask.has(t.id) ? 'Mengirim ke agent…' : 'Jalankan task ini'}>{runningTask.has(t.id) ? 'Menjalankan…' : 'Jalankan'}</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => runTask(t.id)} disabled={runningTask.has(t.id)} aria-busy={runningTask.has(t.id)} title={runningTask.has(t.id) ? 'Mengirim ke agent…' : 'Jalankan task ini'}>{runningTask.has(t.id) ? 'Menjalankan…' : 'Jalankan'}</button>
                     )}
                   </div>
                 ))}
@@ -475,13 +475,13 @@ export default function ShConsole({ show, onClose }) {
                   <div style={STYLE.card}>
                     <div style={{ fontWeight: 700, marginBottom: 8 }}>📁 File · {wsPath || '/'}</div>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                      <button style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, '')}>Refresh</button>
-                      {wsPath && <button style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, wsPath.split('/').slice(0, -1).join('/'))}>⬆ Naik</button>}
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, '')}>Refresh</button>
+                      {wsPath && <button type="button"  style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, wsPath.split('/').slice(0, -1).join('/'))}>⬆ Naik</button>}
                     </div>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                      <button style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'restart')}>⟳ Restart</button>
-                      <button style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'stop')}>⏹ Stop</button>
-                      <button style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'start')}>▶ Start</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'restart')}>⟳ Restart</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'stop')}>⏹ Stop</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'start')}>▶ Start</button>
                     </div>
                     {entries.map((en) => {
                       const openEntry = () => en.type === 'dir'
@@ -509,14 +509,14 @@ export default function ShConsole({ show, onClose }) {
                   </div>
                   <div style={STYLE.card}>
                     <div style={{ fontWeight: 700, marginBottom: 8 }}>🪵 Container Logs</div>
-                    <button style={STYLE.btnGhost} onClick={() => loadWsLogs(wsId)}>Muat ulang</button>
+                    <button type="button"  style={STYLE.btnGhost} onClick={() => loadWsLogs(wsId)}>Muat ulang</button>
                     <pre role="region" aria-label="Container logs" style={{ ...STYLE.pre, maxHeight: 180, fontSize: 11 }}>
                       {logs.length ? logs.join('\n') : '(log kosong)'}</pre>
                   </div>
                   <div style={STYLE.card}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <div style={{ fontWeight: 700 }}>🌿 Git</div>
-                      <button style={STYLE.btnGhost} onClick={() => loadWsGit(wsId)}>Status</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => loadWsGit(wsId)}>Status</button>
                     </div>
                     {gitInfo && (gitInfo.repo
                       ? <div>
@@ -525,7 +525,7 @@ export default function ShConsole({ show, onClose }) {
                             <input style={{ ...STYLE.input, marginBottom: 0, flex: 1 }} placeholder="pesan commit…" aria-label="Pesan commit"
                               value={gitMsg} onChange={(e) => setGitMsg(e.target.value)}
                               onKeyDown={(e) => { if (e.key === 'Enter') commitWs(wsId) }} />
-                            <button style={STYLE.btn} onClick={() => commitWs(wsId)}>Commit</button>
+                            <button type="button"  style={STYLE.btn} onClick={() => commitWs(wsId)}>Commit</button>
                           </div>
                           <pre role="region" aria-label="Status git" style={{ ...STYLE.pre, maxHeight: 160, fontSize: 11 }}>{gitInfo.status || '(bersih)'}</pre>
                           <pre role="region" aria-label="Log commit" style={{ ...STYLE.pre, maxHeight: 160, fontSize: 11 }}>{gitInfo.log}</pre>
@@ -536,21 +536,21 @@ export default function ShConsole({ show, onClose }) {
                             <input style={{ ...STYLE.input, marginBottom: 0, flex: 1 }} placeholder="pesan commit…" aria-label="Pesan commit"
                               value={gitMsg} onChange={(e) => setGitMsg(e.target.value)}
                               onKeyDown={(e) => { if (e.key === 'Enter') commitWs(wsId) }} />
-                            <button style={STYLE.btn} onClick={() => commitWs(wsId)}>Init + Commit</button>
+                            <button type="button"  style={STYLE.btn} onClick={() => commitWs(wsId)}>Init + Commit</button>
                           </div>
                         </div>)}
                   </div>
                   <div style={STYLE.card}>
                     <div style={{ fontWeight: 700, marginBottom: 8 }}>💻 Terminal (di dalam container)</div>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                      <button style={STYLE.btnGhost} onClick={() => runPreset(wsId, 'py')} title="Jalankan test Python di container">▶ Test Python</button>
-                      <button style={STYLE.btnGhost} onClick={() => runPreset(wsId, 'node')} title="Jalankan test Node di container">▶ Test Node</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => runPreset(wsId, 'py')} title="Jalankan test Python di container">▶ Test Python</button>
+                      <button type="button"  style={STYLE.btnGhost} onClick={() => runPreset(wsId, 'node')} title="Jalankan test Node di container">▶ Test Node</button>
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <input style={{ ...STYLE.input, marginBottom: 0, flex: 1 }} placeholder="mis. ls / python3 test_app.py" aria-label="Command"
                         value={termCmd} onChange={(e) => setTermCmd(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') runTerm(wsId) }} />
-                      <button style={STYLE.btn} onClick={() => runTerm(wsId)}>Jalankan</button>
+                      <button type="button"  style={STYLE.btn} onClick={() => runTerm(wsId)}>Jalankan</button>
                     </div>
                     <pre style={{ ...STYLE.pre, maxHeight: 200, fontSize: 11, marginTop: 8 }} role="status">
                       {termOut || '(belum ada output)'}</pre>
@@ -564,7 +564,7 @@ export default function ShConsole({ show, onClose }) {
               <div style={STYLE.card}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ fontWeight: 700 }}>Menunggu persetujuan ({approvals.length})</div>
-                  <button style={STYLE.btnGhost} onClick={loadApprovals}>Refresh</button>
+                  <button type="button"  style={STYLE.btnGhost} onClick={loadApprovals}>Refresh</button>
                 </div>
                 {approvals.length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Tidak ada approval pending.</div>}
                 {approvals.map((a) => (
@@ -574,8 +574,8 @@ export default function ShConsole({ show, onClose }) {
                       <div style={{ fontSize: 12, color: MUTED_TEXT }}>{a.description}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button style={STYLE.btn} onClick={() => decideApproval(a.id, 'approve')}>Setujui</button>
-                      <button style={{ ...STYLE.btn, background: REJECT_BG }} onClick={() => decideApproval(a.id, 'reject')}>Tolak</button>
+                      <button type="button"  style={STYLE.btn} onClick={() => decideApproval(a.id, 'approve')}>Setujui</button>
+                      <button type="button"  style={{ ...STYLE.btn, background: REJECT_BG }} onClick={() => decideApproval(a.id, 'reject')}>Tolak</button>
                     </div>
                   </div>
                 ))}
@@ -586,7 +586,7 @@ export default function ShConsole({ show, onClose }) {
             <div>
               <input style={STYLE.input} placeholder="Nama project (mis. Landing Page Agen)" aria-label="Nama project" value={name} onChange={(e) => setName(e.target.value)} />
               <textarea style={{ ...STYLE.input, minHeight: 90, resize: 'vertical' }} placeholder="Brief / deskripsi project…" aria-label="Brief" value={brief} onChange={(e) => setBrief(e.target.value)} />
-              <button style={STYLE.btn} onClick={create} disabled={busy}>{busy ? 'Membuat + menjalankan container…' : 'Buat project & jalankan container'}</button>
+              <button type="button"  style={STYLE.btn} onClick={create} disabled={busy}>{busy ? 'Membuat + menjalankan container…' : 'Buat project & jalankan container'}</button>
             </div>
           )}
         </div>
@@ -684,11 +684,11 @@ function Projects({ projects, onRefresh, onOpenWorkspace }) {
           </div>
           <div style={{ fontSize: 12, color: MUTED_TEXT, margin: '6px 0' }}>{p.description || ''}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button style={STYLE.btnGhost} onClick={() => onOpenWorkspace?.(p.id)} title="Buka workspace project ini">Workspace</button>
+            <button type="button"  style={STYLE.btnGhost} onClick={() => onOpenWorkspace?.(p.id)} title="Buka workspace project ini">Workspace</button>
             {(p.preview_url || p.direct_url) && (
-              <button style={STYLE.btn} onClick={() => window.open(p.preview_url || p.direct_url, '_blank')}>Buka Preview ↗</button>
+              <button type="button"  style={STYLE.btn} onClick={() => window.open(p.preview_url || p.direct_url, '_blank')}>Buka Preview ↗</button>
             )}
-            <button style={{ ...STYLE.btn, background: TAB_BG }} onClick={onRefresh}>Refresh</button>
+            <button type="button"  style={{ ...STYLE.btn, background: TAB_BG }} onClick={onRefresh}>Refresh</button>
           </div>
         </div>
       ))}

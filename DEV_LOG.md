@@ -8555,3 +8555,11 @@
 - Test: focus_visible_css_585.test.jsx baru (2 kasus: chip-main adalah <button> fokusable + aria-pressed toggle; input search & preset kreator menerima fokus keyboard).
 - Full-run: 429 file, 4570 passed + 6 skipped, 0 fail (~559s). Build PWA exit 0 (precache 47, 1973.75 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 03:15 WIB — Siklus 586: semua tombol ShConsole eksplisit type="button"
+
+- Lanjutan kepatuhan type tombol (pola siklus 584 TaskBoard): ShConsole punya 24 `<button>` tanpa `type` eksplisit (default implisit `submit` — berisiko kalau markup kelak dibungkus `<form>`, dan tidak konsisten dengan TaskModal/TaskBoard yang sudah bertipe semua).
+- Fix: ke-24 tombol (tutup drawer, 7 tab, tambah task, jalankan pending/task, workspace refresh/naik/restart/stop/start, git status/commit, preset test, terminal, approvals setujui/tolak, buat project, buka preview) kini `type="button"` eksplisit. Tanpa perubahan visual/logika.
+- Test: `shconsole_button_type_586.test.jsx` baru (2 kasus: statis — tak ada `<button>` tanpa type di source; runtime — tab Overview & tombol Tambah task ter-render dengan type button dan klik tab berfungsi).
+- Full-run: 430 file, 4572 passed + 6 skipped, 0 fail (~572s). Build PWA exit 0; dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
