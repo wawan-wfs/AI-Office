@@ -8667,3 +8667,10 @@
 - Probe nyata wfs-office: touch+rm probe_audit.tmp → ausearch merekam CREATE+DELETE dgn proctitle (`rm`) — lingkup baru terbukti bekerja.
 - Verifikasi rantai penuh siklus 600: build vite sukses; vitest full-suite 432 file / 4577 pass + 6 skip / 0 fail (605 s); deploy dist → ~/wfs-hq (cp -r); e2e_err_probe.py OK — console_errors=0, hooks_ok (26 agen, 5 zona), piksel 10355 warna / nonbg 0.992, hygiene 0 missing. Frontend tanpa perubahan kode (identik 37e84a2) — run ini penjagaan regresi rutin, commit DEV_LOG saja.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 17/11/2026 14:45 WIB — Siklus 601: alert auditd penghapusan nyata (tindak lanjut 596-600)
+
+- Gap yang ditutup: guard 597 hanya mendeteksi file yang SUDAH hilang — penghapusan tertimbun backup (kasus 596: file hilang 13-14 Nov, backup 14 Nov juga kosong) tidak memicu apa pun. Kini ada alert langsung saat auditd merekam event DELETE di watch 'wfshq'.
+- Script baru ~/bin/wfshq_audit_alert.sh: query ausearch (via sudo, log audit tidak world-readable) -ts sejak run terakhir, deteksi nametype=DELETE, alert Telegram + logger -t wfshq-audit; state sejak-run di ~/.hermes/cache/wfshq_audit_since.
+- Cron */15 menit terpasang (terpisah dari guard 597). Tidak ada perubahan frontend (identik 37e84a2) → build/test tidak diulang.
+- Uji nyata: rm probe di ~/wfs-hq → alert terekam di journalctl -t wfshq-audit dgn nama file & waktu pelaku (14:42:20). Baseline tanpa event → 'ok'.
