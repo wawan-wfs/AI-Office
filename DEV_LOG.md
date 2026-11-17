@@ -8613,6 +8613,15 @@
 - Test: kasus baru di brand_workspace.test.js (guard: CSS memuat `color-scheme: dark`, index.html memuat meta tag) — 4/4 pass file itu.
 - Full suite `npx vitest run` exit 0 (431 file, durasi 575,8 s — baseline threads, paritas 565–580 s); build PWA exit 0 (precache 47, 1975,54 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+## 17/11/2026 10:56 WIB — Siklus 595: audit font & aset statis (hasil: bersih, 1 risiko font dinilai & tidak diubah)
+
+- Audit kecil pasca 594: semua 12 URL font di public/fonts/fonts.css ada di disk & dilayani 200 di :9503; manifest.webmanifest live == dist (diff kosong); robots/sitemap/canonical/og lengkap & match; cache policy benar (shell no-store, /assets immutable 1 thn + gzip on-the-fly 16.9→6.5 KB).
+- Verifikasi font-face vs penggunaan: 4 dari 12 @font-face fonts.css tidak dirujuk bundle (Syne×9? DM Mono 300, DM Sans ext) — diperiksa: index.css memakai Syne (modals/header, weight 700/800) & DM Mono via fonts.css fallback, jadi BUKAN orphan mati; keputusan: tidak diubah (penghapusan berisiko & tak terukur manfaatnya).
+- Verifikasi variabel font via fonttools: DM Sans & Orbitron woff2 = variable (wght), deklarasi CSS `font-weight:300 700`/`400 700` benar; DM Mono static 400 konsisten dgn pemakaian.
+- TIDAK ada perubahan kode; deploy.py dijalankan eksplisit (9503: 200, pruned 0).
+- Verifikasi: build exit 0; full suite npx vitest run — 432 file, 4577 pass + 6 skip, 0 fail (574 s); scripts/e2e_scene_probe.py exit 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada ("Repository not found", kunci deploy valid utk AI-Office); (d) keputusan omniroute.
+
 ## 17/11/2026 08:06 WIB — Siklus 594: paritas color-scheme dark di landing.html
 
 - Lanjutan siklus 593: index.html sudah deklarasi color-scheme dark, tapi public/landing.html (halaman publik utama) belum — kontrol native (select, scrollbar, autofill) dirender skema LIGHT browser di tema gelap.
