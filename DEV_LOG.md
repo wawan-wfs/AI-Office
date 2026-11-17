@@ -8707,3 +8707,11 @@
 - Guard test: `help_shortcuts_604.test.jsx` (8 pengujian: sinkronisasi registri shortcut, filter pencarian kata kunci, pemfilteran kategori tab, penanganan hasil kosong, dan siklus buka/tutup) pass. Suite shortcut terkait (4 file, 56 tes) pass.
 - Verifikasi: build vite sukses (precache 47 entries, 1978.86 KiB); verify_desks 26/26 ALL_DESKS_OK; deploy dist → ~/wfs-hq; scene office WebGL render 701 KB (>500 KB); e2e headless probe: 0 error/exception, 26 agen terdeteksi.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 17/11/2026 22:05 WIB — Siklus 605: App Badging API — badge jumlah task menunggu di ikon PWA dock
+
+- src/lib/app_badge.js (baru): manager App Badging API murni & teruji — set(n)/clear()/state()/value(), navigator disuntikkan. Idempoten (angka sama tak spam dock), desimal difloor, bukan finite number/≤0 → clear (anti badge "NaN"). Browser tanpa dukungan → 'unsupported', semua no-op tanpa error.
+- App.jsx: manager dibuat saat mount (cleanup clear), tiap refreshStatus memanggil badge.set(pendingCount) — pendingCount sudah satu sumber (pending+review+failed) dari poll gateway. Badge tampil di ikon PWA terpasang (Chrome/Edge/Android) tanpa membuka tab, melengkapi judul tab dinamis & deep-link PWA shortcuts (siklus 603).
+- Guard test src/__tests__/app_badge_605.test.js: 8 kasus (unsupported/null nav, set/clear transisi, anti-poisoning NaN/null/negatif, idempotensi, onState) pass.
+- Verifikasi: build vite sukses (precache 47, 1979.16 KiB); vitest full 435 file / 4599 pass + 6 skip / 0 fail (576 s); verify_desks 26/26 ALL_DESKS_OK (L1 9, L2 9, L3 8); deploy dist → ~/wfs-hq; :9503/api/tasks 200; e2e_err_probe OK — console_errors=0, init_failed=false, hooks_ok (26 agen, 5 zona), shot 701 KB, nonbg 0.992, hygiene 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react'
 import { clip } from './lib/clip.js'
+import { createAppBadgeManager } from './lib/app_badge.js'
 import { SCENE_ID_TO_NAME } from './scene/parts/agent_identity.js'
 import { viewModePref, setViewModePref, neonPrefOn, audioMutedPref, loadActivityLog, saveActivityLog, dedupeLogHead, takeOpenDashboardFlag } from './lib/storage_prefs.js'
 import { clockStampMs, clockFromMinutes, dayMinutesNow } from './lib/format_time.js'
@@ -147,6 +148,14 @@ export default function App() {
   const [ask, setAsk] = useState(null)               // konfirmasi generik {title,body,ok,onOk}
   const [paused, setPaused] = useState(false)
   const [pendingCount, setPendingCount] = useState(0)
+  // Siklus 605: App Badging — badge jumlah task menunggu di ikon PWA dock.
+  const badgeRef = useRef(null)
+  useEffect(() => {
+    badgeRef.current = createAppBadgeManager(
+      typeof navigator !== 'undefined' ? navigator : null,
+    )
+    return () => { badgeRef.current?.clear?.(); badgeRef.current = null }
+  }, [])
   const [toast, setToast] = useState(null)          // {msg, err}
   const connRef = useRef(conn); connRef.current = conn
   const [showLog, setShowLog] = useState(false)
@@ -358,6 +367,9 @@ export default function App() {
       const c = {}
       ;(t.tasks || []).forEach(x => { c[x.status] = (c[x.status] || 0) + 1 })
       setPendingCount((c.pending || 0) + (c.review || 0) + (c.failed || 0))
+      // Siklus 605: badge ikon PWA = jumlah task pending/review/failed (dock
+      // Chrome/Edge/Android). Manager idempoten — angka sama tak spam dock.
+      badgeRef.current?.set(pendingCount)
       setStatus(p.paused ? 'Dijeda' : `${c.running || 0} jalan · ${c.pending || 0} antri`)
       setStatusKind(p.paused || (c.running || 0) > 0 ? 'busy' : '')
     } catch {
