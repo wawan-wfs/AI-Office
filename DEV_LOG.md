@@ -8613,3 +8613,10 @@
 - Test: kasus baru di brand_workspace.test.js (guard: CSS memuat `color-scheme: dark`, index.html memuat meta tag) — 4/4 pass file itu.
 - Full suite `npx vitest run` exit 0 (431 file, durasi 575,8 s — baseline threads, paritas 565–580 s); build PWA exit 0 (precache 47, 1975,54 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+## 17/11/2026 08:06 WIB — Siklus 594: paritas color-scheme dark di landing.html
+
+- Lanjutan siklus 593: index.html sudah deklarasi color-scheme dark, tapi public/landing.html (halaman publik utama) belum — kontrol native (select, scrollbar, autofill) dirender skema LIGHT browser di tema gelap.
+- Fix: meta <meta name="color-scheme" content="dark"> + color-scheme:dark pada reset CSS landing. Tanpa perubahan visual/logika komponen.
+- Test: landing_color_scheme_594.test.js (3 kasus: meta ada, CSS reset ada, tak ada nilai light/normal) — pass; subset terkait landing/brand 12/12 pass.
+- Full suite npm test exit 0 (432 file, 574 s — baseline threads); build PWA exit 0; dist/landing.html & dist/index.html membawa color-scheme (grep 3 & 2); dist -> ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed' (e2e_err.py tidak ada di scratch — pakai probe resmi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
