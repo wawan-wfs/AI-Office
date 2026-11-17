@@ -8732,3 +8732,12 @@
 - Guard test src/__tests__/og_twitter_parity_607.test.js: 4 kasus (title/description/image/image:alt og == twitter) pass; suite meta lama (416, 431) tetap hijau.
 - Verifikasi: build vite sukses (precache 47, 1979.43 KiB); vitest full 437 file / 4606 pass + 6 skip / 0 fail (585 s); deploy dist → ~/wfs-hq; :9503 200; e2e probe: console_errors=0, exceptions=0, agentData 26 agen, canvas OK; shot scene 703 KB (>500 KB, scene hidup).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 02:22 WIB — Siklus 608: og-image.png usang — "15 agent AI" → "26 agen AI"
+
+- Defek riil (visual): gambar preview sosial public/og-image.png (dipakai WhatsApp/Telegram/X via og:image & twitter:image) masih memuat tagline "Kantor AI 3D · 15 agent AI · task nyata" — angka agen usang & ejaan Inggris; meta HTML sudah 26 agen sejak siklus 416/607, kartu share menampilkan teks bertentangan dgn deskripsi.
+- og-image.png diregenerasi in-place (1200x630 tetap): band tagline ditimpa teks "Kantor AI 3D · 26 agen AI · task nyata" (DejaVuSans-Bold 30, putih, navy bg #031225); verifikasi visual 3 ronde — ronde awal meninggalkan ghost "K" & clipping, diselesaikan dgn git checkout lalu re-render bersih; hasil akhir: 1 tagline, tanpa artefak, hexagon/judul/domain utuh.
+- Guard test src/__tests__/og_image_caption_608.test.js (3 kasus): caption konsisten dgn jumlah agen scene (allAgents()+EXTENDED_SPECIALISTS == 26, sinkron index.html), aset PNG valid 1200x630 >10KB, tanpa teks usang "15 agent/agen" di buffer PNG.
+- Verifikasi: build vite sukses (precache 47); vitest full 438 file / 4609 pass + 6 skip / 0 fail (586 s); verify_desks 26/26 ALL_DESKS_OK (L1 9, L2 9, L3 8); deploy dist → ~/wfs-hq; e2e_err_probe: console_errors=0, init_failed=false, hooks_ok (26 agen, 5 zona), shot 698 KB, nonbg 0.991, hygiene 0 missing.
+- Catatan alat: `npx vitest run --reporter=basic` gagal startup (vitest versi ini tak kenal reporter "basic" → 15 mnt terbuang); pakai reporter default.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
