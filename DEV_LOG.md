@@ -8750,3 +8750,11 @@
 - Guard test baru src/__tests__/pwa_icons_609.test.js: 5 pengujian (PNG valid di ketiga resolusi, struktur master SVG 6 satelit + hero cell W, konsistensi agen scene 26) pass.
 - Verifikasi: build vite sukses (precache 48 entries, 1785.34 KiB); vitest full 439 file / 4614 pass + 6 skip / 0 fail (588 s); verify_desks 26/26 ALL_DESKS_OK (L1 9, L2 9, L3 8); deploy dist → ~/wfs-hq; HTTP 200 untuk icon-512.png, hash cocok; e2e probe: 0 error/exception, 26 agen di __agentData; shot scene 704 KB (>500 KB, scene hidup).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 06:20 WIB — Siklus 610: favicon.svg diselaraskan dgn master honeycomb
+
+- Defek riil (visual): tab browser masih memakai favicon.svg lama (heksagon tunggal generik), tidak konsisten dgn ikon PWA honeycomb baru siklus 609 — identitas brand tampil beda antara tab vs ikon terpasang.
+- public/favicon.svg diganti dgn salinan persis public/icon-master.svg (single source of identity): bg #000C1E, 6 sel satelit + hero cell amber gradien berinisial W.
+- Guard test src/__tests__/favicon_610.test.js: 3 kasus (favicon == master byte-identik, struktur 8 poligon + gradient + 'W', konsistensi 26 agen) pass.
+- Verifikasi: build vite sukses (precache 48, 1786.23 KiB); vitest full 440 file / 4617 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq; :9503/favicon.svg HTTP 200.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
