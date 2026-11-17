@@ -8682,3 +8682,19 @@
 - Dry-run pertama: removed=0 (belum ada file >48 jam di luar keepset — aman); akan mulai bekerja esok saat aset lama melewati ambang.
 - Verifikasi rantai: :9503 / dan /api/tasks 200; guard & auditd alert tetap berjalan (journal hanya event probe 601); e2e_err_probe OK — console_errors=0, 26 agen/5 zona, shot 684 KB, nonbg 0.992, hygiene 0 missing. Frontend tidak berubah (identik 37e84a2) → build/test tidak diulang.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 17/11/2026 15:56 WIB — Siklus 603: PWA shortcuts manifest & deep-link routing hash terpadu
+
+- PWA shortcuts di vite.config.js: ditambahkan 4 shortcuts standar Web App Manifest (Papan Task, Dashboard Overview, Konsol Software House, Proyek dibantuin.com) lengkap dengan nama, short_name, deskripsi, URL tujuan (`/?mode=office#tasks`, `/?mode=dashboard`, dsb.), dan ikon 192px valid.
+- Deep-link hash terpadu di App.jsx: refactor & perluasan handler on-mount — sebelumnya hanya melayani `#dashboard`, kini melayani `#tasks` (buka TaskBoard via gerbang), `#console` (buka ShConsole drawer), `#project` (buka ProjectPanel), `#dashboard`, `#settings`, `#log`, serta `#help`, dengan pembersihan hash via `history.replaceState` agar URL tetap bersih tanpa reload.
+- Guard test: `pwa_shortcuts_deeplink_603.test.jsx` (6 kasus uji: manifest shortcuts valid, icon ter-deploy, deep-link membuka modal dan membersihkan hash) pass. Suite terkait PWA & deeplink 9 file (50/50 pass).
+- Verifikasi: build vite sukses (precache 47 entries, 1976.08 KiB); verify_desks 26/26 OK; deploy dist → ~/wfs-hq; e2e_err_probe OK — console_errors=0, hooks_ok (26 agen, 5 zona), piksel 10499 warna / shot 686 KB; e2e_deeplink_dashboard OK.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 17/11/2026 17:13 WIB — Siklus 603: PWA shortcuts manifest & deep-link hash terpadu
+
+- vite.config.js: 4 PWA shortcuts standar (Papan Task #tasks, Dashboard #dashboard, Konsol #console, Proyek #project) dgn ikon 192px valid.
+- App.jsx: handler deep-link on-mount diperluas — #dashboard, #tasks/#taskboard/#kanban, #console/#shconsole, #project, #settings, #log/#activity, #help; hash dibersihkan via history.replaceState tanpa reload.
+- Verifikasi: build vite sukses (precache 47, 1976 KiB); vitest full 4583 pass / 6 skip / 0 fail (581 s); verify_desks 26/26 ALL_DESKS_OK; deploy dist → ~/wfs-hq; :9503 /, /app/, /api/tasks 200; scene office shot 688 KB (>500 KB, scene hidup); e2e_errors.py tanpa EXC/console error.
+- Catatan: probe shot rute default kini menampilkan landing page (bukan scene) — normal; scene tampil di ?mode=office.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

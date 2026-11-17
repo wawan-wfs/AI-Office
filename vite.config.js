@@ -32,6 +32,36 @@ export default defineConfig({
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         ],
+        shortcuts: [
+          {
+            name: 'Papan Task',
+            short_name: 'Tasks',
+            description: 'Buka papan kanban & daftar task tim AI',
+            url: '/?mode=office#tasks',
+            icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
+          },
+          {
+            name: 'Dashboard Overview',
+            short_name: 'Dashboard',
+            description: 'Buka ringkasan 2D overview kantor',
+            url: '/?mode=dashboard',
+            icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
+          },
+          {
+            name: 'Konsol Software House',
+            short_name: 'Konsol SH',
+            description: 'Buka konsol eksekusi & proyek software house',
+            url: '/?mode=office#console',
+            icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
+          },
+          {
+            name: 'Proyek dibantuin.com',
+            short_name: 'Proyek',
+            description: 'Buka ringkasan live proyek dibantuin.com',
+            url: '/?mode=office#project',
+            icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
+          },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],

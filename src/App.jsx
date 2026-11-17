@@ -95,15 +95,6 @@ export default function App() {
   // dulu callback ini kosong () => {} sehingga 12 label fase (fokus, rapat,
   // makan siang, shift malam…) tidak pernah tampil di UI.
   const [officePhase, setOfficePhase] = useState(null)
-  // Siklus 159 — deep-link dari landing: #dashboard membuka Dashboard on-mount.
-  // Landing CTA "Lihat Dashboard" menautkan ke /app/#dashboard — tanpa ini
-  // hash hanya dilihat oleh server (404) atau terbuang. Jalur runtime tunggal:
-  // event 'wfs-toggle-dashboard' yang SAMA dgn shortcut D (tak ada duplikat state).
-  useEffect(() => {
-    if (window.location.hash !== '#dashboard') return
-    window.dispatchEvent(new CustomEvent('wfs-toggle-dashboard'))
-    window.history.replaceState(null, '', window.location.pathname + window.location.search)
-  }, [])
   // Fallback landing → app: hash bisa hilang oleh redirect/pengetikan manual.
   useEffect(() => {
     if (!takeOpenDashboardFlag()) return
@@ -160,6 +151,32 @@ export default function App() {
   const connRef = useRef(conn); connRef.current = conn
   const [showLog, setShowLog] = useState(false)
   const logUnread = useUnreadActivity(showLog)
+  // Siklus 603: deep-link terpadu dari URL hash & PWA shortcuts.
+  // Mendukung: #dashboard, #tasks/#taskboard/#kanban, #console/#shconsole, #project, #settings, #log/#activity, #help.
+  useEffect(() => {
+    const raw = (window.location.hash || '').toLowerCase()
+    if (!raw) return
+    if (raw === '#dashboard') {
+      window.dispatchEvent(new CustomEvent('wfs-toggle-dashboard'))
+    } else if (raw === '#tasks' || raw === '#taskboard' || raw === '#kanban') {
+      dispatchTaskBoardEvent('wfs-toggle-task-board')
+    } else if (raw === '#console' || raw === '#shconsole') {
+      setShowConsole(true)
+    } else if (raw === '#project') {
+      window.dispatchEvent(new CustomEvent('wfs-toggle-project-panel'))
+    } else if (raw === '#settings') {
+      setShowSettings(true)
+    } else if (raw === '#log' || raw === '#activity') {
+      setShowLog(true)
+    } else if (raw === '#help') {
+      setShowHelp(true)
+    } else {
+      return
+    }
+    try {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    } catch { /* abaikan */ }
+  }, [setShowConsole, setShowSettings])
   // Siklus 189: papan task di-mount ON-DEMAND (chunk lazy ~76K tak diunduh
   // sampai ada keinginan membuka papan). Gerbang (taskboard_gate) memicu
   // setTbWanted saat event papan pertama datang; TaskBoard ter-mount lalu
