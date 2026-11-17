@@ -8645,3 +8645,10 @@
 - Cron */15 menit terpasang di crontab user; tidak menyentuh job lain (backup 04:15 & backup_db 03:30 tetap).
 - Verifikasi: run normal (semua ada) → state ditulis, exit 0; uji paksa (server.py sementara dipindah) → alert Telegram terkirim (state.missing f977e718), restore file, curl :9503/api/tasks 200, guard kembali hijau. Tidak ada perubahan kode aplikasi; build/test tidak diulang (kode frontend identik sejak 37e84a2 yang sudah hijau penuh).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute; audit timer/cron penyebab penghapusan 13-14 Nov masih belum terbukti.
+
+## 17/11/2026 11:45 WIB — Siklus 598: audit forensik sesi sudo ter-obfuscate + guard streak darurat
+
+- AUDIT lanjutan 597 (penyebab file ~/wfs-hq hilang 13-14 Nov): seluruh sesi `sudo` dalam jendela insiden (13 Nov 22:06, 14 Nov 00:47, 14 Nov 10:47) memakai payload base64+gzip ter-obfuscate. Ketiga payload berhasil didekode dari journal (31 KB, 36 KB, census read-only) dan isinya adalah installer/pemelihara plugin `vela-im` Hermes (stage/activate, restart gateway, normalisasi config.yaml) — grep `wfs` = 0 baris, tidak ada `unlink/rmtree` pada path ~/wfs-hq. Kesimpulan: ketiga sesi tersebut BUKAN pelaku; penyebab penghapusan tetap belum terbukti (tidak ada auditd, journald tidak merekam unlink).
+- Perbaikan guard: `~/bin/wfs_hq_guard.sh` kini punya penghitung streak (`$STATE.streak`). Sebelumnya kondisi identik dibatasi 1 alert/jam → gangguan yang berulang tiap <1 jam bisa lolos tanpa notifikasi baru. Aturan baru: tetap 1x/jam, tetapi setiap 3 kali berturut-turut kondisi yang sama → alert darurat menembus rate-limit.
+- Uji: run normal exit 0 & state ditulis; uji paksa (server.py dipindah) 3 run berturut → streak tercapai, alert terkirim (syslog `wfshq-guard` 12:39:02 tercatat "hilang: server.py"); file dipulihkan, guard hijau, `:9503/api/tasks` 200.
+- Tidak ada perubahan kode frontend (identik 37e84a2) → build/test tidak diulang, sesuai aturan.
