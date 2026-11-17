@@ -8698,3 +8698,12 @@
 - Verifikasi: build vite sukses (precache 47, 1976 KiB); vitest full 4583 pass / 6 skip / 0 fail (581 s); verify_desks 26/26 ALL_DESKS_OK; deploy dist → ~/wfs-hq; :9503 /, /app/, /api/tasks 200; scene office shot 688 KB (>500 KB, scene hidup); e2e_errors.py tanpa EXC/console error.
 - Catatan: probe shot rute default kini menampilkan landing page (bukan scene) — normal; scene tampil di ?mode=office.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 17/11/2026 19:15 WIB — Siklus 604: Pencarian instan & filter kategori shortcut di OverlayHelp
+
+- OverlayHelp.jsx: ditambahkan bar pencarian real-time (search input) dan tab filter kategori (Semua, Panel, Audio, Navigasi, Tampilan) pada langkah panduan Shortcut Keyboard sehingga pengguna tidak perlu menggulir 22 kartu shortcut manual.
+- shortcut_spec.js: sinkronisasi entri ringkasan formatShortcutHelpSummary (menambahkan E = dashboard dan penyesuaian key bantuan).
+- index.css: styling terintegrasi untuk `.help-shortcut-tools`, `.help-shortcut-search`, `.help-shortcut-tabs`, `.help-shortcut-tab`, dan state kosong `.help-shortcut-empty` dengan tema gelap & sticky header.
+- Guard test: `help_shortcuts_604.test.jsx` (8 pengujian: sinkronisasi registri shortcut, filter pencarian kata kunci, pemfilteran kategori tab, penanganan hasil kosong, dan siklus buka/tutup) pass. Suite shortcut terkait (4 file, 56 tes) pass.
+- Verifikasi: build vite sukses (precache 47 entries, 1978.86 KiB); verify_desks 26/26 ALL_DESKS_OK; deploy dist → ~/wfs-hq; scene office WebGL render 701 KB (>500 KB); e2e headless probe: 0 error/exception, 26 agen terdeteksi.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

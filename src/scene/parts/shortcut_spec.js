@@ -140,6 +140,7 @@ export function resolveShortcutAction(event, context = {}) {
 export function formatShortcutHelpSummary() {
   return [
     'T = papan task (Kanban)',
+    'E = dashboard',
     'D = siklus preset divisi (Shift+D mundur)',
     'P = proyek dibantuin.com',
     'A = ambience hum (Shift+A volume)',
@@ -151,7 +152,7 @@ export function formatShortcutHelpSummary() {
     'L = log aktivitas',
     'H = bantuan ini',
     '1 / 2 / 3 = kamera Iso/Depan/Atas',
-    'Shift+1/2/3 atau [ / ] = navigasi Lantai 1-3',
+    'Shift+1/2/3 atau [ / ] = navigasi lantai 1-3',
     '0 = reset kamera',
     'Panah = orbit kamera (Shift = cepat)',
     '+ / − = zoom',
