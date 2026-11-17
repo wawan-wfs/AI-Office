@@ -8660,3 +8660,10 @@
 - Uji nyata: touch+rm probe_audit.tmp di ~/wfs-hq → ausearch -k wfshq merekam CREATE+DELETE dengan proctitle proses pelaku. Kejadian hapus berikutnya kini tercatat lengkap (proses, waktu, path).
 - Guard 15 menit (597) & streak alert (598) tetap berjalan; kini plus jejak audit forensik.
 - Frontend tidak berubah (identik 37e84a2) → build/test tidak diulang.
+
+## 17/11/2026 14:11 WIB — Siklus 600: audit lingkup watch auditd + verifikasi rantai penuh 600
+
+- Lingkup watch auditd: `/home/agentuser/wfs-hq` (watch lama) hanya menutup dir paling atas; guard 597 melindungi `~/wfs-office` — dulu tidak di-watch audit. Kini /etc/audit/rules.d/wfshq.rules mencakup 3 path: wfs-hq, wfs-office, ai-office-main/-w (key sama `wfshq`, dimuat via augenrules, `auditctl -l` terverifikasi 3 rule).
+- Probe nyata wfs-office: touch+rm probe_audit.tmp → ausearch merekam CREATE+DELETE dgn proctitle (`rm`) — lingkup baru terbukti bekerja.
+- Verifikasi rantai penuh siklus 600: build vite sukses; vitest full-suite 432 file / 4577 pass + 6 skip / 0 fail (605 s); deploy dist → ~/wfs-hq (cp -r); e2e_err_probe.py OK — console_errors=0, hooks_ok (26 agen, 5 zona), piksel 10355 warna / nonbg 0.992, hygiene 0 missing. Frontend tanpa perubahan kode (identik 37e84a2) — run ini penjagaan regresi rutin, commit DEV_LOG saja.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
