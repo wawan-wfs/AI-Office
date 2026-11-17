@@ -8605,3 +8605,11 @@
 - Keputusan: TIDAK diadopsi. Dua kandidat perf sudah dievaluasi dan ditolak: isolate:false (cepat tapi rusak) dan pool:forks (benar tapi lambat). Baseline threads tetap.
 - TIDAK ada perubahan kode. Suite normal tidak diulang (run eksperimen di atas sendiri adalah full-suite hijau 4573 pass pada state kode 5792b5b).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 08:40 WIB — Siklus 593: color-scheme dark untuk kontrol native browser
+
+- Audit kecil lanjutan (pasca tema perf 592): index.html & CSS tidak mendeklarasikan `color-scheme` — aplikasi dark-only tapi kontrol native (input, select, scrollbar, autofill, date picker) dirender skema LIGHT default browser, kontras buruk di tema gelap.
+- Fix: `<meta name="color-scheme" content="dark">` di index.html + `color-scheme: dark` pada reset `*` di index.css. Tanpa perubahan logika/visual komponen.
+- Test: kasus baru di brand_workspace.test.js (guard: CSS memuat `color-scheme: dark`, index.html memuat meta tag) — 4/4 pass file itu.
+- Full suite `npx vitest run` exit 0 (431 file, durasi 575,8 s — baseline threads, paritas 565–580 s); build PWA exit 0 (precache 47, 1975,54 KiB); dist → ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed'.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.

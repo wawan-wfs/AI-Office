@@ -18,6 +18,11 @@ describe('WFS HQ workspace brand and accessibility contracts', () => {
       expect(css).toContain(selector)
     }
   })
+  it('declares dark color-scheme (native controls render dark)', () => {
+    expect(css).toContain('color-scheme: dark')
+    const html = readFileSync(fileURLToPath(new URL('../../index.html', import.meta.url)), 'utf8')
+    expect(html).toContain('name="color-scheme" content="dark"')
+  })
   it('provides reduced-motion and high-contrast paths', () => {
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
     expect(css).toContain('@media (prefers-contrast: more)')

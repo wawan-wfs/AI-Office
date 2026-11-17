@@ -98,7 +98,7 @@
   --ix-ffffff: #ffffff;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; color-scheme: dark; }
 html, body, #root { height: 100%; }
 body {
   background: var(--bg);
