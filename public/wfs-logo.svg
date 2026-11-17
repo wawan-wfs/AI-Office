@@ -1,9 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" width="640" height="200">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBBF24"/><stop offset="1" stop-color="#F97316"/></linearGradient></defs>
-<rect width="640" height="200" rx="24" fill="#0F1B2E"/>
-<polygon points="100,22 170,62 170,138 100,178 30,138 30,62" fill="url(#g)"/>
-<polygon points="100,38 156,70 156,130 100,162 44,130 44,70" fill="#0F1B2E"/>
-<text x="100" y="128" font-family="Segoe UI,Arial,sans-serif" font-weight="900" font-size="88" text-anchor="middle" fill="url(#g)">W</text>
-<text x="200" y="110" font-family="Segoe UI,Arial,sans-serif" font-weight="900" font-size="96" fill="#fff">WFS</text>
-<text x="204" y="158" font-family="Segoe UI,Arial,sans-serif" font-weight="800" font-size="46" letter-spacing="6" fill="#FBBF24">PROJECT</text>
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBBF24"/><stop offset="1" stop-color="#F97316"/></linearGradient>
+</defs>
+<rect width="640" height="200" rx="24" fill="#000C1E"/>
+<!-- honeycomb cluster: 6 satellite cells + hero amber cell with W (matches icon-master.svg) -->
+<g transform="translate(100,100)">
+<g fill="#22304A">
+<polygon points="0,-88 20.78,-76 20.78,-52 0,-40 -20.78,-52 -20.78,-76"/>
+<polygon points="76.21,-44 97,-32 97,-8 76.21,4 55.42,-8 55.42,-32"/>
+<polygon points="76.21,44 97,56 97,80 76.21,92 55.42,80 55.42,56"/>
+<polygon points="0,88 20.78,100 20.78,124 0,136 -20.78,124 -20.78,100"/>
+<polygon points="-76.21,44 -55.42,56 -55.42,80 -76.21,92 -97,80 -97,56"/>
+<polygon points="-76.21,-44 -55.42,-32 -55.42,-8 -76.21,4 -97,-8 -97,-32"/>
+</g>
+<polygon points="0,-44 38.1,-22 38.1,22 0,44 -38.1,22 -38.1,-22" fill="url(#g)"/>
+<polygon points="0,-32 27.7,-16 27.7,16 0,32 -27.7,16 -27.7,-16" fill="#000C1E"/>
+<text x="0" y="20" font-family="Segoe UI,Arial,sans-serif" font-weight="900" font-size="44" text-anchor="middle" fill="url(#g)">W</text>
+</g>
+<text x="230" y="112" font-family="Segoe UI,Arial,sans-serif" font-weight="900" font-size="88" fill="#fff">WFS</text>
+<text x="236" y="160" font-family="Segoe UI,Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="6" fill="#FBBF24">PROJECT</text>
 </svg>
