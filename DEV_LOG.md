@@ -8674,3 +8674,11 @@
 - Script baru ~/bin/wfshq_audit_alert.sh: query ausearch (via sudo, log audit tidak world-readable) -ts sejak run terakhir, deteksi nametype=DELETE, alert Telegram + logger -t wfshq-audit; state sejak-run di ~/.hermes/cache/wfshq_audit_since.
 - Cron */15 menit terpasang (terpisah dari guard 597). Tidak ada perubahan frontend (identik 37e84a2) → build/test tidak diulang.
 - Uji nyata: rm probe di ~/wfs-hq → alert terekam di journalctl -t wfshq-audit dgn nama file & waktu pelaku (14:42:20). Baseline tanpa event → 'ok'.
+
+## 17/11/2026 15:10 WIB — Siklus 602: prune aset build usang ~/wfs-hq + verifikasi rantai 601-602
+
+- Temuan ops: ~/wfs-hq/assets menumpuk 962 file (1255 = extra vs dist saat ini) dari deploy bertubi; index.html live hanya mereferensi 9 aset hashed.
+- Script baru ~/bin/wfshq_assets_prune.sh: hapus aset build hashed >48 jam yang tak dirujuk index.html live maupun 3 generasi App-*.js terakhir (grace cache); log + syslog wfshq-assets; cron harian 03:50.
+- Dry-run pertama: removed=0 (belum ada file >48 jam di luar keepset — aman); akan mulai bekerja esok saat aset lama melewati ambang.
+- Verifikasi rantai: :9503 / dan /api/tasks 200; guard & auditd alert tetap berjalan (journal hanya event probe 601); e2e_err_probe OK — console_errors=0, 26 agen/5 zona, shot 684 KB, nonbg 0.992, hygiene 0 missing. Frontend tidak berubah (identik 37e84a2) → build/test tidak diulang.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
