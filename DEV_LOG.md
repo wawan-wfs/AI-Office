@@ -8715,3 +8715,12 @@
 - Guard test src/__tests__/app_badge_605.test.js: 8 kasus (unsupported/null nav, set/clear transisi, anti-poisoning NaN/null/negatif, idempotensi, onState) pass.
 - Verifikasi: build vite sukses (precache 47, 1979.16 KiB); vitest full 435 file / 4599 pass + 6 skip / 0 fail (576 s); verify_desks 26/26 ALL_DESKS_OK (L1 9, L2 9, L3 8); deploy dist → ~/wfs-hq; :9503/api/tasks 200; e2e_err_probe OK — console_errors=0, init_failed=false, hooks_ok (26 agen, 5 zona), shot 701 KB, nonbg 0.992, hygiene 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 17/11/2026 23:30 WIB — Siklus 606: perbaiki badge PWA tertinggal satu poll (closure basi)
+
+- Bug nyata dari 605: `badgeRef.current?.set(pendingCount)` di dalam `refreshStatus` (useCallback deps `[flash, pushLog]`) membaca state `pendingCount` dari render saat callback dibuat — efek polling dipasang sekali, jadi badge selalu tertinggal satu poll di belakang HUD dan poll pertama (0→N) tak pernah menyalakan badge.
+- App.jsx: hitung sekali `const pc = pending + review + failed`, lalu `setPendingCount(pc)` DAN `badge.set(pc)` — badge kini sinkron dengan poll yang sama; sumber angka tetap satu.
+- Guard test baru src/__tests__/app_badge_live_606.test.jsx (jsdom, navigator.setAppBadge distub): 3 kasus — poll pertama 3 task → setAppBadge(3) tanpa nilai 0 basi; jumlah turun ke 0 → clearAppBadge dipanggil; tanpa task → semua nilai finite, tanpa NaN.
+- Verifikasi: vitest full 436 file / 4602 pass + 6 skip / 0 fail (586 s); build vite sukses (precache 47); verify_desks 26/26 ALL_DESKS_OK (L1 9, L2 9, L3 8); deploy dist → ~/wfs-hq; e2e: console_errors=0, exceptions=0, canvas ada, 26 agen di __agentData; shot viewport 1366x768 = 705 KB (scene hidup).
+- Catatan alat: ~/.hermes/cache/scratch/e2e_err.py & shot.sh sudah tidak ada di VM ini → probe diganti /tmp/probe_scene604.py + CDP capture (Emulation.setDeviceMetricsOverride, kalau tidak viewport ter-crop 568 px dan shot ~483 KB seolah "scene mati").
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

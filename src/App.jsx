@@ -366,10 +366,13 @@ export default function App() {
       prevStatus.current = cur
       const c = {}
       ;(t.tasks || []).forEach(x => { c[x.status] = (c[x.status] || 0) + 1 })
-      setPendingCount((c.pending || 0) + (c.review || 0) + (c.failed || 0))
+      const pc = (c.pending || 0) + (c.review || 0) + (c.failed || 0)
+      setPendingCount(pc)
       // Siklus 605: badge ikon PWA = jumlah task pending/review/failed (dock
       // Chrome/Edge/Android). Manager idempoten — angka sama tak spam dock.
-      badgeRef.current?.set(pendingCount)
+      // Siklus 606: pakai hitungan poll INI, bukan state closure yang basi
+      // (dulu badge tertinggal satu siklus poll di belakang status HUD).
+      badgeRef.current?.set(pc)
       setStatus(p.paused ? 'Dijeda' : `${c.running || 0} jalan · ${c.pending || 0} antri`)
       setStatusKind(p.paused || (c.running || 0) > 0 ? 'busy' : '')
     } catch {
