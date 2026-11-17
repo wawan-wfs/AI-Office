@@ -8629,3 +8629,12 @@
 - Test: landing_color_scheme_594.test.js (3 kasus: meta ada, CSS reset ada, tak ada nilai light/normal) — pass; subset terkait landing/brand 12/12 pass.
 - Full suite npm test exit 0 (432 file, 574 s — baseline threads); build PWA exit 0; dist/landing.html & dist/index.html membawa color-scheme (grep 3 & 2); dist -> ~/wfs-hq; scripts/e2e_scene_probe.py exit 0 tanpa 'Scene init failed' (e2e_err.py tidak ada di scratch — pakai probe resmi).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — deploy key belum didaftarkan; (d) keputusan omniroute.
+
+## 17/11/2026 11:45 WIB — Siklus 596: insiden file hilang ~/wfs-hq — server.py & dependensi dipulihkan dari backup harian
+
+- TEMUAN: ~/wfs-hq/server.py, static_serve.py, api_service.py, project_api.py, database.py, orchestrator.py, docker_sandbox.py, .wfs_ui_token, backups/, .pruned-assets/ HILANG (directoy hanya berisi aset statis), padahal proses wfs-hq.service (PID 2633842, start 12/11) masih jalan karena fd/server code sudah dimuat ke memori — :9503 tampak "sehat". Backup harian 04:15: snapshot 12-13 Nov masih berisi .py, 14 Nov+ tidak (hilang antara 13-14 Nov 04:15, silent).
+- ROOT CAUSE (indikasi kuat): grep full backup 14-17 Nov = 0 file .py sama sekali; hilang massal folder tersembunyi + backups — pola konsisten dgn siklus 279 insiden serupa; penyebab pasti tidak terbukti dari jurnal (journalctl wfs-hq tidak ada event hapus).
+- PEMULIHAN: ekstrak wfs-hq-20261113-0415.tgz → 7 file .py (server.py md5 == backend_live/wfs_hq_server.py HEAD, api_service == wfs_api_service, static_serve == backend/static_serve — drift NOL) + .wfs_ui_token + 30 backups/server.py.bak-* + 686 .pruned-assets.
+- VERIFIKASI pasca-pulih: apply_wfs_hq_server.py smoke 13/13 OK (IDENTIK); apply_wfs_api_service.py smoke OK; import semua modul live OK; curl :9503 /, /app/, /admin/, /cs-widget/, /wfs-project, /api/tasks semua 200; vitest drift-gate 3 file 27/27 pass; npm run build exit 0; e2e_scene_probe exit 0; dist → ~/wfs-hq (assets 1286).
+- TINDAK LANJUT (backlog): tambahkan guard harian (test keberadaan ~/wfs-hq/server.py + alert jika hilang); cari proses yang menghapus (audit systemd timer/cron 13-14 Nov).
+
