@@ -8724,3 +8724,11 @@
 - Verifikasi: vitest full 436 file / 4602 pass + 6 skip / 0 fail (586 s); build vite sukses (precache 47); verify_desks 26/26 ALL_DESKS_OK (L1 9, L2 9, L3 8); deploy dist → ~/wfs-hq; e2e: console_errors=0, exceptions=0, canvas ada, 26 agen di __agentData; shot viewport 1366x768 = 705 KB (scene hidup).
 - Catatan alat: ~/.hermes/cache/scratch/e2e_err.py & shot.sh sudah tidak ada di VM ini → probe diganti /tmp/probe_scene604.py + CDP capture (Emulation.setDeviceMetricsOverride, kalau tidak viewport ter-crop 568 px dan shot ~483 KB seolah "scene mati").
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 00:36 WIB — Siklus 607: selaraskan meta preview sosial og vs twitter di index.html
+
+- Defek riil: twitter:title "WFS PROJECT — Autonomous AI Software House" ≠ og:title "WFS Project HQ — Kantor AI 3D", dan twitter:description beda redaksi dgn og:description → preview WhatsApp/Telegram (baca og) vs X/Twitter (baca twitter) menampilkan kartu berbeda untuk URL yang sama.
+- index.html: twitter:title & twitter:description dibuat identik dgn og:title/og:description (keterangan 26 agen konsisten).
+- Guard test src/__tests__/og_twitter_parity_607.test.js: 4 kasus (title/description/image/image:alt og == twitter) pass; suite meta lama (416, 431) tetap hijau.
+- Verifikasi: build vite sukses (precache 47, 1979.43 KiB); vitest full 437 file / 4606 pass + 6 skip / 0 fail (585 s); deploy dist → ~/wfs-hq; :9503 200; e2e probe: console_errors=0, exceptions=0, agentData 26 agen, canvas OK; shot scene 703 KB (>500 KB, scene hidup).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
