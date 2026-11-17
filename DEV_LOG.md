@@ -8638,3 +8638,10 @@
 - VERIFIKASI pasca-pulih: apply_wfs_hq_server.py smoke 13/13 OK (IDENTIK); apply_wfs_api_service.py smoke OK; import semua modul live OK; curl :9503 /, /app/, /admin/, /cs-widget/, /wfs-project, /api/tasks semua 200; vitest drift-gate 3 file 27/27 pass; npm run build exit 0; e2e_scene_probe exit 0; dist → ~/wfs-hq (assets 1286).
 - TINDAK LANJUT (backlog): tambahkan guard harian (test keberadaan ~/wfs-hq/server.py + alert jika hilang); cari proses yang menghapus (audit systemd timer/cron 13-14 Nov).
 
+
+## 17/11/2026 12:20 WIB — Siklus 597: guard keberadaan file produksi wfs-hq (tindak lanjut insiden 596)
+
+- Script baru ~/bin/wfs_hq_guard.sh: cek 7 file .py + .wfs_ui_token di ~/wfs-hq + status systemd wfs-hq & wfs-office; alert Telegram (token/ALLOWED_USERS dari .hermes/.env) + logger saat ada yang hilang; anti-spam maks 1x per jam per kombinasi kondisi (state di ~/.hermes/cache/wfshq_guard_last(.missing)).
+- Cron */15 menit terpasang di crontab user; tidak menyentuh job lain (backup 04:15 & backup_db 03:30 tetap).
+- Verifikasi: run normal (semua ada) → state ditulis, exit 0; uji paksa (server.py sementara dipindah) → alert Telegram terkirim (state.missing f977e718), restore file, curl :9503/api/tasks 200, guard kembali hijau. Tidak ada perubahan kode aplikasi; build/test tidak diulang (kode frontend identik sejak 37e84a2 yang sudah hijau penuh).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute; audit timer/cron penyebab penghapusan 13-14 Nov masih belum terbukti.
