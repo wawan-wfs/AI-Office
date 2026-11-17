@@ -8652,3 +8652,11 @@
 - Perbaikan guard: `~/bin/wfs_hq_guard.sh` kini punya penghitung streak (`$STATE.streak`). Sebelumnya kondisi identik dibatasi 1 alert/jam → gangguan yang berulang tiap <1 jam bisa lolos tanpa notifikasi baru. Aturan baru: tetap 1x/jam, tetapi setiap 3 kali berturut-turut kondisi yang sama → alert darurat menembus rate-limit.
 - Uji: run normal exit 0 & state ditulis; uji paksa (server.py dipindah) 3 run berturut → streak tercapai, alert terkirim (syslog `wfshq-guard` 12:39:02 tercatat "hilang: server.py"); file dipulihkan, guard hijau, `:9503/api/tasks` 200.
 - Tidak ada perubahan kode frontend (identik 37e84a2) → build/test tidak diulang, sesuai aturan.
+
+## 17/11/2026 13:10 WIB — Siklus 599: auditd terpasang + watch rule wfs-hq (tindak lanjut 596-598)
+
+- auditd diinstal via apt (sebelumnya tidak ada → penghapusan file 13-14 Nov tak terbukti dari jurnal); service aktif.
+- Rule audit baru /etc/audit/rules.d/wfshq.rules: watch -w ~/wfs-hq -p wa -k wfshq, dimuat via augenrules (auditctl -l terverifikasi).
+- Uji nyata: touch+rm probe_audit.tmp di ~/wfs-hq → ausearch -k wfshq merekam CREATE+DELETE dengan proctitle proses pelaku. Kejadian hapus berikutnya kini tercatat lengkap (proses, waktu, path).
+- Guard 15 menit (597) & streak alert (598) tetap berjalan; kini plus jejak audit forensik.
+- Frontend tidak berubah (identik 37e84a2) → build/test tidak diulang.
