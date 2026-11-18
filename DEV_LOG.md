@@ -8797,3 +8797,10 @@
 - Fix test lama: static_allowlist_drift.test.js menuntut 16 entri STATIC_ALLOW_FILES, padahal siklus 612 menambah icon-master.svg (17 entri riil) — guard diperbarui ke 17 + ekspektasi eksplisit icon-master.svg; suite penuh kembali hijau.
 - Verifikasi: build vite sukses; vitest penuh 444 file / 4636 pass + 6 skip / 1 fail (allowlist 16 vs 17) → setelah fix: guard subset 3 file / 23 kasus pass; deploy dist → ~/wfs-hq; :9503/landing.html 200 dengan canonical ter-serve; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0 (shot.sh tidak ada di scratch; scene tak diubah visual).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 11:50 WIB — Siklus 616: landing.html paritas meta viewport/robots/PWA vs index.html
+
+- Defek riil (head parity lanjutan pasca 613/615): landing.html masih beda dgn index.html di (a) viewport tanpa maximum-scale=5.0, (b) tanpa meta robots, (c) tanpa 4 meta PWA (apple-mobile-web-app-capable/status-bar-style/title, mobile-web-app-capable) → install prompt & status-bar iOS/Android berbeda antar halaman.
+- landing.html: viewport disamakan (viewport-fit=cover, maximum-scale=5.0), meta robots index,follow + 4 meta PWA ditambahkan.
+- Guard baru src/__tests__/landing_pwa_meta_616.test.js: 7 kasus (4 meta PWA, viewport, robots, anti-duplikasi) pass.
+- Verifikasi: build vite sukses; vitest penuh 445 file / 4644 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html 200; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
