@@ -377,6 +377,10 @@ jobs:
         run: |
           docker info >/dev/null
           python scripts/ci_dynamic_preview_operator.py
+      - name: Phase 34 reboot a disposable Linux guest and recover without preview promotion
+        run: |
+          sudo -n apt-get install -y -qq --no-install-recommends qemu-system-x86 qemu-utils cloud-image-utils
+          python scripts/ci_phase34_reboot_vm.py
       - name: Save actual operator lifecycle/cleanup proof
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

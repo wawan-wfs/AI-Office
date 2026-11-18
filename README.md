@@ -708,3 +708,15 @@ normal live mTLS path remains required.
 - [Phase 33 scoped gate](docs/REA_PHASE33.md)
 - [Phase 33 archive recovery runbook](docs/PHASE33_ARCHIVE_RECOVERY_RUNBOOK.md)
 - [Next Phase 34 implementation prompt](docs/NEXT_PHASE34_PROMPT.md)
+
+## Phase 34 — disposable Linux VM boot recovery
+
+The operator CI runs a real guest reboot to check that a persisted preview
+lease from the previous boot cannot reopen a preview. The gate also checks
+recovery-only suspension, no automatic promotion, and retention of a named
+volume sentinel. Durable PostgreSQL recovery and separately administered
+signer/publisher custody remain separate.
+
+- [Phase 34 scoped gate](docs/REA_PHASE34.md)
+- [VM boot recovery runbook](docs/PHASE34_VM_BOOT_RECOVERY_RUNBOOK.md)
+- [Next Phase 35 implementation prompt](docs/NEXT_PHASE35_PROMPT.md)
