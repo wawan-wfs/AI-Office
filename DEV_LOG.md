@@ -8843,3 +8843,10 @@
 - Guard diperbarui: landing_jsonld_420.test.js +1 kasus (5 total) — target bukan '/app/' dan tidak match SEMUA baris Disallow robots.txt.
 - Verifikasi: build vite sukses (precache 48, 1787.83 KiB); vitest penuh 449 file / 4661 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve ld+json target baru (parse JSON valid); probe scene: agentData array 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 18:45 WIB — Siklus 622: judul tab index.html diselaraskan dgn og:title
+
+- Defek riil: <title> index.html masih "WFS PROJECT — Autonomous AI Software House", sementara og/twitter:title halaman yang sama (dan <title> landing.html) sejak 607/613 memakai "WFS Project HQ — Kantor AI 3D" → tab browser bertentangan dgn kartu preview sosial & judul halaman kanonik.
+- index.html: <title> diganti ke "WFS Project HQ — Kantor AI 3D".
+- Guard og_twitter_parity_607.test.js +2 kasus: <title> == og:title, dan string judul lama tak lagi ada di index.html.
+- Verifikasi: build vite sukses; vitest penuh 449 file / 4663 pass + 6 skip / 0 fail (593 s); deploy dist → ~/wfs-hq, :9503/ serve title baru; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

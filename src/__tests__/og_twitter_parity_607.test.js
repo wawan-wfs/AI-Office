@@ -35,4 +35,17 @@ describe('og/twitter preview parity index.html (607)', () => {
   test('twitter:image:alt & og:image:alt sama', () => {
     expect(metaContent('twitter:image:alt')).toBe(metaContent('og:image:alt'))
   })
+
+  // Siklus 622: <title> tab browser harus = og:title — dulu "WFS PROJECT —
+  // Autonomous AI Software House" sementara preview sosial "WFS Project HQ —
+  // Kantor AI 3D"; judul tab bertentangan dgn kartu share halaman yang sama.
+  test('<title> = og:title (tab vs preview sosial)', () => {
+    const t = html.match(/<title>([^<]*)<\/title>/i)
+    expect(t).toBeTruthy()
+    expect(t[1].trim()).toBe(metaContent('og:title'))
+  })
+
+  test('tidak ada lagi judul lama "WFS PROJECT — Autonomous…" di index.html', () => {
+    expect(html).not.toContain('WFS PROJECT — Autonomous AI Software House')
+  })
 })
