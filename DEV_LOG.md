@@ -8804,3 +8804,10 @@
 - Guard baru src/__tests__/landing_pwa_meta_616.test.js: 7 kasus (4 meta PWA, viewport, robots, anti-duplikasi) pass.
 - Verifikasi: build vite sukses; vitest penuh 445 file / 4644 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html 200; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 12:35 WIB — Siklus 617: paritas meta description SEO landing.html vs index.html
+
+- Defek riil (SEO): landing.html (canonical = root '/') memakai meta description berbeda redaksi dari index.html ("Software house otonom: ..." vs "Autonomous AI Software House WFS PROJECT: Multi-agent orchestration...") → Google bisa memilih snippet inkonsisten untuk URL kanonik yang sama.
+- Kedua halaman kini memakai description identik: "Kantor virtual 3D WFS Project: 26 agen AI membangun software nyata. Live preview, kanban nyata, chat AI CS." (redaksi baru lebih fokus produk; JSON-LD landing description ikut disamakan).
+- Guard baru src/__tests__/landing_og_seo_617.test.js: 3 kasus (description landing == index, index tetap memuat description, menyebut 26 agen & 3D) pass.
+- Verifikasi: build vite sukses (precache 48, 1787.04 KiB); vitest penuh 446 file / 4647 pass + 6 skip / 0 fail (585 s); deploy dist → ~/wfs-hq, :9503 dan :9503/landing.html serve description baru; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
