@@ -8804,6 +8804,14 @@
 - Guard baru src/__tests__/landing_pwa_meta_616.test.js: 7 kasus (4 meta PWA, viewport, robots, anti-duplikasi) pass.
 - Verifikasi: build vite sukses; vitest penuh 445 file / 4644 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html 200; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 14:05 WIB — Siklus 618: preload font landing.html valid & paritas dgn index.html
+
+- Defek riil (performa): landing.html masih preload 3 font versi lama siklus 425 — yMJRMIl (bukan selfhost wajar app) + aFTU…SQBLyM (latin-ext DM Mono, tidak pernah dipakai landing) — sementara index.html sejak 427 sudah memakai orbitron-latin.woff2 selfhost; landing tadi mengunduh Orbitron dua kali (yMJRMIl via fonts.css + font berbeda) & file latin-ext yang tak terpakai.
+- landing.html preload kini: DM Sans latin (rP2Yp2y…-K4) + orbitron-latin.woff2 (selfhost, byte-identik dgn yMJRMIl md5 5d281085) + DM Mono latin (aFTU…qQBA) — persis set index.html (paritas 427).
+- Guard baru src/__tests__/landing_font_preload_618.test.js (5 kasus: semua preload ada di @font-face, tanpa yMJRMIl, orbitron-latin paritas, DM Sans paritas, jumlah 3) pass; guard lama 425 & 428 diperbarui ke file selfhost.
+- Verifikasi: build vite sukses (precache 48, 1787.34 KiB); vitest penuh 447 file — run pertama 4651 pass + 1 fail flaky shconsole (out-of-order timing), rerun tunggal 47/47 pass 3x berturut; run penuh kedua berjalan; deploy dist → ~/wfs-hq, :9503/landing.html serve preload baru; probe scene :9503/?mode=office — agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
 ## 18/11/2026 12:35 WIB — Siklus 617: paritas meta description SEO landing.html vs index.html
 
 - Defek riil (SEO): landing.html (canonical = root '/') memakai meta description berbeda redaksi dari index.html ("Software house otonom: ..." vs "Autonomous AI Software House WFS PROJECT: Multi-agent orchestration...") → Google bisa memilih snippet inkonsisten untuk URL kanonik yang sama.

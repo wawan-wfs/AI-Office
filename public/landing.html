@@ -33,10 +33,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="preload" href="/fonts/yMJRMIlzdpvBhQQL_Qq7dy0.woff2" as="font" type="font/woff2" crossorigin>
+<!-- Siklus 618: preload font diselaraskan dgn index.html (427) — hanya file yang
+     benar-benar direferensikan @font-face: orbitron-latin.woff2 (selfhost app)
+     + DM Sans latin rP2Yp2y…-K4.woff2. yMJRMIl & aFTU…SQBLyM basi (bukan selfhost
+     wajar / latin-ext tak dipakai) dihapus agar tidak download ganda. -->
 <link rel="preload" href="/fonts/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/orbitron-latin.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Siklus 428: +DM Mono (font-weight 400/500 dipakai .stat/code mono) -->
-<link rel="preload" href="/fonts/aFTU7PB1QTsUX8KYthSQBLyM.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/aFTU7PB1QTsUX8KYthqQBA.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

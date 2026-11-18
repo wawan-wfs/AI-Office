@@ -8,9 +8,11 @@ const dist = (() => {
   catch { return ''; }
 })();
 
-describe('landing font preload (425)', () => {
+describe('landing font preload (425, diperbarui siklus 618: Orbitron selfhost orbitron-latin)', () => {
   it('preload Orbitron latin (heading) ada dgn as=font & crossorigin', () => {
-    expect(src).toContain('href="/fonts/yMJRMIlzdpvBhQQL_Qq7dy0.woff2"');
+    // siklus 618: file diganti orbitron-latin.woff2 — selfhost yang sama dgn
+    // index.html (siklus 427), byte-identik dgn yMJRMIl di fonts.css
+    expect(src).toContain('href="/fonts/orbitron-latin.woff2"');
     expect(src).toContain('as="font"');
     expect(src).toContain('crossorigin');
   });
@@ -21,7 +23,7 @@ describe('landing font preload (425)', () => {
     expect(src).toContain('<link rel="stylesheet" href="/fonts/fonts.css">');
   });
   it('dist ter-deploy memuat preload yang sama', () => {
-    expect(dist).toContain('yMJRMIlzdpvBhQQL_Qq7dy0.woff2');
+    expect(dist).toContain('orbitron-latin.woff2');
     expect(dist).toContain('rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2');
   });
 });

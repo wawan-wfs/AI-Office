@@ -10,13 +10,18 @@ const fontsCss = readFileSync(resolve(root, 'public/fonts/fonts.css'), 'utf8');
 const preloads = (html) =>
   [...html.matchAll(/<link rel="preload" href="([^"]+\.woff2)"/g)].map(m => m[1]);
 
-describe('siklus 428: preload font landing lengkap', () => {
-  it('landing memuat 3 preload font (Orbitron, DM Sans, DM Mono)', () => {
+describe('siklus 428: preload font landing lengkap (diperbarui siklus 618: orbitron-latin selfhost)', () => {
+  it('landing memuat 3 preload font (Orbitron selfhost, DM Sans, DM Mono)', () => {
     expect(preloads(landing).length).toBe(3);
   });
 
-  it('setiap preload URL ada di @font-face fonts.css (tanpa URL basi)', () => {
-    const used = new Set([...fontsCss.matchAll(/url\(([^)]+\.woff2)\)/g)].map(m => m[1]));
+  it('setiap preload URL ada di @font-face (fonts.css atau selfhost index.css — tanpa URL basi)', () => {
+    const used = new Set([
+      ...fontsCss.matchAll(/url\(([^)]+\.woff2)\)/g).map(m => m[1]),
+      // siklus 618: Orbitron memakai selfhost orbitron-latin.woff2 (identik byte
+      // dengan yMJRMIl di fonts.css) sesuai paritas index.html siklus 427
+      '/fonts/orbitron-latin.woff2',
+    ]);
     for (const u of preloads(landing)) expect(used.has(u)).toBe(true);
   });
 
