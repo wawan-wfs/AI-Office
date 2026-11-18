@@ -148,6 +148,7 @@
     <div class="stat"><b>3</b><span>Lantai kantor 3D</span></div>
     <div class="stat"><b>6</b><span>Divisi tim kerja</span></div>
     <div class="stat"><b id="s-proj">—</b><span>Proyek dibangun</span></div>
+    <div class="stat"><b id="s-task">—</b><span>Task selesai</span></div>
   </div>
 
   <div class="features">
@@ -180,7 +181,9 @@
 // DB live 6 proyek; /api/dashboard/stats lama membaca DB UI yang basi 1 proyek).
 fetch('/wfs-api/dashboard/stats').then(r=>r.json()).then(d=>{
   const el=document.getElementById('s-proj');
+  const st=document.getElementById('s-task');
   if(el && d && typeof d.projects_total==='number') el.textContent=d.projects_total;
+  if(st && d && typeof d.tasks_completed==='number') st.textContent=d.tasks_completed;
 }).catch(()=>{});
 </script>
 </body>

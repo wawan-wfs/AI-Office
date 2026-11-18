@@ -8943,3 +8943,9 @@
 - Deploy via scripts/apply_wfs_api_service.py --apply: backup + compile-check + smoke 6/6, live sha == sumber (drift-gate hq_api_service_drift hijau kembali).
 - Verifikasi: curl paritas /api vs /wfs-api = {projects_total:6, tasks_total:17, tasks_completed:16} identik; vitest penuh 455 file — 4684 pass + 6 skip + 1 fail SEMENTARA drift-gate pra-deploy (rilis ulang hijau 9/9 setelah --apply); probe e2e_err_probe.py OK (0 console/page error, 26 agen hook, shot 693065 B).
 - Backlog tersisa: cutover :8787-Docker; saas-dibantuin push (repo GitHub belum ada); keputusan omniroute.
+
+## 19/11/2026 08:10 WIB — Siklus 635: stat live "Task selesai" ditambahkan di landing
+
+- Lanjutan rantai 626-634: dengan stats gateway kini hidup di landing (6 proyek), ditambah stat keempat "Task selesai" membaca tasks_completed live dari /wfs-api/dashboard/stats (fallback "—" bila fetch gagal, prinsip 632).
+- public/landing.html: elemen s-task + pengisian di fetch yang sama; guard baru src/__tests__/landing_task_stat_635.test.js (3 kasus: fallback em-dash tanpa angka, pengisian tasks_completed, guard 626/632/633 tetap).
+- Verifikasi: build vite sukses; vitest penuh 456 file — 4687 pass + 6 skip, 0 fail; deploy dist → ~/wfs-hq; :9503/landing.html serve s-task (2 kemunculan); probe scripts/e2e_err_probe.py OK (0 console/page error, 26 agen, shot 685022 B).
