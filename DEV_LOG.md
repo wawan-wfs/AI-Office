@@ -8835,3 +8835,11 @@
 - Guard baru src/__tests__/landing_sitemap_620.test.js (5 kasus); guard lama 423 & 424 diperbarui (menuntut sitemap TANPA landing.html).
 - Verifikasi: build vite sukses; vitest penuh 449 file / 4660 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503 serve sitemap & robots baru, root 200; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 17:45 WIB — Siklus 621: target SearchAction JSON-LD keluar dari path robots Disallow
+
+- Defek riil (SEO/structured data): JSON-LD landing.html (potentialAction SearchAction) menarget `http://…:9503/app/#dashboard`, padahal robots.txt `Disallow: /app/` → crawler memperoleh SearchBox target yang dilarang di-crawl; sesuai pedoman Google, URL target SearchAction harus diizinkan robots.
+- Target diganti ke `http://…:9503/#dashboard` (path '/', kanonik, diizinkan). CTA link /app/#dashboard untuk manusia tidak diubah.
+- Guard diperbarui: landing_jsonld_420.test.js +1 kasus (5 total) — target bukan '/app/' dan tidak match SEMUA baris Disallow robots.txt.
+- Verifikasi: build vite sukses (precache 48, 1787.83 KiB); vitest penuh 449 file / 4661 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve ld+json target baru (parse JSON valid); probe scene: agentData array 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

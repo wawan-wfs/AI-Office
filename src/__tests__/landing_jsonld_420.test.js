@@ -25,8 +25,23 @@ describe('siklus 420: JSON-LD structured data landing', () => {
     const data = extractJsonLd(landing);
     const pa = data.potentialAction;
     expect(pa['@type']).toBe('SearchAction');
-    expect(pa.target).toBe('http://161.120.180.21:9503/app/#dashboard');
+    // Siklus 621: target kini '/' — '/app/' diblokir robots.txt (Disallow: /app/)
+    expect(pa.target).toBe('http://161.120.180.21:9503/#dashboard');
     expect(pa['query-input']).toBe('required name=search_term_string');
+  });
+
+  it('siklus 621: target SearchAction tidak menunjuk path yang diblokir robots.txt', () => {
+    const data = extractJsonLd(landing);
+    const target = data.potentialAction.target;
+    const robots = readFileSync(resolve(root, 'public/robots.txt'), 'utf8');
+    const path = new URL(target).pathname;
+    expect(path).toBe('/');
+    expect(path).not.toBe('/app/');
+    // setiap Disallow di robots.txt tidak boleh match path target
+    for (const line of robots.split('\n')) {
+      const m = line.match(/^Disallow:\s*(\S+)/);
+      if (m) expect(path.startsWith(m[1])).toBe(false);
+    }
   });
 
   it('tidak memuat angka agen usang dan JSON valid tanpa karakter kontrol', () => {
