@@ -53,7 +53,9 @@ describe('siklus 214 — konstanta allowlist statis', () => {
     // File fisik hanya ditulis probe sekali-pakai & dihapus di finally; tanpa
     // fisik → 404. Entri ini memulihkan kontrak 192 tanpa membuka pola luas.
     expect(items).toContain('e2e-sw-fake.js');
-    expect(items.length).toBe(16);
+    // Siklus 612: icon-master.svg ditambah ke allowlist (logo landing honeycomb).
+    expect(items).toContain('icon-master.svg');
+    expect(items.length).toBe(17);
   });
 
   it('allowlist TIDAK memuat file non-aset (py/db/bak/token/screenshot)', () => {

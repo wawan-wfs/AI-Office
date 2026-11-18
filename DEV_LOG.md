@@ -8790,3 +8790,10 @@
 - Probe scene (probe_scene604.py): agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Verifikasi visual: shot scene /tmp/ck.png 704 KB (>500 KB, scene hidup); :9503/landing.html HTTP 200.
 - Tidak ada perubahan kode; tanpa commit baru. Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 11:00 WIB — Siklus 615: head parity landing.html (color-scheme + canonical) & guard allowlist 612
+
+- Defek riil (head parity): landing.html tidak memuat meta color-scheme (index.html ya, sejak 593) dan tidak punya link rel=canonical (hanya og:url) → kontrol native browser di landing dirender skema light & URL kanonik tak dideklarasikan untuk crawler.
+- landing.html: <meta name="color-scheme" content="dark"> dan <link rel="canonical" href="http://161.120.180.21:9503/"> ditambahkan; guard test src/__tests__/landing_head_parity_615.test.js (3 kasus: paritas index, canonical ada, tanpa duplikasi) pass.
+- Fix test lama: static_allowlist_drift.test.js menuntut 16 entri STATIC_ALLOW_FILES, padahal siklus 612 menambah icon-master.svg (17 entri riil) — guard diperbarui ke 17 + ekspektasi eksplisit icon-master.svg; suite penuh kembali hijau.
+- Verifikasi: build vite sukses; vitest penuh 444 file / 4636 pass + 6 skip / 1 fail (allowlist 16 vs 17) → setelah fix: guard subset 3 file / 23 kasus pass; deploy dist → ~/wfs-hq; :9503/landing.html 200 dengan canonical ter-serve; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0 (shot.sh tidak ada di scratch; scene tak diubah visual).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
