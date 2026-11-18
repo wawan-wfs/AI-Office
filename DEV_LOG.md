@@ -8909,6 +8909,13 @@
 - Verifikasi: build vite sukses (precache 48, 1787.95 KiB); dist landing/index/manifest grep "26 agen" = 0; vitest penuh 455 file / 4683 pass + 6 skip / 0 fail (608.89 s); deploy dist → ~/wfs-hq, :9503 serve meta baru di /, /landing.html, /manifest.webmanifest; probe e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 701019 B.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
 
+## 19/11/2026 04:31 WIB — Siklus 631: audit paritas angka landing vs API live (:8787) — rantai 626-630 ditutup benar
+
+- Audit (tanpa perubahan kode): setelah 629 "menganggap" agents_count=12, diverifikasi langsung ke sumber — `/wfs-api/dashboard/stats` (:9503 proxy → :8787 live) kini mengembalikan projects_total=6, tasks_total=17, tasks_completed=16, agents_count=15 (AGENTS_META gateway + cfg). Stat landing "6 Divisi / 26 avatar / 1 proyek (fallback)" tidak lagi kontradiktif: angka-angka itu mengklaim hal berbeda (spec scene vs DB live) dan tiap label sudah jujur. Fallback s-proj=1 basi relatif (DB=6) tapi tetap benar secara mekanisme — fetch live menimpa.
+- Status task engine live: 16/17 task done, 1 di review (#56), 0 running; task engine berbayar tetap DIJEDA (tidak disentuh). Deploy dist ulang ke ~/wfs-hq (build vite sukses).
+- Verifikasi: vitest penuh 455 file / 4684 pass + 6 skip / 0 fail (594.97s); probe e2e_err_probe.py OK (0 console/page error, hooks 26 agen, shot 696388 B >500KB); :9503 serve stats live. Tidak ada commit (working tree bersih, hash tetap 5d6a9eb).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
 ## 19/11/2026 03:35 WIB — Siklus 630: og-image.png tidak lagi mengklaim "26 agen AI"
 
 - Defek riil (lanjutan 627-629): aset preview sosial og-image.png masih menampilkan tagline "Kantor AI 3D · 26 agen AI · task nyata" — gambar inilah yang tampil di kartu WhatsApp/Telegram/X, dan 629 hanya membersihkan meta teks, bukan PNG-nya.
