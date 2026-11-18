@@ -21,9 +21,10 @@ describe('og-image.png siklus 608', () => {
   test('caption og-image konsisten dgn jumlah agen scene', () => {
     expect(agentCount).toBe(26)
     expect(expectedCaption).toBe('Kantor AI 3D · 26 agen AI · task nyata')
-    // index.html og/twitter:description memakai kalimat 26 agen yg sama
+    // Siklus 629: index.html og/twitter:description kini "tim agen AI" (tanpa angka spesifik)
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8')
-    expect(html).toContain('26 agen AI bekerja')
+    expect(html).toContain('tim agen AI bekerja')
+    expect(html).not.toMatch(/og:description" content="[^"]*\b26\b/)
   })
 
   test('aset preview sosial tersedia & berukuran 1200x630', () => {

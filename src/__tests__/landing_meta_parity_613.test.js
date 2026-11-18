@@ -42,8 +42,12 @@ describe('Siklus 613 — landing.html meta sosial paritas dgn index.html', () =>
     expect(meta(landing, 'name', 'twitter:title')).not.toBe('WFS PROJECT — Autonomous AI Software House');
   });
 
-  test('deskripsi menyebut 26 agen (sinkron jumlah agen scene)', () => {
-    expect(meta(landing, 'property', 'og:description')).toContain('26 agen AI');
-    expect(meta(landing, 'name', 'twitter:description')).toContain('26 agen AI');
+  test('deskripsi og/twitter paritas avatar scene — tanpa klaim angka spesifik', () => {
+    // Siklus 629: deskripsi tak lagi memuat angka spesifik (26 = avatar scene,
+    // bukan jumlah agen task-engine nyata di DB). Angka spesifik di deskripsi
+    // berisiko dibaca sebagai jumlah agen produksi (lanjutan siklus 627/628).
+    expect(meta(landing, 'property', 'og:description')).not.toMatch(/\b26\b/);
+    expect(meta(landing, 'name', 'twitter:description')).not.toMatch(/\b26\b/);
+    expect(meta(landing, 'property', 'og:description')).toContain('tim agen AI');
   });
 });

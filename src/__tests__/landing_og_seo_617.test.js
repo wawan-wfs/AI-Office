@@ -21,12 +21,14 @@ describe('landing.html SEO parity (617)', () => {
 
   test('index.html juga memuat meta description (tidak hilang saat refactor)', () => {
     expect(meta(index, 'name', 'description')).toBeTruthy()
-    expect(meta(index, 'name', 'description')).toContain('26 agen AI')
+    // Siklus 629: tanpa angka spesifik "26" — deskripsi memakai "tim agen AI"
+    expect(meta(index, 'name', 'description')).not.toMatch(/\b26\b/)
+    expect(meta(index, 'name', 'description')).toContain('tim agen AI')
   })
 
   test('description menyebut nilai inti produk', () => {
     const d = meta(landing, 'name', 'description')
-    expect(d).toContain('26 agen')
+    expect(d).toContain('tim agen AI')
     expect(d).toContain('3D')
   })
 })

@@ -25,7 +25,9 @@ describe('og/twitter preview parity index.html (607)', () => {
 
   test('twitter:description = og:description', () => {
     expect(metaContent('twitter:description')).toBe(metaContent('og:description'))
-    expect(metaContent('twitter:description')).toContain('26 agen')
+    // Siklus 629: tanpa angka spesifik; redaksi "tim agen AI"
+    expect(metaContent('twitter:description')).toContain('tim agen AI')
+    expect(metaContent('twitter:description')).not.toMatch(/\b26\b/)
   })
 
   test('twitter:image = og:image', () => {

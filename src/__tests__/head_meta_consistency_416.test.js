@@ -20,9 +20,11 @@ describe('meta konsistensi antar halaman (416)', () => {
     }
   })
 
-  test('index.html & landing.html sama-sama menyebut 26 agen di og:description', () => {
-    expect(indexHtml).toMatch(/og:description" content="[^"]*26 agen/)
-    expect(landingHtml).toMatch(/og:description" content="[^"]*26 agen/)
+  test('index.html & landing.html og:description paritas "tim agen AI" (tanpa angka spesifik, 629)', () => {
+    expect(indexHtml).toMatch(/og:description" content="[^"]*tim agen AI/)
+    expect(landingHtml).toMatch(/og:description" content="[^"]*tim agen AI/)
+    expect(indexHtml).not.toMatch(/og:description" content="[^"]*\b26\b/)
+    expect(landingHtml).not.toMatch(/og:description" content="[^"]*\b26\b/)
   })
 
   test('kedua halaman punya apple-touch-icon & og:image (aset ada di public/)', () => {

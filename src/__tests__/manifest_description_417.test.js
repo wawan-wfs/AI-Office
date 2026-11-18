@@ -27,17 +27,19 @@ describe('siklus 417 — deskripsi manifest PWA konsisten 26 agen', () => {
     expect(viteCfg.includes('15 agen')).toBe(false);
   });
 
-  it('deskripsi manifest menyebut 26 agen (konsisten dgn meta HTML)', () => {
+  it('deskripsi manifest konsisten "tim agen AI" tanpa angka spesifik (629)', () => {
     const m = viteCfg.match(/manifest:\s*\{[\s\S]*?description:\s*'([^']+)'/);
     expect(m, 'blok manifest + description harus ada').toBeTruthy();
-    expect(m[1]).toContain('26 agen');
+    expect(m[1]).toContain('tim agen AI');
+    expect(m[1]).not.toMatch(/\b26\b/);
   });
 
-  it('dist/manifest.webmanifest ter-deploy juga memuat 26 agen', () => {
+  it('dist/manifest.webmanifest ter-deploy juga memuat deskripsi 629', () => {
     const dist = join(ROOT, 'dist', 'manifest.webmanifest');
     expect(existsSync(dist), 'dist/manifest.webmanifest ada (jalankan build)').toBe(true);
     const distManifest = readFileSync(dist, 'utf8');
-    expect(distManifest).toContain('26 agen');
+    expect(distManifest).toContain('tim agen AI');
     expect(distManifest.includes('15 agent')).toBe(false);
+    expect(distManifest).not.toMatch(/\b26 agen\b/);
   });
 });

@@ -19,7 +19,7 @@ export default defineConfig({
       manifest: {
         name: 'WFS Project HQ — Kantor AI 3D',
         short_name: 'WFS HQ',
-        description: 'Kantor virtual 3D WFS Project: 26 agen AI bekerja dan mengerjakan task nyata.',
+        description: 'Kantor virtual 3D WFS Project: tim agen AI bekerja dan mengerjakan task nyata.',
         lang: 'id',
         start_url: '/',
         scope: '/',

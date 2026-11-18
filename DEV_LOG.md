@@ -8900,3 +8900,11 @@
 - Guard baru src/__tests__/landing_stats_truth_628.test.js: 3 kasus (H1 tanpa "26"/"26 Agen", memuat "Tim Agen AI", stat avatar tetap 26 paritas AGENT_ID_SCENE_PAIRS tanpa founder, fallback s-proj tetap 1) pass.
 - Verifikasi: build vite sukses; vitest penuh 454 file / 4680 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve H1 baru; probe scripts/e2e_err_probe.py: 0 console error, 0 page error, init_failed=false, hooks 26 agen OK, screenshot 702684 B (>500KB).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 02:45 WIB — Siklus 629: angka "26 agen" dicabut dari meta/og/twitter/JSON-LD/manifest PWA
+
+- Defek riil (lanjutan 627/628): H1 sudah bebas angka, tapi meta description, og:description, twitter:description, JSON-LD, dan manifest PWA masih mengklaim "26 agen AI" — teks ini tampil di snippet Google & kartu preview WhatsApp/Telegram/X; 26 = avatar scene, agen task-engine nyata di DB hanya 12.
+- public/landing.html, index.html, vite.config.js (manifest): "26 agen AI" → "tim agen AI" (deskripsi: "...tim agen AI membangun software nyata..."; og/twitter: "...tim agen AI bekerja dan mengerjakan task nyata."). Paritas antar halaman dipertahankan.
+- Guard diperbarui agar kontrak baru: head_meta_consistency_416, landing_meta_parity_613, landing_og_seo_617, og_twitter_parity_607, og_image_caption_608, manifest_description_417. Guard baru landing_meta_truth_629 (3 kasus: description kanonik tanpa "26" + paritas, og/twitter tanpa "26" + paritas, JSON-LD & manifest tanpa "26").
+- Verifikasi: build vite sukses (precache 48, 1787.95 KiB); dist landing/index/manifest grep "26 agen" = 0; vitest penuh 455 file / 4683 pass + 6 skip / 0 fail (608.89 s); deploy dist → ~/wfs-hq, :9503 serve meta baru di /, /landing.html, /manifest.webmanifest; probe e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 701019 B.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
