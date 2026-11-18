@@ -8892,3 +8892,11 @@
 - Guard baru src/__tests__/landing_stats_truth_627.test.js: 3 kasus (tanpa "8+", angka == TEAMS.length == 6, tanpa "Agen AI aktif") pass.
 - Verifikasi: build vite sukses (precache 48, 1787.94 KiB); vitest penuh 453 file / 4675 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve teks baru (tanpa "8+"); probe scene scripts/e2e_scene_probe.py: 0 exception, 0 console error (catatan: e2e_err.py di cache scratch sudah ter-prune, probe resmi kini di repo).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 01:20 WIB — Siklus 628: H1 landing tak lagi mengklaim "26 Agen AI"
+
+- Defek riil (kredibilitas, lanjutan 627): H1 landing "Software House yang Dikerjakan 26 Agen AI" mengklaim angka spesifik; 26 hanyalah jumlah avatar scene, agen task-engine nyata di DB hanya 12. Angka spesifik di headline berisiko dianggap klaim jumlah agen produksi.
+- public/landing.html: H1 → "Software House yang Dikerjakan Tim Agen AI di Kantor Virtual 3D" (tanpa angka spesifik). Stat bawah "26 / Agen di kantor 3D" dipertahankan (konteks simulasi eksplisit).
+- Guard baru src/__tests__/landing_stats_truth_628.test.js: 3 kasus (H1 tanpa "26"/"26 Agen", memuat "Tim Agen AI", stat avatar tetap 26 paritas AGENT_ID_SCENE_PAIRS tanpa founder, fallback s-proj tetap 1) pass.
+- Verifikasi: build vite sukses; vitest penuh 454 file / 4680 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve H1 baru; probe scripts/e2e_err_probe.py: 0 console error, 0 page error, init_failed=false, hooks 26 agen OK, screenshot 702684 B (>500KB).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
