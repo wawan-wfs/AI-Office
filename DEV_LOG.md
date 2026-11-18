@@ -8804,6 +8804,14 @@
 - Guard baru src/__tests__/landing_pwa_meta_616.test.js: 7 kasus (4 meta PWA, viewport, robots, anti-duplikasi) pass.
 - Verifikasi: build vite sukses; vitest penuh 445 file / 4644 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html 200; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 14:45 WIB — Siklus 619: paritas meta keywords + author landing.html
+
+- Defek riil (SEO): landing.html (canonical '/') tidak memuat meta keywords & author seperti index.html → crawler melihat sinyal SEO berbeda untuk URL kanonik yang sama.
+- landing.html kini memuat keywords (7 istilah: ai software house, wfs project, autonomous agents, docker sandbox, multi-agent orchestration, automated development, software engineering) dan author "WFS Project" — persis index.html.
+- Guard baru src/__tests__/landing_seo_keywords_619.test.js: 3 kasus (keywords identik antar halaman, author identik, menyebut topik produk) pass.
+- Verifikasi: build vite sukses; vitest penuh 448 file / 4655 pass + 6 skip / 0 fail (591 s); deploy dist → ~/wfs-hq, :9503/landing.html serve meta baru; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
 ## 18/11/2026 14:05 WIB — Siklus 618: preload font landing.html valid & paritas dgn index.html
 
 - Defek riil (performa): landing.html masih preload 3 font versi lama siklus 425 — yMJRMIl (bukan selfhost wajar app) + aFTU…SQBLyM (latin-ext DM Mono, tidak pernah dipakai landing) — sementara index.html sejak 427 sudah memakai orbitron-latin.woff2 selfhost; landing tadi mengunduh Orbitron dua kali (yMJRMIl via fonts.css + font berbeda) & file latin-ext yang tak terpakai.
