@@ -8876,3 +8876,11 @@
 - Deploy dist → ~/wfs-hq; probe :9503: /, /landing.html, /manifest.webmanifest semuanya 200; masing-masing halaman tepat 1 link manifest; /api/agents OK.
 - Pelajaran: sebelum commit klaim "X sekarang di Y", wajib cek `git show --stat` bahwa file Y benar berubah — commit guard-only tidak boleh dideskripsikan sebagai perubahan file sumber.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 23:05 WIB — Siklus 626: stat "Proyek dibangun" landing tidak lagi menampilkan angka palsu
+
+- Defek riil (kredibilitas data): landing.html menampilkan `<b id="s-proj">6</b>` sebagai teks awal sebelum fetch; API live `/api/dashboard/stats` mengembalikan `projects_total=1` (DB: 1 proyek). Visitor melihat "6 proyek dibangun" sampai JS menimpa — dan bila fetch gagal, angka palsu itu menetap.
+- public/landing.html: fallback `s-proj` 6 → 1 (paritas dgn DB live). Mekanisme fetch yang menimpa dgn nilai live tidak diubah.
+- Guard baru src/__tests__/landing_stats_truth_626.test.js: 3 kasus (angka lama 6 tak ada, fallback = 1, fetch tetap menimpa `d.projects_total`) pass.
+- Verifikasi: `git status` bersih setelah commit; `npm run build` sukses (dist/landing.html memuat `s-proj">1`); `npm test` 452 file / 4672 pass + 6 skip / 0 fail (659.92 s); deploy dist → ~/wfs-hq, `:9503/landing.html` serve `s-proj">1`; probe e2e_errors tanpa EXC/CON error; screenshot SwiftShader 1366x768 = 518943 B (>500KB, scene hidup).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
