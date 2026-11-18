@@ -35,7 +35,9 @@
 <meta name="apple-mobile-web-app-title" content="WFS HQ">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="preload" href="/fonts/fonts.css" as="style">
+  <link rel="stylesheet" href="/fonts/fonts.css">
+<!-- Siklus 623: preload fonts.css paritas dgn index.html -->
 <!-- Siklus 618: preload font diselaraskan dgn index.html (427) — hanya file yang
      benar-benar direferensikan @font-face: orbitron-latin.woff2 (selfhost app)
      + DM Sans latin rP2Yp2y…-K4.woff2. yMJRMIl & aFTU…SQBLyM basi (bukan selfhost

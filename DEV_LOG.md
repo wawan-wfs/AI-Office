@@ -8843,6 +8843,14 @@
 - Guard diperbarui: landing_jsonld_420.test.js +1 kasus (5 total) — target bukan '/app/' dan tidak match SEMUA baris Disallow robots.txt.
 - Verifikasi: build vite sukses (precache 48, 1787.83 KiB); vitest penuh 449 file / 4661 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve ld+json target baru (parse JSON valid); probe scene: agentData array 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 19:55 WIB — Siklus 623: preload fonts.css landing.html paritas dgn index.html
+
+- Defek riil (performa/head parity): index.html preload `<link rel="preload" href="/fonts/fonts.css" as="style">` sejak lama, tapi landing.html hanya stylesheet biasa — browser mulai unduh CSS font lebih lambat di landing (FOUT potensial saat navigasi ke landing).
+- public/landing.html: preload fonts.css ditambahkan tepat sebelum stylesheet (persis index.html, `/>` vs `>` tetap mengikuti gaya file masing-masing).
+- Guard baru src/__tests__/landing_fontcss_preload_623.test.js: 3 kasus (preload ada di kedua halaman, stylesheet tunggal tanpa duplikat) pass.
+- Verifikasi: build vite sukses (precache 48, 1787.94 KiB); vitest penuh --reporter=json: 1323 suite / 4666 pass / 0 fail / 6 skip (exit 0); deploy dist → ~/wfs-hq, :9503/landing.html serve preload baru, root 200; probe scene ?mode=office: agents=26, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
 ## 18/11/2026 18:45 WIB — Siklus 622: judul tab index.html diselaraskan dgn og:title
 
 - Defek riil: <title> index.html masih "WFS PROJECT — Autonomous AI Software House", sementara og/twitter:title halaman yang sama (dan <title> landing.html) sejak 607/613 memakai "WFS Project HQ — Kantor AI 3D" → tab browser bertentangan dgn kartu preview sosial & judul halaman kanonik.
