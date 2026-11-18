@@ -8866,3 +8866,13 @@
 - Guard baru src/__tests__/landing_manifest_parity_624.test.js: 3 kasus (index manual link ada + dist 1x, landing link ada, dist/landing tidak duplikat) pass.
 - Verifikasi: build vite sukses (precache 48, 1787.94 KiB); vitest penuh: 4675 tests — 4669 pass + 6 skip, 0 fail, exit 0 (597 s); deploy dist → ~/wfs-hq, :9503/landing.html serve manifest link, manifest.webmanifest 200, root 200, /api/agents OK.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 21:45 WIB — Siklus 625: investigasi klaim siklus 624 — index.html TIDAK berisi link manifest; dikembalikan ke c522185
+
+- Verifikasi ulang klaim siklus 624 menemukan klaim itu TIDAK akurat: commit c522185 hanya menambah guard test — index.html source TIDAK diubah (git show --stat: hanya DEV_LOG + guard). dist/index.html punya link manifest murni dari inject vite-plugin-pwa (buildBase injection di </head>).
+- Percobaan menambah `<link rel="manifest">` manual di index.html menghasilkan dist/index.html dengan 2 link manifest — vite-plugin-pwa 0.x TIDAK dedupe (plugin selalu menyuntikkan di </head> tanpa cek duplikat). Klaim "vite-plugin-pwa dedupe" di siklus 624 salah.
+- Index source dikembalikan ke HEAD (c522185): status quo single-source (inject plugin di index; manual link di landing) adalah kondisi benar — landing.html tetap 1 link, serve 200.
+- Guard 624 tetap ada dan pass (3 kasus); full vitest diulang: run pertama 2 file fail (guard 624 & 430 menuntut dist tanpa regenerasi — flaky terhadap build-state), setelah build ulang keduanya pass 8/8; JSON reporter run penuh: 4675 tests, 4669 pass + 6 skip, 0 fail.
+- Deploy dist → ~/wfs-hq; probe :9503: /, /landing.html, /manifest.webmanifest semuanya 200; masing-masing halaman tepat 1 link manifest; /api/agents OK.
+- Pelajaran: sebelum commit klaim "X sekarang di Y", wajib cek `git show --stat` bahwa file Y benar berubah — commit guard-only tidak boleh dideskripsikan sebagai perubahan file sumber.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
