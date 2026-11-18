@@ -8929,3 +8929,10 @@
 - Guard 626 & 628 diperbarui ke kontrak baru (fallback "—", tanpa angka hard-coded). Full vitest run pertama menangkap guard 628 lama yang masih menuntut "1" — diperbaiki, run ulang hijau.
 - Verifikasi: build vite sukses (dist/landing.html serve `s-proj">—`); vitest penuh 455 file / 4684 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq; probe e2e_err_probe.py OK (0 console/page error, 26 agen hook, shot 699973 B).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 06:25 WIB — Siklus 633: landing kini baca stats gateway live (6 proyek), bukan DB UI basi
+
+- Koreksi audit 631: klaim "API live projects_total=6" hanya berlaku untuk /wfs-api/dashboard/stats (proxy :9503 → gateway :8787, DB ~/wfs-office/tasks.db). Yang dibaca landing.html adalah /api/dashboard/stats — jalur LEGACY api_service (server :9503) yang membaca DB UI ~/wfs-projects/wfs_software_house.db: projects_total=1, tasks_total=1 (proyek "WFS Landing 3D Motion" + 1 task 'ready', sudah lama basi). Jadi visitor landing tetap melihat angka basi 1 meski DB task engine sudah 6 proyek/17 task.
+- public/landing.html: fetch diganti /wfs-api/dashboard/stats (gateway live). Guard landing_stats_truth_626 diperbarui (kontrak 633: fetch wfs-api, tanpa fetch api lama).
+- Verifikasi: build vite sukses (dist/landing.html memuat fetch baru); vitest penuh 455 file / 4684 pass + 6 skip / 0 fail (598s); deploy dist → ~/wfs-hq, :9503/landing.html serve fetch baru; probe e2e_err_probe.py OK (0 console/page error, 26 agen hook, shot 700627 B).
+- Catatan dua-DB (belum diselesaikan, butuh keputusan): /api/dashboard/stats (DB UI, 1 proyek) dan /wfs-api/dashboard/stats (gateway, 6 proyek) tetap tidak sinkron — kini landing memakai yang live; penyelarasan /api/* ke DB gateway atau penghentian jalur legacy adalah backlog terpisah.

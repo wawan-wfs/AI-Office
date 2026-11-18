@@ -176,8 +176,9 @@
   </footer>
 </div>
 <script>
-// Statistik proyek nyata dari API
-fetch('/api/dashboard/stats').then(r=>r.json()).then(d=>{
+// Statistik proyek nyata dari gateway task engine (:8787 via proxy /wfs-api —
+// DB live 6 proyek; /api/dashboard/stats lama membaca DB UI yang basi 1 proyek).
+fetch('/wfs-api/dashboard/stats').then(r=>r.json()).then(d=>{
   const el=document.getElementById('s-proj');
   if(el && d && typeof d.projects_total==='number') el.textContent=d.projects_total;
 }).catch(()=>{});
