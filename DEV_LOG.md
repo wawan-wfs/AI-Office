@@ -8858,3 +8858,11 @@
 - Guard og_twitter_parity_607.test.js +2 kasus: <title> == og:title, dan string judul lama tak lagi ada di index.html.
 - Verifikasi: build vite sukses; vitest penuh 449 file / 4663 pass + 6 skip / 0 fail (593 s); deploy dist → ~/wfs-hq, :9503/ serve title baru; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 20:55 WIB — Siklus 624: link manifest paritas landing.html (PWA installability)
+
+- Defek riil (PWA/instalabilitas): landing.html (canonical '/') tidak memuat <link rel="manifest"> — manifest.webmanifest hanya tersedia via inject vite-plugin-pwa di dist/index.html. Browser yang membuka landing langsung tidak menemukan manifest untuk halaman kanonik itu; index.html sekarang juga punya link manual (head parity 624).
+- index.html: ditambah <link rel="manifest" href="/manifest.webmanifest">; public/landing.html sudah memuat link sama — kini keduanya paritas dan dist tidak ter-inject duplikat (vite-plugin-pwa dedupe).
+- Guard baru src/__tests__/landing_manifest_parity_624.test.js: 3 kasus (index manual link ada + dist 1x, landing link ada, dist/landing tidak duplikat) pass.
+- Verifikasi: build vite sukses (precache 48, 1787.94 KiB); vitest penuh: 4675 tests — 4669 pass + 6 skip, 0 fail, exit 0 (597 s); deploy dist → ~/wfs-hq, :9503/landing.html serve manifest link, manifest.webmanifest 200, root 200, /api/agents OK.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
