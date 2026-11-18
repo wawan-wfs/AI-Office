@@ -19,7 +19,8 @@ UNIT = "wfs-phase34-recover.service"
 RECOVERY_UNIT = f"""[Unit]
 Description=WFS disposable Phase 34 recovery-only acceptance
 Requires=docker.service
-After=docker.service cloud-final.service
+After=docker.service
+OnFailure=wfs-phase34-fixture-failed.service
 ConditionPathExists={STATE}/seed.json
 
 [Service]
@@ -36,6 +37,13 @@ PrivateNetwork=yes
 [Install]
 WantedBy=multi-user.target
 """
+FAILURE_UNIT = """[Unit]
+Description=Stop disposable Phase 34 guest on recovery failure
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl --no-block poweroff
+"""
 DOCKER_RECOVERY = f"""#!/bin/sh
 set -eu
 case "${{1-}}:${{2-}}" in
@@ -47,9 +55,11 @@ exec /usr/bin/docker "$@"
 """
 SETUP = f"""#!/bin/sh
 set -eu
+exec >/dev/ttyS0 2>&1
+trap 'status=$?; if [ "$status" -ne 0 ]; then echo "WFS_PHASE34_SEED_FAILED $status"; systemctl --no-block poweroff; fi' EXIT
 tar -xzf {STATE}/source.tar.gz -C {STATE}
 systemctl enable --now docker.service
-PYTHONPATH={STATE}/backend /usr/bin/python3 {STATE}/ci_phase34_boot_guest.py seed >/dev/ttyS0 2>&1
+PYTHONPATH={STATE}/backend /usr/bin/python3 {STATE}/ci_phase34_boot_guest.py seed
 """
 
 
@@ -71,6 +81,7 @@ def seed_config(guest_dir):
         (f"{STATE}/docker-recovery", "0700", DOCKER_RECOVERY.encode()),
         (f"{STATE}/setup", "0700", SETUP.encode()),
         (f"/etc/systemd/system/{UNIT}", "0644", RECOVERY_UNIT.encode()),
+        ("/etc/systemd/system/wfs-phase34-fixture-failed.service", "0644", FAILURE_UNIT.encode()),
     ]:
         user_data.extend([f"  - path: {path}", f"    permissions: '{mode}'",
                           "    encoding: b64", "    content: " + base64.b64encode(content).decode()])
@@ -123,11 +134,13 @@ def main():
         try:
             subprocess.run([
                 "qemu-system-x86_64", "-accel", "tcg,thread=multi", "-cpu", "max", "-smp", "2",
-                "-m", "2560", "-display", "none", "-monitor", "none", "-serial", "file:serial.log",
+                "-m", "2560", "-display", "none", "-monitor", "none",
+                "-chardev", "stdio,id=guestserial,signal=off,logfile=serial.log",
+                "-serial", "chardev:guestserial",
                 "-drive", "file=guest.img,format=qcow2,if=virtio",
                 "-drive", "file=seed.img,format=raw,if=virtio,readonly=on",
                 "-nic", "user,model=virtio-net-pci",
-            ], cwd=guest, check=True, timeout=960)
+            ], cwd=guest, stdin=subprocess.DEVNULL, check=True, timeout=720)
             record = read_result(console.read_text(errors="replace"))
         except (OSError, subprocess.SubprocessError, AssertionError, ValueError, KeyError):
             if console.is_file():
