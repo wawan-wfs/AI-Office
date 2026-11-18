@@ -8884,3 +8884,11 @@
 - Guard baru src/__tests__/landing_stats_truth_626.test.js: 3 kasus (angka lama 6 tak ada, fallback = 1, fetch tetap menimpa `d.projects_total`) pass.
 - Verifikasi: `git status` bersih setelah commit; `npm run build` sukses (dist/landing.html memuat `s-proj">1`); `npm test` 452 file / 4672 pass + 6 skip / 0 fail (659.92 s); deploy dist → ~/wfs-hq, `:9503/landing.html` serve `s-proj">1`; probe e2e_errors tanpa EXC/CON error; screenshot SwiftShader 1366x768 = 518943 B (>500KB, scene hidup).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 00:15 WIB — Siklus 627: stat landing jujur lanjutan — divisi 8+ → 6, label agen tidak lagi "aktif"
+
+- Defek riil (kredibilitas data, lanjutan siklus 626): landing.html menampilkan "8+ Divisi tim kerja" padahal spesifikasi kanonik `TEAMS` (src/scene/parts/team_spec.js) hanya 6 divisi; dan "26 Agen AI aktif" menyesatkan — 26 adalah avatar kantor 3D (AGENT_ID_SCENE_PAIRS = 26), sementara agen task-engine di `/api/dashboard/stats` hanya `agents_count=12`.
+- public/landing.html: "8+ / Divisi tim kerja" → "6 / Divisi tim kerja" (paritas TEAMS.length); label "Agen AI aktif" → "Agen di kantor 3D" (klaim simulasi, bukan status aktif).
+- Guard baru src/__tests__/landing_stats_truth_627.test.js: 3 kasus (tanpa "8+", angka == TEAMS.length == 6, tanpa "Agen AI aktif") pass.
+- Verifikasi: build vite sukses (precache 48, 1787.94 KiB); vitest penuh 453 file / 4675 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503/landing.html serve teks baru (tanpa "8+"); probe scene scripts/e2e_scene_probe.py: 0 exception, 0 console error (catatan: e2e_err.py di cache scratch sudah ter-prune, probe resmi kini di repo).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
