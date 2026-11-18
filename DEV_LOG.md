@@ -8775,3 +8775,11 @@
 - Guard test src/__tests__/landing_honeycomb_612.test.js: 4 kasus (theme-color #000C1E, logo honeycomb master, struktur 8 poligon + 'W', favicon == master) pass.
 - Verifikasi: build vite sukses (precache 48, 1786.82 KiB); vitest full 442 file / 4625 pass + 6 skip / 0 fail (~10.7 mnt); deploy dist → ~/wfs-hq; :9503/landing.html 200, /icon-master.svg 200; e2e_err_probe OK (console_errors=0, 26 agen, shot 677 KB nonbg 0.992).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 18/11/2026 09:05 WIB — Siklus 613: paritas meta sosial landing.html vs index.html (judul/deskripsi)
+
+- Defek riil (visual/preview sosial): landing.html memakai og/twitter:title "WFS PROJECT — Autonomous AI Software House" + deskripsi beda redaksi, sementara index.html sejak 607 memakai "WFS Project HQ — Kantor AI 3D" → kartu preview WhatsApp/Telegram/X menampilkan judul berbeda tergantung halaman yang dibagikan.
+- landing.html: og:title, og:description, twitter:title, twitter:description, dan <title> disamakan dengan index.html ("WFS Project HQ — Kantor AI 3D" + deskripsi 26 agen).
+- Guard test baru src/__tests__/landing_meta_parity_613.test.js: 9 kasus (7 meta og/twitter identik antar halaman, tanpa judul lama, deskripsi menyebut 26 agen).
+- Verifikasi: build vite sukses (precache 48, 1786.79 KiB); vitest full 443 file / 4632 pass + 6 skip / 2 fail — 2 fail adalah test 414 yang menuntut og:title == <title> landing, diperbaiki dengan menyamakan <title> landing ke judul standar; rerun guard meta (7 file / 32 kasus) semua pass; deploy dist → ~/wfs-hq, :9503/landing.html 200 dengan title/og/twitter baru; probe scene: 26 agen, console_errors=0, exceptions=0.
+- Catatan: e2e_err.py tidak ada lagi di scratch; memakai probe_scene604.py (fallback tercatat sejak siklus 606).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
