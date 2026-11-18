@@ -8936,3 +8936,10 @@
 - public/landing.html: fetch diganti /wfs-api/dashboard/stats (gateway live). Guard landing_stats_truth_626 diperbarui (kontrak 633: fetch wfs-api, tanpa fetch api lama).
 - Verifikasi: build vite sukses (dist/landing.html memuat fetch baru); vitest penuh 455 file / 4684 pass + 6 skip / 0 fail (598s); deploy dist → ~/wfs-hq, :9503/landing.html serve fetch baru; probe e2e_err_probe.py OK (0 console/page error, 26 agen hook, shot 700627 B).
 - Catatan dua-DB (belum diselesaikan, butuh keputusan): /api/dashboard/stats (DB UI, 1 proyek) dan /wfs-api/dashboard/stats (gateway, 6 proyek) tetap tidak sinkron — kini landing memakai yang live; penyelarasan /api/* ke DB gateway atau penghentian jalur legacy adalah backlog terpisah.
+
+## 19/11/2026 07:20 WIB — Siklus 634: /api/dashboard/stats legacy kini proxy gateway (paritas 6/17/16)
+
+- Lanjutan kendala 633: jalur legacy /api/dashboard/stats (api_service :9503) masih baca DB UI basi (1 proyek/1 task). Kini endpoint ini proxy ke gateway :8787 /api/dashboard/stats (DB task engine live) dgn fallback DB UI hanya kalau gateway tak merespons.
+- Deploy via scripts/apply_wfs_api_service.py --apply: backup + compile-check + smoke 6/6, live sha == sumber (drift-gate hq_api_service_drift hijau kembali).
+- Verifikasi: curl paritas /api vs /wfs-api = {projects_total:6, tasks_total:17, tasks_completed:16} identik; vitest penuh 455 file — 4684 pass + 6 skip + 1 fail SEMENTARA drift-gate pra-deploy (rilis ulang hijau 9/9 setelah --apply); probe e2e_err_probe.py OK (0 console/page error, 26 agen hook, shot 693065 B).
+- Backlog tersisa: cutover :8787-Docker; saas-dibantuin push (repo GitHub belum ada); keputusan omniroute.

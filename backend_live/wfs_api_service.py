@@ -355,7 +355,19 @@ def handle_api_request(handler, method, path):
         return True
 
     # ── DASHBOARD STATS ──
+    # SIKLUS 634: jalur legacy /api/dashboard/stats kini proxy ke gateway
+    # :8787 (/api/dashboard/stats, DB task engine live 6 proyek/17 task) —
+    # dulu membaca DB UI wfs_software_house.db yang basi (1 proyek/1 task),
+    # membuat angka /api/* tidak sinkron dgn /wfs-api/*. Fallback DB UI
+    # hanya kalau gateway tidak merespons (fail-open ke angka lama).
     if api_path == "dashboard/stats" and method == "GET":
+        try:
+            with urllib.request.urlopen(
+                    "http://127.0.0.1:8787/api/dashboard/stats", timeout=5) as r:
+                send_json(json.loads(r.read().decode("utf-8")))
+                return True
+        except Exception:
+            pass  # fallback DB UI di bawah
         conn = get_db()
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM projects")
