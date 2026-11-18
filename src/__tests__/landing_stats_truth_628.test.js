@@ -16,9 +16,9 @@ describe('landing_stats_truth_628', () => {
     expect(avatarCount).toBe(26);
     expect(html()).toMatch(new RegExp(`<b>${avatarCount}</b><span>Agen di kantor 3D</span>`));
   });
-  it('angka 26 hanya di stat avatar & meta (fallback s-proj tetap 1)', () => {
+  it('angka 26 hanya di stat avatar & meta (fallback s-proj = "—" (632))', () => {
     const t = html();
-    expect(t).toContain('id="s-proj">1');
+    expect(t).toContain('id="s-proj">—');
     const h1 = t.match(/<h1>[\s\S]*?<\/h1>/)[0];
     expect(h1).not.toMatch(/\b26\b/);
   });

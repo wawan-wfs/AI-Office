@@ -8922,3 +8922,10 @@
 - og-image.png diregenerasi: band tagline lama dihapus dengan sampling latar baris bersih di atasnya (tanpa smudge), lalu teks baru "Kantor AI 3D . Tim agen AI . task nyata" digambar di posisi/ukuran/warna yang sama (Orbitron 31px, warna #EBF0F5, left-align x=515 sejajar judul). Ukuran file tetap 1200x630 PNG, ~33.8 KB.
 - Guard og_image_caption_608 diperbarui ke kontrak 630: caption konstanta tanpa "26 agen", +1 kasus (meta landing tetap bebas angka), impor agents_spec/extended_desks tidak lagi diperlukan.
 - Verifikasi: build vite sukses; vitest penuh 455 file / 4684 pass + 6 skip / 0 fail (600s); dist → ~/wfs-hq; :9503/og-image.png serve PNG baru (33799 B); inspeksi visual: tanpa tofu/artefak, separator titik render bersih.
+
+## 19/11/2026 05:30 WIB — Siklus 632: fallback stat "Proyek dibangun" tidak lagi hard-coded angka
+
+- Lanjutan 626: fallback `s-proj` = 1 kembali basi (DB live = 6 proyek, audit 631); kalau fetch /api/dashboard/stats gagal, visitor lihat angka basi. Fallback kini "—" (em-dash, bukan angka) — prinsip: jangan tampilkan angka yang belum diverifikasi; fetch live tetap menimpa dgn projects_total.
+- Guard 626 & 628 diperbarui ke kontrak baru (fallback "—", tanpa angka hard-coded). Full vitest run pertama menangkap guard 628 lama yang masih menuntut "1" — diperbaiki, run ulang hijau.
+- Verifikasi: build vite sukses (dist/landing.html serve `s-proj">—`); vitest penuh 455 file / 4684 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq; probe e2e_err_probe.py OK (0 console/page error, 26 agen hook, shot 699973 B).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
