@@ -8908,3 +8908,10 @@
 - Guard diperbarui agar kontrak baru: head_meta_consistency_416, landing_meta_parity_613, landing_og_seo_617, og_twitter_parity_607, og_image_caption_608, manifest_description_417. Guard baru landing_meta_truth_629 (3 kasus: description kanonik tanpa "26" + paritas, og/twitter tanpa "26" + paritas, JSON-LD & manifest tanpa "26").
 - Verifikasi: build vite sukses (precache 48, 1787.95 KiB); dist landing/index/manifest grep "26 agen" = 0; vitest penuh 455 file / 4683 pass + 6 skip / 0 fail (608.89 s); deploy dist → ~/wfs-hq, :9503 serve meta baru di /, /landing.html, /manifest.webmanifest; probe e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 701019 B.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 03:35 WIB — Siklus 630: og-image.png tidak lagi mengklaim "26 agen AI"
+
+- Defek riil (lanjutan 627-629): aset preview sosial og-image.png masih menampilkan tagline "Kantor AI 3D · 26 agen AI · task nyata" — gambar inilah yang tampil di kartu WhatsApp/Telegram/X, dan 629 hanya membersihkan meta teks, bukan PNG-nya.
+- og-image.png diregenerasi: band tagline lama dihapus dengan sampling latar baris bersih di atasnya (tanpa smudge), lalu teks baru "Kantor AI 3D . Tim agen AI . task nyata" digambar di posisi/ukuran/warna yang sama (Orbitron 31px, warna #EBF0F5, left-align x=515 sejajar judul). Ukuran file tetap 1200x630 PNG, ~33.8 KB.
+- Guard og_image_caption_608 diperbarui ke kontrak 630: caption konstanta tanpa "26 agen", +1 kasus (meta landing tetap bebas angka), impor agents_spec/extended_desks tidak lagi diperlukan.
+- Verifikasi: build vite sukses; vitest penuh 455 file / 4684 pass + 6 skip / 0 fail (600s); dist → ~/wfs-hq; :9503/og-image.png serve PNG baru (33799 B); inspeksi visual: tanpa tofu/artefak, separator titik render bersih.
