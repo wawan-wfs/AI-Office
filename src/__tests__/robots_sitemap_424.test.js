@@ -21,7 +21,8 @@ describe('siklus 424: directive Sitemap di robots.txt', () => {
     const txt = read('public/robots.txt');
     const url = txt.match(/^Sitemap:\s*(\S+)/m)[1];
     const sm = read('public/sitemap.xml');
-    expect(sm).toContain('<loc>http://161.120.180.21:9503/landing.html</loc>');
+    expect(sm).toContain(`<loc>${origin}/</loc>`); // siklus 620: hanya kanonik /
+    expect(sm).not.toContain('landing.html');
     expect(url.startsWith(origin)).toBe(true);
   });
 

@@ -17,9 +17,9 @@ describe('siklus 423: sitemap.xml SEO', () => {
     expect(src).toContain('<?xml');
   });
 
-  it('memuat landing + root dgn URL absolut origin produksi', () => {
-    expect(src).toContain(`<loc>${ORIGIN}/landing.html</loc>`);
+  it('memuat root kanonik dgn URL absolut origin produksi (tanpa duplikat landing.html, siklus 620)', () => {
     expect(src).toContain(`<loc>${ORIGIN}/</loc>`);
+    expect(src).not.toContain('landing.html');
     expect(src).not.toMatch(/<loc>\/(?!\/)/); // tanpa URL relatif
   });
 

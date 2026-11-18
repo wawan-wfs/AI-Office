@@ -8827,3 +8827,11 @@
 - Guard baru src/__tests__/landing_og_seo_617.test.js: 3 kasus (description landing == index, index tetap memuat description, menyebut 26 agen & 3D) pass.
 - Verifikasi: build vite sukses (precache 48, 1787.04 KiB); vitest penuh 446 file / 4647 pass + 6 skip / 0 fail (585 s); deploy dist → ~/wfs-hq, :9503 dan :9503/landing.html serve description baru; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 16:20 WIB — Siklus 620: sitemap.xml hanya kanonik / + robots.txt blokir landing.html
+
+- Defek riil (SEO duplikat): sitemap.xml mendaftar /landing.html DAN / (prioritas 1.0 vs 0.8), padahal landing.html rel=canonical ke '/' — crawler diberi sinyal dua URL berbeda untuk konten yang sama.
+- public/sitemap.xml kini hanya 1 URL: http://161.120.180.21:9503/ (prioritas 1.0); public/robots.txt menambah Disallow: /landing.html agar crawler diarahkan ke kanonik.
+- Guard baru src/__tests__/landing_sitemap_620.test.js (5 kasus); guard lama 423 & 424 diperbarui (menuntut sitemap TANPA landing.html).
+- Verifikasi: build vite sukses; vitest penuh 449 file / 4660 pass + 6 skip / 0 fail; deploy dist → ~/wfs-hq, :9503 serve sitemap & robots baru, root 200; probe scene: agentData 26 agen, canvas OK, console_errors=0, exceptions=0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
