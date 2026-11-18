@@ -8766,3 +8766,12 @@
 - Guard test src/__tests__/wfs_logo_honeycomb_611.test.js: 4 kasus (6 sel satelit + hero W, bg #000C1E tanpa #0F1B2E lama, lockup teks utuh, konsistensi struktur 6-satelit dgn icon-master.svg) pass.
 - Verifikasi: build vite sukses; vitest full 441 file / 4621 pass + 6 skip / 0 fail (~10 mnt); deploy dist → ~/wfs-hq; :9503/wfs-logo.svg HTTP 200 + hash cocok; e2e probe: console_errors=0, exceptions=0, agentData 26 agen, canvas OK.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 18/11/2026 08:15 WIB — Siklus 612: landing.html diselaraskan dgn identitas honeycomb & theme-color baru
+
+- Defek riil (visual): public/landing.html masih memakai theme-color #010722 (tidak sinkron dgn #000C1E di index.html/manifest PWA) dan logo nav berupa dot lingkaran biru generik — satu-satunya titik brand yang belum memakai mark honeycomb master (609-611 sudah icon PWA, favicon, logo lockup).
+- landing.html: theme-color → #000C1E; logo nav kini <img src="/icon-master.svg"> (14x12) menggantikan span.dot generik.
+- server.py allowlist statis: icon-master.svg ditambahkan ke STATIC_ALLOW_FILES (backend_live/wfs_hq_server.py + ~/wfs-hq/server.py), service wfs-hq di-restart; sebelumnya /icon-master.svg 404 di produksi.
+- Guard test src/__tests__/landing_honeycomb_612.test.js: 4 kasus (theme-color #000C1E, logo honeycomb master, struktur 8 poligon + 'W', favicon == master) pass.
+- Verifikasi: build vite sukses (precache 48, 1786.82 KiB); vitest full 442 file / 4625 pass + 6 skip / 0 fail (~10.7 mnt); deploy dist → ~/wfs-hq; :9503/landing.html 200, /icon-master.svg 200; e2e_err_probe OK (console_errors=0, 26 agen, shot 677 KB nonbg 0.992).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
