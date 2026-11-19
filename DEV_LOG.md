@@ -8983,3 +8983,10 @@
 - Guard landing_a11y_418 diperbarui (pub & dist wajib `<main id="main" tabindex="-1">`).
 - Verifikasi: build vite sukses; vitest penuh 460 file — 4699 pass + 6 skip, 0 fail (614s); dist → ~/wfs-hq (:9503 serve tabindex="-1"); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 670108 B, pixels colors=8996 nonbg=0.992.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 19/11/2026 12:55 WIB — Siklus 641: JSON-LD publisher Organization + og:image:alt di landing
+
+- SEO lanjutan (rantai a11y/SEO 626-640): structured data WebSite kini punya `publisher` ber-tipe Organization (nama WFS Project, logo icon-512.png 512×512) — crawler/rich result dapat identitas publisher & logo.
+- `og:image:alt` ditambahkan (sebelumnya hanya twitter:image:alt) — alt teks OG image untuk aksesibilitas share preview.
+- Guard baru `src/__tests__/landing_seo_641.test.js` (3 kasus: JSON-LD valid + publisher + SearchAction tetap ke '/' bukan /app/, og:image:alt ada, dist ter-deploy memuat keduanya).
+- Verifikasi: build vite sukses; vitest penuh 461 file — 4702 pass + 6 skip, 0 fail (644s); dist → ~/wfs-hq (:9503 serve publisher Organization + og:image:alt); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 679319 B, pixels colors=9987 nonbg=0.992.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
