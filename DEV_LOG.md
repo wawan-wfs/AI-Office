@@ -9068,3 +9068,12 @@
 - 5 guard lama (645/615/422/613/419) diperbarui mengikuti kebijakan baru 651; guard sitemap 620 diberi toleransi -1 hari (lastmod ditulis zona WIB, pagi UTC masih H-1 → false-fail).
 - Verifikasi: build vite sukses; vitest penuh 470 file — 4730 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/landing.html canonical=/, robots.txt live; probe e2e OK — 0 error, init_failed=false, 26 agen, shot 702944 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 04:26 WIB — Siklus 652: FAQ landing naik ke markup semantik (h3 + section)
+
+- Temuan a11y/SEO on-page: 4 pertanyaan FAQ di public/landing.html ditulis <b>…</b><p>…</p> di dalam div — tanpa struktur: outline dokumen salah, screen reader tidak menandai pertanyaan; FAQPage JSON-LD (642) tidak punya padanan heading di HTML.
+- public/landing.html: tiap faq-item jadi <section class="faq-item"><h3>…</h3><p>…</p></section>; CSS .faq-item b dipindah ke .faq-item h3 (font-size 15px, warna royal). Teks pertanyaan/jawaban dan JSON-LD tidak berubah.
+- Guard baru src/__tests__/landing_faq_semantic_652.test.js (3 kasus: 4 section+heading sumber, CSS h3 dipakai dan b dihapus, dist sama).
+- Guard lama diselaraskan: landing_faq_642 (menghitung section/heading + paritas jawaban h3), landing_seo_419 (heading order: h3 kini valid di bawah h2 FAQ).
+- Verifikasi: build vite sukses; vitest penuh 471 file — 4733 pass + 6 skip, 0 fail; dist disalin ke ~/wfs-hq, :9503/landing.html menyajikan 4 faq-item heading semantik; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 697969 B, nonbg=0.991, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.

@@ -15,8 +15,10 @@ describe('Siklus 642: FAQ landing + FAQPage JSON-LD', () => {
   it('HTML FAQ: 4 faq-item di dalam .how.faq sebelum </main>', () => {
     const main = pub.slice(pub.indexOf('<main'), pub.indexOf('</main>'))
     expect(pub).toContain('class="how faq"')
-    expect((main.match(/class="faq-item"/g) || []).length).toBe(4)
-    expect(main).toContain('FAQ</h2>')
+    // Siklus 652: pertanyaan naik ke <h3> semantik dalam <section class="faq-item">
+    expect((main.match(/<section class="faq-item">/g) || []).length).toBe(4)
+    expect((main.match(/<h3>/g) || []).length).toBe(4)
+    expect(pub).toContain('FAQ</h2>')
   })
 
   it('JSON-LD FAQPage valid: 4 Question, teks answer selaras HTML', () => {
@@ -24,7 +26,7 @@ describe('Siklus 642: FAQ landing + FAQPage JSON-LD', () => {
     expect(d).toBeTruthy()
     expect(d.mainEntity.length).toBe(4)
     expect(d.mainEntity.every(q => q['@type'] === 'Question' && q.acceptedAnswer?.text)).toBe(true)
-    const htmlAns = pub.match(/<b>Apakah ini demo atau software beneran\?<\/b><p>([^<]+)<\/p>/)
+    const htmlAns = pub.match(/<h3>Apakah ini demo atau software beneran\?<\/h3><p>([^<]+)<\/p>/)
     expect(htmlAns).toBeTruthy()
     expect(d.mainEntity[0].acceptedAnswer.text).toBe(htmlAns[1])
   })

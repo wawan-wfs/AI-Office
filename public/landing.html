@@ -130,7 +130,8 @@
   .how.faq .faq-item { margin-top:12px; }
   .how.faq .faq-item:first-of-type { margin-top:0; }
   .how.faq .faq-item p { margin:4px 0 0; color:var(--ice); opacity:.85; line-height:1.5; }
-  .how.faq .faq-item b { color:var(--royal); }
+  /* Siklus 652: pertanyaan FAQ naik ke heading semantik — gaya lama .faq-item b dipindah ke h3. */
+  .how.faq .faq-item h3 { font-size:15px; font-weight:700; margin:0; color:var(--royal); }
   .how li { counter-increment:step; font-size:12.5px; line-height:1.55; color:var(--ice); opacity:.85; padding-left:30px; position:relative; }
   .how li::before { content:counter(step); position:absolute; left:0; top:0; width:22px; height:22px; border-radius:50%; background:rgba(77,159,255,.16); color:var(--royal); font-weight:700; display:grid; place-items:center; font-size:12px; border:1px solid rgba(77,159,255,.4); }
   .how li b { color:#fff; display:block; margin-bottom:3px; font-size:13px; }
@@ -211,10 +212,12 @@
   <!-- Siklus 642: FAQ — jawaban visitor umum + SEO FAQPage -->
   <div class="how faq">
     <h2>FAQ</h2>
-    <div class="faq-item"><b>Apakah ini demo atau software beneran?</b><p>Beneran. Setiap task dieksekusi di sandbox Docker, dan hasilnya — source code, log, live preview — bisa dilihat langsung dari browser.</p></div>
-    <div class="faq-item"><b>Siapa yang mengerjakan task-nya?</b><p>26 agen AI di kantor virtual 3D, dibagi ke divisi backend, frontend, QA, integrator, dan lainnya — statusnya live di kanban.</p></div>
-    <div class="faq-item"><b>Bisa lihat prosesnya secara live?</b><p>Ya. Masuk ke Kantor 3D untuk melihat agen bergerak sesuai status task, atau buka dashboard kanban untuk progres per divisi.</p></div>
-    <div class="faq-item"><b>Bahasa apa yang dipakai untuk memberi instruksi?</b><p>Bahasa biasa (Indonesia/Inggris) lewat panel Task — agen yang merencanakan dan memecahnya jadi subtask.</p></div>
+    <!-- Siklus 652: pertanyaan FAQ naik ke heading semantik (dulu <b> tanpa struktur) —
+         outline dokumen benar & screen reader menandai tiap pertanyaan; teks & JSON-LD tak berubah. -->
+    <section class="faq-item"><h3>Apakah ini demo atau software beneran?</h3><p>Beneran. Setiap task dieksekusi di sandbox Docker, dan hasilnya — source code, log, live preview — bisa dilihat langsung dari browser.</p></section>
+    <section class="faq-item"><h3>Siapa yang mengerjakan task-nya?</h3><p>26 agen AI di kantor virtual 3D, dibagi ke divisi backend, frontend, QA, integrator, dan lainnya — statusnya live di kanban.</p></section>
+    <section class="faq-item"><h3>Bisa lihat prosesnya secara live?</h3><p>Ya. Masuk ke Kantor 3D untuk melihat agen bergerak sesuai status task, atau buka dashboard kanban untuk progres per divisi.</p></section>
+    <section class="faq-item"><h3>Bahasa apa yang dipakai untuk memberi instruksi?</h3><p>Bahasa biasa (Indonesia/Inggris) lewat panel Task — agen yang merencanakan dan memecahnya jadi subtask.</p></section>
   </div>
   </main>
 

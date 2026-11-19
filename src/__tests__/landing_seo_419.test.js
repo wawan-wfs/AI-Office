@@ -6,10 +6,14 @@ const root = resolve(__dirname, '../..');
 const landing = readFileSync(resolve(root, 'public/landing.html'), 'utf8');
 
 describe('siklus 419: SEO landing — heading order, canonical, robots.txt', () => {
-  it('tidak ada h3 di landing (h1 → h2 saja, heading order valid)', () => {
-    expect(landing).not.toMatch(/<h3/i);
+  // Siklus 652: pertanyaan FAQ naik ke <h3> semantik — outline dokumen kini
+  // h1 → h2 → h3 (h3 di bawah h2 FAQ, urutan valid; dulu <b> tanpa struktur).
+  it('heading order valid: h3 (bila ada) berada di dalam bagian FAQ setelah h2', () => {
     expect(landing).toMatch(/<h1/);
     expect((landing.match(/<h2/g) || []).length).toBeGreaterThanOrEqual(7);
+    const h2Faq = landing.indexOf('FAQ</h2>');
+    const firstH3 = landing.indexOf('<h3>');
+    if (firstH3 !== -1) expect(firstH3).toBeGreaterThan(h2Faq);
   });
 
   it('canonical link ada dan menunjuk origin produksi', () => {
