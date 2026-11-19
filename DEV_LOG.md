@@ -8949,3 +8949,10 @@
 - Lanjutan rantai 626-634: dengan stats gateway kini hidup di landing (6 proyek), ditambah stat keempat "Task selesai" membaca tasks_completed live dari /wfs-api/dashboard/stats (fallback "—" bila fetch gagal, prinsip 632).
 - public/landing.html: elemen s-task + pengisian di fetch yang sama; guard baru src/__tests__/landing_task_stat_635.test.js (3 kasus: fallback em-dash tanpa angka, pengisian tasks_completed, guard 626/632/633 tetap).
 - Verifikasi: build vite sukses; vitest penuh 456 file — 4687 pass + 6 skip, 0 fail; deploy dist → ~/wfs-hq; :9503/landing.html serve s-task (2 kemunculan); probe scripts/e2e_err_probe.py OK (0 console/page error, 26 agen, shot 685022 B).
+
+## 19/11/2026 09:15 WIB — Siklus 636: grid stat landing 5 kolom (stat ke-5 tak lagi yatim)
+
+- Lanjutan 635: elemen s-task menambah stat ke-5 tapi grid desktop masih repeat(4,1fr) — stat kelima turun baris sendiri dengan lebar 1 kolom (rusak layout).
+- public/landing.html: grid desktop jadi repeat(5,1fr); mobile 2 kolom ditambah .stat:last-child:nth-child(odd){grid-column:span 2} agar 5 stat tidak menyisakan kartu yatim.
+- Guard baru src/__tests__/landing_stat_grid_636.test.js (3 kasus: grid 5 kolom, span-2 mobile, tepat 5 .stat).
+- Verifikasi: build vite sukses; vitest penuh 457 file — 4690 pass + 6 skip, 0 fail; dist → ~/wfs-hq (repeat(5,1fr) ter-serve di :9503); probe e2e_err.py tanpa 'Scene init failed'.
