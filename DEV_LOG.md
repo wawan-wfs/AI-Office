@@ -9014,3 +9014,11 @@
 - Guard baru src/__tests__/og_image_type_parity_644.test.js (3 kasus: tag ada + urutan + tanpa duplikat di index, paritas nama meta index==landing, dist kedua halaman memuat tag).
 - Verifikasi: build vite sukses; vitest penuh 464 file — 4712 pass + 6 skip, 0 fail; dist → ~/wfs-hq, :9503 memuat og:image:type di / (1 kemunculan); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 691638 B, nonbg=0.992.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 18:35 WIB — Siklus 645: canonical & og:url landing menunjuk dirinya sendiri
+
+- Audit SEO lanjutan 644: landing.html masih memuat canonical + og:url = base URL `/` — bertabrakan dengan canonical app shell di `/`; crawler dapat salah memilih halaman kanonik untuk konten landing.
+- public/landing.html: canonical & og:url kini `…/landing.html`; index.html tetap `/` (dijaga guard).
+- Guard baru src/__tests__/landing_canonical_self_645.test.js (3 kasus: source self + bukan base, index tetap base, dist kedua halaman benar).
+- Verifikasi: build vite sukses; vitest penuh 465 file — 4715 pass + 6 skip, 0 fail (720s); dist → ~/wfs-hq, :9503/landing.html serve canonical & og:url /landing.html; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 695111 B, nonbg=0.992.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
