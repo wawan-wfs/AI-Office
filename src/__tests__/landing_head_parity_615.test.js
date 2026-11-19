@@ -14,9 +14,9 @@ test('landing.html memuat color-scheme dark seperti index.html', () => {
   expect(landing).toMatch(/<meta name="color-scheme" content="dark"/);
 });
 
-test('landing.html memuat canonical sama dgn index.html', () => {
+test('landing.html memuat canonical menunjuk dirinya sendiri (siklus 645)', () => {
   expect(index).toContain('<link rel="canonical" href="http://161.120.180.21:9503/"');
-  expect(landing).toContain('<link rel="canonical" href="http://161.120.180.21:9503/">');
+  expect(landing).toContain('<link rel="canonical" href="http://161.120.180.21:9503/landing.html">');
 });
 
 test('tanpa duplikasi color-scheme/canonical di head landing', () => {

@@ -9022,3 +9022,12 @@
 - Guard baru src/__tests__/landing_canonical_self_645.test.js (3 kasus: source self + bukan base, index tetap base, dist kedua halaman benar).
 - Verifikasi: build vite sukses; vitest penuh 465 file — 4715 pass + 6 skip, 0 fail (720s); dist → ~/wfs-hq, :9503/landing.html serve canonical & og:url /landing.html; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 695111 B, nonbg=0.992.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 19:31 WIB — Siklus 646: twitter:image:width & height paritas di index & landing + resolusi guard 645
+
+- Audit meta sosial (lanjutan 642/644): og:image sudah memiliki width=1200 dan height=630, tetapi tag Twitter Card belum memuat `twitter:image:width` dan `twitter:image:height` eksplisit — platform pembaca kartu Twitter/X memerlukan dimensi eksplisit untuk rendering rasio aspek gambar besar (summary_large_image) secara presisi tanpa layout shift.
+- index.html & public/landing.html: tambahkan `<meta name="twitter:image:width" content="1200">` dan `<meta name="twitter:image:height" content="630">` tepat setelah twitter:image:alt; set meta twitter kini identik persis antar halaman.
+- Resolusi regresi guard siklus 645: selaraskan 4 guard lama (`landing_head_parity_615`, `landing_meta_parity_613`, `landing_og_422`, `landing_seo_419`) agar konsisten dengan keputusan canonical & og:url self di `/landing.html` (37 file landing/head tes kini 100% lulus).
+- Guard baru `src/__tests__/twitter_image_dims_646.test.js` (3 kasus: index memuat width/height dan urutan benar, paritas nama meta twitter index==landing, dist ter-build memuat tag di kedua halaman).
+- Verifikasi: build vite sukses; vitest unit 9/9 lulus (64 pass), landing/head suite 37/37 file lulus (136 pass); dist → ~/wfs-hq, :9503 live; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 695749 B, nonbg=0.991.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

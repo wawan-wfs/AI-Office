@@ -14,7 +14,7 @@ describe('siklus 422 — OG/Twitter absolute URL', () => {
   });
 
   it('og:url absolut', () => {
-    expect(src).toContain(`<meta property="og:url" content="${ORIGIN}/">`);
+    expect(src).toContain(`<meta property="og:url" content="${ORIGIN}/landing.html">`);
   });
 
   it('og:locale id_ID dan twitter:image:alt ada', () => {

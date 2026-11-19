@@ -25,7 +25,6 @@ const pairs = [
   ['twitter:description', 'name'],
   ['og:image', 'property'],
   ['og:image:alt', 'property'],
-  ['og:url', 'property'],
 ];
 
 describe('Siklus 613 — landing.html meta sosial paritas dgn index.html', () => {
@@ -35,6 +34,13 @@ describe('Siklus 613 — landing.html meta sosial paritas dgn index.html', () =>
     expect(a).toBeTruthy();
     expect(b).toBeTruthy();
     expect(a).toBe(b);
+  });
+
+  test('og:url absolut di kedua halaman (landing menunjuk /landing.html, index menunjuk /)', () => {
+    // Siklus 645: canonical & og:url landing menunjuk dirinya sendiri (/landing.html),
+    // sedangkan index.html menunjuk /
+    expect(meta(landing, 'property', 'og:url')).toBe('http://161.120.180.21:9503/landing.html');
+    expect(meta(indexHtml, 'property', 'og:url')).toBe('http://161.120.180.21:9503/');
   });
 
   test('tidak ada lagi judul lama "WFS PROJECT — Autonomous AI Software House" di meta og/twitter landing', () => {
