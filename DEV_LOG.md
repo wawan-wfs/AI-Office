@@ -9094,3 +9094,11 @@
 - 9 guard lama (414/421/626/627/628/635/639/642/652) diselaraskan ke pola atribut baru.
 - Verifikasi: build vite sukses (1.88s); vitest penuh 473 file — 4739 pass + 6 skip, 0 fail; dist → ~/wfs-hq, :9503/landing.html live 31 atribut lang; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 705659 B, nonbg=0.991, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 06:15 WIB — Siklus 655: skip-link landing CSS-only (tanpa inline handler)
+
+- Temuan a11y/kualitas markup: skip-link landing masih pakai inline handler onFocus/onBlur (classList 'vis') — polusi inline JS, tidak CSP-friendly, dan beda pola dgn index.css (app: .skip-link.vis + :focus).
+- public/landing.html: inline handler dihapus; CSS kini .skip-link.vis, .skip-link:focus-visible, .skip-link:focus { top:10px; outline putih } — perilaku keyboard sama (Tab pertama menampilkan link) tanpa JS.
+- Guard baru src/__tests__/landing_skip_css_only_655.test.js (3 kasus: tanpa onFocus/onBlur, CSS fokus lengkap, dist paritas).
+- Verifikasi: build vite sukses; vitest penuh 474 file — 4742 pass + 6 skip, 0 fail; dist → ~/wfs-hq, live :9503/landing.html 0 kemunculan onFocus/onBlur; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 702159 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
