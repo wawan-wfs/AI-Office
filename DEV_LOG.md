@@ -8976,3 +8976,10 @@
 - Verifikasi: build vite sukses (3.10s); vitest penuh 460 file — 4699 pass + 6 skip, 0 fail (596s; run pertama 2 fail flaky timing ShConsole, hijau saat rerun dan di run penuh berikutnya); deploy dist → ~/wfs-hq (:9503 serve prefers-reduced-motion, 2 kemunculan); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 686130 B, pixels colors=10173 nonbg=0.991.
 - Catatan: probe e2e pertama gagal (shot_bytes=0) karena dijalankan saat vitest penuh masih membebani mesin — rerun bersih OK; bukan regresi kode.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 19/11/2026 12:20 WIB — Siklus 640: skip link efektif (main tabindex=-1) + spasi & amp di "Cara Kerja"
+
+- A11y lanjutan 639: skip link `href="#main"` tidak memindahkan fokus keyboard karena target bukan focusable — `<main id="main">` kini `tabindex="-1"` sehingga Tab pertama benar-benar mendarat di konten utama.
+- HTML "Cara Kerja": teks langkah menempel ke `<b>` tanpa spasi ("Beri instruksiUraikan…") — diberi spasi, dan `&` dijahit jadi `&amp;`.
+- Guard landing_a11y_418 diperbarui (pub & dist wajib `<main id="main" tabindex="-1">`).
+- Verifikasi: build vite sukses; vitest penuh 460 file — 4699 pass + 6 skip, 0 fail (614s); dist → ~/wfs-hq (:9503 serve tabindex="-1"); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 670108 B, pixels colors=8996 nonbg=0.992.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

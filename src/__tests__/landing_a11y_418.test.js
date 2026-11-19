@@ -12,7 +12,9 @@ describe('Siklus 418: a11y landing page', () => {
   })
 
   it('landing punya landmark <main id="main"> dan <nav> berlabel', () => {
-    expect(pub).toContain('<main id="main">')
+    expect(pub).toMatch(/<main id="main"[^>]*>/)
+    // Siklus 640: main menerima fokus programatik (skip link efektif utk keyboard)
+    expect(pub).toMatch(/<main id="main"[^>]*tabindex="-1"/)
     expect(pub).toContain('</main>')
     expect(pub).toMatch(/<nav aria-label="[^"]+"/)
   })
@@ -22,7 +24,7 @@ describe('Siklus 418: a11y landing page', () => {
   })
 
   it('dist ter-deploy juga memuat ketiganya', () => {
-    expect(dist).toContain('<main id="main">')
+    expect(dist).toMatch(/<main id="main"[^>]*tabindex="-1"/)
     expect(dist).toContain('skip-link')
     expect(dist).toMatch(/a:focus-visible[^}]*outline/)
   })
