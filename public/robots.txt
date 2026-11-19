@@ -3,7 +3,8 @@ Allow: /
 Disallow: /app/
 Disallow: /api/
 Disallow: /cs-widget/
-# landing.html adalah duplikat konten dari kanonik /
+# landing & landing.html adalah duplikat konten dari kanonik / (651: /landing/ kini juga dilarang — path alias dilayani server)
+Disallow: /landing
 Disallow: /landing.html
 
 Sitemap: http://161.120.180.21:9503/sitemap.xml

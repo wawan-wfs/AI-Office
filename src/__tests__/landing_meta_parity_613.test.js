@@ -39,7 +39,8 @@ describe('Siklus 613 — landing.html meta sosial paritas dgn index.html', () =>
   test('og:url absolut di kedua halaman (landing menunjuk /landing.html, index menunjuk /)', () => {
     // Siklus 645: canonical & og:url landing menunjuk dirinya sendiri (/landing.html),
     // sedangkan index.html menunjuk /
-    expect(meta(landing, 'property', 'og:url')).toBe('http://161.120.180.21:9503/landing.html');
+    // Siklus 651: og:url landing menunjuk / (dibalik dari 645)
+    expect(meta(landing, 'property', 'og:url')).toBe('http://161.120.180.21:9503/');
     expect(meta(indexHtml, 'property', 'og:url')).toBe('http://161.120.180.21:9503/');
   });
 

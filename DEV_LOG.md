@@ -9058,3 +9058,13 @@
 - Guard baru src/__tests__/sitemap_lastmod_649.test.js (3 kasus: lastmod >= 2026-11-2x untuk URL root, tidak ada lastmod 2026-11-19 tersisa, dist/sitemap.xml identik dengan sumber).
 - Verifikasi: build vite sukses (1.61s); vitest guard baru 3/3 pass + suite landing/head/seo 9 file 35/35 pass; dist -> ~/wfs-hq, :9503/sitemap.xml live memuat lastmod 2026-11-20; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 694879 B, nonbg=0.991, hygiene refs 42 missing 0.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 02:50 WIB — Siklus 651: canonical landing → / (konsistensi sinyal duplikat SEO)
+
+- Temuan SEO: landing.html memuat canonical & og:url menunjuk diri-sendiri (/landing.html), padahal robots.txt melarang /landing.html sebagai duplikat konten dari kanonik / — sinyal bertentangan; crawler bisa memilih URL yang justru di-disallow.
+- public/landing.html: canonical & og:url diarahkan ke http://161.120.180.21:9503/ (paritas dgn index.html).
+- public/robots.txt: tambah Disallow: /landing (alias path /landing/ dilayani server do_GET, sebelumnya lolos tanpa disallow).
+- Guard baru src/__tests__/landing_canonical_parity_651.test.js (3 kasus: og:url & canonical menunjuk /, robots.txt melarang /landing & /landing.html).
+- 5 guard lama (645/615/422/613/419) diperbarui mengikuti kebijakan baru 651; guard sitemap 620 diberi toleransi -1 hari (lastmod ditulis zona WIB, pagi UTC masih H-1 → false-fail).
+- Verifikasi: build vite sukses; vitest penuh 470 file — 4730 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/landing.html canonical=/, robots.txt live; probe e2e OK — 0 error, init_failed=false, 26 agen, shot 702944 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.

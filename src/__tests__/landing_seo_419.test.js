@@ -13,7 +13,8 @@ describe('siklus 419: SEO landing — heading order, canonical, robots.txt', () 
   });
 
   it('canonical link ada dan menunjuk origin produksi', () => {
-    expect(landing).toMatch(/<link rel="canonical" href="http:\/\/161\.120\.180\.21:9503\/landing\.html">/);
+    // Siklus 651: canonical menunjuk origin produksi root /
+    expect(landing).toMatch(/<link rel="canonical" href="http:\/\/161\.120\.180\.21:9503\/">/);
   });
 
   it('robots.txt ada di public/ dan dist ter-deploy, /app/ di-disallow', () => {

@@ -21,7 +21,9 @@ describe('landing sitemap/robots 620', () => {
     const d = new Date(`${m[1]}T00:00:00Z`);
     expect(Number.isNaN(d.getTime())).toBe(false);
     const diffDays = (Date.now() - d.getTime()) / 86400000;
-    expect(diffDays).toBeGreaterThanOrEqual(0);
+    // Siklus 651: lastmod ditulis dgn tanggal WIB (UTC+8) — di pagi hari
+    // UTC masih H-1, jadi toleransi -1 hari agar guard tidak false-fail.
+    expect(diffDays).toBeGreaterThanOrEqual(-1);
     expect(diffDays).toBeLessThan(30);
   });
 

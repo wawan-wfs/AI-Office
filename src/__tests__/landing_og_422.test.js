@@ -14,7 +14,8 @@ describe('siklus 422 — OG/Twitter absolute URL', () => {
   });
 
   it('og:url absolut', () => {
-    expect(src).toContain(`<meta property="og:url" content="${ORIGIN}/landing.html">`);
+    // Siklus 651: og:url landing menunjuk / (duplikat konten dari kanonik /)
+    expect(src).toContain(`<meta property="og:url" content="${ORIGIN}/">`);
   });
 
   it('og:locale id_ID dan twitter:image:alt ada', () => {
