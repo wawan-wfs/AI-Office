@@ -9102,3 +9102,11 @@
 - Guard baru src/__tests__/landing_skip_css_only_655.test.js (3 kasus: tanpa onFocus/onBlur, CSS fokus lengkap, dist paritas).
 - Verifikasi: build vite sukses; vitest penuh 474 file — 4742 pass + 6 skip, 0 fail; dist → ~/wfs-hq, live :9503/landing.html 0 kemunculan onFocus/onBlur; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 702159 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 06:50 WIB — Siklus 656: CTA dashboard landing tanpa inline handler
+
+- Temuan kualitas markup/CSP: CTA "Lihat Dashboard" di public/landing.html masih memakai inline `onclick` untuk menulis flag handshake `wfs_open_dashboard` — satu-satunya inline handler tersisa di landing (655 membersihkan skip-link).
+- public/landing.html: onclick dihapus → atribut `data-mark-dashboard`; penandaan flag dipindah ke blok script yang sudah ada via delegasi `document.addEventListener('click')` + `closest('a[data-mark-dashboard]')`, tetap try/catch anti-storage-rusak. Perilaku identik: klik → flag '1' → /app/#dashboard → takeOpenDashboardFlag() membuka Dashboard sekali.
+- Guard baru src/__tests__/landing_cta_no_inline_656.test.js (3 kasus: tanpa onclick di sumber, delegasi menulis key yang benar, dist paritas).
+- Verifikasi: build vite sukses; vitest penuh 475 file — 4745 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/landing.html 0 kemunculan onclick, 2 kemunculan data-mark-dashboard; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 690633 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.

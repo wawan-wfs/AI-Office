@@ -174,7 +174,7 @@
 
   <div class="cta">
     <a class="primary" href="/app/"><span aria-hidden="true" lang="id">🚀</span> Masuk Kantor 3D</a>
-    <a class="ghost" href="/app/#dashboard" onclick="try{localStorage.setItem('wfs_open_dashboard','1')}catch(e){}"><span aria-hidden="true" lang="id">📊</span> Lihat Dashboard</a>
+    <a class="ghost" href="/app/#dashboard" data-mark-dashboard><span aria-hidden="true" lang="id">📊</span> Lihat Dashboard</a>
   </div>
 
   <div class="stats">
@@ -249,6 +249,12 @@ fetch('/wfs-api/dashboard/stats').then(r=>r.json()).then(d=>{
     box.hidden=false;
   }
 }).catch(()=>{});
+// Siklus 656: tanda 'buka dashboard sekali' via delegasi event — tanpa inline handler.
+document.addEventListener('click', function(e){
+  var a = e.target.closest && e.target.closest('a[data-mark-dashboard]');
+  if (!a) return;
+  try { localStorage.setItem('wfs_open_dashboard','1'); } catch(err) {}
+});
 </script>
 <!-- Siklus 642: FAQPage JSON-LD — selaras konten FAQ -->
 <script type="application/ld+json">
