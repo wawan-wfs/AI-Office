@@ -9110,3 +9110,11 @@
 - Guard baru src/__tests__/landing_cta_no_inline_656.test.js (3 kasus: tanpa onclick di sumber, delegasi menulis key yang benar, dist paritas).
 - Verifikasi: build vite sukses; vitest penuh 475 file — 4745 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/landing.html 0 kemunculan onclick, 2 kemunculan data-mark-dashboard; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 690633 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 07:40 WIB — Siklus 657: guard og:image dims eksplisit (terakhir tanpa tes)
+
+- Audit meta sosial lanjutan (646): twitter:image:width/height sudah dikunci guard, tetapi og:image:width/height — dipakai WhatsApp/Telegram/Facebook untuk reserve rasio aspek kartu tanpa layout shift — belum punya guard vitest sama sekali (0 tes menyebut og:image:width); nilai bisa drift dari PNG nyata tanpa tes merah.
+- Guard baru src/__tests__/og_image_dims_657.test.js (4 kasus): og:image:width=1200 & height=630 ada tepat 1x di index.html & landing.html (regex toleran self-closing), urutan setelah og:image, dims meta == dims PNG nyata (IHDR 1200x630 via readUInt32BE, metode guard 608), dist ter-build paritas.
+- HTML produksi tidak diubah — meta sudah benar; guard ini mengunci kontraknya.
+- Verifikasi: build vite sukses; vitest penuh 476 file — 4749 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas live :9503/landing.html = dist byte-identik); audit head 23/23 PASS; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 680235 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
