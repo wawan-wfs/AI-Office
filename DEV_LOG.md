@@ -8969,3 +8969,10 @@
 - Guard baru src/__tests__/landing_task_progress_637.test.js (3 kasus: hidden default, fill/label live + clamp, total>0 & fetch tetap wfs-api).
 - Verifikasi: build vite sukses (built in 2.91s); vitest penuh 458 file — 4693 pass + 6 skip, 0 fail (595.58s); deploy dist → ~/wfs-hq (grep tprog=10 di :9503/landing.html); probe scripts/e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 683595 B + gate piksel (colors=10168, nonbg=0.992).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+## 19/11/2026 11:45 WIB — Siklus 639: landing hormati prefers-reduced-motion + glow dekoratif aria-hidden
+
+- A11y lanjutan 638: pengguna dengan preferensi reduced motion kini tidak melihat transisi width progress bar, transisi skip-link/hover, dan transform hover CTA (media query `prefers-reduced-motion: reduce` menonaktifkannya). Dua div .glow dekoratif (blur 90px) ditandai aria-hidden agar tak diekspos ke assistive tech.
+- Guard baru src/__tests__/landing_reduced_motion_639.test.js (3 kasus: media query + transition/transform none, glow aria-hidden, fitur 626-638 tetap utuh).
+- Verifikasi: build vite sukses (3.10s); vitest penuh 460 file — 4699 pass + 6 skip, 0 fail (596s; run pertama 2 fail flaky timing ShConsole, hijau saat rerun dan di run penuh berikutnya); deploy dist → ~/wfs-hq (:9503 serve prefers-reduced-motion, 2 kemunculan); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 686130 B, pixels colors=10173 nonbg=0.991.
+- Catatan: probe e2e pertama gagal (shot_bytes=0) karena dijalankan saat vitest penuh masih membebani mesin — rerun bersih OK; bukan regresi kode.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
