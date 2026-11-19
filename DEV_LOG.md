@@ -8990,3 +8990,11 @@
 - Guard baru `src/__tests__/landing_seo_641.test.js` (3 kasus: JSON-LD valid + publisher + SearchAction tetap ke '/' bukan /app/, og:image:alt ada, dist ter-deploy memuat keduanya).
 - Verifikasi: build vite sukses; vitest penuh 461 file — 4702 pass + 6 skip, 0 fail (644s); dist → ~/wfs-hq (:9503 serve publisher Organization + og:image:alt); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 679319 B, pixels colors=9987 nonbg=0.992.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 14:55 WIB — Siklus 642: og:image:type di landing + guard validasi PNG
+
+- SEO lanjutan 641: meta og:image sudah punya width/height/alt tapi belum `og:image:type` — sebagian crawler/preview butuh MIME eksplisit agar tidak menebak format dari ekstensi.
+- public/landing.html: tambah `<meta property="og:image:type" content="image/png">` tepat setelah og:image:alt (urutan tetap: og:image → width → height → alt → type → url).
+- Guard baru src/__tests__/landing_og_image_type_642.test.js (3 kasus: tag ada & urutan benar, public/og-image.png benar-benar PNG via magic bytes \x89PNG, dist ter-deploy memuat tag yang sama).
+- Verifikasi: build vite sukses; :9503/landing.html memuat og:image:type (1 kemunculan); vitest penuh 463 file — 4708 pass + 6 skip, 0 fail (620s); probe scripts/e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 682024 B, pixels colors=10153 nonbg=0.992 lum_std=69.7.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

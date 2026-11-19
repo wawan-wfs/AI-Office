@@ -20,6 +20,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="WFS Project HQ — Kantor AI 3D">
+<meta property="og:image:type" content="image/png">
 <meta property="og:url" content="http://161.120.180.21:9503/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="WFS Project HQ — Kantor AI 3D">
@@ -122,6 +123,10 @@
   .how { background:rgba(10,20,54,.5); border:1px solid rgba(77,159,255,.14); border-radius:16px; padding:22px; margin-bottom:7vh; }
   .how h2 { font-family:'Orbitron',sans-serif; font-size:17px; margin-bottom:14px; color:var(--ice); }
   .how ol { list-style:none; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; counter-reset:step; }
+  .how.faq .faq-item { margin-top:12px; }
+  .how.faq .faq-item:first-of-type { margin-top:0; }
+  .how.faq .faq-item p { margin:4px 0 0; color:var(--ice); opacity:.85; line-height:1.5; }
+  .how.faq .faq-item b { color:var(--royal); }
   .how li { counter-increment:step; font-size:12.5px; line-height:1.55; color:var(--ice); opacity:.85; padding-left:30px; position:relative; }
   .how li::before { content:counter(step); position:absolute; left:0; top:0; width:22px; height:22px; border-radius:50%; background:rgba(77,159,255,.16); color:var(--royal); font-weight:700; display:grid; place-items:center; font-size:12px; border:1px solid rgba(77,159,255,.4); }
   .how li b { color:#fff; display:block; margin-bottom:3px; font-size:13px; }
@@ -198,6 +203,15 @@
       <li><b>Hasil nyata</b> Source code + live preview siap diperiksa, diunduh, atau dilanjutkan.</li>
     </ol>
   </div>
+
+  <!-- Siklus 642: FAQ — jawaban visitor umum + SEO FAQPage -->
+  <div class="how faq">
+    <h2>FAQ</h2>
+    <div class="faq-item"><b>Apakah ini demo atau software beneran?</b><p>Beneran. Setiap task dieksekusi di sandbox Docker, dan hasilnya — source code, log, live preview — bisa dilihat langsung dari browser.</p></div>
+    <div class="faq-item"><b>Siapa yang mengerjakan task-nya?</b><p>26 agen AI di kantor virtual 3D, dibagi ke divisi backend, frontend, QA, integrator, dan lainnya — statusnya live di kanban.</p></div>
+    <div class="faq-item"><b>Bisa lihat prosesnya secara live?</b><p>Ya. Masuk ke Kantor 3D untuk melihat agen bergerak sesuai status task, atau buka dashboard kanban untuk progres per divisi.</p></div>
+    <div class="faq-item"><b>Bahasa apa yang dipakai untuk memberi instruksi?</b><p>Bahasa biasa (Indonesia/Inggris) lewat panel Task — agen yang merencanakan dan memecahnya jadi subtask.</p></div>
+  </div>
   </main>
 
   <footer>
@@ -227,6 +241,19 @@ fetch('/wfs-api/dashboard/stats').then(r=>r.json()).then(d=>{
     box.hidden=false;
   }
 }).catch(()=>{});
+</script>
+<!-- Siklus 642: FAQPage JSON-LD — selaras konten FAQ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Apakah ini demo atau software beneran?", "acceptedAnswer": {"@type": "Answer", "text": "Beneran. Setiap task dieksekusi di sandbox Docker, dan hasilnya — source code, log, live preview — bisa dilihat langsung dari browser."}},
+    {"@type": "Question", "name": "Siapa yang mengerjakan task-nya?", "acceptedAnswer": {"@type": "Answer", "text": "26 agen AI di kantor virtual 3D, dibagi ke divisi backend, frontend, QA, integrator, dan lainnya — statusnya live di kanban."}},
+    {"@type": "Question", "name": "Bisa lihat prosesnya secara live?", "acceptedAnswer": {"@type": "Answer", "text": "Ya. Masuk ke Kantor 3D untuk melihat agen bergerak sesuai status task, atau buka dashboard kanban untuk progres per divisi."}},
+    {"@type": "Question", "name": "Bahasa apa yang dipakai untuk memberi instruksi?", "acceptedAnswer": {"@type": "Answer", "text": "Bahasa biasa (Indonesia/Inggris) lewat panel Task — agen yang merencanakan dan memecahnya jadi subtask."}}
+  ]
+}
 </script>
 </body>
 </html>

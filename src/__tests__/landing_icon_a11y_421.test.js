@@ -28,8 +28,8 @@ describe('siklus 421: ikon landing diberi label a11y', () => {
     }
   });
 
-  it('tidak mengubah struktur lain (7 h2 tetap)', () => {
-    expect(src.match(/<h2>/g)?.length).toBe(7);
+  it('tidak mengubah struktur lain (8 h2: 6 fitur + Cara Kerja + FAQ)', () => {
+    expect(src.match(/<h2>/g)?.length).toBe(8);
     expect(src).toContain('application/ld+json');
   });
 });
