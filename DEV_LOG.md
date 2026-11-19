@@ -8956,3 +8956,11 @@
 - public/landing.html: grid desktop jadi repeat(5,1fr); mobile 2 kolom ditambah .stat:last-child:nth-child(odd){grid-column:span 2} agar 5 stat tidak menyisakan kartu yatim.
 - Guard baru src/__tests__/landing_stat_grid_636.test.js (3 kasus: grid 5 kolom, span-2 mobile, tepat 5 .stat).
 - Verifikasi: build vite sukses; vitest penuh 457 file — 4690 pass + 6 skip, 0 fail; dist → ~/wfs-hq (repeat(5,1fr) ter-serve di :9503); probe e2e_err.py tanpa 'Scene init failed'.
+
+## 19/11/2026 09:45 WIB — Siklus 637: progress bar task live di landing (16/17)
+
+- Lanjutan 635: angka "Task selesai" jadi stat, tapi visitor tak melihat progres secara keseluruhan. Ditambah bar progres tipis di bawah grid stats: fill width = tasks_completed/tasks_total, label "N dari M task selesai".
+- public/landing.html: blok .tprog (bar+label) default `hidden`; hanya tampil bila kedua angka nyata & tasks_total>0, dgn clamp 0..total (prinsip 632: tanpa angka karangan).
+- Guard baru src/__tests__/landing_task_progress_637.test.js (3 kasus: hidden default, fill/label live + clamp, total>0 & fetch tetap wfs-api).
+- Verifikasi: build vite sukses (built in 2.91s); vitest penuh 458 file — 4693 pass + 6 skip, 0 fail (595.58s); deploy dist → ~/wfs-hq (grep tprog=10 di :9503/landing.html); probe scripts/e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 683595 B + gate piksel (colors=10168, nonbg=0.992).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

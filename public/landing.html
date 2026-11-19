@@ -98,6 +98,10 @@
   .stat { background:rgba(13,26,64,.55); border:1px solid rgba(77,159,255,.18); border-radius:14px; padding:16px 14px; backdrop-filter:blur(8px); }
   .stat b { font-family:'Orbitron',sans-serif; font-size:clamp(20px,3.4vw,30px); display:block; color:var(--royal); }
   .stat span { font-size:11.5px; color:var(--ice); opacity:.8; text-transform:uppercase; letter-spacing:.8px; }
+  .tprog { margin:-4vh 0 7vh; }
+  .tprog-bar { height:6px; border-radius:999px; background:rgba(77,159,255,.14); overflow:hidden; }
+  .tprog-fill { height:100%; width:0; background:linear-gradient(90deg,var(--royal),#7fb3ff); border-radius:999px; transition:width .6s ease; }
+  .tprog-label { font-size:11px; color:var(--ice); opacity:.75; margin-top:6px; text-transform:uppercase; letter-spacing:.8px; }
   .features { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:7vh; }
   .feat { background:rgba(13,26,64,.45); border:1px solid rgba(77,159,255,.14); border-radius:14px; padding:18px 16px; }
   .feat .ic { font-size:22px; margin-bottom:9px; }
@@ -152,6 +156,11 @@
     <div class="stat"><b id="s-task">—</b><span>Task selesai</span></div>
   </div>
 
+  <div class="tprog" id="tprog" hidden>
+    <div class="tprog-bar"><div class="tprog-fill" id="tprog-fill"></div></div>
+    <div class="tprog-label" id="tprog-label"></div>
+  </div>
+
   <div class="features">
     <div class="feat"><div class="ic" role="img" aria-label="Kantor">🏢</div><h2>Kantor Virtual 3D Interaktif</h2><p>Kampus 3 lantai: tiap agen punya meja, bergerak lewat tangga, rapat, ngobrol — semua mengikuti status task nyata, bukan animasi palsu.</p></div>
     <div class="feat"><div class="ic" role="img" aria-label="Sandbox">⚙️</div><h2>Eksekusi Nyata di Sandbox</h2><p>Setiap task dieksekusi di container Docker terisolasi: source code, log, dan live preview bisa dibuka langsung dari browser.</p></div>
@@ -185,6 +194,16 @@ fetch('/wfs-api/dashboard/stats').then(r=>r.json()).then(d=>{
   const st=document.getElementById('s-task');
   if(el && d && typeof d.projects_total==='number') el.textContent=d.projects_total;
   if(st && d && typeof d.tasks_completed==='number') st.textContent=d.tasks_completed;
+  // Progres task: hanya tampil kalau kedua angka nyata & total > 0 (tanpa angka karangan).
+  const box=document.getElementById('tprog');
+  const fill=document.getElementById('tprog-fill');
+  const label=document.getElementById('tprog-label');
+  if(box && d && typeof d.tasks_completed==='number' && typeof d.tasks_total==='number' && d.tasks_total>0){
+    const done=Math.max(0,Math.min(d.tasks_completed,d.tasks_total));
+    fill.style.width=(done/d.tasks_total*100).toFixed(1)+'%';
+    label.textContent=done+' dari '+d.tasks_total+' task selesai';
+    box.hidden=false;
+  }
 }).catch(()=>{});
 </script>
 </body>
