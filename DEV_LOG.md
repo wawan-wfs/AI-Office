@@ -9050,3 +9050,11 @@
 - Audit pendukung: probe e2e desktop & mobile OK (0 error, init_failed=false, dock 23 tombol tidak terpotong), manifest.webmanifest dilayani 200, og-image.png benar 1200x630, gzip aktif (vendor-three 715KB jadi 180KB).
 - Verifikasi: build vite sukses (precache 48, 1789.83 KiB); vitest penuh 468 file — 4724 pass + 6 skip, 0 fail; dist -> ~/wfs-hq, probe scripts/e2e_err_probe.py OK — shot 693303 B, nonbg=0.991; git push gagal 'Repository not found' — akses GitHub wawanwfs/AI-Office (deploy key) perlu didaftarkan ulang user.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 01:35 WIB — Siklus 649: sitemap.xml lastmod diperbarui ke 2026-11-20
+
+- Audit SEO: public/sitemap.xml masih memuat lastmod=2026-11-19 (stale satu hari) meski konten root berubah tiap siklus — crawler dapat menganggap halaman tak berubah dan melewatkan re-crawl.
+- public/sitemap.xml: lastmod URL kanonik / diperbarui ke 2026-11-20; tidak ada perubahan struktur lain.
+- Guard baru src/__tests__/sitemap_lastmod_649.test.js (3 kasus: lastmod >= 2026-11-2x untuk URL root, tidak ada lastmod 2026-11-19 tersisa, dist/sitemap.xml identik dengan sumber).
+- Verifikasi: build vite sukses (1.61s); vitest guard baru 3/3 pass + suite landing/head/seo 9 file 35/35 pass; dist -> ~/wfs-hq, :9503/sitemap.xml live memuat lastmod 2026-11-20; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 694879 B, nonbg=0.991, hygiene refs 42 missing 0.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
