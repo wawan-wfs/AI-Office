@@ -8998,3 +8998,11 @@
 - Guard baru src/__tests__/landing_og_image_type_642.test.js (3 kasus: tag ada & urutan benar, public/og-image.png benar-benar PNG via magic bytes \x89PNG, dist ter-deploy memuat tag yang sama).
 - Verifikasi: build vite sukses; :9503/landing.html memuat og:image:type (1 kemunculan); vitest penuh 463 file — 4708 pass + 6 skip, 0 fail (620s); probe scripts/e2e_err_probe.py OK — 0 console/page error, init_failed=false, 26 agen hook, shot 682024 B, pixels colors=10153 nonbg=0.992 lum_std=69.7.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 16:55 WIB — Siklus 643: hapus og:image:alt duplikat di landing
+
+- Audit meta OG: ditemukan `og:image:alt` muncul 2× (baris og: group + setelah twitter:image:alt) — duplikat properti OG dapat membuat parser share-preview memilih nilai salah / flag "multiple og:image:alt".
+- public/landing.html: hapus duplikat; kini tepat 1× og:image:alt + 1× twitter:image:alt; urutan og:image → width → height → alt → type → url utuh.
+- Guard 641/642 tetap lulus (build dist: og:image:alt 1 kemunculan).
+- Verifikasi: build vite sukses; vitest penuh 463 file — 4708 pass + 6 skip, 0 fail; dist → ~/wfs-hq, :9503 serve 1× og:image:alt; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 684786 B, nonbg=0.992.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
