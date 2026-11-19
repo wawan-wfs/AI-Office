@@ -9040,3 +9040,13 @@
 - Verifikasi: build vite sukses (precache 48 entries, 1789.83 KiB); vitest suite landing/head/og/index 45/45 file lulus (168 pass, 2 skip); dist → ~/wfs-hq, curl :9503/ memuat 1 blok valid ld+json; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 698030 B, nonbg=0.991; verify_desks 26 agen ALL_DESKS_OK; git push mencatat 'Could not read from remote repository' (kunci deploy/repo akses GitHub wawanwfs/AI-Office perlu didaftarkan ulang user).
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
 
+
+
+## 20/11/2026 00:20 WIB — Siklus 648: fallback favicon PNG (browser tanpa dukung SVG) paritas index & landing
+
+- Audit head: kedua halaman hanya mendeklarasikan `<link rel="icon" type="image/svg+xml">` — browser lama tanpa dukungan SVG favicon (IE/Edge Legacy) mendapat favicon kosong/404 default.
+- index.html & public/landing.html: tambah `<link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">` tepat setelah ikon SVG (urutan cascade: SVG modern menang, PNG dipakai legacy). Tidak ada file baru — pakai icon-192.png yang sudah ada.
+- Guard baru src/__tests__/favicon_fallback_parity_648.test.js (3 kasus: svg+png+apple-touch di kedua sumber, urutan svg lalu png, dist ter-build memuat ketiganya).
+- Audit pendukung: probe e2e desktop & mobile OK (0 error, init_failed=false, dock 23 tombol tidak terpotong), manifest.webmanifest dilayani 200, og-image.png benar 1200x630, gzip aktif (vendor-three 715KB jadi 180KB).
+- Verifikasi: build vite sukses (precache 48, 1789.83 KiB); vitest penuh 468 file — 4724 pass + 6 skip, 0 fail; dist -> ~/wfs-hq, probe scripts/e2e_err_probe.py OK — shot 693303 B, nonbg=0.991; git push gagal 'Repository not found' — akses GitHub wawanwfs/AI-Office (deploy key) perlu didaftarkan ulang user.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
