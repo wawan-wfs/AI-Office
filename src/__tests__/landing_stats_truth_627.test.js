@@ -11,7 +11,7 @@ describe('landing stats truth 627', () => {
   });
 
   it('menampilkan jumlah divisi == TEAMS.length', () => {
-    expect(landing).toContain(`<b>${TEAMS.length}</b><span>Divisi tim kerja</span>`);
+    expect(landing).toContain(`<b lang="id">${TEAMS.length}</b><span lang="id">Divisi tim kerja</span>`);
     expect(TEAMS.length).toBe(6);
   });
 

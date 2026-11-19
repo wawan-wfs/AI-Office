@@ -13,7 +13,7 @@ describe('landing stat proyek (siklus 626+632+633)', () => {
     expect(landing).not.toContain('id="s-proj">1<')
   })
   it('fallback s-proj = em-dash (bukan angka saat fetch gagal)', () => {
-    expect(landing).toContain('id="s-proj">—<')
+    expect(landing).toContain('id="s-proj" lang="id">—<')
   })
   it('fetch stats menimpa angka live dari gateway task engine', () => {
     expect(landing).toContain("fetch('/wfs-api/dashboard/stats')")

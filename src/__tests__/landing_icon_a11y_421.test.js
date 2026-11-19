@@ -16,20 +16,20 @@ describe('siklus 421: ikon landing diberi label a11y', () => {
   });
 
   it('emoji di link CTA dibungkus aria-hidden', () => {
-    expect(src).toContain('<span aria-hidden="true">🚀</span>');
-    expect(src).toContain('<span aria-hidden="true">📊</span>');
+    expect(src).toContain('<span aria-hidden="true" lang="id">🚀</span>');
+    expect(src).toContain('<span aria-hidden="true" lang="id">📊</span>');
     expect(src).not.toMatch(/href="\/app\/">🚀/);
   });
 
   it('dist ter-deploy memuat label juga', () => {
     if (dist) {
       expect(dist.match(/role="img"/g)?.length).toBe(6);
-      expect(dist).toContain('aria-hidden="true">🚀');
+      expect(dist).toContain('aria-hidden="true" lang="id">🚀');
     }
   });
 
   it('tidak mengubah struktur lain (8 h2: 6 fitur + Cara Kerja + FAQ)', () => {
-    expect(src.match(/<h2>/g)?.length).toBe(8);
+    expect(src.match(/<h2 lang="id">/g)?.length).toBe(8);
     expect(src).toContain('application/ld+json');
   });
 });

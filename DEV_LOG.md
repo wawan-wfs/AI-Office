@@ -9085,3 +9085,12 @@
 - Guard baru src/__tests__/landing_semantic_sections_653.test.js (3 kasus: section+aria-label pengganti div, keseimbangan open/close tag, dist ter-build sama).
 - Verifikasi: build vite sukses (1.61s); vitest penuh 472 file — 4736 pass + 6 skip, 0 fail; parser HTML live :9503/landing.html → stack kosong, 0 mismatch, 7/7 section seimbang; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 698310 B, nonbg=0.991, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 05:45 WIB — Siklus 654: atribut lang I18N eksplisit di landing
+
+- Temuan a11y/I18N: landing hanya deklarasi `<html lang="id">`; screen reader memakai bahasa per-elemen — teks Inggris (copyright "Autonomous AI Software House") dan istilah campuran dibaca dengan fonem Indonesia yang salah.
+- public/landing.html: 30 elemen ber-teks diberi `lang="id"` eksplisit (h1/p/h2/h3/li/b/span/title); footer copyright `lang="en"`; `<section class="faq-item">` wrapper tanpa teks langsung tidak diberi lang (turunan dari anak). CSS & konten tak berubah → visual identik.
+- Guard baru src/__tests__/landing_i18n_lang_654.test.js (3 kasus: lang=id tetap di 4 file html, semua elemen ber-teks berlang, dist paritas).
+- 9 guard lama (414/421/626/627/628/635/639/642/652) diselaraskan ke pola atribut baru.
+- Verifikasi: build vite sukses (1.88s); vitest penuh 473 file — 4739 pass + 6 skip, 0 fail; dist → ~/wfs-hq, :9503/landing.html live 31 atribut lang; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 705659 B, nonbg=0.991, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.

@@ -20,7 +20,7 @@ describe('landing reduced-motion & decorative a11y (639)', () => {
     expect(html).toContain('role="progressbar"');
     expect(html).toContain('aria-labelledby="tprog-label"');
     expect(html).toContain('repeat(5,1fr)');
-    expect(html).toContain('s-proj">—');
-    expect(html).toContain('s-task">—');
+    expect(html).toContain('s-proj" lang="id">—');
+    expect(html).toContain('s-task" lang="id">—');
   });
 });

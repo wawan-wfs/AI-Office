@@ -25,7 +25,7 @@ describe('landing.html social preview meta (414)', () => {
   })
 
   test('og:title & twitter:title konsisten dengan <title>', () => {
-    const title = html.match(/<title>([^<]+)<\/title>/)?.[1]
+    const title = html.match(/<title(?: lang="id")?>([^<]+)<\/title>/)?.[1]
     expect(title).toBeTruthy()
     expect(html).toContain(`<meta property="og:title" content="${title}">`)
     expect(html).toContain(`<meta name="twitter:title" content="${title}">`)
