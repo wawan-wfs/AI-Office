@@ -9077,3 +9077,11 @@
 - Guard lama diselaraskan: landing_faq_642 (menghitung section/heading + paritas jawaban h3), landing_seo_419 (heading order: h3 kini valid di bawah h2 FAQ).
 - Verifikasi: build vite sukses; vitest penuh 471 file — 4733 pass + 6 skip, 0 fail; dist disalin ke ~/wfs-hq, :9503/landing.html menyajikan 4 faq-item heading semantik; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 697969 B, nonbg=0.991, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 05:05 WIB — Siklus 653: blok features & how/faq landing naik ke section semantik
+
+- Lanjutan a11y/SEO 652: grid fitur (`div.features` berisi 6 kartu h2), "Cara Kerja" (`div.how`), dan FAQ (`div.how.faq`) masih div polos — tanpa landmark: screen reader tidak bisa melompat antar bagian, outline dokumen hanya h1-h3 tanpa grouping semantik.
+- public/landing.html: ketiga blok jadi `<section aria-label="…">` (Fitur utama / Cara kerja / FAQ); tag penutup `</div>` sisa pada blok Cara Kerja dikoreksi jadi `</section>`; komentar HTML tidak lagi memuat literal tag agar regex guard akurat. CSS selector class tidak berubah → visual identik.
+- Guard baru src/__tests__/landing_semantic_sections_653.test.js (3 kasus: section+aria-label pengganti div, keseimbangan open/close tag, dist ter-build sama).
+- Verifikasi: build vite sukses (1.61s); vitest penuh 472 file — 4736 pass + 6 skip, 0 fail; parser HTML live :9503/landing.html → stack kosong, 0 mismatch, 7/7 section seimbang; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 698310 B, nonbg=0.991, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.

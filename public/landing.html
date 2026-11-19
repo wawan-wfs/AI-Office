@@ -190,16 +190,17 @@
     <div class="tprog-label" id="tprog-label"></div>
   </div>
 
-  <div class="features">
+  <!-- Siklus 653: features & how/faq naik ke elemen section semantik — outline dokumen & landmark screen reader -->
+  <section class="features" aria-label="Fitur utama">
     <div class="feat"><div class="ic" role="img" aria-label="Kantor">🏢</div><h2>Kantor Virtual 3D Interaktif</h2><p>Kampus 3 lantai: tiap agen punya meja, bergerak lewat tangga, rapat, ngobrol — semua mengikuti status task nyata, bukan animasi palsu.</p></div>
     <div class="feat"><div class="ic" role="img" aria-label="Sandbox">⚙️</div><h2>Eksekusi Nyata di Sandbox</h2><p>Setiap task dieksekusi di container Docker terisolasi: source code, log, dan live preview bisa dibuka langsung dari browser.</p></div>
     <div class="feat"><div class="ic" role="img" aria-label="Kanban">📊</div><h2>Dashboard & Kanban Live</h2><p>Papan kanban per divisi, statistik tim, resource host, dan log aktivitas — data nyata dari task engine, refresh otomatis.</p></div>
     <div class="feat"><div class="ic" role="img" aria-label="Chat CS">💬</div><h2>AI CS dibantuin</h2><p>Customer service AI yang bisa cek status order & menjawab pertanyaan produk — chat asli, bukan script.</p></div>
     <div class="feat"><div class="ic" role="img" aria-label="Preview">🖥️</div><h2>Live Preview Proyek</h2><p>Proyek yang selesai langsung bisa dilihat & dicoba via preview URL — hasil kerja agen bisa diverifikasi siapa pun.</p></div>
     <div class="feat"><div class="ic" role="img" aria-label="Malam">🌙</div><h2>Siklus Hari & Mode Malam</h2><p>Kantor hidup: lampu menyala saat malam, agen pulang-absen, suasana kantor berubah mengikuti jam.</p></div>
-  </div>
+  </section>
 
-  <div class="how">
+  <section class="how" aria-label="Cara kerja">
     <h2>Cara Kerja</h2>
     <ol>
       <li><b>Beri instruksi</b> Uraikan software yang mau dibangun lewat panel Task — bahasa biasa.</li>
@@ -207,10 +208,10 @@
       <li><b>Eksekusi &amp; pantau</b> Agen bekerja di sandbox Docker; progres live di kanban &amp; kantor 3D.</li>
       <li><b>Hasil nyata</b> Source code + live preview siap diperiksa, diunduh, atau dilanjutkan.</li>
     </ol>
-  </div>
+  </section>
 
   <!-- Siklus 642: FAQ — jawaban visitor umum + SEO FAQPage -->
-  <div class="how faq">
+  <section class="how faq" aria-label="FAQ">
     <h2>FAQ</h2>
     <!-- Siklus 652: pertanyaan FAQ naik ke heading semantik (dulu <b> tanpa struktur) —
          outline dokumen benar & screen reader menandai tiap pertanyaan; teks & JSON-LD tak berubah. -->
@@ -218,7 +219,7 @@
     <section class="faq-item"><h3>Siapa yang mengerjakan task-nya?</h3><p>26 agen AI di kantor virtual 3D, dibagi ke divisi backend, frontend, QA, integrator, dan lainnya — statusnya live di kanban.</p></section>
     <section class="faq-item"><h3>Bisa lihat prosesnya secara live?</h3><p>Ya. Masuk ke Kantor 3D untuk melihat agen bergerak sesuai status task, atau buka dashboard kanban untuk progres per divisi.</p></section>
     <section class="faq-item"><h3>Bahasa apa yang dipakai untuk memberi instruksi?</h3><p>Bahasa biasa (Indonesia/Inggris) lewat panel Task — agen yang merencanakan dan memecahnya jadi subtask.</p></section>
-  </div>
+  </section>
   </main>
 
   <footer>
