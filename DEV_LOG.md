@@ -8957,6 +8957,11 @@
 - Guard baru src/__tests__/landing_stat_grid_636.test.js (3 kasus: grid 5 kolom, span-2 mobile, tepat 5 .stat).
 - Verifikasi: build vite sukses; vitest penuh 457 file — 4690 pass + 6 skip, 0 fail; dist → ~/wfs-hq (repeat(5,1fr) ter-serve di :9503); probe e2e_err.py tanpa 'Scene init failed'.
 
+## 19/11/2026 10:35 WIB — Siklus 638: progress bar landing a11y (role progressbar + aria)
+
+- Lanjutan 637: bar tampil secara visual tapi screen reader tidak mendapat informasi progres. fill kini `role="progressbar"` + `aria-labelledby="tprog-label"`, dengan aria-valuemax/valuenow/valuetext diisi live saat fetch sukses (nilai default HTML 0, tersembunyi bila fetch gagal — konsisten prinsip 632).
+- Guard baru `src/__tests__/landing_tprog_a11y_638.test.js` (3 kasus: role+labelledby, set atribut live, default aria=0 & fetch tetap /wfs-api).
+- Verifikasi: build vite sukses (2.89s); vitest penuh 459 file — 4696 pass + 6 skip, 0 fail (605s); dist → ~/wfs-hq (:9503 serve role="progressbar" & aria-valuetext); probe scripts/e2e_err_probe.py OK (0 error, 26 agen, shot 681249 B).
 ## 19/11/2026 09:45 WIB — Siklus 637: progress bar task live di landing (16/17)
 
 - Lanjutan 635: angka "Task selesai" jadi stat, tapi visitor tak melihat progres secara keseluruhan. Ditambah bar progres tipis di bawah grid stats: fill width = tasks_completed/tasks_total, label "N dari M task selesai".

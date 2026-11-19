@@ -157,7 +157,7 @@
   </div>
 
   <div class="tprog" id="tprog" hidden>
-    <div class="tprog-bar"><div class="tprog-fill" id="tprog-fill"></div></div>
+    <div class="tprog-bar"><div class="tprog-fill" id="tprog-fill" role="progressbar" aria-labelledby="tprog-label" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div></div>
     <div class="tprog-label" id="tprog-label"></div>
   </div>
 
@@ -200,6 +200,9 @@ fetch('/wfs-api/dashboard/stats').then(r=>r.json()).then(d=>{
   const label=document.getElementById('tprog-label');
   if(box && d && typeof d.tasks_completed==='number' && typeof d.tasks_total==='number' && d.tasks_total>0){
     const done=Math.max(0,Math.min(d.tasks_completed,d.tasks_total));
+    fill.setAttribute('aria-valuemax',String(d.tasks_total));
+    fill.setAttribute('aria-valuenow',String(done));
+    fill.setAttribute('aria-valuetext',done+' dari '+d.tasks_total+' task selesai');
     fill.style.width=(done/d.tasks_total*100).toFixed(1)+'%';
     label.textContent=done+' dari '+d.tasks_total+' task selesai';
     box.hidden=false;
