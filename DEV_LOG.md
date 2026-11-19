@@ -9006,3 +9006,11 @@
 - Guard 641/642 tetap lulus (build dist: og:image:alt 1 kemunculan).
 - Verifikasi: build vite sukses; vitest penuh 463 file — 4708 pass + 6 skip, 0 fail; dist → ~/wfs-hq, :9503 serve 1× og:image:alt; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 684786 B, nonbg=0.992.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 17:55 WIB — Siklus 644: og:image:type paritas di index.html (app shell)
+
+- Audit paritas meta OG: index.html (app shell) belum punya `og:image:type` (sudah ada di landing sejak 642) — preview crawler halaman /app menebak MIME dari ekstensi.
+- index.html: tambah `<meta property="og:image:type" content="image/png">` setelah og:image:alt; kini set meta OG/twitter identik persis antara index & landing (divalidasi guard).
+- Guard baru src/__tests__/og_image_type_parity_644.test.js (3 kasus: tag ada + urutan + tanpa duplikat di index, paritas nama meta index==landing, dist kedua halaman memuat tag).
+- Verifikasi: build vite sukses; vitest penuh 464 file — 4712 pass + 6 skip, 0 fail; dist → ~/wfs-hq, :9503 memuat og:image:type di / (1 kemunculan); probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 691638 B, nonbg=0.992.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.

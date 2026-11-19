@@ -15,6 +15,16 @@ describe('landing sitemap/robots 620', () => {
     expect(sm).not.toContain('landing.html');
   });
 
+  it('sitemap punya lastmod format W3C (YYYY-MM-DD), tidak basi', () => {
+    const m = sm.match(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/);
+    expect(m).toBeTruthy();
+    const d = new Date(`${m[1]}T00:00:00Z`);
+    expect(Number.isNaN(d.getTime())).toBe(false);
+    const diffDays = (Date.now() - d.getTime()) / 86400000;
+    expect(diffDays).toBeGreaterThanOrEqual(0);
+    expect(diffDays).toBeLessThan(30);
+  });
+
   it('robots.txt memblokir /landing.html', () => {
     expect(rb).toMatch(/Disallow:\s*\/landing\.html/);
   });
