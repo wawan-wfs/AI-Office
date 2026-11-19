@@ -9031,3 +9031,12 @@
 - Guard baru `src/__tests__/twitter_image_dims_646.test.js` (3 kasus: index memuat width/height dan urutan benar, paritas nama meta twitter index==landing, dist ter-build memuat tag di kedua halaman).
 - Verifikasi: build vite sukses; vitest unit 9/9 lulus (64 pass), landing/head suite 37/37 file lulus (136 pass); dist → ~/wfs-hq, :9503 live; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 695749 B, nonbg=0.991.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (d) keputusan omniroute.
+
+## 19/11/2026 22:15 WIB — Siklus 647: JSON-LD WebSite & Organization structured data paritas di index.html
+
+- Audit SEO root kanonik (lanjutan 645/646): public/landing.html telah memiliki structured data Schema.org WebSite & Organization (siklus 420/640), namun index.html (halaman root kanonik `/` yang di-Allow crawler robots.txt) belum memiliki script JSON-LD sama sekali — crawler search engine (Googlebot, Bingbot) yang mematuhi robots.txt kehilangan rich snippet WebSite, Organization, dan SearchAction pada root domain.
+- index.html: tambahkan blok `<script type="application/ld+json">` Schema.org WebSite lengkap dengan name ("WFS Project HQ"), url kanonik (`http://161.120.180.21:9503/`), description, inLanguage ("id"), publisher Organization ("WFS Project" + icon-512.png 512×512), dan potentialAction SearchAction.
+- Guard baru `src/__tests__/index_jsonld_parity_647.test.js` (3 kasus: index memuat WebSite JSON-LD valid di head, paritas penuh properti WebSite index vs landing, dist ter-build memuat WebSite JSON-LD).
+- Verifikasi: build vite sukses (precache 48 entries, 1789.83 KiB); vitest suite landing/head/og/index 45/45 file lulus (168 pass, 2 skip); dist → ~/wfs-hq, curl :9503/ memuat 1 blok valid ld+json; probe scripts/e2e_err_probe.py OK — 0 error, init_failed=false, 26 agen hook, shot 698030 B, nonbg=0.991; verify_desks 26 agen ALL_DESKS_OK; git push mencatat 'Could not read from remote repository' (kunci deploy/repo akses GitHub wawanwfs/AI-Office perlu didaftarkan ulang user).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+

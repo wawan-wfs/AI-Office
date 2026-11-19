@@ -57,6 +57,35 @@
          bundle produksi (dist/assets/index-*.css + src/index.css), bukan fonts.css.
          Sebelumnya 2 dari 3 preload basi (yMJRMIl & aFTR7PB1 tak pernah dipakai app). -->
     <link rel="stylesheet" href="/fonts/fonts.css" />
+
+    <!-- Siklus 647: JSON-LD WebSite structured data — paritas dgn landing.html
+         (crawler ke root / mendapatkan Schema.org WebSite, Organization, dan SearchAction) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "WFS Project HQ",
+      "url": "http://161.120.180.21:9503/",
+      "description": "Kantor virtual 3D WFS Project: tim agen AI membangun software nyata. Live preview, kanban nyata, chat AI CS.",
+      "inLanguage": "id",
+      "publisher": {
+        "@type": "Organization",
+        "name": "WFS Project",
+        "url": "http://161.120.180.21:9503/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "http://161.120.180.21:9503/icon-512.png",
+          "width": 512,
+          "height": 512
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "http://161.120.180.21:9503/#dashboard",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
