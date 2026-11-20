@@ -9240,3 +9240,13 @@
 - Verifikasi: build vite sukses (0 .map di root dist); vitest penuh 487 file — 4793 pass + 6 skip, 0 fail; deploy.py publish OK, :9503 200; probe e2e OK — 0 console error, init_failed=false, 26 agen hook, shot 695537 B, nonbg=0.991, hygiene 39 refs 0 missing.
 - Kendala: git push tetap gagal ("Repository not found") — repo GitHub wawanwfs/AI-Office tidak terjangkau; 25 commit lokal menunggu push.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) repo AI-Office GitHub tidak ditemukan; (d) keputusan omniroute.
+
+## 20/11/2026 22:55 WIB — Siklus 673: kompresi brotli > gzip — bundle 8.9% lebih kecil
+
+- Audit transfer produksi :9503: seluruh aset & shell sudah di-gzip on-the-fly (level 6), TAPI hanya gzip — browser modern mengirim Accept-Encoding: br dan layanan tak pernah menjawab brotli. Benchmark 17 aset produksi: gzip6 421.8 KB → brotli9 384.4 KB (hemat 37.5 KB, 8.9%); vendor-three 180→161 KB, OfficeScene 74→62 KB.
+- backend/static_serve.py: helper baru `_encode_payload(data, ae)` — brotli q9 bila client menerima 'br' & lebih kecil dari raw; fallback maybe_gzip tanpa brotli; ImportError ditangkap (runtime tanpa binding tetap gzip). backend_live/wfs_hq_server.py: 3 titik kirim (_emit_static_response, _serve_html_file shell, _loopback_html_proxy) memakai helper satu sumber; header Content-Encoding kini dinamis (br/gzip), Vary tetap.
+- Deploy: server.py + static_serve.py disalin ke ~/wfs-hq, wfs-hq direstart; verifikasi live: aset 'br' 160665 B vs gzip 180163 B vs identity 715389 B; shell / 'br' 1804 B; gzip-only client tetap gzip; identity utuh; 304 ETag & smoke apply 13/13 OK.
+- Guard: backend/test_encode_payload_673.py (6 kasus unittest) + src/__tests__/brotli_encoding_673.test.js (3 kasus); guard 223 & 434 disinkron (_encode_payload, header enc); drift-gate 206/210/212 kembali hijau pasca-deploy.
+- Verifikasi: build vite sukses (precache 45, 0 .map root); vitest penuh 488 file — 4797 pass + 6 skip, 0 fail; unittest backend inti 22 OK; probe e2e OK — 0 console error, init_failed=false, 26 agen hook, shot 694986 B, nonbg=0.991, hygiene 39 refs 0 missing.
+- Kendala: git push tetap gagal ("Repository not found") — repo GitHub wawanwfs/AI-Office tidak terjangkau; 26 commit lokal menunggu push.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) repo AI-Office GitHub tidak ditemukan; (d) keputusan omniroute.

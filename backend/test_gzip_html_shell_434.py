@@ -39,11 +39,10 @@ class GzipHtmlShell(unittest.TestCase):
     def test_server_handlers_call_gzip_html(self):
         src = open(os.path.join(os.path.dirname(__file__), "..",
                                 "backend_live", "wfs_hq_server.py")).read()
-        # /admin, /cs-widget, _serve_head_html, _serve_html_file, wfs_api_service
-        # (Siklus 462: cabang /admin & /cs-widget delegasi ke _loopback_html_proxy
-        # — count turun 3→2, satu panggilan gzip_html di helper HTML).
-        self.assertEqual(src.count("gzip_html("), 2)
-        self.assertEqual(src.count('send_header("Content-Encoding", "gzip")'),
+        # Siklus 673: handler kini memanggil _encode_payload (brotli > gzip);
+        # kontrak inti tetap: titik kirim HTML proxy delegasi ke satu helper.
+        self.assertEqual(src.count("_encode_payload("), 3)
+        self.assertEqual(src.count('send_header("Content-Encoding", enc)'),
                          src.count('send_header("Vary", "Accept-Encoding")'))
 
 

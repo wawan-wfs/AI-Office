@@ -386,13 +386,13 @@ def _emit_static_response(handler, path, head_only, allow_304=True):
                 handler.send_header("Last-Modified", last_mod)
                 handler.end_headers()  # 304 TANPA body (kontrak HTTP/1.1)
                 return True
-        data, gz = static_serve.maybe_gzip(
-            data, handler.path, handler.headers.get("Accept-Encoding", ""))
+        data, enc = static_serve._encode_payload(
+            data, handler.headers.get("Accept-Encoding", ""))
         handler._wfs_cc = static_serve.cache_control_for(handler.path)
         handler.send_response(200)
         ctype = handler.guess_type(path) or "application/octet-stream"
-        if gz:
-            handler.send_header("Content-Encoding", "gzip")
+        if enc:
+            handler.send_header("Content-Encoding", enc)
             handler.send_header("Vary", "Accept-Encoding")
         handler.send_header("Content-Type", ctype)
         handler.send_header("Content-Length", str(len(data)))
@@ -705,13 +705,13 @@ class H(http.server.SimpleHTTPRequestHandler):
             data = open(fname, "rb").read()
             if inject:
                 data = self._inject_token(data)
-            data, gz = static_serve.gzip_html(
+            data, enc = static_serve._encode_payload(
                 data, self.headers.get("Accept-Encoding", ""))
             self._wfs_cc = "no-store"
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
-            if gz:
-                self.send_header("Content-Encoding", "gzip")
+            if enc:
+                self.send_header("Content-Encoding", enc)
                 self.send_header("Vary", "Accept-Encoding")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
@@ -883,14 +883,14 @@ class H(http.server.SimpleHTTPRequestHandler):
             r = conn.getresponse()
             data = r.read()
             conn.close()
-            data, gz = static_serve.gzip_html(
+            data, enc = static_serve._encode_payload(
                 data, self.headers.get("Accept-Encoding", ""))
             self.send_response(r.status)
             self.send_header("Content-Type",
                              r.getheader("Content-Type", "text/html"))
             self._wfs_cc = "no-store"  # Siklus 444: hindari Cache-Control ganda
-            if gz:
-                self.send_header("Content-Encoding", "gzip")
+            if enc:
+                self.send_header("Content-Encoding", enc)
                 self.send_header("Vary", "Accept-Encoding")
             for _hn in ("ETag", "Last-Modified", "Set-Cookie"):
                 _hv = r.getheader(_hn)

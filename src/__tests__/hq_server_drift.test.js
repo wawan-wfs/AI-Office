@@ -111,7 +111,9 @@ describe('drift-gate server produksi wfs-hq (siklus 206)', () => {
     expect(s).toContain('def _serve_head_static(self):')
     expect(s).toContain('if self._serve_head_static():')
     // cache policy + kompresi konsisten GET (bukan no-store + CL mentah stdlib).
-    expect(s).toContain('static_serve.maybe_gzip(')
+    // Siklus 673: kompresi via _encode_payload (brotli > gzip) — maybe_gzip
+    // tetap ada di static_serve sebagai jalur fallback tanpa brotli.
+    expect(s).toContain('static_serve._encode_payload(')
     expect(s.match(/_serve_head_static/g)?.length).toBeGreaterThanOrEqual(3)
   })
 
