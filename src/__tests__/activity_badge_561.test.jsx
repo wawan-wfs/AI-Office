@@ -6,7 +6,10 @@
 import React from 'react'
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, cleanup, act } from '@testing-library/react'
-import { ActivityBadge, useUnreadActivity, activityMarkSeen, activityClearAll, activitySeenIds, SEEN_KEY } from '../components/ActivityBadge'
+import { ActivityBadge, useUnreadActivity } from '../components/ActivityBadge'
+// Siklus 670: helper set seen pindah ke lib/activity_seen.js (bukan lagi
+// di-reexport komponen — react-refresh bersih).
+import { activityMarkSeen, activityClearAll, activitySeenIds, SEEN_KEY } from '../lib/activity_seen.js'
 
 afterEach(() => { cleanup(); localStorage.clear(); document.body.innerHTML = '' })
 

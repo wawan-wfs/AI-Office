@@ -23,7 +23,7 @@ describe('glassShimmer (siklus 520)', () => {
   it('kontrak puncak/lembah eksak via rumus', () => {
     const twoPi = Math.PI * 2;
     // puncak: sin & cos = 1 → w = 0.5+0.5*1 = 1 → mult = 0.13/0.18 + 0.10/0.18*1
-    const tPeak = GLASS_SHIMMER_SEC * 0.25; // sin(2π·t/T)=1 di t=T/4
+    const _T_PEAK = GLASS_SHIMMER_SEC * 0.25; // sin(2π·t/T)=1 di t=T/4 (dokumentasi rumus)
     const phase = (Math.sin(0 * 43758.5453) * 0.5 + 0.5) * twoPi; // i=0 → hash 0.5
     expect(phase).toBeCloseTo(twoPi / 2, 12);
     // cari t yang membuat sin-utama + fase tepat 1: t = T*(0.25 - phase/twoPi)

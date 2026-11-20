@@ -13,7 +13,7 @@ export function createDecor(ctx) {
   // dari OfficeScene saat posterSloganIdx berubah) — kanvas + tekstur diekspos.
   const POSTER_BASE = [['SHIP IT', '#F59E0B', 3.0], ['CODE\nCOFFEE', '#F472B6', 5.2]];
   const posterCanvases = [];
-  const posterMeshes = POSTER_BASE.map(([txt, col, x], pi) => {
+  const posterMeshes = POSTER_BASE.map(([txt, col, x]) => {
     const pc = document.createElement('canvas'); pc.width = 256; pc.height = 340;
     drawPoster(pc.getContext('2d'), col, txt); // painter (ctx, color, text) — dulu arg tertukar (bug visual poster lounge)
     const pTex = uiTexture(new THREE.CanvasTexture(pc));

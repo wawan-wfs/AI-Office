@@ -13,54 +13,27 @@
 // cap 200). Item log punya id task unik; pushLog selalu mengirim id, item
 // tanpa id dihitung unread agar tidak hilang diam-diam.
 import React, { useState, useEffect, useRef } from 'react'
-import { loadActivityLog, ACTIVITY_LOG_MAX } from '../lib/storage_prefs.js'
+import { loadActivityLog } from '../lib/storage_prefs.js'
+// Siklus 670: set seen pindah ke lib/activity_seen.js — file komponen kini
+// hanya eksport ActivityBadge + useUnreadActivity (react-refresh bersih).
+import { activityMarkSeen, activitySeenIds } from '../lib/activity_seen.js'
 
-export const SEEN_KEY = 'wfs_activity_seen'
-const SEEN_CAP = 200 // >> ACTIVITY_LOG_MAX(50) — ruang geser aman
-
-const loadSeen = () => {
-  try {
-    const raw = localStorage.getItem(SEEN_KEY)
-    const arr = raw ? JSON.parse(raw) : []
-    return Array.isArray(arr) ? arr.filter(x => typeof x === 'string' || typeof x === 'number') : []
-  } catch { return [] }
-}
-
-const saveSeen = (ids) => {
-  try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids.slice(-SEEN_CAP))) } catch { /* abaikan */ }
-}
-
-const markSeen = () => {
-  const seen = new Set(loadSeen())
-  loadActivityLog().forEach(x => { if (x && x.id !== undefined && x.id !== null) seen.add(String(x.id)) })
-  saveSeen([...seen])
-}
-
-export const activityMarkSeen = markSeen
-export const activitySeenIds = loadSeen
-
-// Siklus 565: bersihkan log & set seen sekaligus — "Bersihkan" di dialog Log
-// sebelumnya hanya menghapus 'wfs_activity', set seen dibiarkan menumpuk
-// sampai cap 200 (ID task lama tak pernah terpakai lagi).
-export const activityClearAll = () => {
-  saveSeen([])
-  try {
-    if (typeof localStorage !== 'undefined') localStorage.removeItem('wfs_activity')
-  } catch { /* abaikan */ }
-}
-
+// eslint-disable-next-line react-refresh/only-export-components -- hook, bukan komponen; dipakai App.jsx (bukan hot-reload kritis)
 export function useUnreadActivity(open) {
   const [count, setCount] = useState(0)
+  // Siklus 670: ref ditulis di effect (bukan saat render) — react-hooks/refs
+  // melarang akses/penulisan ref selama render; perilaku tetap: listener
+  // sekali-mount membaca status dialog TERBARU.
   const openRef = useRef(open)
-  openRef.current = open
+  useEffect(() => { openRef.current = open }, [open])
   useEffect(() => {
     const compute = () => {
       // Siklus 564: dialog Log terbuka → semua item terlihat user; tandai seen
       // & sembunyikan badge (sebelumnya badge tetap muncul utk item yang baru
       // masuk SELAGI dialog terbuka, dan item itu tak pernah di-mark seen).
-      if (openRef.current) { markSeen(); setCount(0); return }
+      if (openRef.current) { activityMarkSeen(); setCount(0); return }
       try {
-        const seen = new Set(loadSeen())
+        const seen = new Set(activitySeenIds())
         const unread = loadActivityLog().filter(x => !x || x.id === undefined || x.id === null || !seen.has(String(x.id)))
         setCount(Math.min(unread.length, 9))
       } catch { setCount(0) }
@@ -75,7 +48,8 @@ export function useUnreadActivity(open) {
   }, [])
 
   useEffect(() => {
-    if (open) { markSeen(); setCount(0) }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset badge saat dialog dibuka; sengaja sinkron
+    if (open) { activityMarkSeen(); setCount(0) }
   }, [open])
 
   return count

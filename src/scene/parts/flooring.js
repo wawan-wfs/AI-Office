@@ -1,7 +1,7 @@
 // Lantai zona & label area — ditulis ulang dari data tabel.
 import { L1_Y, L2_Y, L3_Y, floorOf } from './floor_elevation.js';
 import { ZONES, zoneLabelY, zoneLabelScale } from './floor_zones.js';
-import { drawZoneLabel, drawZoneLive, ZL_BG, ZL_BORDER } from './zone_label_canvas.js';
+import { drawZoneLabel, ZL_BG, ZL_BORDER } from './zone_label_canvas.js';
 import { uiTexture, uiMaterial } from './ui_colorspace.js';
 
 // Auto-shrink font label zona: mulai 44px, turun 2px per langkah sampai teks

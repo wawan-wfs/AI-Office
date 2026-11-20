@@ -20,7 +20,10 @@ import TaskModal from './components/TaskModal'
 import ConfirmModal from './components/ConfirmModal'
 import ProjectPanel from './components/ProjectPanel'
 import ActivityLog from './components/ActivityLog'
-import { useUnreadActivity, activityMarkSeen, activityClearAll, ActivityBadge } from './components/ActivityBadge'
+// Siklus 670: helper set seen pindah ke lib/activity_seen.js (ActivityBadge.jsx
+// kini hanya eksport komponen + hook, agar react-refresh/only-export-components bersih).
+import { useUnreadActivity, ActivityBadge } from './components/ActivityBadge'
+import { activityMarkSeen, activityClearAll } from './lib/activity_seen.js'
 import AgentInspector from './components/AgentInspector'
 // Siklus 190: ShConsole (38K) & SettingsModal (22K) kini lazy + mount-on-demand
 // juga — komponen modal POLLED (show via prop dari App-state, BUKAN CustomEvent)

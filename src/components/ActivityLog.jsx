@@ -24,6 +24,10 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
   const onAskRef = useRef(onAsk)
   const [copied, setCopied] = useState(false)
   useEffect(() => { onCloseRef.current = onClose; onClearRef.current = onClear; onAskRef.current = onAsk })
+  // Siklus 670: reset "Tersalin" saat dialog (re)terbuka — setState di effect
+  // disengaja (sinkronisasi state UI dgn prop show); dinonaktifkan di rule baru
+  // react-hooks/set-state-in-effect.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { if (show) setCopied(false) }, [show])
   const closeLog = useCallback(() => onCloseRef.current(), [])
   useDialogA11y({ open: show, onClose: closeLog, ref: box })

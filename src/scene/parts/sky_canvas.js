@@ -31,7 +31,7 @@ export function drawSky(x, elapsed = 0) {
   sun.addColorStop(0, 'rgba(255,250,220,0.95)');sun.addColorStop(1, 'rgba(255,250,220,0)');
   x.fillStyle = sun;x.fillRect(0, 0, 256, 128);
   x.fillStyle = 'rgba(255,255,255,0.85)';
-  SKY_CLOUDS.forEach(([cx, cy, cw, ch], i) => {
+  SKY_CLOUDS.forEach(([, cy, cw, ch], i) => {
     x.beginPath();x.ellipse(cloudOffset(i, elapsed), cy, cw / 2, ch / 2, 0, 0, 7);x.fill();
   });
 }
