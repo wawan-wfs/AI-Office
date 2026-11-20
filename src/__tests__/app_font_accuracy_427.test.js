@@ -16,9 +16,12 @@ describe('siklus 427 — preload font app cocok dengan font yang benar-benar dir
   // URL font yang benar-benar dipakai bundle produksi + @font-face src/index.css
   // (Orbitron diload terpisah dari index.css, bukan bundle landing)
   const appCss = read('src/index.css')
+  const fontsCss = read('public/fonts/fonts.css')
   const usedUrls = [
     ...distCss.matchAll(/url\((\/fonts\/[^)]+\.woff2)\)/g),
     ...appCss.matchAll(/url\('(\/fonts\/[^)]+\.woff2)'\)/g),
+    // siklus 665: fonts.css juga sumber @font-face sah (DM Mono 500 latin kini preload)
+    ...fontsCss.matchAll(/url\((\/fonts\/[^)]+\.woff2)\)/g),
   ].map((m) => m[1])
 
   it('setiap preload woff2 di dist direferensikan oleh @font-face produksi (tidak ada preload basi)', () => {

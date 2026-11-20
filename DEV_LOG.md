@@ -9172,3 +9172,12 @@
 - Guard baru src/__tests__/dmmono500_face_664.test.js (4 kasus: 13 blok, 2 face 500, file ada di public, paritas dist). Guard 661 disinkron (11→13 blok).
 - Verifikasi: build vite sukses; npm test penuh 480 file — 4765 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css 13 blok, woff2 500 dilayani 200; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 667369 B, nonbg=0.991, hygiene 44 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 13:35 WIB — Siklus 665: preload font dialihkan ke DM Mono 500 (bukan 400 basi)
+
+- Kelanjutan audit font 664: preload DM Mono di index.html & landing.html masih menunjuk file Regular 400 (aFTU7PB1…thqQBA) padahal seluruh teks mono berat 500/600/700 kini dirender face Medium (dmmono-500-latin, siklus 664) — preload font yang tidak pernah dipakai render berat = download ganda & font-swap salah glyph.
+- index.html & public/landing.html: preload DM Mono diganti ke /fonts/dmmono-500-latin.woff2 (face 500 latin).
+- Guard 427 diperluas: fonts.css ikut dihitung sumber @font-face sah (sebelumnya hanya bundle app + index.css, preload 500 baru dianggap "basi" palsu).
+- Guard baru src/__tests__/dmmono500_preload_665.test.js (4 kasus: 0 preload 400 basi, tag preload 500 paritas di kedua halaman, file ada di public+dist, URL direferensikan fonts.css).
+- Verifikasi: build vite sukses; vitest penuh 481 file — 4769 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 OK); live :9503 kedua halaman menyajikan preload dmmono-500-latin & woff2 200; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 678188 B, nonbg=0.992, hygiene 44 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
