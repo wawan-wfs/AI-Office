@@ -1,8 +1,13 @@
-/* Orbitron di-selfhost (latin, digits lengkap) */
+/* Orbitron di-selfhost (latin, digits lengkap) — SIKLUS 662: file ini VARIABLE
+   font (fvar wght 400-900, verifikasi fontTools) dan byte-identik dgn
+   yMJRMIl…woff2 yang tadinya juga dideklarasikan di fonts.css (duplikat @font-face
+   dgn rentang berbeda 400 700 vs 400 900 — CSS terakhir menang). Deklarasi tunggal
+   kini di sini (preload index.html mengarah ke file ini); axis dibuka 400 900.
+   yMJRMIl dihapus dari fonts.css (11 blok); guard 425/427/428/618/661 disinkron. */
 @font-face {
   font-family: 'Orbitron';
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 400 900;
   font-display: swap;
   src: url('/fonts/orbitron-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF;

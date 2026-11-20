@@ -9148,3 +9148,11 @@
 - Guard baru src/__tests__/dmsans_variable_660.test.js (4 kasus: tepat 2 face DM Sans normal dgn font-weight:100 1000, tidak ada face statis 300/400/500 tersisa, URL file sama dgn preload landing/index, dist paritas).
 - Verifikasi: build vite sukses; vitest penuh 477 file — 4753 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css menyajikan 2 face variable; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 678402 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 11:24 WIB — Siklus 662: duplikat @font-face Orbitron dihapus (deklarasi tunggal, axis penuh)
+
+- Kelanjutan audit font 660/661: yMJRMIl…woff2 di fonts.css dan orbitron-latin.woff2 di index.css ternyata BYTE-IDENTIK (md5 sama, keduanya variable fvar wght 400-900 via fontTools) — Orbitron dideklarasikan 2× dgn rentang berbeda (400 700 di index.css vs 400 900 di fonts.css); stylesheet fonts.css load terakhir menang, tapi rentang index.css 400 700 berpotensi membatasi 800/900 tergantung urutan load.
+- fonts.css: face Orbitron yMJRMIl dihapus → 12→11 blok @font-face; file yMJRMIl…woff2 dihapus dari dist (public tetap sebagai salinan preload — orbitron-latin.woff2, byte identik). src/index.css: rentang Orbitron 400 700 → 400 900 (axis variable penuh). Deklarasi Orbitron kini tunggal di index.css, sejalan dgn preload index.html.
+- Guard 661 disinkron: fonts.css 11 blok tanpa yMJRMIl, Orbitron 0 face di fonts.css + face `font-family:Orbitron…font-weight:400 900` diverifikasi ada di bundle dist/assets/index-*.css.
+- Verifikasi: build vite sukses; vitest penuh 478 file — 4757 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css 11 blok, 0 referensi yMJRMIl; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 676747 B, nonbg=0.991, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
