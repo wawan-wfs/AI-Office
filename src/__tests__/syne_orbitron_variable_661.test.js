@@ -12,7 +12,7 @@ const fam = (b) => (b.match(/font-family:\s*'([^']+)'/) || [])[1];
 // orbitron-latin.woff2 yang dideklarasikan di src/index.css dgn axis penuh 400 900)
 // — tidak ada lagi duplikat @font-face dgn rentang berbeda.
 it('fonts.css kini 11 blok @font-face (664: 13 + siklus 666: -2 face DM Mono 300 basi)', () => {
-  expect(blocks.length).toBe(11);
+  expect(blocks.length).toBe(9);
   expect(css).not.toContain('yMJRMIlzdpvBhQQL_Qq7dy0.woff2');
 });
 
@@ -43,7 +43,7 @@ it('dist ter-build paritas: 11 blok fonts.css + face Orbitron 400 900 di bundle 
     return; // dist belum dibangun di lingkungan CI murni
   }
   expect(dist.match(/font-weight:\s*400 800/g)?.length).toBe(3);
-  expect(dist.match(/@font-face/g)?.length).toBe(11);
+  expect(dist.match(/@font-face/g)?.length).toBe(9);
   expect(dist).not.toContain('yMJRMIlzdpvBhQQL_Qq7dy0.woff2');
   // Orbitron kini di bundle assets css (dari src/index.css), axis penuh 400 900
   const assets = readdirSync(resolve(root, 'dist/assets')).filter((f) => f.endsWith('.css'));

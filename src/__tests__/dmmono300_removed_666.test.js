@@ -10,8 +10,8 @@ const css = readFileSync(new URL('../../public/fonts/fonts.css', import.meta.url
 const faces = (t) => t.match(/@font-face\s*\{[^}]*\}/g) ?? [];
 const dmmono = faces(css).filter((f) => f.includes("'DM Mono'"));
 
-it('fonts.css kini 11 blok @font-face (13 - 2 face DM Mono 300)', () => {
-  expect(faces(css).length).toBe(11);
+it('fonts.css kini 9 blok @font-face (13 - 2 face DM Mono 300 - 2 face DM Sans italic 667)', () => {
+  expect(faces(css).length).toBe(9);
 });
 
 it('tidak ada face DM Mono 300 tersisa; URL aFTR7PB1 dihapus', () => {

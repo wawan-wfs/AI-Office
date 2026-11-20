@@ -9189,3 +9189,11 @@
 - Guard baru src/__tests__/dmmono300_removed_666.test.js (4 kasus: 11 blok, 0 face 300, face aktif tepat 400/500 per subset, file fisik 300 hilang & 400/500 tetap). Guard 661 & 664 disinkron 13→11 blok.
 - Verifikasi: build vite sukses; vitest penuh 482 file — 4773 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 index.html & fonts.css OK); live :9503/fonts/fonts.css 11 blok; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 673671 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 15:55 WIB — Siklus 667: face DM Sans 300 italic Light dihapus — dead-weight @font-face
+
+- Kelanjutan audit font (666): fonts.css mendeklarasikan 2 face DM Sans 300 italic Light (rP2rp2…XDV30TGc latin + XDV36TGc5pg latin-ext, terverifikasi fontTools "DM Sans 9pt Light Italic", statis). Audit seluruh CSS & komponen menemukan 0 pemakaian font-style:italic pada DM Sans — satu-satunya italic di app adalah .landing-monogram (Georgia serif). Face italic = dead-weight katalog.
+- fonts.css: 2 face italic dihapus → 11→9 blok @font-face; kedua file woff2 (14.8+8.1 KB) dihapus dari public/fonts & dist (live :9503 kini 404). Face DM Sans aktif: 2 face variable normal wght 100-1000 per subset.
+- Guard baru src/__tests__/dmsans_italic_removed_667.test.js (4 kasus); guard 661/664/666 disinkron 11→9 blok.
+- Verifikasi: build vite sukses; vitest penuh 483 file — 4777 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 fonts.css OK); live fonts.css 9 blok; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 675261 B, nonbg=0.992, hygiene 40 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
