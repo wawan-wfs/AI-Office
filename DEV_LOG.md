@@ -9164,3 +9164,11 @@
 - Guard baru src/__tests__/landing_orbitron_face_663.test.js (4 kasus: fonts.css 0 face Orbitron, landing punya face variable 400 900, bundle app tetap punya deklarasi, dist paritas).
 - Verifikasi: build vite sukses; vitest 479 file — 4761 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/landing.html 1 face Orbitron inline, fonts.css 11 blok 0 Orbitron; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 666538 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 12:55 WIB — Siklus 664: DM Mono 500 di-selfhost (habis faux-bold mono 600/700)
+
+- Audit lanjutan keluarga font: app memakai font-weight 600 (2 blok) & 700 (4 blok) pada teks 'DM Mono' (HUD clock, realtime chip, floor-nav-label, badge hitungan), tetapi fonts.css hanya punya face 300 & 400 — browser memilih 400 lalu menambah SYNTHETIC bold pada teks monospace. DM Mono tidak punya axis variable (subset Google Fonts statis), jadi solusinya face Medium asli, bukan rentang variable.
+- public/fonts: dmmono-500-latin.woff2 (14988 B) & dmmono-500-latin-ext.woff2 (9616 B) diunduh dari Google Fonts (name table: "DM Mono Medium"), dideklarasikan di fonts.css sebagai 2 face statis 500 → total 11→13 blok @font-face. Face 300/400 tetap.
+- Guard baru src/__tests__/dmmono500_face_664.test.js (4 kasus: 13 blok, 2 face 500, file ada di public, paritas dist). Guard 661 disinkron (11→13 blok).
+- Verifikasi: build vite sukses; npm test penuh 480 file — 4765 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css 13 blok, woff2 500 dilayani 200; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 667369 B, nonbg=0.991, hygiene 44 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
