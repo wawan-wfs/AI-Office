@@ -9118,3 +9118,10 @@
 - HTML produksi tidak diubah — meta sudah benar; guard ini mengunci kontraknya.
 - Verifikasi: build vite sukses; vitest penuh 476 file — 4749 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas live :9503/landing.html = dist byte-identik); audit head 23/23 PASS; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 680235 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 08:20 WIB — Siklus 658: audit head paritas & live-paritas :9503 (tanpa perubahan produksi)
+
+- Audit menyeluruh head index.html vs public/landing.html: 18 meta name paritas sempurna (viewport/theme-color/description/keywords/author/robots/PWA/twitter dims), og: & twitter: lengkap di kedua halaman, JSON-LD WebSite paritas (guard 647), FAQPage JSON-LD (642), preload font 3 URL valid @font-face (618/428), manifest.webmanifest + 4 shortcut, semua asset (favicon/og-image/icon) ada di dist.
+- Verifikasi live :9503: dist/landing.html byte-identik dgn yang dilayani; robots.txt (6 disallow + sitemap) & /wfs-api/dashboard/stats live (6 proyek, 16/17 task).
+- Satu-satunya delta live index vs dist = injeksi `wfs-ui-token` oleh server (perilaku server, bukan drift build).
+- Dist di-copy ulang ke ~/wfs-hq (paritas OK); probe e2e OK. Tidak ada perubahan HTML/JS — siklus audit, guard 657 masih hijau.
