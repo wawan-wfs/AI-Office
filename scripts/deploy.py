@@ -41,7 +41,9 @@ def prune_orphan_assets() -> list:
     assets = os.path.join(DST_HQ, 'assets')
     pruned = []
     for name in sorted(os.listdir(assets)):
-        if not HASHED_RE.match(name) or _is_referenced(name, refs):
+        # Siklus 671: sourcemap assets/*.map tidak lagi dihasilkan build
+        # (pindah ke sourcemaps/); basi yang tersisa = orphan, arsipkan.
+        if not (HASHED_RE.match(name) or name.endswith('.map')) or _is_referenced(name, refs):
             continue
         src = os.path.join(assets, name)
         os.makedirs(PRUNE_DIR, exist_ok=True)

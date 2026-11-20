@@ -5,13 +5,15 @@ import { describe, it, expect } from 'vitest'
 const dist = 'dist'
 
 describe('sourcemap hidden 433', () => {
-  it('semua chunk JS di dist punya pasangan .map (runtime kecil dikecualikan)', () => {
+  it('semua chunk JS di dist punya pasangan .map (runtime kecil dikecualikan) — siklus 671: .map direlokasi ke dist/sourcemaps', () => {
     const assets = join(dist, 'assets')
+    const maps = join(dist, 'sourcemaps')
     const js = readdirSync(assets).filter((f) => f.endsWith('.js'))
     expect(js.length).toBeGreaterThan(3)
+    const mapFiles = readdirSync(maps)
     for (const f of js) {
       if (f.startsWith('rolldown-runtime-')) continue // inline kecil, bukan chunk vendor
-      expect(existsSync(join(assets, f + '.map')), f).toBe(true)
+      expect(mapFiles.includes(f + '.map'), f).toBe(true)
     }
   })
   it('tidak ada // # sourceMappingURL di bundle (hidden)', () => {

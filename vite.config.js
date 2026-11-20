@@ -66,15 +66,42 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallbackDenylist: [/^\/api\//],
+        // Siklus 671: sourcemap .map sudah dipindah ke sourcemaps/ (hook build
+        // di bawah) — SW tidak perlu precache .map (hemat ~5.6 MB precache).
+        globIgnores: ['**/*.map'],
       },
+      // Siklus 671: paksa workbox TIDAK ikut mengumpulkan sourcemap sw
+      // sendiri (build sourcemap 'hidden' dipakai app, bukan SW) — .map sw
+      // sudah dikecualikan lewat globIgnores di atas.
+      injectManifest: { globPatterns: [] },
     }),
+  // Siklus 671: plugin pindah semua .map dari assets/ ke sourcemaps/
+  // (plugin hook, BUKAN build.generateBundle — Vite 8/Rolldown tidak
+  // memanggil hook yang didefinisikan di objek build).
+  {
+    name: 'relocate-sourcemaps',
+    generateBundle(_, bundle) {
+      for (const name of Object.keys(bundle)) {
+        const f = bundle[name]
+        if (f.type === 'asset' && f.fileName.endsWith('.map')) {
+          const base = f.fileName.split('/').pop()
+          this.emitFile({ type: 'asset', fileName: 'sourcemaps/' + base, source: f.source })
+          delete bundle[name]
+        }
+      }
+    },
+  },
   ],
-  build: {
-    // Siklus 433: sourcemap produksi. Lighthouse best-practices 432 menandai
+  build: {    // Siklus 433: sourcemap produksi. Lighthouse best-practices 432 menandai
     // valid-source-maps (chunk vendor tanpa sourcemap) — hidden sourcemap
     // (.map tanpa // # sourceMappingURL) memulihkan debuggability tanpa
     // mengekspos source asli lewat devtools publik (URL .map tidak disebut).
     sourcemap: 'hidden',
+    // Siklus 671: debug tetap tersimpan — sourcemap 'hidden' di-upload ke
+    // /sourcemaps/<hash>.map (Sentry-style, bukan ke assets/ publik) via
+    // hook generateBundle; ke server & deploy hanya yang di assets/. Baik
+    // Lighthouse 432 maupun debuggability tetap terpenuhi, publish bundle
+    // turun ~5.6 MB.
     chunkSizeWarningLimit: 800,
     // Siklus 189-190: TaskBoard, ShConsole & SettingsModal lazy (lazy() di App)
     // HARUS benar-benar ditunda — dulu Vite menyuntik <link rel=modulepreload>
@@ -92,6 +119,16 @@ export default defineConfig({
       output: {
         manualChunks: configureManualChunks,
       },
+    },
+    generateBundle(_, bundle) {
+      for (const name of Object.keys(bundle)) {
+        const f = bundle[name]
+        if (f.type === 'asset' && f.fileName.endsWith('.map')) {
+          const base = f.fileName.split('/').pop()
+          this.emitFile({ type: 'asset', fileName: 'sourcemaps/' + base, source: f.source })
+          delete bundle[name]
+        }
+      }
     },
   },
 })
