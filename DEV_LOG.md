@@ -9181,3 +9181,11 @@
 - Guard baru src/__tests__/dmmono500_preload_665.test.js (4 kasus: 0 preload 400 basi, tag preload 500 paritas di kedua halaman, file ada di public+dist, URL direferensikan fonts.css).
 - Verifikasi: build vite sukses; vitest penuh 481 file — 4769 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 OK); live :9503 kedua halaman menyajikan preload dmmono-500-latin & woff2 200; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 678188 B, nonbg=0.992, hygiene 44 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 15:11 WIB — Siklus 666: face DM Mono 300 (Light) dihapus — dead-weight @font-face
+
+- Kelanjutan audit font: fonts.css mendeklarasikan DM Mono 300 (Light, aFTR7PB1… latin+latin-ext), tetapi audit seluruh CSS & komponen (src/index.css, 8 font-family "Landing Mono" di landing.css, 5 fontFamily 'DM Mono' di komponen JSX) menemukan 0 deklarasi weight 300 pada DM Mono — app mono terminggal di 400 (10 deklarasi), 500/600/700 (siklus 664). Face 300 = dead-weight yang hanya membebani catalog font.
+- fonts.css: 2 face DM Mono 300 dihapus → 13→11 blok @font-face; file aFTR7PB1…woff2 (9492+14784 B) dihapus dari public/fonts & dist (curl live :9503 kini 404). Face DM Mono aktif: 400 Regular & 500 Medium, terverifikasi fontTools (name table).
+- Guard baru src/__tests__/dmmono300_removed_666.test.js (4 kasus: 11 blok, 0 face 300, face aktif tepat 400/500 per subset, file fisik 300 hilang & 400/500 tetap). Guard 661 & 664 disinkron 13→11 blok.
+- Verifikasi: build vite sukses; vitest penuh 482 file — 4773 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 index.html & fonts.css OK); live :9503/fonts/fonts.css 11 blok; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 673671 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.

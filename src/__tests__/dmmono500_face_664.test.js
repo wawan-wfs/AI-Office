@@ -9,10 +9,9 @@ const dist = readFileSync(new URL('../../dist/fonts/fonts.css', import.meta.url)
 
 const faces = (t) => t.match(/@font-face\s*\{[^}]*\}/g) ?? [];
 
-it('fonts.css berisi 13 blok @font-face (12 lama + 2 face DM Mono 500)', () => {
-  expect(faces(css).length).toBe(13);
+it('fonts.css kini 11 blok @font-face (13 - 2 face DM Mono 300 dihapus siklus 666)', () => {
+  expect(faces(css).length).toBe(11);
 });
-
 it('ada face DM Mono 500 untuk latin & latin-ext', () => {
   const mono500 = faces(css).filter(
     (f) => f.includes("'DM Mono'") && f.includes('font-weight: 500'),
@@ -31,5 +30,5 @@ it('file woff2 DM Mono 500 ada di public/fonts', () => {
 
 it('paritas dist/fonts/fonts.css', () => {
   expect(dist).toBe(css);
-  expect(faces(dist).length).toBe(13);
+  expect(faces(dist).length).toBe(11);
 });
