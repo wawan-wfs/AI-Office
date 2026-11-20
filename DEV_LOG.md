@@ -9133,6 +9133,14 @@
 - Verifikasi: build vite sukses; vitest penuh 477 file — 4753 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live sitemap tetap 1 URL; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 682637 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
 
+## 20/11/2026 10:30 WIB — Siklus 661: Syne & Orbitron dibuka jadi face variable (kelanjutan audit 660)
+
+- Audit lanjutan 660 menemukan pola sama di 2 keluarga lain: Orbitron & Syne yang di-selfhost adalah VARIABLE font (fvar Orbitron wght 400-900, Syne wght 400-800 — diverifikasi fontTools), tetapi fonts.css mendeklarasikan Orbitron 4 face statis (400/500/600/700) dan Syne 12 face statis (400/600/700/800 × greek/latin-ext/latin) — semua face dalam satu keluarga menunjuk file yang sama, jadi bobot 500/700/800 dirender faux (instance 400 + synthetic bold).
+- public/fonts/fonts.css: Orbitron 4→1 face `font-weight: 400 900`; Syne 12→3 face `font-weight: 400 800` (per subset); total 24→12 blok @font-face. Bobot 500-900 Orbitron & 400-800 Syne kini dari axis variable nyata; DM Mono statis tetap (tanpa axis).
+- Guard baru src/__tests__/syne_orbitron_variable_661.test.js (4 kasus: 12 blok total, 1 face Orbitron variable, 3 face Syne variable per subset, dist paritas).
+- Verifikasi: build vite sukses; vitest penuh 478 file — 4757 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css 12 blok; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 683999 B, nonbg=0.991, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
 ## 20/11/2026 09:55 WIB — Siklus 660: DM Sans variable axis dibuka penuh (bobot 600-800 real, bukan faux-bold)
 
 - Temuan tipografi: file latin & latin-ext DM Sans yang di-selfhost adalah VARIABLE font (fvar wght 100-1000, diverifikasi fontTools), tetapi fonts.css mendeklarasikannya sebagai 3 face statis terpisah (300/400/500) — semua menunjuk file yang sama. CSS app memakai font-weight 600 (43×) & 700 (41×) + 50 fontWeight inline di komponen; browser memilih face terdekat (500), meng-instance wght=500 lalu menambah SYNTHETIC bold di atasnya → glyph tebal palsu, bukan desain DM Sans asli.
