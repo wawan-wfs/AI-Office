@@ -9205,3 +9205,11 @@
 - Guard baru src/__tests__/dmsans_italic_removed_667.test.js (4 kasus); guard 661/664/666 disinkron 11→9 blok.
 - Verifikasi: build vite sukses; vitest penuh 483 file — 4777 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 fonts.css OK); live fonts.css 9 blok; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 675261 B, nonbg=0.992, hygiene 40 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 17:55 WIB — Siklus 669: guard kontrak font aktif — face DM Mono 400 diverifikasi terpakai (tanpa perubahan produksi)
+
+- Audit lanjutan keluarga font pasca-666/667/668: face DM Mono 400 Regular (aFTU7PB1…, latin + latin-ext, terverifikasi fontTools "DM Mono Regular" statis) TERPAKAI — 12 blok font-family 'DM Mono' di index.css & 5 fontFamily JSX tanpa deklarasi weight eksplisit → default 400; teks weight 600/700 sudah dilayani face Medium 500 (siklus 664). Kandidat dead-weight berikutnya (face Syne greek 8vIH7w4qzmVxm2NL9Hz_) dipertahankan: face tetap valid utk karakter Yunani, removal tak memberi benefit.
+- Verifikasi basis font stabil: fonts.css 9 blok @font-face (DM Mono 400×2 + 500×2, DM Sans var×2, Syne var×3), 9 URL semua file ada di public/fonts, paritas dist (md5 fonts.css 540df57f), precache sw.js woff2 10 entri, preload index+landing merujuk file yang direferensikan face.
+- Guard baru src/__tests__/dmmono400_face_used_669.test.js (4 kasus: face 400 ada dgn file benar, ≥10 pemakaian 'DM Mono' tanpa weight di CSS/JSX, 9 blok fonts.css, paritas dist).
+- Verifikasi: build vite sukses; vitest penuh 484 file — 4781 pass + 6 skip, 0 fail; dist → ~/wfs-hq (md5 fonts.css paritas); probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 690895 B, nonbg=0.992, hygiene 39 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
