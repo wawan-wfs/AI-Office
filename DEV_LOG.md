@@ -9156,3 +9156,11 @@
 - Guard 661 disinkron: fonts.css 11 blok tanpa yMJRMIl, Orbitron 0 face di fonts.css + face `font-family:Orbitron…font-weight:400 900` diverifikasi ada di bundle dist/assets/index-*.css.
 - Verifikasi: build vite sukses; vitest penuh 478 file — 4757 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css 11 blok, 0 referensi yMJRMIl; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 676747 B, nonbg=0.991, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 12:05 WIB — Siklus 663: regresi landing — Orbitron kembali dirender
+
+- Temuan: siklus 662 menghapus face Orbitron dari fonts.css, tapi landing.html (logo, h1, .stat b, .how h2 memakai font-family Orbitron) HANYA me-load fonts.css — tidak load bundle CSS app. Heading landing jatuh ke fallback sans-serif sejak deploy 662.
+- Fix: public/landing.html dapat @font-face Orbitron inline (variable 400 900 → /fonts/orbitron-latin.woff2, file sama dgn preload 618); komentar kosong "/* latin */" basi di fonts.css dibersihkan.
+- Guard baru src/__tests__/landing_orbitron_face_663.test.js (4 kasus: fonts.css 0 face Orbitron, landing punya face variable 400 900, bundle app tetap punya deklarasi, dist paritas).
+- Verifikasi: build vite sukses; vitest 479 file — 4761 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/landing.html 1 face Orbitron inline, fonts.css 11 blok 0 Orbitron; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 666538 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
