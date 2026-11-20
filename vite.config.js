@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite'
+import fs from 'node:fs'
+import path from 'node:path'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { configureManualChunks } from './src/lib/chunk_strategy.js'
@@ -89,6 +91,31 @@ export default defineConfig({
           delete bundle[name]
         }
       }
+    },
+    // Siklus 672: .map workbox/sw ditulis workbox hook SETELAH generateBundle
+    // (terverifikasi: sw.js.map & workbox-*.js.map lolos 671). closeBundle
+    // merelokasi sisa .map di root dist/ (bukan assets/ — itu sudah bersih)
+    // ke dist/sourcemaps/; hidden map tak dirujuk URL publik.
+    closeBundle: {
+      // Siklus 672: SW workbox ditulis vite-plugin-pwa di closeBundle-nya —
+      // hook ini WAJIB berjalan 'post' agar .map sw ikut direlokasi.
+      order: 'post',
+      handler() {
+      // path config sementara di node_modules/.vite-temp — pakai cwd (build
+      // selalu dijalankan dari root repo).
+      const dist = path.resolve(process.cwd(), 'dist')
+      const mapsDir = path.join(dist, 'sourcemaps')
+      const rootMaps = fs.existsSync(dist)
+        ? fs.readdirSync(dist).filter((n) => n.endsWith('.map'))
+        : []
+      if (rootMaps.length) {
+        console.log(`[relocate-sourcemaps] closeBundle: ${rootMaps.length} root .map`)
+        fs.mkdirSync(mapsDir, { recursive: true })
+        for (const name of rootMaps) {
+          fs.renameSync(path.join(dist, name), path.join(mapsDir, name))
+        }
+      }
+      },
     },
   },
   ],

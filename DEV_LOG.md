@@ -9230,3 +9230,13 @@
 - Verifikasi: build vite sukses (precache 45 entri, 1824 KB, 0 .map); vitest penuh 486 file — 4789 pass + 6 skip, 0 fail; deploy.py publish OK, live :9503 200, /sourcemaps/ 404 (tidak dilayani), dist/sourcemaps 5.7 MB tersimpan utk debug; probe e2e OK — 0 console error, init_failed=false, 26 agen hook, shot 695330 B, nonbg=0.992, hygiene 39 refs 0 missing.
 - Kendala: git push tetap gagal semua ref ("Repository not found") — repo GitHub wawanwfs/AI-Office kemungkinan dihapus/di-rename/privat; 24 commit lokal menunggu push.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) repo AI-Office GitHub tidak ditemukan; (d) keputusan omniroute.
+
+## 20/11/2026 21:05 WIB — Siklus 672: sisa .map root dist direlokasi (sw.js.map & workbox-*.js.map) — plugin closeBundle order post
+
+- Kelanjutan 671: 2 file .map (~156 KB) tetap lolos di root dist/ — `sw.js.map` & `workbox-2178cfdb.js.map` ditulis vite-plugin-pwa di hook closeBundle-nya (terverifikasi probe: plugin closeBundle Vite 8/Rolldown TETAP dipanggil; yang bermasalah adalah URUTAN — workbox menulis file SETELAH generateBundle relocation).
+- vite.config.js: hook closeBundle plugin relocate-sourcemaps dengan `order: 'post'` — berjalan setelah closeBundle plugin PWA, memindahkan sisa .map root dist/ ke dist/sourcemaps/ (terverifikasi log build "closeBundle: 2 root .map"). Import fs/path ditambahkan; probe diagnostik: closeBundle hook memang terpanggil (1x) di build mini & config asli — bukan masalah "tidak dipanggil" seperti generateBundle.
+- Web root ~/wfs-hq: 2 .map root basi diarsipkan ke .pruned-assets; curl :9503/sw.js.map kini 404. dist/sourcemaps kini 16 .map (14 chunk + sw + workbox) tetap tersimpan untuk debug.
+- Guard: src/__tests__/root_maps_relocated_672.test.js (4 kasus: 0 .map root dist, sourcemaps memuat sw+workbox, config order post, hq root tanpa .map); guard 433 kasus sw/workbox disinkron ke lokasi baru.
+- Verifikasi: build vite sukses (0 .map di root dist); vitest penuh 487 file — 4793 pass + 6 skip, 0 fail; deploy.py publish OK, :9503 200; probe e2e OK — 0 console error, init_failed=false, 26 agen hook, shot 695537 B, nonbg=0.991, hygiene 39 refs 0 missing.
+- Kendala: git push tetap gagal ("Repository not found") — repo GitHub wawanwfs/AI-Office tidak terjangkau; 25 commit lokal menunggu push.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) repo AI-Office GitHub tidak ditemukan; (d) keputusan omniroute.

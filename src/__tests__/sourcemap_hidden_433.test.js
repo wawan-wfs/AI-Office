@@ -22,9 +22,10 @@ describe('sourcemap hidden 433', () => {
       expect(readFileSync(join(assets, f), 'utf8')).not.toMatch(/sourceMappingURL/)
     }
   })
-  it('sw.js & workbox punya .map — devtools tetap bisa debug service worker', () => {
-    expect(existsSync(join(dist, 'sw.js.map'))).toBe(true)
-    expect(existsSync(join(dist, 'workbox-2178cfdb.js.map'))).toBe(true)
+  it('sw.js & workbox punya .map — siklus 672: juga direlokasi ke dist/sourcemaps', () => {
+    const maps = readdirSync(join(dist, 'sourcemaps'))
+    expect(maps.includes('sw.js.map')).toBe(true)
+    expect(maps.includes('workbox-2178cfdb.js.map')).toBe(true)
   })
   it('vite.config.js mengunci sourcemap hidden', () => {
     expect(readFileSync('vite.config.js', 'utf8')).toMatch(/sourcemap:\s*'hidden'/)
