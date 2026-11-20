@@ -9190,6 +9190,14 @@
 - Verifikasi: build vite sukses; vitest penuh 482 file — 4773 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 index.html & fonts.css OK); live :9503/fonts/fonts.css 11 blok; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 673671 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
 
+## 20/11/2026 17:10 WIB — Siklus 668: file duplikat Orbitron yMJRMIl dihapus (byte-identik orbitron-latin)
+
+- Kelanjutan audit font: yMJRMIl…woff2 masih ada di public/fonts (dan ikut ter-precache di sw.js PWA) padahal sejak siklus 662 tidak ada satu pun @font-face yang mereferensikannya — file byte-identik dgn orbitron-latin.woff2 (md5 5d281085 sama, fontTools: Orbitron variable wght 400-900). Dead-weight 11.5 KB + precache 46→45 entri.
+- public/fonts & dist: file yMJRMIl dihapus; live :9503 kini 404, orbitron-latin tetap 200 (preload index+landing & face di src/index.css tak tersentuh).
+- Guard baru src/__tests__/orbitron_dup_file_668.test.js (4 kasus: file hilang di public+dist, face sah tetap ada, 0 @font-face mereferensikan yMJRMIl, sw.js precache woff2 kini 10 entri).
+- Verifikasi: build vite sukses; vitest penuh 484 file — 4781 pass + 6 skip, 0 fail; dist → ~/wfs-hq (paritas md5 sw.js OK, file lama dihapus manual dari web root); probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 686500 B, nonbg=0.992, hygiene 39 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
 ## 20/11/2026 15:55 WIB — Siklus 667: face DM Sans 300 italic Light dihapus — dead-weight @font-face
 
 - Kelanjutan audit font (666): fonts.css mendeklarasikan 2 face DM Sans 300 italic Light (rP2rp2…XDV30TGc latin + XDV36TGc5pg latin-ext, terverifikasi fontTools "DM Sans 9pt Light Italic", statis). Audit seluruh CSS & komponen menemukan 0 pemakaian font-style:italic pada DM Sans — satu-satunya italic di app adalah .landing-monogram (Georgia serif). Face italic = dead-weight katalog.
