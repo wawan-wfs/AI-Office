@@ -9132,3 +9132,11 @@
 - Guard baru src/__tests__/sitemap_landing_659.test.js (4 kasus): tepat 1 <url> loc = origin root, landing.html tak ada di sitemap dgn robots Disallow terkunci, origin sitemap == canonical landing, dist paritas.
 - Verifikasi: build vite sukses; vitest penuh 477 file — 4753 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live sitemap tetap 1 URL; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 682637 B, nonbg=0.992, hygiene 42 refs 0 missing.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
+
+## 20/11/2026 09:55 WIB — Siklus 660: DM Sans variable axis dibuka penuh (bobot 600-800 real, bukan faux-bold)
+
+- Temuan tipografi: file latin & latin-ext DM Sans yang di-selfhost adalah VARIABLE font (fvar wght 100-1000, diverifikasi fontTools), tetapi fonts.css mendeklarasikannya sebagai 3 face statis terpisah (300/400/500) — semua menunjuk file yang sama. CSS app memakai font-weight 600 (43×) & 700 (41×) + 50 fontWeight inline di komponen; browser memilih face terdekat (500), meng-instance wght=500 lalu menambah SYNTHETIC bold di atasnya → glyph tebal palsu, bukan desain DM Sans asli.
+- public/fonts/fonts.css: 6 blok @font-face DM Sans normal (300/400/500 × latin/latin-ext) diciptakan jadi 2 face variable `font-weight: 100 1000` (28→24 blok). Bobot 600/700/800 kini dirender dari axis variable nyata; 300 tetap benar (landing hero). Face italic Light statis & DM Mono (statis 300/400) tidak disentuh — DM Mono 600/700 memang tidak punya axis (dicatat sebagai keterbatasan subset).
+- Guard baru src/__tests__/dmsans_variable_660.test.js (4 kasus: tepat 2 face DM Sans normal dgn font-weight:100 1000, tidak ada face statis 300/400/500 tersisa, URL file sama dgn preload landing/index, dist paritas).
+- Verifikasi: build vite sukses; vitest penuh 477 file — 4753 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live :9503/fonts/fonts.css menyajikan 2 face variable; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 678402 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
