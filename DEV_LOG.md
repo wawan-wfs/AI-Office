@@ -9125,3 +9125,10 @@
 - Verifikasi live :9503: dist/landing.html byte-identik dgn yang dilayani; robots.txt (6 disallow + sitemap) & /wfs-api/dashboard/stats live (6 proyek, 16/17 task).
 - Satu-satunya delta live index vs dist = injeksi `wfs-ui-token` oleh server (perilaku server, bukan drift build).
 - Dist di-copy ulang ke ~/wfs-hq (paritas OK); probe e2e OK. Tidak ada perubahan HTML/JS — siklus audit, guard 657 masih hijau.
+
+## 20/11/2026 08:56 WIB — Siklus 659: guard kontrak sitemap vs landing (tanpa perubahan produksi)
+
+- Audit SEO: sitemap.xml hanya '/' — benar, karena robots.txt melarang /landing.html (duplikat dari /, canonical 651 menunjuk /); landing.html tidak boleh masuk sitemap. Live :9503/sitemap.xml 200 application/xml.
+- Guard baru src/__tests__/sitemap_landing_659.test.js (4 kasus): tepat 1 <url> loc = origin root, landing.html tak ada di sitemap dgn robots Disallow terkunci, origin sitemap == canonical landing, dist paritas.
+- Verifikasi: build vite sukses; vitest penuh 477 file — 4753 pass + 6 skip, 0 fail; dist → ~/wfs-hq; live sitemap tetap 1 URL; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 682637 B, nonbg=0.992, hygiene 42 refs 0 missing.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) deploy key GitHub wawanwfs/AI-Office perlu didaftarkan ulang; (d) keputusan omniroute.
