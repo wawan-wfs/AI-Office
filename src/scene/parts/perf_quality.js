@@ -209,7 +209,7 @@ export function perfChip(p) {
     return { state: 'down', label: `GPU ${fpsTxt} FPS`, detail: `Kualitas otomatis: bayangan dimatikan (FPS ${fpsTxt}) — pemulihan otomatis bila FPS sehat 16 dtk${prTxt}` };
   }
   if (p.shadowLevel === 1) {
-    return { state: 'stale', label: `GPU ${fpsTxt} FPS`, detail: `Kualitas otomatis: peta bayangan 1024, pixelRatio ${pr ?? '—'} (FPS ${fpsTxt}) — pulih bertahap saat FPS ≥ 28${prTxt}` };
+    return { state: 'stale', label: `GPU ${fpsTxt} FPS`, detail: `Kualitas otomatis: peta bayangan 1024, pixelRatio ${pr ?? '—'} (FPS ${fpsTxt}) — pulih bertahap saat FPS ≥ 28` };
   }
   if (p.recovering) {
     return { state: 'recover', label: `GPU ${fpsTxt} FPS`, detail: `Kualitas pulih: pixelRatio ${pr ?? '—'} (FPS ${fpsTxt}) — penuh bila FPS tetap sehat${prTxt}` };

@@ -299,6 +299,8 @@ describe('perfChip — chip kualitas render HUD (siklus 147)', () => {
     const c = perfChip({ fps: 12, pixelRatio: 0.75, shadowLevel: 1, downgraded: false });
     expect(c.state).toBe('stale');
     expect(c.detail).toContain('1024');
+    // Siklus 686: prTxt tidak dobel dalam satu detail (bug teks duplikat lama)
+    expect((c.detail.match(/· x/g) || []).length).toBe(0);
   });
 
   it('recovering → biru recover dgn detail pulih', () => {

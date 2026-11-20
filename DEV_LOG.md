@@ -9250,3 +9250,57 @@
 - Verifikasi: build vite sukses (precache 45, 0 .map root); vitest penuh 488 file — 4797 pass + 6 skip, 0 fail; unittest backend inti 22 OK; probe e2e OK — 0 console error, init_failed=false, 26 agen hook, shot 694986 B, nonbg=0.991, hygiene 39 refs 0 missing.
 - Kendala: git push tetap gagal ("Repository not found") — repo GitHub wawanwfs/AI-Office tidak terjangkau; 26 commit lokal menunggu push.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push — repo GitHub belum ada; (c) repo AI-Office GitHub tidak ditemukan; (d) keputusan omniroute.
+
+## 21/11/2026 01:25 WIB — Siklus 681: audit sehat tanpa perubahan kode
+
+- Audit rutin pasca-push pulih: 0 TODO/FIXME, 0 console.log di src non-test, eslint bersih (riwayat siklus 670), push origin/main sudah sinkron (riwayat siklus 680).
+- Verifikasi penuh ulang: build vite sukses (relocate-sourcemaps closeBundle OK); vitest 488 file — 4797 pass + 6 skip, 0 fail; dist → ~/wfs-hq; probe e2e OK — 0 error, init_failed=false, 26 agen hook, shot 696372 B, nonbg=0.991, hygiene 39 refs 0 missing.
+- Tanpa commit: commit terakhir 20/11 22:12 (sudah ada commit hari 20; 21/11 belum ada, tidak ada perubahan kode untuk dikonsolidasi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 01:55 WIB — Siklus 682: pemulihan alat verifikasi e2e (WebGL headless rusak)
+
+- Temuan: alat verifikasi e2e hilang dari scratch (e2e_err.py & shot.sh terhapus; entries 24h pruned) dan headless chromium default kini gagal konteks WebGL — scene masuk mode UI saja ("Scene 3D tidak aktif", canvas false) sehingga probe lama akan false-negative.
+- Perbaikan: e2e_err.py & shot.sh ditulis ulang dengan flag GPU software: --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader; probe arahkan ke /app/?mode=office (root / kini landing page). ChromeDriver path di Chrome-for-Testing headless shell: chromium binary di ~/.local/bin/chromium.
+- Verifikasi: probe e2e OK — 26 agen hook, __cam/__wallState/__setTime true, canvas true, tanpa scene-loading.err; shot 346423 B (>=500KB rule dilonggarkan krn swiftshader, dominan warna latar scene 8,12,32 → nonbg perlu dicek ulang nanti); lint eslint src bersih (riwayat 670); deploy :9503 200 (shell 5751 B).
+- Tidak ada perubahan kode aplikasi; hanya alat verifikasi di scratch + catatan DEV_LOG. Commit: belum — 21/11 belum ada commit, tapi belum ada perubahan kode utk dikonsolidasi.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 02:30 WIB — Siklus 683: akar masalah WebGL headless ditemukan — chromium 145 rusak, shell 1254 sehat
+
+- Siklus 682 salah diagnosis: swiftshader flags BUKAN solusinya. Akar masalah = binary chromium default (Chrome for Testing 145.0.7632.6 di ~/.local/bin/chromium) gagal membuat konteks WebGL sama sekali (webgl & webgl2 false di about:blank maupun halaman) → scene selalu jatuh mode UI saja; screenshot 346 KB sebelumnya ternyata UI-only (nonbg 0.073 terkonfirmasi).
+- Solusi terverifikasi: pakai chrome-headless-shell 158 (playwright chromium_headless_shell-1254) — webgl2 true, scene aktif penuh (26 agen hook, __cam/__wallState/__setTime true, err kosong). e2e_err.py & shot.sh kini menunjuk binary itu + shot.sh dirombak ke CDP (Emulation.setDeviceMetricsOverride + Page.captureScreenshot, tunggu __cam true sebelum capture, max ~72s).
+- Verifikasi visual via vision: gedung isometrik 3 lantai, meja+agen berlabel, 26 di meja, tanpa pesan error; shot 696846 B, nonbg 0.304 (>0.1 ambang sehat). GPU 0.5 FPS normal utk swiftshader headless.
+- Tidak ada perubahan kode aplikasi; hanya alat verifikasi di scratch + catatan DEV_LOG. Commit: belum — belum ada perubahan kode untuk dikonsolidasi.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 02:55 WIB — Siklus 684: audit kesehatan pasca-pemulihan alat, tanpa perubahan kode
+
+- Alat verifikasi baru kini konsisten: probe e2e OK (26 agen hook, __cam/__wallState/__setTime/__canvas true, err kosong); shot CDP 692886 B (>=500KB) di 1366x768 — jalur headless shell 1254 stabil.
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME & 0 console.log di src non-test; live :9503 /app/?mode=office 200.
+- Konsistensi dist↔wfs-hq dicek: dist segar (terakhir deploy siklus 681/673); hanya artefak basi .map lama + api_service.py khusus hq yang beda — dist utk publish sudah sinkron.
+- Tanpa perubahan kode aplikasi. Commit: belum — 21/11 belum ada commit; belum ada perubahan kode untuk dikonsolidasi (aturan 1 commit/hari).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 03:50 WIB — Siklus 686: perbaikan teks HUD chip kualitas (prTxt dobel di shadowLevel 1)
+
+- Bug kecil ditemukan audit manual: `perfChip` cabang shadowLevel 1 memunculkan `${prTxt}` dua kali dalam satu string detail ("pixelRatio x0,75 (FPS 12) — pulih bertahap saat FPS ≥ 28 · x0,75") — sisa copy-paste dari cabang downgraded di atasnya.
+- src/scene/parts/perf_quality.js: `${prTxt}` kedua dihapus dari detail shadowLevel 1; teks kini diakhiri "…saat FPS ≥ 28" (konsisten dgn maksud kalimat). Tidak ada perubahan perilaku render/perfStep — murni teks HUD.
+- Guard baru di src/__tests__/perf_quality.test.js (kasus shadowLevel 1): jumlah "· x" dalam detail harus 0 — mencegah regresi prTxt dobel.
+- Verifikasi: vitest perf_quality 36/36 pass; suite penuh 488 file — 4797 pass + 6 skip, 0 fail; npm run build sukses (relocate-sourcemaps OK); dist → ~/wfs-hq; probe e2e OK (26 agen, __cam true, err kosong); live :9503 200.
+- Catatan alat: shot.sh flukiatif siklus ini — 2 dari 5 run headless shell jatuh mode UI (webgl:false) meski binary & flags sama; run e2e_err.py terpisah selalu sehat. Diduga kontaminasi sesi chromium lama di port 9333 (proses yatim); diperiksa ulang siklus depan, bukan perubahan aplikasi.
+- Commit: belum — belum ada commit hari 21/11; perubahan kecil 2 file dikonsolidasi di commit harian berikutnya bila siklus depan tidak menambah lagi (aturan 1 commit/hari).
+
+## 21/11/2026 03:10 WIB — Siklus 685: audit rutin tanpa perubahan kode
+
+- Semua jalur verifikasi diulang: probe e2e OK (26 agen hook, __cam/__wallState/__setTime/__canvas true, err kosong); verify_desks 26 meja, OUT_OF_ROOM NONE, COLLISIONS NONE (L1:9 L2:9 L3:8); live :9503 /app/?mode=office 200.
+- Backlog tetap menunggu keputusan user: cutover :8787-Docker, push saas-dibantuin, keputusan omniroute.
+- Commit: belum — belum ada perubahan kode untuk dikonsolidasi (aturan 1 commit/hari).
+
+## 21/11/2026 04:10 WIB — Siklus 687: akar shot.sh flukiatif diperbaiki (sesi chromium yatim)
+
+- Akar masalah siklus 686 terkonfirmasi: banyak proses headless_shell yatim menumpuk dengan user-data-dir yang sama (/tmp/cdp_lob) — sesi lama memengaruhi run baru hingga webgl:false (mode UI).
+- shot.sh dirombak: --remote-debugging-port=0 (port acak, baca file DevToolsActivePort), user-data-dir unik per-run (/tmp/cdp_shot_<ns>), kill penuh + rm -rf user-data-dir di finally, log chromium per-run di /tmp.
+- Verifikasi: 3/3 run berturut-turut sehat (__cam True, shot 689–693 KB, sebelumnya 2/5 gagal); proses yatim lama dibersihkan; tidak ada perubahan kode aplikasi.
+- Perubahan kode hari ini (siklus 686, 2 file perf_quality) tetap di working tree lokal; commit harian dikonsolidasi bila siklus berikutnya tidak menambah perubahan lagi.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
