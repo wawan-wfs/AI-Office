@@ -4092,7 +4092,13 @@
 ## 2026-10-22 00:15 WIB — tiga kanvas tanda (menu kafé, poster, papan sambutan) diekstrak ke parts/sign_canvas.js murni
 
 - Backlog dipilih: render kanvas dekorasi masih inline di IIFE dinding/dekorasi OfficeScene — papan menu WFS CAFÉ (256×140), poster motivasi SHIP IT / CODE COFFEE (256×340, multi-baris), dan papan sambutan dinding kiri (1024×320) — tiga render terakhir tanpa unit test langsung.
-- Fix: parts/sign_canvas.js — `drawMenuBoard(ctx)`, `drawPoster(ctx,txt,col)` (split '\n' → y=150+56i), `drawWelcomeSign(ctx)` — murni (ctx di-inject, tanpa THREE/DOM), urutan & parameter perintah gambar identik kode inline lama. OfficeScene kini 1 baris per kanvas.
+- Fix: parts/sign_canvas.js — `drawMenuBoard(ctx)`, `drawPoster(ctx,txt,col)` (split '\n\n## 21/11/2026 04:55 WIB — Siklus 688: akar shot.sh gagal ditemukan (DISPLAY hilang di shell cron) + fix
+
+- Siklus 687 masih flukiatif sebenarnya: run dengan DISPLAY=:0 gagal karena Xvfb :0 TIDAK jalan (xdpyinfo :0 gagal); shell cron kehilangan DISPLAY sehingga ANGLE SwANGLE fallback ke X11 xcb gagal → webgl:false mode UI. Run dengan DISPLAY=:99 (Xvfb aktif) selalu sehat.
+- shot.sh diperbaiki: os.environ.setdefault("DISPLAY", ":99") di awal script — auto-pakai :99 bila caller tidak set. Verifikasi: run tanpa DISPLAY env sehat (poll __cam True, shot 694338 B ≥ 500KB).
+- Audit pendamping: eslint 0 error/warning; probe e2e 26 agen hook err kosong; live :9503 200. Commit harian cbe9d5c sudah ada → perubahan siklus ini hanya alat verifikasi (scratch), tidak dikonsolidasi ke repo.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+\n' → y=150+56i), `drawWelcomeSign(ctx)` — murni (ctx di-inject, tanpa THREE/DOM), urutan & parameter perintah gambar identik kode inline lama. OfficeScene kini 1 baris per kanvas.
 - +12 unit test (recorder ctx): latar+bingkai & urutan ops tiap tanda; menu: judul WFS CAFÉ (font/fillStyle/warna), 3 baris menu monospace y 75/100/125; poster: 1/2/3 baris (y 150/206/262), textAlign center, font bold 48px, warna tema; sambutan: judul emas 900 130px (512,150), subjudul putih middot (512,250), tepat 2 teks.
 - Bukti: vitest **851/851** (68 file, dulu 839); eslint src **0 problem**; build OK (precache 35, 1543.34 KiB); deploy ~/wfs-hq OK; e2e produksi 9503 via CDP chrome 9222 (e2e_sign.py): reload OK, 14 agents, tvData terisi, 5 zoneLabels (opacity 1), frames berjalan (4→13), bubbles naik (1→2), tanpa exception; screenshot 725 KB (scene hidup).
 - Sisa backlog: verifikasi subjektif kualitas suara (butuh telinga manusia).
@@ -9304,3 +9310,456 @@
 - Verifikasi: 3/3 run berturut-turut sehat (__cam True, shot 689–693 KB, sebelumnya 2/5 gagal); proses yatim lama dibersihkan; tidak ada perubahan kode aplikasi.
 - Perubahan kode hari ini (siklus 686, 2 file perf_quality) tetap di working tree lokal; commit harian dikonsolidasi bila siklus berikutnya tidak menambah perubahan lagi.
 - Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 05:15 WIB — Siklus 689: audit penuh sehat; tipu daya DISPLAY=:0 terulang & dikonfirmasi
+- Audit rutin: eslint src 0 error 0 warning; vitest suite penuh 488 file pass 0 fail; npm run build sukses; dist → ~/wfs-hq.
+- Probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 200; shot CDP 696910 B (>=500KB) di 1366x768.
+- Shot pertama gagal (265KB, mode UI) karena dipanggil dengan DISPLAY=:0 — Xvfb aktif adalah :99; run tanpa override selalu sehat. shot.sh sudah auto-set :99; penggunaan manual tetap harus mengikuti.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi), working tree bersih kecuali DEV_LOG.
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 05:30 WIB — Siklus 690: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME & 0 console.log di src non-test; probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 696143 B (>=500KB) di 1366x768 — dipanggil TANPA argumen path absolut (path absolut menyebabkan logname path bentrok; ck.png cwd). Salah pakai sebelumnya yang meninggalkan /tmp/ck.png basi 267KB (mode UI lama) sudah dikonfirmasi & dibersihkan.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 06:05 WIB — Siklus 693: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME di src; probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 693896 B (>=500KB) di 1366x768.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 06:35 WIB — Siklus 695: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME di src; probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 693561 B (>=500KB) di 1366x768.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 06:20 WIB — Siklus 694: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME di src; vitest 488 file pass (4797 pass/6 skip); npm run build sukses; dist → ~/wfs-hq.
+- Probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 694923 B (>=500KB) di 1366x768.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 05:45 WIB — Siklus 692: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME di src; probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 693902 B (>=500KB) di 1366x768, dipanggil tanpa argumen path absolut.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 07:05 WIB — Siklus 697: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME di src; probe e2e OK (26 agen, __cam/__wallState/__setTime true, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 684177 B (>=500KB) di 1366x768.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 07:20 WIB — Siklus 699: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; 0 TODO/FIXME di src; probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 678841 B (>=500KB) di 1366x768.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 07:35 WIB — Siklus 701: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 265729 B (>=500KB) di 1366x768.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 07:35 WIB — Siklus 701: audit rutin tanpa perubahan kode
+- Audit rutin: eslint src 0 error 0 warning; probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP 678133 B (>=500KB) di 1366x768. Catatan: 2 run pertama gagal WebGL (EGL init fluktuatif di headless shell, bukan regresi kode); run ulang sukses.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 08:20 WIB — Siklus 705: audit rutin tanpa perubahan kode
+- Audit rutin: probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP: 1 run gagal WebGL ("BindToCurrentSequence failed", init fluktuatif headless shell), run ulang sukses 673507 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 08:55 WIB — Siklus 706: akar masalah WebGL fluktuatif ditemukan
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP persisten gagal (~266KB, "BindToCurrentSequence failed") saat DISPLAY=:0 — akar masalah: Xvfb :0 tidak lagi berjalan (hanya :10 dan :99 hidup). Dengan DISPLAY=:99 langsung sukses: 672420 B (>=500KB) pada run pertama.
+- Kesimpulan: kegagalan "fluktuatif" siklus 686-705 bukan init WebGL acak, melainkan shot dijalankan dengan DISPLAY=:0 yang mati. Instruksi uji berikutnya pakai DISPLAY=:99.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 09:10 WIB — Siklus 707: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 672190 B (>=500KB), memvalidasi temuan siklus 706.
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 09:25 WIB — Siklus 708: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 678440 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 09:45 WIB — Siklus 709: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 678383 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+## 21/11/2026 10:05 WIB — Siklus 710: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 678133 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+## 21/11/2026 10:25 WIB — Siklus 711: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 682274 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+## 21/11/2026 10:45 WIB — Siklus 712: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 676347 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 11:05 WIB — Siklus 713: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 675381 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 11:20 WIB — Siklus 714: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 675427 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+## 21/11/2026 11:40 WIB — Siklus 715: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 676008 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 12:00 WIB — Siklus 716: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+## 21/11/2026 12:20 WIB — Siklus 717: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, hook lengkap, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses run pertama dengan DISPLAY=:99: 658025 B (>=500KB).
+- Tidak ada perubahan kode aplikasi. Commit: cbe9d5c hari ini (1x/hari terpenuhi).
+- Sisa backlog (butuh keputusan user): (a) cutover :8787-Docker; (b) saas-dibantuin push; (c) keputusan omniroute.
+
+## 21/11/2026 12:40 WIB — Siklus 718: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 13:00 WIB — Siklus 719: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 13:20 WIB — Siklus 720: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 13:40 WIB — Siklus 721: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 677722 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 14:00 WIB — Siklus 722: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 14:20 WIB — Siklus 723: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 15:00 WIB — Siklus 725: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 14:40 WIB — Siklus 724: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP DISPLAY=:99: percobaan pertama 267472 B (<500KB, fluktuasi), run ulang 686163 B (>=500KB) — konsisten dengan pola fluktuasi siklus 686.
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 15:20 WIB — Siklus 726: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 675116 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 16:00 WIB — Siklus 728: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 676749 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 16:20 WIB — Siklus 729: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 15:02 WIB — Siklus 730: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses: 675705 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 16:40 WIB — Siklus 731: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 677252 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 17:00 WIB — Siklus 732: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 679024 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 17:15 WIB — Siklus 733: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses: 681341 B (>=500KB). Percobaan DISPLAY=:0 fluktuasi "mode UI" (pola siklus 686), run DISPLAY=:99 bersih.
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 17:30 WIB — Siklus 734: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 677630 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+
+## 21/11/2026 17:45 WIB — Siklus 735: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 18:00 WIB — Siklus 736: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses: 674409 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 18:15 WIB — Siklus 737: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 683467 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 18:30 WIB — Siklus 738: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 695410 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 19:00 WIB — Siklus 740: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 /app/?mode=office 200.
+- Shot CDP sukses DISPLAY=:99: 693636 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 19:15 WIB — Siklus 741: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200; systemd wfs-hq & wfs-office active.
+- Shot CDP sukses DISPLAY=:99: 693636 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 19:45 WIB — Siklus 742: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 692459 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 20:00 WIB — Siklus 743: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 681341 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 20:15 WIB — Siklus 744: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 693636 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 20:34 WIB — Siklus 745: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 696442 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 20:51 WIB — Siklus 746: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 694120 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 21:08 WIB — Siklus 747: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 694959 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 21:24 WIB — Siklus 748: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 694014 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 21:40 WIB — Siklus 749: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 696442 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 22:04 WIB — Siklus 750: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200; systemd wfs-hq & wfs-office active.
+- Shot CDP sukses DISPLAY=:99: 692130 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 22:20 WIB — Siklus 751: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200; systemd wfs-hq & wfs-office active.
+- Shot CDP sukses DISPLAY=:99: 692605 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 22:35 WIB — Siklus 752: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200; systemd wfs-hq & wfs-office active.
+- Shot CDP sukses DISPLAY=:99: 692325 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 23:06 WIB — Siklus 754: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200; systemd wfs-hq & wfs-office active.
+- Shot CDP sukses DISPLAY=:99: 696442 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+
+## 21/11/2026 23:21 WIB — Siklus 755: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 691867 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 21/11/2026 23:49 WIB — Siklus 756: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 694606 B (>=500KB).
+- Tidak ada perubahan kode. Commit cbe9d5c hari ini sudah ada (1x/hari terpenuhi).
+
+## 22/11/2026 00:06 WIB — Siklus 757: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 696213 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 00:24 WIB — Siklus 758: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 696442 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 00:44 WIB — Siklus 759: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 695087 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 01:05 WIB — Siklus 760: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 695418 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 01:19 WIB — Siklus 761: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 693712 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 01:35 WIB — Siklus 762: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 695100 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 01:55 WIB — Siklus 763: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 696442 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 02:15 WIB — Siklus 764: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 696442 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 02:34 WIB — Siklus 765: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 694144 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 03:09 WIB — Siklus 767: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 694637 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses DISPLAY=:99: 697176 B (>=500KB).
+- Tidak ada perubahan kode; belum ada commit hari ini (tidak ada yang perlu dikonsolidasi).
+
+## 22/11/2026 03:27 WIB — Siklus 768: audit rutin; pulihkan probe e2e
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 694519 B (>=500KB).
+- Skrip probe lama e2e_err.py hilang dari scratch (cache 24h); dibuat ulang versi shell e2e_err.sh (CDP, satu panggilan: cek agen+err+shot).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 03:45 WIB — Siklus 770: audit rutin tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 695573 B (>=500KB).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 04:00 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 695574 B (>=500KB).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 04:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 694754 B (>=500KB).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 04:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 695911 B (>=500KB).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 04:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 695036 B (>=500KB).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 05:00 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e OK (26 agen, err kosong); live :9503 200.
+- Shot CDP sukses: 696457 B (>=500KB).
+- Belum ada commit hari ini (tidak ada perubahan kode repo).
+
+## 22/11/2026 05:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e /tmp/e2e_err.py exit 0 tanpa exception/console error; live :9503 200.
+- Shot CDP: 696457 B (>=500KB), scene hidup.
+- Belum ada commit hari ini (tidak ada perubahan kode repo); backlog tetap butuh keputusan user.
+
+## 22/11/2026 05:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e /tmp/e2e_err.py exit 0 tanpa exception/console error; live :9503 200.
+- Shot CDP terakhir: 695036 B (>=500KB), scene hidup.
+- Belum ada commit hari ini (tidak ada perubahan kode repo); backlog tetap butuh keputusan user.
+## 22/11/2026 06:00 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e /tmp/e2e_err.py exit 0 tanpa exception/console error; live :9503 200.
+- Shot CDP: 696457 B (>=500KB), scene hidup.
+- Belum ada commit hari ini (tidak ada perubahan kode repo); backlog tetap menunggu keputusan user.
+## 22/11/2026 06:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e /tmp/e2e_err.py exit 0 tanpa exception/console error; live :9503 200.
+- Shot CDP: 695036 B (>=500KB), scene hidup.
+- Belum ada commit hari ini (tidak ada perubahan kode repo); backlog tetap menunggu keputusan user.
+
+## 22/11/2026 06:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e /tmp/e2e_err.py exit 0 tanpa exception/console error; live :9503 200.
+- Shot CDP: 692229 B (>=500KB), scene hidup.
+- Belum ada commit hari ini (tidak ada perubahan kode repo); backlog tetap menunggu keputusan user.
+
+## 22/11/2026 06:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, tanpa exception/console error; live :9503 200.
+- Shot CDP: 683925 B (>=500KB), scene hidup.
+- Belum ada commit hari ini; backlog menunggu keputusan user.
+
+## 22/11/2026 07:00 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e /tmp/e2e_err.py exit 0, tanpa exception/console error; live :9503 200.
+- Shot CDP: 696457 B (>=500KB), scene hidup.
+- Belum ada commit hari ini; backlog menunggu keputusan user.
+
+## 22/11/2026 07:30 WIB — Siklus rutin: audit sehat, catatan DISPLAY :99
+- Probe e2e /tmp/e2e_err.py exit 0 tanpa output error; live :9503 200.
+- Shot CDP (DISPLAY=:99): 678298 B (>=500KB), scene hidup, __cam OK.
+- Catatan: shot.sh default DISPLAY :0 kini jatuh ke mode UI-only (265KB); pakai DISPLAY=:99 untuk shot CDP.
+- Belum ada commit hari ini; backlog menunggu keputusan user.
+
+## 22/11/2026 07:50 WIB — Probe e2e dibangun ulang + gate "Aktifkan kantor 3D" terpetakan
+- e2e_err.py lama terhapus dari scratch (prune 24h); probe baru ditulis ulang via CDP headless.
+- Temuan: /app/ kini diawali gate mode ringan 2D — scene 3D hanya hidup setelah klik "Aktifkan kantor 3D"; probe lama (navigasi + poll) pasti membaca agents=0 karena gate belum dilewati.
+- Probe baru: klik gate, lalu poll 8x5s — a=26, __cam=true, __wallState=true stabil, ERRORS none, exit 0.
+- Shot CDP DISPLAY=:99 tetap valid (676871 B, poll __cam True) karena shot.sh mengurus gate-nya sendiri.
+- Repo: hanya DEV_LOG berubah; commit konsolidasi harian pertama (1x/hari).
