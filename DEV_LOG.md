@@ -1,3 +1,7 @@
+## 24/11/2026 01:2x WIB — Konsolidasi harian 23-24/11: fix orbit keyboard + 7 probe exit jujur, commit rangkuman
+- Rangkuman commit: OfficeScene.js guard isTypingTarget (bug orbit keyboard terbalik sejak siklus 177), 7 script e2e verdict dipropagasi (4 interaksi + 3 dashboard CDP), 2 test guard (4799 passed).
+- Bukti: npm test 488 file / 4799 passed / 6 skipped; build vite sukses; dist → ~/wfs-hq/; e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Live pasca-fix: e2e_orbit_keys OK (thL/R, phU/D, shift, goalKept, escape), e2e_dtap OK, e2e_pinch OK — semua exit 0.
 ## 2026-11-22 (siklus e2e-lantai) WIB — Rerun ketiga probe lantai (backlog 48): floor_occupancy OK
 - e2e_floor_occupancy rerun penuh: OK (agents=26, initial L1=9/L2=9/L3=8 → final L1=6/L2=9/L3=11, lunch=26, atZ3=12). Flake 12:06-12:40 WIB tak muncul lagi.
 - e2e_err.py exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
@@ -9936,3 +9940,30 @@
 - Build vite sukses, npm test 488 file / 4797 passed, 6 skipped.
 - Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200; dist ter-deploy ke ~/wfs-hq/.
 - 1 commit rangkuman hari ini (docstring deadline script e2e + DEV_LOG).
+
+## 23/11/2026 07:3x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (b46a14f); tanpa commit baru.
+
+## 23/11/2026 08:xx WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (b46a14f); tanpa commit baru.
+
+## 23/11/2026 08:xx WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (b46a14f); tanpa commit baru.
+
+## 23/11/2026 23:4x WIB — Siklus 280: census exit-tak-jujur kelas-276 diperluas ke probe dashboard CDP + 3 probe dikembalikan hidup
+- Census lanjutan 276-278: 3 probe dashboard CDP lain masih `main()` telanjang dgn verdict `ok` eksplisit (FAIL dicetak tapi exit 0): e2e_dashboard_stats_grid, e2e_events_stream, e2e_sh_console_overview → semua kini `return 0 if ok else 1` + `sys.exit(main())`.
+- Saat verifikasi live ditemukan 3 probe ini juga MATI sejak era siklus-467: URL masih `http://127.0.0.1:9503/` (rute landing tanpa scene — `__agentData` tak pernah ada, verdict lama tak mungkin tercapai). Diperbaiki ke `/app/?mode=office` mengikuti pola e2e_err_probe (467).
+- Bonus bug ditemukan: stats_grid mencari kartu label `"Agen"` padahal Dashboard.jsx merender `"Agen task engine"` sejak redesign — truth-mismatch permanen; label probe disesuaikan ke DOM sekarang.
+- Bukti live pasca-fix: E2E_STATSGRID OK 2× beruntun (agents=26, kartu==truth, exit 0), E2E_SHCONSOLE OK (nums==truth, approvals honest-empty), E2E_EVENTS OK (SSE tid muncul 1.83s, log_frame=true), semua exit 0 — sebelumnya ketiganya FAIL + exit 0 palsu.
+- Guard regresi: probe_wait_hardening.test.js +1 (siklus 279, 16 tes passed). e2e_err_probe OK exit 0 (ERRORS none).
+- Commit hari ini sudah ada (b46a14f); tanpa commit baru.
+
+## 24/11/2026 00:xx WIB — Siklus 281: bug orbit keyboard TERBALIK ditemukan & diperbaiki + 4 probe interaksi exit jujur
+- Census exit-tak-jujur lanjutan: e2e_dtap, e2e_input_edges, e2e_orbit_keys, e2e_pinch mencetak FAIL tapi exit 0 (verdict tak dipropagasi). Diperbaiki: `raise SystemExit(0 if ok else 1)` sebelum finally (pola 278).
+- Saat verifikasi live orbit_keys FAIL TES1-4 → BUG RUNTIME NYATA di OfficeScene.js: guard `if(!isTypingTarget(e.target))return` TERBALIK — orbit keyboard hanya aktif saat mengetik; panah di body no-op sejak siklus 177. Diperbaiki ke `if(isTypingTarget(e.target))return`.
+- Bukti live pasca-fix: e2e_orbit_keys OK (thL/thR/phU/phD/shift=0.36 eksak, clamp 0.18/π/2.3, goalKept, escape-works), e2e_dtap OK, e2e_input_edges OK, e2e_pinch OK — semua exit 0.
+- Guard regresi: probe_wait_hardening +1 tes (verdict 4 probe interaksi), esc_input_guard_330 diperbarui (assert guard baru). npm test 488 file / 4799 passed. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (ERRORS none, a=26).
+- Commit kemarin b46a14f; hari ini belum ada commit — perubahan di working tree (OfficeScene.js + 4 script e2e + 2 test + DEV_LOG).

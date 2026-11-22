@@ -2620,7 +2620,7 @@ const __onOrbitKey=(e)=>{
   if(window.__wfsModalOpen||window.__escModalAtDispatch){return;} // modal terbuka → keyboard milik modal
   const isArrow=e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='ArrowUp'||e.key==='ArrowDown';
   if(!isArrow)return;
-  if(!isTypingTarget(e.target))return; // sedang mengetik
+  if(isTypingTarget(e.target))return; // sedang mengetik — panah milik input
   e.preventDefault(); // panah = orbit, bukan scroll halaman
   const n=orbitStep(sph,e.key,e.shiftKey?ORBIT_KEY_STEP_FAST:ORBIT_KEY_STEP);
   sph.theta=n.theta;sph.phi=n.phi;

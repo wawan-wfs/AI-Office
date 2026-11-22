@@ -33,7 +33,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9469
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"  # siklus 467: office langsung via argv — rute landing→assign memicu bundle basi
 DB = os.path.expanduser("~/wfs-office/tasks.db")
 RUN = str(int(time.time()))
 DEMO_TITLE = f"Uji SSE siklus 154 run {RUN}"
@@ -288,6 +288,7 @@ def main():
               and appear_s is not None and appear_s <= 10.0 and log_frame
               and err_after_load == "no-err" and err_final == "no-err")
         print("E2E_EVENTS: OK" if ok else "E2E_EVENTS: FAIL")
+        return 0 if ok else 1
     finally:
         # ES in-page tertutup otomatis saat proses browser di-terminate di bawah.
         cleanup_demo_tasks()
@@ -297,4 +298,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

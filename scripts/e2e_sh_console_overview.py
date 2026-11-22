@@ -31,7 +31,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9469
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"  # siklus 467: office langsung via argv — rute landing→assign memicu bundle basi
 
 
 WS_TIMEOUT_S = 60  # siklus 197: tanpa timeout koneksi bisa menggantung tanpa batas
@@ -240,6 +240,7 @@ def main():
             print("parse fail:", e)
             ok = False
         print("E2E_SHCONSOLE: OK" if ok else "E2E_SHCONSOLE: FAIL")
+        return 0 if ok else 1
     finally:
         p.terminate()
         if xv:
@@ -247,4 +248,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

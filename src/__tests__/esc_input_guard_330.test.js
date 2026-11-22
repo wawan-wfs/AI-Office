@@ -21,10 +21,12 @@ describe('siklus 330 — Escape scene reset-focus guard input', () => {
     expect(scene).toMatch(/const onKey=\(e\)=>\{ if\(e\.key==='Escape'&&window\.__escModalAtDispatch===false/)
   })
 
-  it('pola guard input konsisten dengan __onOrbitKey (satu sumber kebenaran)', () => {
-    // __onOrbitKey memakai pola guard yang sama — refactor ke helper bersama
-    expect(scene).toContain('!isTypingTarget(e.target)') // dipakai minimal 2x (onKey + onOrbit via helper)
+  it('pola guard input di __onOrbitKey: blokir saat mengetik (siklus 281 — logika terbalik diperbaiki)', () => {
+    // Siklus 281: guard lama `if(!isTypingTarget(e.target))return` TERBALIK —
+    // orbit keyboard hanya aktif saat mengetik; panah di body no-op (bug nyata,
+    // terbukti e2e_orbit_keys TES1-4 FAIL lalu OK pasca-fix).
+    expect(scene).toContain('if(isTypingTarget(e.target))return; // sedang mengetik — panah milik input')
     const uses = scene.split('isTypingTarget(').length - 1
-    expect(uses).toBeGreaterThanOrEqual(2) // definisi + 2 pemakaian guard (onKey & __onOrbitKey) — split menghitung 3 kata 'isTypingTarget' minus definisi → 2
+    expect(uses).toBeGreaterThanOrEqual(2) // definisi + guard onKey + guard __onOrbitKey
   })
 })

@@ -28,7 +28,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9468
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"  # siklus 467: office langsung via argv — rute landing→assign memicu bundle basi
 
 
 WS_TIMEOUT_S = 60  # siklus 197: tanpa timeout koneksi bisa menggantung tanpa batas
@@ -217,13 +217,14 @@ def main():
             truth = json.loads(truth_raw)
             ok = ok and int(cards.get("Proyek", "-1")) == truth["pt"] \
                 and int(cards.get("Task", "-1")) == truth["tt"] \
-                and int(cards.get("Agen", "-1")) == truth["ac"] \
+                and int(cards.get("Agen task engine", "-1")) == truth["ac"] \
                 and err_raw == "no-err" and int(logs_n) == truth["lg"] and int(logs_n) > 0 \
                 and presence_raw == "presence-ok"
         except Exception as e:
             print("parse fail:", e)
             ok = False
         print("E2E_STATSGRID: OK" if ok else "E2E_STATSGRID: FAIL")
+        return 0 if ok else 1
     finally:
         p.terminate()
         if xv:
@@ -231,4 +232,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

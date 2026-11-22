@@ -217,6 +217,7 @@ try:
     print(f"ERRS={n_err} EXCS={len(excs)}")
     ok = t1 and t2 and t3 and t4 and n_err == 0 and len(excs) == 0
     print("===> OK" if ok else "===> FAIL")
+    raise SystemExit(0 if ok else 1)  # exit jujur (pola siklus 278)
 finally:
     p.kill()
     subprocess.run(["pkill", "-f", f"remote-debugging-port={PORT}"],

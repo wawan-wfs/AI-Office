@@ -219,4 +219,24 @@ describe('siklus 200 — kriteria inti probe TIDAK berubah (spot-check per kelom
       expect(w, n).not.toMatch(/^\s*main\(\)\s*$/m)
     }
   })
+
+  it('siklus 279 — probe dashboard CDP (stats_grid/events/sh_console_overview): exit code jujur (census lanjutan 276-278)', () => {
+    // Tiga probe dashboard keluarga lain masih `main()` telanjang dgn verdict ok
+    // eksplisit — kelas persis 276/277/278: FAIL dicetak tapi exit 0.
+    for (const n of ['e2e_dashboard_stats_grid', 'e2e_events_stream', 'e2e_sh_console_overview']) {
+      const w = src[n]
+      expect(w, n).toContain('return 0 if ok else 1')
+      expect(w, n).toContain('sys.exit(main())')
+      expect(w, n).not.toMatch(/^\s*main\(\)\s*$/m)
+    }
+  })
+
+  it('siklus 280 — probe interaksi (dtap/input_edges/orbit_keys/pinch): exit code jujur (census lanjutan)', () => {
+    // Empat probe interaksi masih mencetak FAIL tapi exit 0 — verdict tak
+    // dipropagasi (kelas persis 276-279).
+    for (const n of ['e2e_dtap', 'e2e_input_edges', 'e2e_orbit_keys', 'e2e_pinch']) {
+      const w = readFileSync(resolve(dir, `${n}.py`), 'utf-8')
+      expect(w, n).toContain('raise SystemExit(0 if ok else 1)')
+    }
+  })
 })
