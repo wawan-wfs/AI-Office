@@ -1,3 +1,8 @@
+## 2026-11-22 (siklus e2e-lantai) WIB — Rerun ketiga probe lantai (backlog 48): floor_occupancy OK
+- e2e_floor_occupancy rerun penuh: OK (agents=26, initial L1=9/L2=9/L3=8 → final L1=6/L2=9/L3=11, lunch=26, atZ3=12). Flake 12:06-12:40 WIB tak muncul lagi.
+- e2e_err.py exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
 ## 14/11/2026 22:48 WIB — Siklus 525: layar monitor resepsionis LIVE
 - Gap: rcScreenGlow = kotak MeshBasic 0x0A1628 datar — satu-satunya layar kosong di kantor.
 - Fix: kanvas 256×160 + painter murni baru `parts/lobby_screen.js` (jam simulasi 900 54px, judul WFS · LOBBY, fase kantor via officeStatusAt, jumlah agen); material uiTexture+uiMaterial (tanpa tone-map shift); refs {lobbyCtx, lobbyTex, lobbyScreen} diekspos.
@@ -9763,3 +9768,171 @@
 - Probe baru: klik gate, lalu poll 8x5s — a=26, __cam=true, __wallState=true stabil, ERRORS none, exit 0.
 - Shot CDP DISPLAY=:99 tetap valid (676871 B, poll __cam True) karena shot.sh mengurus gate-nya sendiri.
 - Repo: hanya DEV_LOG berubah; commit konsolidasi harian pertama (1x/hari).
+
+## 22/11/2026 08:15 WIB — Siklus rutin: audit berkala audit_vision_claims sehat
+- Audit berkala dijalankan: scripts/audit_vision_claims.py — klaim=12, bugs=0, incomplete=0; oracle oklusi 2 ronde (5/5 zona pass per ronde), verdict RESOLVED 2 / FADED-BY-OTHER 3 / FALSIFIED 7 — konsisten dgn run 262/331.
+- Probe e2e exit 0 (26 agen, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab) → tanpa commit baru, audit bersifat read-only.
+
+## 22/11/2026 08:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); DEV_LOG masih working tree.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 09:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 09:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 10:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 10:45 WIB — Siklus rutin + audit kesehatan backup P0
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Audit backup P0: cron 04:15 harian jalan — snapshot wfs-hq-20261122-0415.tgz rc=0, 23MB, 932 entri, retensi 7 snapshot ada.
+- Kandidat backlog lama "wfs-hq backup berkala" kini TUNTAS via backup_wfs_hq.sh.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 14:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 15:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 15:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 16:00 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 16:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 10:25 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 16:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 16:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 17:00 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 17:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 17:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 17:45 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0, 26 agen, cam/walls true, ERRORS none; live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 18:00 WIB — Siklus: docstring probe lantai diberi catatan runtime deadline >=180s + rerun ketiga probe lantai hijau
+- Backlog "flake timeout <90s di docstring probe lantai" TUNTAS: catatan runtime ditambahkan ke 3 docstring (e2e_floor_occupancy/goal_floor_live/inspector_floor) — deadline >=180 dtk, handshake WS 60 dtk, antrean 20 dtk/tries; kill <90 dtk hanya menghasilkan verdict palsu.
+- Rerun ketiga probe lantai hijau penuh: occupancy OK (initial 9/9/8 → final 2/8/16, lunch 26), inspector OK (L1→L3 via lunch), goal_floor OK (nav0=L1, board/follow L3).
+- npm run build exit 0, npm test exit 0, dist terdeploy ke ~/wfs-hq/, probe e2e_err exit 0 (a=26, ERRORS none).
+- Commit hari ini sudah ada (70554ab); perubahan docstring tersimpan di working tree lokal.
+
+## 22/11/2026 21:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200; check_runtime_layout exit 0.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 22:09 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+- Backlog besar (cutover Docker :8787, push saas-dibantuin) menunggu keputusan user.
+
+## 22/11/2026 22:43 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:0x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:1x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 16:38 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:3x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:4x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 17:30 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:5x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:5x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 23:5x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 19:15 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 22/11/2026 19:3x WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (70554ab); tanpa commit baru.
+
+## 23/11/2026 00:xx WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit kemarin 70554ab; hari ini belum ada commit, working tree bersih kecuali DEV_LOG.
+
+## 23/11/2026 05:05 WIB — Siklus rutin: audit sehat tanpa perubahan kode
+- Build vite sukses (474s), npm test 488 file / 4797 passed, 6 skipped.
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200; dist ter-deploy ke ~/wfs-hq/.
+- Commit kemarin 70554ab; hari ini belum ada commit, perubahan berjalan: DEV_LOG + 3 script e2e (docstring deadline).
+
+## 23/11/2026 07:1x WIB — Konsolidasi harian: build+tes penuh, commit rangkuman
+- Build vite sukses, npm test 488 file / 4797 passed, 6 skipped.
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200; dist ter-deploy ke ~/wfs-hq/.
+- 1 commit rangkuman hari ini (docstring deadline script e2e + DEV_LOG).

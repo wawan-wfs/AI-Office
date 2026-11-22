@@ -9,6 +9,10 @@ Langkah:
      Executive Cafe L3 (walker berjalan, z melampaui 4.5) → badge berubah
      "L3 · Executive" via polling 1 dtk TANPA buka-tutup kartu.
 Pemakaian: uv run --with websocket-client python scripts/e2e_inspector_floor.py
+Catatan runtime: beri deadline >= 180 dtk (bukan <90s). Handshake WS berbatas
+WS_TIMEOUT_S=60 dtk dan antrean pesan per-langkah berbatas 20 dtk/tries, jadi
+di SwiftShader lambat probe sah bisa berjalan beberapa menit; mematikan proses
+di bawah 90 dtk hanya menghasilkan verdict palsu.
 """
 import subprocess, os, time, urllib.request, json, socket, struct, base64, sys, queue, threading
 

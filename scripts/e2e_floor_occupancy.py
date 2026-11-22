@@ -8,6 +8,10 @@ Langkah:
   3. __setTime(720) (lunch 12:00) → daycycle mengirim agen ke Executive Cafe
      L3 (z≈5.6) → distribusi berubah LIVE: L3 naik, L1 turun — tanpa reload.
 Pemakaian: uv run --with websocket-client python scripts/e2e_floor_occupancy.py
+Catatan runtime: beri deadline >= 180 dtk (bukan <90s). Handshake WS berbatas
+WS_TIMEOUT_S=60 dtk dan antrean pesan per-langkah berbatas 20 dtk/tries, jadi
+di SwiftShader lambat probe sah bisa berjalan beberapa menit; mematikan proses
+di bawah 90 dtk hanya menghasilkan verdict palsu.
 """
 import subprocess, os, time, urllib.request, json, socket, struct, base64, sys, queue, threading
 

@@ -19,6 +19,10 @@ Langkah (semua via scene nyata — raycast klik + daycycle):
      kamera follow → nav aktif HARUS berubah ke L3 LIVE (tanpa klik baru).
 Diskriminasi: kode lama → langkah 2 & 5 FAIL (nav L1 terus).
 Pemakaian: uv run --with websocket-client python scripts/e2e_goal_floor_live.py
+Catatan runtime: beri deadline >= 180 dtk (bukan <90s). Handshake WS berbatas
+WS_TIMEOUT_S=60 dtk dan antrean pesan per-langkah berbatas 20 dtk/tries, jadi
+di SwiftShader lambat probe sah bisa berjalan beberapa menit; mematikan proses
+di bawah 90 dtk hanya menghasilkan verdict palsu.
 """
 import subprocess, os, time, urllib.request, json, socket, struct, base64, sys, queue, threading, math
 
