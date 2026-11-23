@@ -18,7 +18,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9465
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"
 SCR = os.path.expanduser("~/.hermes/cache/scratch")
 
 DESTROY_EXPR = ("JSON.stringify((()=>{try{"
@@ -165,4 +165,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise

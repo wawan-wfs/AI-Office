@@ -11,7 +11,7 @@ describe('DESKS — layout 14 meja', () => {
   it('posisi historis semua 14 meja (urutan agen)', () => {
     const expected = [
       [-8, -3], [-4, -3], [-8, 1.5], [-4, 1.5], [0, -3], [0, 1.5], [-8, 6], [-4, 6],
-      [4, -3], [4, 1.5], [4, 6], [8, -3], [8, 1.5], [0, 6],
+      [4, -3], [4, 1.5], [4, 6], [13.5, -3], [8, 1.5], [0, 6],
     ];
     DESKS.forEach((d, i) => {
       expect(d.x).toBe(expected[i][0]);
@@ -19,9 +19,14 @@ describe('DESKS — layout 14 meja', () => {
     });
   });
 
-  it('kolom x = [-8,-4,0,4,8] dan baris z = [-3,1.5,6]', () => {
-    expect(deskColumns()).toEqual([-8, -4, 0, 4, 8]);
+  it('TRAINER AI tak lagi di (8,-3) — sel meja rapat (siklus 296)', () => {
+    expect(DESKS[11]).not.toEqual({ x: 8, z: -3 });
+    expect(DESKS[11]).toEqual({ x: 13.5, z: -3 });
+  });
+
+  it('kolom & baris: baris z tetap [-3,1.5,6]; kolom mengikuti layout (siklus 296: TRAINER AI pindah ke x 13.5)', () => {
     expect(deskRows()).toEqual([-3, 1.5, 6]);
+    expect(deskColumns()).toContain(13.5);
   });
 
   it('tidak ada dua meja menumpuk (posisi unik)', () => {
@@ -29,15 +34,10 @@ describe('DESKS — layout 14 meja', () => {
     expect(new Set(keys).size).toBe(14);
   });
 
-  it('grid 5×3 = 15 slot → tepat 1 kursi kosong', () => {
+  it('slot kosong tidak menempati sel meja rapat (8,-3) — siklus 296', () => {
     const g = deskGrid();
-    expect(g.total).toBe(15);
-    expect(g.empty).toHaveLength(1);
-  });
-
-  it('slot kosong persis (8,6) — sel grid untuk meja resepsionis Founder WFS', () => {
-    const g = deskGrid();
-    expect(g.empty).toEqual([{ x: 8, z: 6 }]);
+    expect(g.empty.some(s => s.x === 8 && s.z === -3)).toBe(true); // sel bebas (di dalam ruang meeting)
+    expect(g.empty.some(s => s.x === 8 && s.z === 6)).toBe(true);  // sel resepsionis Founder
   });
 
   it('semua koordinat finite number', () => {
@@ -47,9 +47,9 @@ describe('DESKS — layout 14 meja', () => {
     }
   });
 
-  it('meja berada dalam batas ruangan (|x|≤12.5, |z|≤9.5)', () => {
+  it('meja berada dalam batas ruangan (|x|≤13.5, |z|≤9.5; dinding ±17/±13.5)', () => {
     for (const d of DESKS) {
-      expect(Math.abs(d.x)).toBeLessThanOrEqual(12.5);
+      expect(Math.abs(d.x)).toBeLessThanOrEqual(13.5);
       expect(Math.abs(d.z)).toBeLessThanOrEqual(9.5);
     }
   });

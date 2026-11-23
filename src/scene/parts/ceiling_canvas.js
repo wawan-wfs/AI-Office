@@ -2,10 +2,14 @@
 // Diekstrak dari IIFE CEILING OfficeScene; urutan & parameter perintah gambar
 // identik kode lama (tampilan tak berubah).
 const CEIL_SIZE = 512, CEIL_TILES = 4, CEIL_CELL = 128;
+// Siklus 312: konstanta warna diekspor — satu sumber kebenaran (tests & repaint
+// malam merujuk nilai ini, tak duplikat hardcode). Nilai identik kode lama.
+export const CEIL_TOP = '#0C1B33';
+export const CEIL_BOTTOM = '#0A1628';
 
 function drawCeiling(ctx){
   const g = ctx.createLinearGradient(0,0,0,512);
-  g.addColorStop(0,'#0C1B33');g.addColorStop(1,'#0A1628');
+  g.addColorStop(0,CEIL_TOP);g.addColorStop(1,CEIL_BOTTOM);
   ctx.fillStyle=g;ctx.fillRect(0,0,512,512);
   // vignette lembut ke tepi (AO palsu di langit-langit)
   const v=ctx.createRadialGradient(256,256,80,256,256,340);

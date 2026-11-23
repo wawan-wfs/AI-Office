@@ -2,7 +2,7 @@
 // Unit test painter plafon prosedural (parts/ceiling_canvas.js).
 // ctx recorder + gradien palsu; memverifikasi urutan & parameter identik kode lama.
 import { describe, it, expect } from 'vitest';
-import { drawCeiling, CEIL_SIZE, CEIL_TILES, CEIL_CELL } from '../scene/parts/ceiling_canvas.js';
+import { drawCeiling, CEIL_SIZE, CEIL_TILES, CEIL_CELL, CEIL_TOP, CEIL_BOTTOM } from '../scene/parts/ceiling_canvas.js';
 
 function makeCtx(){
   const ops=[]; let gid=0;
@@ -31,6 +31,16 @@ const gradOf=(ctx,opName,idx)=>{ const call=ctx._ops.filter(o=>o[0]===opName)[id
 describe('drawCeiling', ()=>{
   it('mengekspor konstanta ukuran', ()=>{
     expect(CEIL_SIZE).toBe(512); expect(CEIL_TILES).toBe(4); expect(CEIL_CELL).toBe(128);
+  });
+
+  // Siklus 312: konstanta warna terkunci ke nilai historis hardcode lama —
+  // satu sumber kebenaran, guard anti-drift visual.
+  it('konstanta warna plafon terkunci ke nilai historis', ()=>{
+    expect(CEIL_TOP).toBe('#0C1B33');
+    expect(CEIL_BOTTOM).toBe('#0A1628');
+    const c=makeCtx(); drawCeiling(c);
+    const g=gradOf(c,'createLinearGradient',0);
+    expect(g.stops).toEqual([[0,CEIL_TOP],[1,CEIL_BOTTOM]]);
   });
 
   it('gradien linear vertikal 2 stop #0C1B33 → #0A1628 lalu fillRect penuh', ()=>{

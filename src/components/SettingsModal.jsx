@@ -14,7 +14,7 @@ import {
   clampAmbienceVolume, formatAmbiencePercent,
 } from '../scene/parts/sound_spec'
 import { namesPrefOn, autoRotatePrefOn } from '../lib/storage_prefs.js'
-import { accentAlpha, failedAlpha, SKY_BUTTON, PANEL_SOFT_TEXT, ITEM_TITLE_TEXT , PURE_TEXT} from '../lib/ui_palette.js'
+import { accentAlpha, failedAlpha, greenAlpha, whiteAlpha, SKY_BUTTON, PANEL_SOFT_TEXT, ITEM_TITLE_TEXT , PURE_TEXT} from '../lib/ui_palette.js'
 
 export default function SettingsModal({
   show,
@@ -236,7 +236,7 @@ export default function SettingsModal({
         </p>
 
         {/* ── BAGIAN AUDIO ── */}
-        <div className="settings-section" style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', background: 'rgba(255,255,255,0.02)', marginBottom: 14 }}>
+        <div className="settings-section" style={{ border: `1px solid ${whiteAlpha(0.08)}`, borderRadius: 14, padding: '12px 14px', background: whiteAlpha(0.02), marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {muted ? <IconVolumeMute size={18} style={{ color: TASK_STATUS_COLORS.failed }} /> : <IconVolume size={18} style={{ color: 'var(--teal)' }} />}
@@ -311,8 +311,8 @@ export default function SettingsModal({
                       fontFamily: "'DM Mono', monospace",
                       fontWeight: 600,
                       borderRadius: 8,
-                      border: isActive ? '1px solid var(--teal)' : '1px solid rgba(255,255,255,0.12)',
-                      background: isActive ? accentAlpha(0.15) : 'rgba(255,255,255,0.04)',
+                      border: isActive ? '1px solid var(--teal)' : `1px solid ${whiteAlpha(0.12)}`,
+                      background: isActive ? accentAlpha(0.15) : whiteAlpha(0.04),
                       color: isActive ? 'var(--teal)' : PANEL_SOFT_TEXT,
                       cursor: 'pointer',
                       transition: 'all .15s'
@@ -404,12 +404,12 @@ export default function SettingsModal({
           </div>
 
           {/* Ambience Ruangan Kantor (Hum HVAC & Room Tone) */}
-          <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ paddingTop: 12, borderTop: `1px solid ${whiteAlpha(0.06)}` }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: ambienceOn ? 8 : 0 }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 500, color: ITEM_TITLE_TEXT, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span>Ambience Ruangan (Hum Kantor)</span>
-                  <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: ambienceOn && !muted ? 'rgba(16,229,160,0.15)' : 'rgba(255,255,255,0.06)', color: ambienceOn && !muted ? TASK_STATUS_COLORS.done : 'var(--text-tertiary)', fontFamily: "'DM Mono', monospace" }}>
+                  <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: ambienceOn && !muted ? greenAlpha(0.15) : whiteAlpha(0.06), color: ambienceOn && !muted ? TASK_STATUS_COLORS.done : 'var(--text-tertiary)', fontFamily: "'DM Mono', monospace" }}>
                     {muted ? 'TERBUNGKAM' : (ambienceOn ? 'AKTIF' : 'NONAKTIF')}
                   </span>
                 </div>
@@ -428,7 +428,7 @@ export default function SettingsModal({
                   padding: '4px 10px',
                   height: 'auto',
                   minHeight: 28,
-                  borderColor: ambienceOn && !muted ? 'var(--teal)' : 'rgba(255,255,255,0.12)',
+                  borderColor: ambienceOn && !muted ? 'var(--teal)' : whiteAlpha(0.12),
                   color: ambienceOn && !muted ? 'var(--teal)' : PANEL_SOFT_TEXT
                 }}
               >
@@ -437,7 +437,7 @@ export default function SettingsModal({
             </div>
 
             {ambienceOn && (
-              <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div style={{ marginTop: 8, padding: '8px 10px', background: whiteAlpha(0.02), borderRadius: 8, border: `1px solid ${whiteAlpha(0.04)}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4 }}>
                   <span>Level Ambience:</span>
                   <span style={{ fontFamily: "'DM Mono', monospace", color: PANEL_SOFT_TEXT }}>{formatAmbiencePercent(ambienceVol)}</span>
@@ -459,7 +459,7 @@ export default function SettingsModal({
         </div>
 
         {/* ── BAGIAN VISUAL & KONTROL ── */}
-        <div className="settings-section" style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', background: 'rgba(255,255,255,0.02)', marginBottom: 16 }}>
+        <div className="settings-section" style={{ border: `1px solid ${whiteAlpha(0.08)}`, borderRadius: 14, padding: '12px 14px', background: whiteAlpha(0.02), marginBottom: 16 }}>
           <div style={{ fontWeight: 600, fontSize: 13, color: PURE_TEXT, marginBottom: 10 }}>Visual Ruangan 3D</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -514,7 +514,7 @@ export default function SettingsModal({
 
         <div className="modal-actions" style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
           <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-            Shortcut: <kbd style={{ padding: '2px 4px', background: 'rgba(255,255,255,0.08)', borderRadius: 4 }}>O</kbd> buka pengaturan · <kbd style={{ padding: '2px 4px', background: 'rgba(255,255,255,0.08)', borderRadius: 4 }}>M</kbd> mute
+            Shortcut: <kbd style={{ padding: '2px 4px', background: whiteAlpha(0.08), borderRadius: 4 }}>O</kbd> buka pengaturan · <kbd style={{ padding: '2px 4px', background: whiteAlpha(0.08), borderRadius: 4 }}>M</kbd> mute
           </span>
           <button type="button" className="btn primary" onClick={onClose}>
             Selesai

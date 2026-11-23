@@ -46,7 +46,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9459
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"
 
 STATE_EXPR = ("JSON.stringify({agents:window.__agentData?window.__agentData.length:-1,"
               "cam:!!window.__camCam,renderer:!!window.__renderer,"
@@ -345,4 +345,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise

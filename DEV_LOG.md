@@ -1,3 +1,35 @@
+## 24/11/2026 18:2x WIB — Siklus 310: guard anti-poisoning zoneViewportGuard (scale/NDC NaN)
+- Audit guard label: zoneViewportGuard (label_overlap.js) satu-satunya jalur label belum ber-guard penuh — zh/zw (scale korup) atau fy/fx (project NaN) non-finite membuat SEMUA perbandingan batas false → zona tak pernah dikoreksi (stale senyap), dan wpp2/corr berpotensi NaN menulari position. Kini: skip eksplisit (no-op aman), konsisten dgn zoneScreenFade/occlusionPass.
+- Guard tes +1 di zone_viewport_guard.test.js (4 kasus: scale NaN/Infinity, NDC NaN/Infinity → return 0, posisi & userData tak tersentuh). npm test 490 file / 4816 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 13:0x WIB — Siklus 301: guard band-crossing routing (18 segmen diagonal antar-lantai → 0)
+- Bug navigasi ditemukan via probe baru segmen lintas band atas 1.482 pasangan endpoint (26 meja + 25 campus walk dest; 1.000 pasangan lintas lantai): 18 rute punya segmen diagonal yang melompati batas zona lantai (mis. {2.6,-1.8}→{6.26,-0.59} — z naik 1,2 m sambil x geser 3,7 m → floorElevationAt lompat, agen "terbang" mid-air alih-alih turun tangga vertikal). Sumbernya pass weave: detourMid/detourFar/detourBox/koridor utara menyisipkan kandidat detour di band lantai lain saat segmen dekat batas zona.
+- Fix routing.js: guard `bandOk` di weave — semua kandidat detour (box/far/mid) wajib satu band dgn `prev`, kaki tangga antar band tak pernah di-detour, cabang koridor utara L3 hanya bila prev & v se-band. Probe ulang: 18 → 0 segmen lintas band diagonal; guard lama (0 duplikat, 0 blokir) tetap hijau.
+- Guard regresi baru routing_band_cross.test.js (2 tes: sweep 1.000 pasangan lintas band x-delta≤0,05 + kasus eksplisit meja L2→walk dest L1).
+- npm test 490 file / 4809 passed (+2), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; live CDP manual: a=26, cam/walls true, screens=27, EXC/CON none.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 12:3x WIB — Siklus 300: guard anti-duplikat waypoint routing (145→0)
+- Temuan audit baru: 145 dari 1.482 pasangan endpoint (26 meja + 25 campus walk dest) punya waypoint nol-panjang berurutan (mis. `{12,10}→{12,10}`) — sumbernya weave: koridor utara L3 push mid2 == v, detourBox/far push tepi == v. Tak fatal (stepMove langsung arrived) tapi limbah jalur (7.021 → 6.876 segmen).
+- Fix routing.js: guard `pushPt` di weave — semua push (koridor utara, detourBox/detourFar/detourMid/final) skip waypoint identik dgn sebelumnya. Probe ulang: 0 duplikat, 0 segmen terblokir.
+- Guard regresi baru routing_dup.test.js (2 tes: sweep 1.482 pasangan tanpa duplikat + kasus koridor utara L3).
+- npm test 489 file / 4807 passed (+2), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/ (:9503 200). e2e_err exit 0 (EXC/CON none); live CDP: a=26, cam/walls true, route terhitung; shot 253KB.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 10:1x WIB — Siklus 299: audit berkala audit_vision_claims (tanpa perubahan kode)
+- Backlog "audit berkala audit_vision_claims" dieksekusi: audit penuh live (CDP :99, 2 ronde konvergensi, 26 agen/5 zona/1 bubble).
+- Oracle oklusi zona 5/5 eksak (DEV DESK/MEETING/WELCOME & LOUNGE/CAFÉ occ=0.5, SERVER ROOM occ=1.0 == oracle).
+- Verdict 12 klaim vision (VC-250/251/256/258): RESOLVED 1 (LINA×INTEGRATOR BOT occ 0.55), FADED-BY-OTHER 1 (HENDRA×WELCOME & LOUNGE), sisanya FALSIFIED (klaim tumpuk tak terjadi di steady-state) — bugs=0, incomplete=0.
+- npm test 488 file / 4805 passed, 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 05:1x WIB — Siklus 288: audit routing tangga antar lantai (tanpa perubahan kode)
+- Audit stair routing: routePath + STAIR_X/getNearestStairX (routing.js), terraces.js, floor_elevation.js — agen diarahkan ke tangga fisik, tidak memotong mid-air; guard regresi stair_routing.test.js aktif.
+- Bukti live: e2e_err exit 0 (a=26, cam/walls true, ERRORS none, 35 dtk stabil); build vite sukses; dist ter-deploy ke ~/wfs-hq/.
+- npm test 488 file / 4799 passed, 6 skipped.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
 ## 24/11/2026 01:2x WIB — Konsolidasi harian 23-24/11: fix orbit keyboard + 7 probe exit jujur, commit rangkuman
 - Rangkuman commit: OfficeScene.js guard isTypingTarget (bug orbit keyboard terbalik sejak siklus 177), 7 script e2e verdict dipropagasi (4 interaksi + 3 dashboard CDP), 2 test guard (4799 passed).
 - Bukti: npm test 488 file / 4799 passed / 6 skipped; build vite sukses; dist → ~/wfs-hq/; e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
@@ -9967,3 +9999,199 @@
 - Bukti live pasca-fix: e2e_orbit_keys OK (thL/thR/phU/phD/shift=0.36 eksak, clamp 0.18/π/2.3, goalKept, escape-works), e2e_dtap OK, e2e_input_edges OK, e2e_pinch OK — semua exit 0.
 - Guard regresi: probe_wait_hardening +1 tes (verdict 4 probe interaksi), esc_input_guard_330 diperbarui (assert guard baru). npm test 488 file / 4799 passed. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (ERRORS none, a=26).
 - Commit kemarin b46a14f; hari ini belum ada commit — perubahan di working tree (OfficeScene.js + 4 script e2e + 2 test + DEV_LOG).
+
+## 24/11/2026 06:xx WIB — Siklus 285: census exit-jujur ditutup (4 probe terakhir dibungkus SystemExit-propagate)
+- Sisa census: audit_cam_presets + diag_heapsnap/remount_leak/snapdiff_run masih `main()` telanjang → dibungkus `try: main() except SystemExit: raise` (pola 283). Propagasi exception kini exit 1, bukan 0 palsu.
+- Sisa 13 file "bare" lain adalah script ops/CI (custody, buildkit, recovery, invoice, rotate) — bukan probe e2e scene; dibiarkan.
+- Bukti live pasca-fix: E2E_AUDIT_CAM 6/6 preset PASS (shot 1.0MB, errors=0, excs=0), diag_heapsnap/remount_leak/snapdiff_run exit 0 semua.
+- npm test 488 file / semua passed, build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 04:4x WIB — Siklus 286: pemulihan disk besar (96%→86%)
+- Disk 96% penuh dibereskan: /tmp dibersihkan 19 dir probe/chrome besar (3.0G→2.0G), profile chrome-for-testing-headless 1.7G, npm cache 1.7G→542M, uv cache 1.3G, pip cache 78M. Hasil: 2.1GB → 6.7GB bebas (93%→86%).
+- Build vite sukses, npm test 488 file / 4799 passed, dist ter-deploy ke ~/wfs-hq/, e2e_err exit 0 (a=26, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+- Probe e2e exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 04:xx WIB — Siklus 284: 3 diag probe URL landing-mati diperbaiki + pemulihan disk penuh
+- Sisa census URL: 3 probe diag masih buka `http://127.0.0.1:9503/` (landing tanpa scene) → diperbaiki ke `/app/?mode=office`. Live verify semua exit 0: diag_snapdiff_run (heap 92), diag_remount_leak (destroy 3× bersih, hostAll=0, hooks rekreat), diag_heapsnap (heap 93→93).
+- Disk / 99% penuh (869MB sisa) ditemukan & dipulihkan: 2 heapsnapshot bug (338MB) dihapus, chromium-1148 lama + ffmpeg-1010 dihapus (~900MB), git gc agresif .git 386MB→47MB (fsck bersih, HEAD utuh 25232b4). Disk kini 45G terpakai / 2.1GB bebas (96%).
+- e2e_err pasca-beres-beres exit 0 (a=26, cam/walls true, ERRORS none). Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 03:0x WIB — Siklus 283: 24 probe sisanya exit jujur + URL landing-mati diperbaiki massal
+- Census exit-jujur tahap 4: 24 probe `main()` telanjang (admin_panel, async_destroy, audio_signal, bubble_leak, camera_reset, deeplink_dashboard, err_probe, meeting_pick, perf_chip, scene_dispose ×3, scene_hooks, shot, taskboard_lazy, tv, tvtexture, tvwysiwyg ×2, widget_chat, zone_lod/multi/pos, zoom_follow) dibungkus `try: main() except SystemExit: raise` — FAIL kini exit 1.
+- Bug URL era siklus-467 ditemukan massal: 31+ probe masih buka `http://127.0.0.1:9503/` (rute landing tanpa scene) — beberapa memang navigate ke /app/?mode=office setelahnya (hover_follow dkk, dibiarkan), sisanya MATI. Semua URL tanpa scene diperbaiki ke `/app/?mode=office`.
+- Bukti live pasca-fix: E2E_PERF_CHIP OK (fps=1.7, chip GPU live — sebelumnya FAIL + exit 0 palsu), E2E_TV OK (drawnAt live, agents=26), E2E_SCENEHOOKS OK (destroy 0 sisa, recreate zona=5), E2E_ZOOMFOLLOW OK (r 24→12), e2e_err exit 0 (ERRORS none, a=26).
+- npm test 488 file / 4799 passed, 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 01:xx WIB — Siklus 282: 5 probe interaksi/visual sisanya exit jujur + live re-verified
+- Census exit-tak-jujur tahap 3: hover_follow, hover_leave, meeting_follow, dblclick_nexus, lazy_modals masih `main()` telanjang (sys.exit di dalam main tidak terpropagasi). Dibungkus `try: main() except SystemExit: raise` di semua 5.
+- Live re-verify semua exit 0: E2E_HOVERFOLLOW OK (moved=8.833), E2E_HOVERLEAVE OK (ring hilang + cursor reset), E2E_MEETFL OK (follow root, dist=0.181), E2E_DBLNX OK (r=16.00 idempoten), E2E_LAZY_MODALS OK (5 tes, hooks a=26).
+- e2e_err_probe exit 0 (ERRORS none, shot 694KB, hygiene 39 refs/0 missing). npm test 488 file / 4799 passed. Build vite sukses, dist ter-deploy ke ~/wfs-hq/.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 05:0x WIB — Siklus 287: audit rutin kualitas adaptif (tanpa perubahan kode)
+- Audit perf_quality.js + render_startup.js: tangga degradasi/recovery, hysteresis, stale-window, glLost — semua konsisten dgn guard r183, tak ditemukan bug.
+- Bukti live: e2e_perf_chip exit 0 (fps 1,8 @SwiftShader, PR x0.75, shadowLevel 2, chip HUD tampil honest "Mode ringan"); audit_cam_presets 6/6 PASS (shot 1.0MB, errors=0).
+- npm test 488 file / 4799 passed, 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 05:4x WIB — Siklus 289: audit rutin oklusi label (tanpa perubahan kode)
+- Audit label_occlusion.js (kurva kedalaman 240, tie 250, agent×zone 256, bubble×zone 257) + guard label_occlusion/_zone/overlap: 61 tes passed, logika konsisten, tak ditemukan bug.
+- Bukti live: e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 06:xx WIB — Siklus 290: bug sinkronisasi bandOf routing vs zona-lantai diperbaiki
+- Bug nyata: `bandOf` di routing.js memakai ambang -0.75/3.75, beda dgn sumber kebenaran zona-lantai floor_elevation.js (ZONE_L1_MAX_Z=-0.8, ZONE_L2_MAX_Z=4.5, siklus 371). Akibat agen di z∈(3.75,4.5] dikira L3 oleh routing (dipaksa lewat tangga) padahal elevasinya L2; rentang (-0.8,-0.75] terbalik.
+- Fix: bandOf kini dihitung dari ZONE_L1_MAX_Z/ZONE_L2_MAX_Z (import dari floor_elevation.js) — routing & floorOf tak akan pernah beda lantai lagi. Ambang baru: -0.78→band1, 4.5→band1, 4.6→band2 (terverifikasi node).
+- npm test 488 file / 4799 passed, 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none); live :9503/app/ 200.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 06:4x WIB — Siklus 291: guard sinkronisasi bandOf↔floorOf ditambah (3 tes)
+- Tanpa perubahan kode runtime; tambah guard regresi di routing.test.js: bandOf(z)=floorOf(z)-1 untuk z -13..13 step 0.1, tepi zona -0.8/-0.81/4.5/4.51, dan kasus L1→L3 dua tangga (waypoint x=±2.6 masing-masing ≥3, endpoint FRONT[2]). Mencegah ambang bandOf melenceng lagi dari floor_elevation.
+- npm test 488 file / 4802 passed (was 4799, +3), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 07:0x WIB — Siklus 292: tes distribusi lantai sinkron dgn floor_elevation
+- Bug minor di walk_destinations.test.js: filter distribusi L1/L2/L3 masih pakai ambang lama -0.75/3.75 (pra-siklus-290). Diganti import ZONE_L1_MAX_Z/ZONE_L2_MAX_Z dari floor_elevation.js — tes kini ikut sumber kebenaran zona, tak akan lenceng lagi.
+- npm test 488 file / 4802 passed, 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 07:2x WIB — Siklus 293: koordinat tangga routing sinkron ke floor_elevation
+- Sisa hardcode terakhir di routing.js: kaki/kepala tangga -1.8/-0.6/3.8/5.0 duplikat manual (nilai sama dgn STAIR1/2_START/END_Z di floor_elevation.js). Diganti import konstanta eksak — GANGS (koridor/gang) & semua waypoint tangga (kasus 1/2/3) kini dari satu sumber kebenaran; nilai efektif tak berubah (refactor sinkronisasi).
+- Guard regresi baru di routing.test.js: GANGS == [koridor, koridor, STAIR1/2 eksak] + paritas nilai lama.
+- npm test 488 file / 4803 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 07:4x WIB — Siklus 294: FRONT & koridor routing diturunkan dari desk_layout
+- Hardcode terakhir di routing.js: FRONT [-4.15,0.35,4.85] & gang [-0.75,3.75] duplikat manual padahal eksak fungsi dari baris meja desk_layout.js (-3/1.5/6). Kini ROWS=deskRows(DESKS), FRONT=row-1.15, gang=midpoint antar-baris, tangga tetap dari floor_elevation — routing sepenuhnya satu sumber kebenaran layout.
+- Nilai efektif tak berubah (beda 1e-16 di FRONT[1] akar floating-point, tak berpengaruh geografis).
+- Guard regresi baru di routing.test.js: ROWS==deskRows(DESKS), FRONT≈[-4.15,0.35,4.85], gang==[-0.75,3.75].
+- npm test 488 file / 4804 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 24/11/2026 08:3x WIB — Siklus 295: footprint rintangan server room & water cooler ditambah
+- Bug navigasi: 3 rack server L2 (serverroom.js x 1.7/2.8/3.9, z -7.6) & water cooler (-11.6, 0) tidak terdaftar di OBSTACLES — agen bisa berhenti/menembus rak & cooler. Ditambah footprint [1.25,4.35,-8.05,-7.15] (rack+kabel tray) & [-11.85,-11.35,-0.25,0.25].
+- Printer L2 & rack server saling bersinggungan di z -7.5/-7.15 (overlap 0.35 m) — diabadikan dgn komentar, keduanya solid.
+- Tes: obstacles.test 15 passed (+1 kasus rack/cooler, guard jumlah 7), routing.test guard lengkap 7 footprint. npm test 488 file / 4805 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (a=26, cam/walls true, ERRORS none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 11:3x WIB — Siklus 298: routing simplify + fallback detourFar (0 blocked di probe gabungan 702 pasangan)
+- Pass "simplify" di routing.js (rute satu band saja — jalur antar lantai tetap wajib waypoint tangga eksplisit): greedy farthest-reachable, waypoint tengah dihapus bila segmen langsung bebas rintangan → rute lebih pendek, tanpa zigzag.
+- Bug corner-case ditemukan via probe gabungan 702 pasangan endpoint (26 meja + 13 walk dest): meja (-8,6)→walk dest (-10,10) diagonal menembus zona café kontur memanjang, tak bisa didetour 1-2 titik. Fallback baru "detourFar": u→q1→q2→v mengikuti tepi kontur (q1 digeser x/z, q2=(q1.x, v.z)), semua sub-segmen wajib bersih.
+- Probe: 702 pasangan / 5.285 segmen → 0 terblokir (incl. kaki terakhir ke walk dest; endpoint target dikecualikan dari sampling). Tanpa simplify di jalur antar lantai: guard "kasus beda-lantai L1→L3" tetap hijau (waypoint x=±2.6 dipertahankan).
+- npm test 488 file / 4805 passed, 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit OK (console/page ERRORS none, a=26, shot 679KB, hygiene 0 missing).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 09:5x WIB — Siklus 297: routing anti-tembus furnitur (weave + koridor utara L3)
+- Bug navigasi besar ditemukan via simulasi segmen 0,25 m atas SEMUA pasangan endpoint (26 meja + 25 walk destination): 508 segmen rute menembus rintangan — koridor FRONT[2]=4.85 memotong lounge L3 (x 8..12.4 / z 4.3..9.4), diagonal kaki-tangga→target menembus baris meja L1 & zona café, kaki terakhir koridor→printer menembus rack server.
+- Fix routing.js: (1) pass "weave" generik — setiap segmen disampling 0,25 m, titik terblokir → detour 1 titik (tegak lurus ±0.7..3.5) atau "kotak" 2 titik; (2) tujuan/asal L3 dalam (z>7) dirutekan via koridor utara z=10 (bebas, elevasi L3 benar) bukan FRONT[2]; (3) koridor band dipilih terverifikasi segBlocked, fallback altCorridorZ; (4) waypoint akhir = target (kaki terakhir tak lagi diasumsikan vertikal aman).
+- Hasil: 508 → 0 segmen terblokir di seluruh 51×50 pasangan endpoint. Guard tes baru: noBlockedSegment + koridor utara; 3 asersi lama disinkronkan (waypoint akhir=target, arah z koridor).
+- npm test 488 file / 4805 passed (net +1: guard baru − sinkronisasi), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0 (console/page ERRORS none, a=26, shot 675KB, hygiene 0 missing).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 09:4x WIB — Siklus 296: meja TRAINER AI keluar dari ruang meeting + footprint meja rapat
+- Bug visual+nav ganda: meja TRAINER AI di (8,−3) berada persis di tengah meja rapat ruang meeting berkaca (CX 8, CZ −3) — terkonfirmasi screenshot & verify_desks (hitObs=true). Ditambah footprint meja rapat [6.05,9.95,−3.85,−2.15] ke OBSTACLES (kini 8 footprint).
+- Fix layout: TRAINER AI pindah ke (13.5,−3) — sel grid bebas, jarak ≥3 m ke tetangga terdekat (ARIS/TARI), tidak mengubah urutan agentData (rotasi peserta rapat & pemetaan agentData[ai] aman).
+- Bukti state live: window.__agentData TRAINER AI home (13.5,−2.54); 0 layar meja (__screens) di dalam batas ruang meeting x 5.2..10.8, z −5.75..−0.25. verify_desks: ALL_DESKS_OK, 26 meja, OUT_OF_ROOM NONE, COLLISIONS NONE.
+- Tes: npm test 488 file / 4805 passed, 6 skipped (+2 guard baru: TRAINER AI ≠ (8,−3), meja rapat inObstacle). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (EXC/CON none).
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 13:5x WIB — Siklus 302: footprint tanaman besar masuk OBSTACLES (8→11)
+- Bug nav: tanaman besar tak terdaftar di OBSTACLES — agen bisa berhenti/menembus pot & daun. Union footprint [x±0.75, z±0.85] untuk 3 posisi terluar: SE (decor 11.4,-8.6 + furniture 11,-8), tengah utara (-2,-8), barat (decor -11.4,8.6 + furniture -11,8, union dgn zona café). Dua tanaman café/lounge sudah tercakup footprint zona. Tanaman furniture kecil ([-6,8] dst) radius <0.3 diabaikan (di luar jalur).
+- Guard tes baru di obstacles.test.js (+1, 16 tes): 4 pusat tanaman terdeteksi, tepi luar bebas, jalur jendela selatan & pintu leaving tetap bebas; sinkronisasi jumlah OBSTACLES di routing.test.js (8→11).
+- npm test 490 file / 4810 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; probe CDP live: a=26, cam/walls true, screens=27, errors=0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+- Catatan infra: shot.sh masih menunjuk chromium-1243 yang sudah tidak ada (kini chromium-1254) — screenshot fallback 252KB (mode UI-only); verifikasi visual diganti probe CDP state.
+## 23/11/2026 14:3x WIB — Siklus 303: shot.sh diperbaiki (chromium path, mode=office, DISPLAY)
+- Akar masalah screenshot 252KB: dua sebab — (1) path chromium-1243 sudah terhapus (kini 1254), (2) URL tanpa ?mode=office jatuh ke mode ringan 2D, dan (3) env DISPLAY=:0 terbawa menyebabkan fallback UI-only. Headless SwiftShader butuh env -u DISPLAY.
+- shot.sh ditulis ulang: chromium-1254, URL ?mode=office&e2e=1, env -u DISPLAY. Verifikasi: screenshot 676KB, scene 3D penuh (lantai, 26 avatar, server room, tanaman), tanpa pesan error.
+- e2e_err.py exit 0 (EXC/CON none) — path chromium-1254 di dalamnya sudah benar.
+- Riset kecil: headless_shell-1254 ada tapi gagal tulis screenshot via DISPLAY :0; chrome penuh dengan env bersih andal.
+## 24/11/2026 15:xx WIB — Siklus 304: sinkronisasi e2e ke shot.sh baru TERNYATA tak perlu + 3 probe jarang-dijalankan hijau
+- Rencana awal (sinkron path chromium di scripts/ ke shot.sh baru) batal: grep menunjukkan 79 skrip e2e/diag di scripts/ sudah pakai glob revision-agnostik (`chromium-*/chrome-linux*/chrome`, resolver `__wfs_pick_chrome`) — tidak ada hardcode 1243 tersisa di .py/.sh (hanya 1 di scratch shot.sh). Cukup sepenggal catatan di log agar item tak dianggap backlog.
+- Audit probe CDP jarang-dijalankan (backlog rutin) dieksekusi penuh di infra baru: e2e_sh_console_overview OK (overview nums {'p':6,'t':17,'a':15,'lg':17} == server truth, approvals honest-empty, err no-err), e2e_admin_panel OK (A produksi sameorigin/no_old_code/17 task rows, B detektor kode lama, C auth 401), e2e_events_stream OK (connected_fast, sse_err=0, log_frame, appear_s=1.2).
+- e2e_err.py exit 0 (RC=0, keluaran kosong sesuai konvensi exit-jujur). Tanpa perubahan kode app — tak ada build/deploy baru, dist siklus 302 tetap.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 23/11/2026 15:1x WIB — Siklus 305: audit berkala vision_claims sehat
+- scripts/audit_vision_claims.py dijalankan penuh (oracle oklusi live, 2 ronde × 5 zona pass: occ==oracle semuanya). RINGKASAN: klaim=12, bugs=0, incomplete=0 — RESOLVED 2 / FADED-BY-OTHER 3 / FALSIFIED 7, konsisten dgn run 262/331.
+- Tanpa perubahan kode app; dist siklus 302 tetap ter-deploy.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 15:55 WIB — Siklus 306: guard regresi stand-point kolab 26 meja
+- Audit titik berdiri kolaborasi (collabTarget = home + COLLAB_OFFSET 1.5/-0.2) untuk seluruh 26 meja (14 utama + 12 spesialis): 0 berada di dalam footprint OBSTACLES, 0 menumpuk kursi meja lain (jarak min >0.9 ambang seatOccupied). Perilaku app tak berubah — guard murni.
+- Guard regresi +2 tes di trip_plan.test.js (lintang OBSTACLES & jarak antar-meja), import DESKS/EXTENDED_SPECIALISTS/inObstacle.
+- npm test 490 file / 4812 passed (+2), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 23/11/2026 16:3x WIB — Siklus 307: 7 tujuan jalan digeser keluar radius kursi meja (min 1.36)
+- Audit jarak CAMPUS_WALK_DESTINATIONS (25 titik) ke seluruh 26 meja (14 utama + 12 spesialis): 7 tujuan dalam radius seatOccupied <1.2 — dispenser (d=1.0 GILANG), East Innovation/West Arch (1.0 RIAN/CLARA), Mezz East/West Balcony (1.0 HENDRA/GILANG), L1 East Corridor (1.12), L2 Central Walk (1.10). Agen walking_out bisa berdiri menumpuk kursi meja lain.
+- Fix walk_destinations.js: 7 titik digeser 0.2–0.4 m keluar landmark tetap (d≥1.36, bebas OBSTACLES, dalam bounds ±16.5/±13).
+- Guard regresi baru di walk_destinations.test.js: seluruh 25 tujuan kampus ≥1.2 m dari semua meja EXTENDED_SPECIALISTS; sinkron guard kasus routing_band_cross (11.5→11.85).
+- npm test 490 file / 4813 passed (+1), 6 skipped. Build vite sukses 860ms, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 17:1x WIB — Siklus 308: guard anti-poisoning jitterDest (dest NaN/rng rusak)
+- Audit walk pipeline: pickDest sudah ber-guard penuh, tapi helper jitterDest di trip_plan.js belum — dest NaN/undefined menghasilkan spot NaN (menembus guard seatOccupied/inObstacle via NaN-perbandingan) dan rng tanpa .r melempar TypeError yang bisa mematikan loop gerak agent.
+- Fix trip_plan.js: jitterDest ber-guard — dest non-finite → spot netral (0,0); rng tanpa fungsi r → spot tanpa jitter (pola konsisten dgn pickDest/motion_math).
+- Guard tes +1 di trip_plan.test.js (dest NaN/undefined → {0,0}; rng tanpa r → spot asli). npm test 490 file / 4814 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 17:5x WIB — Siklus 309: guard anti-poisoning fallbackSpot (home null/NaN)
+- Audit pipeline trip: fallbackSpot (trip_plan.js) satu-satunya titik belum ber-guard — home null/undefined → TypeError (home.x), home.x NaN/Infinity lolos mentah ke walkTarget/routePath. Perilaku normal tak berubah (x dipertahankan, z = FRONT[bandOf(hz)]); home invalid → koordinat finite netral (x=0, z=FRONT band aman), bukan NaN/TypeError.
+- Guard tes +1 di trip_plan.test.js: home null/undefined/{}/NaN/Infinity semua menghasilkan spot finite. npm test 490 file / 4815 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+
+## 23/11/2026 19:1x WIB — Siklus 311: delegasi warna repaint label zona ke konstanta kanonik
+- Audit painter kanvas (lanjutan rantai label): blok repaint live label zona (OfficeScene, siklus 527) meng-hardcode ulang latar 'rgba(5,10,22,0.75)' & bingkai '#F59E0B' — padahal konstanta kanonik ZL_BG/ZL_BORDER sudah diekspor di parts/zone_label_canvas.js (satu sumber dgn createZones/flooring). Risiko drift visual bila palet label diubah di satu tempat saja.
+- Fix: repaint delegasi ZL_BG/ZL_BORDER (import ditambah). Nilai identik — tampilan tak berubah; hanya sumber kebenaran disatukan.
+- Guard tes +1 di zone_label_canvas.test.js: ZL_BG/ZL_BORDER terkunci ke nilai historis hardcode lama. npm test 490 file / 4817 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 23/11/2026 19:5x WIB — Siklus 312: palet sky & plafon diekspor satu sumber
+- Lanjutan audit painter kanvas (sky/ceiling): palet gradien langit siang/malam (sky_canvas) & plafon (ceiling_canvas) masih string literal di dalam fungsi — guard tes juga duplikat literal. Risiko drift bila palet diubah hanya di painter atau hanya di tes.
+- Fix: sky_canvas.js ekspor SKY_DAY_STOPS/SKY_NIGHT_STOPS (dipakai drawSky/drawSkyNight); ceiling_canvas.js ekspor CEIL_TOP/CEIL_BOTTOM. Nilai identik — tampilan tak berubah.
+- Guard: sky_night_swap.test.js & ceiling_canvas.test.js kini import konstanta (tanpa literal duplikat) + guard terkunci nilai historis (+1 tes plafon). npm test 490 file / 4818 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 20:2x WIB — Siklus 313: palet glow langit & sheen kaca diekspor satu sumber
+- Lanjutan audit painter kanvas: wall_canvas sudah penuh konstanta ekspor; sisa literal di sky_canvas (glow matahari/bulan/kota + 2 sheen kaca + tint) masih string inline, tes duplikat literal.
+- Fix: sky_canvas.js ekspor SKY_SUN_GLOW/SKY_MOON_GLOW/SKY_CITY_GLOW/GLASS_SHEEN_1/GLASS_SHEEN_2/GLASS_TINT; painter siang/malam & drawGlassSheen memakai konstanta. Nilai identik — tampilan tak berubah.
+- Guard: sky_canvas.test.js & sky_night_swap.test.js import konstanta (tanpa literal duplikat) + guard terkunci nilai historis (+1 tes). npm test 490 file / 4819 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 23/11/2026 21:xx WIB — Siklus 314: palet glow bayangan blob & pedestal diekspor satu sumber
+- Lanjutan audit painter kanvas (backlog palet minor): blob_canvas & pedestal_canvas masih menyimpan 3 literal rgba glow gradient inline per painter; tes blob duplikat literal.
+- Fix: blob_canvas.js ekspor BLOB_GLOW_0/MID/END, pedestal_canvas.js ekspor SHADOW_GLOW_0/MID/END; painter memakai konstanta. Nilai identik — tampilan tak berubah.
+- Guard: blob_canvas.test.js import konstanta + guard terkunci nilai historis (+1 tes); pedestal_canvas.test.js dibuat baru (3 tes: konstanta, guard nilai, geometri gradien).
+- npm test 491 file / 4823 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 23/11/2026 23:0x WIB — Siklus 315: warna muted kanvas scene satu sumber (SCENE_MUTED)
+- Lanjutan audit palet painter: `#8fa3bd` (teks muted kanvas scene) masih literal inline di 6 painter — effects.js 2×, whiteboard_canvas.js 2×, projectboard.js 2×, projectboard_data.js 2× — plus diketik ulang di konstanta TV_MUTED/LS_MUTED.
+- Fix: `SCENE_MUTED` baru di src/lib/ui_palette.js (satu titik kebenaran); keenam painter + TV_MUTED/LS_MUTED kini delegasi ke sana. Nilai identik — tampilan tak berubah. Catatan: berbeda dgn MUTED_TEXT UI (#8fa2c4) — dua peran berbeda, sengaja tidak disatukan.
+- Guard: scene_muted_single_source_315.test.js BARU (4 tes: nilai historis terkunci ≠ MUTED_TEXT, TV/LS delegasi, 0 literal tersisa di 6 painter, import wajib). npm test 492 file / 4827 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck315d 696KB ALIVE.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 23/11/2026 23:4x WIB — Siklus 316: palet poster, bar whiteboard & awan sky satu sumber
+- Lanjutan audit palet painter: 3 literal tersisa — latar poster `#14172b` (poster_canvas), track bar progres whiteboard `rgba(51,65,85,.18)`, warna awan `rgba(255,255,255,0.85)` (sky_canvas drawSky). Tes poster & sky masih duplikat literal.
+- Fix: ekspor `POSTER_BG`, `WB_BAR_TRACK`, `SKY_CLOUD_COLOR`; painter memakai konstanta; tes poster/sky import konstanta + guard nilai historis terkunci (+2 tes). Nilai identik — tampilan tak berubah.
+- npm test 492 file / 4829 passed (+2), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 00:xx WIB — Siklus 412: literal rgba putih/aksen SettingsModal & AgentInspector satu sumber
+- Lanjutan backlog palet UI React: SettingsModal (9 literal) & AgentInspector (20 literal) memakai `rgba(255,255,255,x)`, `rgba(16,229,160,x)` (teal), `rgba(0,240,255,x)` (cyan), `rgba(245,158,11,x)` (amber) inline di style JSX.
+- Fix: ui_palette.js ekspor helper `whiteAlpha/greenAlpha/cyanAlpha/amberAlpha` (+ GREEN_RGB/CYAN_RGB/AMBER_RGB, anti-poisoning null utk alpha invalid); kedua komponen delegasi penuh — 0 literal rgba numeric tersisa. Nilai identik — tampilan tak berubah.
+- Guard: ui_palette_white.test.js BARU (4 tes: nilai historis terkunci, triplet = warna kanonik done/CYAN_NEON/AMBER_ACCENT, anti-poisoning, 0 literal tersisa di kedua file).
+- npm test 493 file / 4831 passed (+2), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 01:xx WIB — Siklus 413: literal rgba ProjectPanel/TeamStats/ShConsole/CsWidget/ActivityLog satu sumber
+- Lanjutan backlog palet UI React: 24 literal rgba numeric di 5 komponen — ProjectPanel (10: white/green/gold/failed), TeamStats (4: amber/white), ShConsole (2: overlay & boxShadow hitam), CsWidget (1: border hijau), ActivityLog (1: border putih).
+- Fix: ui_palette.js ekspor helper `goldAlpha` + `shadowAlpha` (+ GOLD_RGB = GOLD_ACCENT); failedAlpha/whiteAlpha/greenAlpha/amberAlpha sudah ada. Semua style JSX kini delegasi helper — 0 literal rgba numeric tersisa di kelima file. Nilai identik — tampilan tak berubah.
+- Guard: ui_palette_components_413.test.js BARU (5 tes: gold/failed/shadow nilai historis terkunci, anti-poisoning, 0 literal di 5 komponen).
+- npm test 494 file / 4836 passed (+5), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 01:xx WIB — Siklus 414: palet tekstur dinding SIANG satu sumber
+- Lanjutan audit palet scene: 8 pemanggil tex() di walls.js masih mengetik ulang literal '#E6EAF1'+'rgba(120,138,165,.48)' (panel atas) & '#8A6244'+'rgba(40,25,10,.40)' (wainscot kayu).
+- Fix: wall_canvas.js ekspor WALL_UPPER_DAY / WALL_WOOD_DAY (berdampingan WALL_NIGHT); walls.js delegasi penuh — 0 literal warna tekstur tersisa. Nilai identik — tampilan tak berubah.
+- Guard: wall_day_palette_414.test.js BARU (3 tes: nilai historis terkunci, 0 literal di walls.js, beda kontras dgn palet malam).
+- npm test 495 file / 4839 passed (+3), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (tanpa 'Scene init failed').
+- Commit hari ini sudah ada (25232b4); tanpa commit baru.
+## 24/11/2026 01:xx WIB — Siklus 415: palet lantai (parket/terazzo/AO) & layar resepsionis satu sumber
+- Lanjutan backlog palet painter: floor_canvas.js 11 literal (parket '#8A7C68', nat, AO gradien, terazzo bg/chips/tones/vena/grid) + lobby_screen.js 4 literal (bingkai/tick amber, jam putih, footer muted).
+- Fix: floor_canvas.js ekspor FLOOR_WOOD_BASE/BOARD_NAT/AO_STRIP/TERRAZZO_WHITE/TERRAZZO_BG/TERRAZZO_CHIPS/TERRAZZO_TONES/MARBLE_VEIN/TERRAZZO_GRID; lobby_screen.js ekspor LS_FRAME/LS_TICK/LS_CLOCK/LS_FOOT_META via amberAlpha + SCENE_MUTED_RGB. ui_palette.js kini turunkan SCENE_MUTED dari SCENE_MUTED_RGB. Nilai identik — tampilan tak berubah.
+- Guard: floor_palette_415.test.js BARU (4 tes: nilai historis terkunci, painter delegasi, AO stops, 0 literal tersisa). npm test 496 file / 4843 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
+- Commit konsolidasi harian dibuat (belum ada commit hari ini).

@@ -38,7 +38,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = int(os.environ.get("E2E_DBLNX_PORT", "9463"))
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"
 
 NEXUS = (7.6, 1.45, 6.1)
 
@@ -291,4 +291,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise

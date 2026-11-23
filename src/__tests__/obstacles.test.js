@@ -5,8 +5,8 @@ import { describe, it, expect } from 'vitest';
 import { OBSTACLES, inObstacle, seatOccupied } from '../scene/parts/obstacles.js';
 
 describe('obstacles: data footprint', () => {
-  it('5 rintangan dengan format [x0,x1,z0,z1] valid', () => {
-    expect(OBSTACLES).toHaveLength(5);
+  it('8 rintangan dengan format [x0,x1,z0,z1] valid', () => {
+    expect(OBSTACLES).toHaveLength(11);
     for (const [x0, x1, z0, z1] of OBSTACLES) {
       expect(x1).toBeGreaterThan(x0);
       expect(z1).toBeGreaterThan(z0);
@@ -43,7 +43,7 @@ describe('obstacles: inObstacle', () => {
 
   it('printer (2.5..3.5, -8.4..-7.5) terdeteksi', () => {
     expect(inObstacle(3, -8)).toBe(true);
-    expect(inObstacle(3, -7.4)).toBe(false);
+    expect(inObstacle(3, -8.5)).toBe(false); // tepi utara printer; z -7.4 kini rintangan rack server
   });
 
   it('zona café (-11.4..-6.9, 6.2..9.4) & lounge (8..12.4, 4.3..9.4) terdeteksi', () => {
@@ -54,6 +54,29 @@ describe('obstacles: inObstacle', () => {
     expect(inObstacle(12.4, 9.4)).toBe(true);  // pojok lounge
     expect(inObstacle(12.5, 6)).toBe(false);
     expect(inObstacle(10.5, 4.2)).toBe(false);
+  });
+
+  it('server racks L2 (1.25..4.35, -8.05..-7.15) & water cooler (-11.6, 0) terdeteksi', () => {
+    expect(inObstacle(1.7, -7.6)).toBe(true);   // rack 1
+    expect(inObstacle(2.8, -7.6)).toBe(true);   // rack 2
+    expect(inObstacle(3.9, -7.6)).toBe(true);   // rack 3
+    expect(inObstacle(1.7, -8.2)).toBe(false);
+    expect(inObstacle(1.25, -8.15)).toBe(false);
+    expect(inObstacle(4.5, -7.6)).toBe(false);
+    expect(inObstacle(-11.6, 0)).toBe(true);    // cooler
+    expect(inObstacle(-11.6, 0.5)).toBe(false);
+    expect(inObstacle(-11.2, 0)).toBe(false);
+  });
+
+  it('tanaman besar (furniture + decor) terdeteksi; koridor/pintu tetap bebas', () => {
+    expect(inObstacle(11.4, -8.6)).toBe(true);  // tanaman SE decor
+    expect(inObstacle(11, -8)).toBe(true);      // tanaman SE furniture
+    expect(inObstacle(-2, -8)).toBe(true);      // tanaman tengah utara
+    expect(inObstacle(-11.4, 8.6)).toBe(true);  // tanaman barat decor
+    expect(inObstacle(10.4, -8.6)).toBe(false); // tepi luar barat tanaman SE
+    expect(inObstacle(-1.4, -8.6)).toBe(false); // tepi luar timur tanaman tengah
+    expect(inObstacle(-1, -9)).toBe(false);     // jalur jendela selatan tetap bebas
+    expect(inObstacle(-12, 8)).toBe(false);     // pintu leaving tetap bebas
   });
 
   it('pintu & koridor utama bebas rintangan', () => {

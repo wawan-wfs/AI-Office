@@ -7,14 +7,14 @@ import { useDialogA11y, useVisibilityPoll } from '../lib/dialogA11y'
 import { useModalFlag } from '../lib/modal'
 import ConfirmModal from './ConfirmModal'
 import { STATUS_HEX } from '../scene/parts/agent_status'
-import { MUTED_TEXT, BRIGHT_TEXT, FAINT_META, PANEL_BORDER, SUB_TEXT, TAB_BG, BTN_BG, INPUT_BG, DRAWER_TEXT, DRAWER_GRADIENT, TITLE_TEXT, TAB_IDLE_BG, CARD_BG, ROW_DASH, GHOST_BG, GHOST_TEXT, TAG_TEXT, ERROR_TEXT, PRE_BG, REJECT_BG, STALE_TEXT, PURE_TEXT } from '../lib/ui_palette'
+import { MUTED_TEXT, BRIGHT_TEXT, FAINT_META, PANEL_BORDER, SUB_TEXT, TAB_BG, BTN_BG, INPUT_BG, DRAWER_TEXT, DRAWER_GRADIENT, TITLE_TEXT, TAB_IDLE_BG, CARD_BG, ROW_DASH, GHOST_BG, GHOST_TEXT, TAG_TEXT, ERROR_TEXT, PRE_BG, REJECT_BG, STALE_TEXT, PURE_TEXT, shadowAlpha } from '../lib/ui_palette'
 
 const STYLE = {
-  overlay: { position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,.45)' },
+  overlay: { position: 'fixed', inset: 0, zIndex: 2000, background: shadowAlpha(0.45) },
   drawer: {
     position: 'fixed', top: 0, right: 0, height: '100%', width: 460, maxWidth: '94vw',
     background: DRAWER_GRADIENT, color: DRAWER_TEXT,
-    borderLeft: '1px solid '+PANEL_BORDER, boxShadow: '-12px 0 40px rgba(0,0,0,.55)',
+    borderLeft: '1px solid '+PANEL_BORDER, boxShadow: '-12px 0 40px '+shadowAlpha(0.55),
     display: 'flex', flexDirection: 'column', zIndex: 2001,
   },
   head: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid '+PANEL_BORDER },

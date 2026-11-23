@@ -2,7 +2,7 @@
 // Unit test painter bayangan kontak (blob shadow) — parts/blob_canvas.js.
 // ctx recorder + gradien palsu; memverifikasi urutan & parameter identik kode inline lama di OfficeScene.
 import { describe, it, expect } from 'vitest';
-import { drawBlobShadow, BLOB_SIZE, BLOB_CENTER } from '../scene/parts/blob_canvas.js';
+import { drawBlobShadow, BLOB_SIZE, BLOB_CENTER, BLOB_GLOW_0, BLOB_GLOW_MID, BLOB_GLOW_END } from '../scene/parts/blob_canvas.js';
 
 function makeCtx(){
   const ops=[]; const grads=[];
@@ -32,12 +32,18 @@ describe('drawBlobShadow', ()=>{
     expect(g.args).toEqual([64,64,4,64,64,62]);
   });
 
+  it('guard nilai historis palet glow blob terkunci', ()=>{
+    expect(BLOB_GLOW_0).toBe('rgba(10,14,18,0.55)');
+    expect(BLOB_GLOW_MID).toBe('rgba(10,14,18,0.30)');
+    expect(BLOB_GLOW_END).toBe('rgba(10,14,18,0)');
+  });
+
   it('tepat 3 colorStop dengan warna & offset lama', ()=>{
     const c=makeCtx(); drawBlobShadow(c);
     expect(c._grads[0].stops).toEqual([
-      [0,'rgba(10,14,18,0.55)'],
-      [0.55,'rgba(10,14,18,0.30)'],
-      [1,'rgba(10,14,18,0)'],
+      [0,BLOB_GLOW_0],
+      [0.55,BLOB_GLOW_MID],
+      [1,BLOB_GLOW_END],
     ]);
   });
 

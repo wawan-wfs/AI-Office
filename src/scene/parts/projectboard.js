@@ -10,6 +10,7 @@ import { parseTimestampMs } from '../../lib/kanban_date.js'
 import { fmtStampId } from '../../lib/format_time.js'
 import { uiTexture, uiMaterial } from './ui_colorspace.js'
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
+import { SCENE_MUTED } from '../../lib/ui_palette.js'
 
 // Polling adaptif papan 3D: cadence sehat 60 dtk (POLL_SCENE_HEALTHY_MS satu
 // sumber, siklus 375 — dulu konstanta lokal BOARD_POLL_HEALTHY_MS), tapi
@@ -66,7 +67,7 @@ export function createProjectBoard(office, THREE) {
     g.fillStyle = C.done
     g.font = 'bold 52px sans-serif'; g.textAlign = 'left'
     g.fillText('WFS PROJECT: SOFTWARE HOUSE', 36, 66)
-    g.fillStyle = '#8fa3bd'; g.font = '30px sans-serif'
+    g.fillStyle = SCENE_MUTED; g.font = '30px sans-serif'
     const stampTs = snapshotStamp()
     let sub = subLine(T, stampTs != null ? (fmtStampId(stampTs) ?? '') : '')
     g.fillText(sub, 36, 112)
@@ -166,7 +167,7 @@ export function createProjectBoard(office, THREE) {
     g.fillStyle = dotCol
     g.beginPath(); g.arc(sx + 6, 810, 5, 0, Math.PI * 2); g.fill()
     sx += 18
-    g.fillStyle = cb.tone === 'ok' ? '#8fa3bd' : dotCol
+    g.fillStyle = cb.tone === 'ok' ? SCENE_MUTED : dotCol
     g.fillText(cb.label, sx, 817)
     sx += g.measureText(cb.label).width + STRIP_GAP
     layout.kept.forEach(sg => { g.fillStyle = sg.col; g.fillText(sg.txt, sx, 817); sx += g.measureText(sg.txt).width + STRIP_GAP })

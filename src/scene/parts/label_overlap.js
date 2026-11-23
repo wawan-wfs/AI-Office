@@ -109,6 +109,13 @@ export function zoneViewportGuard(zoneLabels, deps) {
     const v = zt.position.clone().project(camera);
     if (v.z > 1) return;
     const fy = v.y * H / 2, fx = v.x * W / 2;
+    // Guard anti-poisoning: ukuran layar (zh/zw) atau proyeksi NDC (fy/fx) non-finite
+    // (NaN/±Infinity — mis. scale korup atau project() menghasilkan NaN) membuat
+    // SEMUA perbandingan batas false → zona tidak pernah dikoreksi (stale senyap),
+    // dan wpp2/corr berpotensi NaN menulari position. Lewati zona tersebut (no-op
+    // aman, konsisten dgn guard zoneScreenFade/occlusionPass).
+    if (!Number.isFinite(zh) || !Number.isFinite(zw) ||
+        !Number.isFinite(fy) || !Number.isFinite(fx)) return;
     // NDC y-UP: atas layar = fy positif (maks H/2), bawah = negatif.
     // BUG lama: kondisi atas/bawah memakai semantik y-down sehingga TERtukar —
     // label dekat atas layar (CAFÉ @ iso/top, DEV DESK @ front) tak pernah terkoreksi.

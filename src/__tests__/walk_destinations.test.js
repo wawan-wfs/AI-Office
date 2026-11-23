@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { ZONE_L1_MAX_Z, ZONE_L2_MAX_Z } from '../scene/parts/floor_elevation.js';
 import { WALK_DESTINATIONS, CAMPUS_WALK_DESTINATIONS, isSafeDestination } from '../scene/parts/walk_destinations.js';
 import { OBSTACLES, inObstacle } from '../scene/parts/obstacles.js';
 import { DESKS } from '../scene/parts/desk_layout.js';
+import { EXTENDED_SPECIALISTS } from '../scene/parts/extended_desks.js';
 
 describe('WALK_DESTINATIONS — 8 tujuan jalan-jalan agent', () => {
   it('tepat 8 tujuan', () => {
@@ -10,7 +12,7 @@ describe('WALK_DESTINATIONS — 8 tujuan jalan-jalan agent', () => {
 
   it('posisi historis semua 8 tujuan (urutan pantry→tanaman)', () => {
     const expected = [
-      [-9.4, 3.6], [-9.5, 0.9], [2.2, -7.0],
+      [-9.4, 3.6], [-9.15, 0.75], [2.2, -7.0],
       [9.0, 3.9], [6.0, -0.6], [6.8, 4.9], [-0.5, 4.2], [-3.2, -6.2],
     ];
     WALK_DESTINATIONS.forEach((d, i) => {
@@ -106,12 +108,25 @@ describe('CAMPUS_WALK_DESTINATIONS — destinasi multi-lantai kampus WFS PROJECT
   });
 
   it('terdistribusi ke 3 lantai (L1 Atrium, L2 Mezzanine, L3 Penthouse)', () => {
-    const l1Dests = CAMPUS_WALK_DESTINATIONS.filter((d) => d.z < -0.75);
-    const l2Dests = CAMPUS_WALK_DESTINATIONS.filter((d) => d.z >= -0.75 && d.z < 3.75);
-    const l3Dests = CAMPUS_WALK_DESTINATIONS.filter((d) => d.z >= 3.75);
+    // Sinkron dgn sumber kebenaran floor_elevation.js (bukan ambang lama -0.75/3.75)
+    const l1Dests = CAMPUS_WALK_DESTINATIONS.filter((d) => d.z < ZONE_L1_MAX_Z);
+    const l2Dests = CAMPUS_WALK_DESTINATIONS.filter((d) => d.z >= ZONE_L1_MAX_Z && d.z <= ZONE_L2_MAX_Z);
+    const l3Dests = CAMPUS_WALK_DESTINATIONS.filter((d) => d.z > ZONE_L2_MAX_Z);
 
     expect(l1Dests.length).toBeGreaterThanOrEqual(4); // Datacenter, East Innovation, West Arch, Printer, Tanaman
     expect(l2Dests.length).toBeGreaterThanOrEqual(4); // Mezzanine Balcony, West Pod, Dispenser, Meeting Door
     expect(l3Dests.length).toBeGreaterThanOrEqual(4); // Cafe Promenade, Penthouse Terrace, Founder Suite Deck, Reception
+  });
+
+  it('tidak menumpuk kursi meja spesialis (EXTENDED_SPECIALISTS, jarak min 1.2) — siklus 307', () => {
+    // Regresi siklus 307: 5 tujuan (dispenser, East Innovation, West Arch, Mezz E/W)
+    // hanya d=1.0 dari kursi meja spesialis (GILANG/RIAN/CLARA/HENDRA) — agen bisa
+    // berdiri menumpuk kursi; digeser keluar (d>=1.36) tanpa keluar landmark.
+    const specialistDesks = EXTENDED_SPECIALISTS.map((k) => ({ x: k.desk.x, z: k.desk.z }));
+    CAMPUS_WALK_DESTINATIONS.forEach((d) => {
+      specialistDesks.forEach((k) => {
+        expect(Math.hypot(d.x - k.x, d.z - k.z)).toBeGreaterThanOrEqual(1.2);
+      });
+    });
   });
 });

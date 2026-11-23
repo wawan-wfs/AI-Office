@@ -15,7 +15,7 @@ export const DESKS = [
   { x: 4,  z: -3 },  // RINA
   { x: 4,  z: 1.5 }, // LINA
   { x: 4,  z: 6 },   // SARI
-  { x: 8,  z: -3 },  // TRAINER AI
+  { x: 13.5, z: -3 }, // TRAINER AI — siklus 296: pindah dari (8,-3) yang bertabrakan dgn meja rapat
   { x: 8,  z: 1.5 }, // INTEGRATOR BOT
   { x: 0,  z: 6 },   // SUPPORT HUMAN (slot baris 3 bebas tabrakan meja resepsi)
 ];

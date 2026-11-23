@@ -1,5 +1,5 @@
 import { wallFadeTick } from './wall_fade.js';
-import { drawWallTex, WALL_NIGHT, TRIM_DAY, TRIM_NIGHT, PIER_DAY, PIER_NIGHT } from './wall_canvas.js';
+import { drawWallTex, WALL_NIGHT, WALL_UPPER_DAY, WALL_WOOD_DAY, TRIM_DAY, TRIM_NIGHT, PIER_DAY, PIER_NIGHT } from './wall_canvas.js';
 import { drawWallLogo } from './logo_canvas.js';
 import { drawWelcomeSign } from './sign_canvas.js';
 import { uiTexture, uiMaterial } from './ui_colorspace.js';
@@ -39,10 +39,10 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
     return wallTexPaints.length;
   };
   const lit=(map)=>new THREE.MeshBasicMaterial({map}); // tidak bergantung pencahayaan -> selalu terang & terbaca
-  const upperA=tex('#E6EAF1','rgba(120,138,165,.48)');upperA.repeat.set(16,1);
-  const woodA=tex('#8A6244','rgba(40,25,10,.40)',512,256,32);woodA.repeat.set(12,1);
-  const upperB=tex('#E6EAF1','rgba(120,138,165,.48)');upperB.repeat.set(9,1);
-  const woodB=tex('#8A6244','rgba(40,25,10,.40)',512,256,32);woodB.repeat.set(9,1);
+  const upperA=tex(WALL_UPPER_DAY.base,WALL_UPPER_DAY.line);upperA.repeat.set(16,1);
+  const woodA=tex(WALL_WOOD_DAY.base,WALL_WOOD_DAY.line,512,256,32);woodA.repeat.set(12,1);
+  const upperB=tex(WALL_UPPER_DAY.base,WALL_UPPER_DAY.line);upperB.repeat.set(9,1);
+  const woodB=tex(WALL_WOOD_DAY.base,WALL_WOOD_DAY.line,512,256,32);woodB.repeat.set(9,1);
   const NAVY=0x24304A, GOLD=0xD4AF37, TRIM=0xF4F6FA;
   // ── Siklus 166: TRIM (crown molding/sill) & PILAR (0x8E9BB0) ikut siang↔malam ──
   // Dulu warna solid MeshBasicMaterial ini statis: jam malam panel dinding sudah
@@ -108,10 +108,10 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
   // baru dgn color=material); tetap didaftarkan ke fadeMats + transparent agar
   // ikut fade dinding depan/kanan.
   const FM=(map,color)=>{const m=(color&&typeof color==='object')?color:new THREE.MeshBasicMaterial(map?{map,transparent:true}:{color,transparent:true});m.transparent=true;fadeMats.push(m);return m};
-  const upperF=tex('#E6EAF1','rgba(120,138,165,.48)');upperF.repeat.set(16,1);
-  const woodF=tex('#8A6244','rgba(40,25,10,.40)',512,256,32);woodF.repeat.set(12,1);
-  const upperR=tex('#E6EAF1','rgba(120,138,165,.48)');upperR.repeat.set(9,1);
-  const woodR=tex('#8A6244','rgba(40,25,10,.40)',512,256,32);woodR.repeat.set(9,1);
+  const upperF=tex(WALL_UPPER_DAY.base,WALL_UPPER_DAY.line);upperF.repeat.set(16,1);
+  const woodF=tex(WALL_WOOD_DAY.base,WALL_WOOD_DAY.line,512,256,32);woodF.repeat.set(12,1);
+  const upperR=tex(WALL_UPPER_DAY.base,WALL_UPPER_DAY.line);upperR.repeat.set(9,1);
+  const woodR=tex(WALL_WOOD_DAY.base,WALL_WOOD_DAY.line,512,256,32);woodR.repeat.set(9,1);
   const wallFront=[], wallRight=[];
   const F=(arr,geo,mat,x,y,z)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);office.add(m);arr.push(m);return m};
   // depan (z=-13.5), menghadap +Z

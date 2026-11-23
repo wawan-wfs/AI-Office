@@ -23,6 +23,7 @@ export function fmtUptime(sec) {
 import { clip } from '../../lib/clip.js'
 import { pctDone } from '../../lib/math_util.js'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
+import { SCENE_MUTED } from '../../lib/ui_palette.js'
 export { clip }
 
 /**
@@ -182,7 +183,7 @@ export function stripSegments(snap, hostRes = null) {
   const accent = TASK_STATUS_COLORS.review
   const ok = TASK_STATUS_COLORS.done
   const err = TASK_STATUS_COLORS.failed
-  const dim = '#8fa3bd'
+  const dim = SCENE_MUTED
   const div = '#44506a'
   const segs = []
   const s = (snap && snap.saas) || {}
@@ -243,7 +244,7 @@ export function hostSegments(hostRes) {
   const ok = TASK_STATUS_COLORS.done
   const warn = TASK_STATUS_COLORS.running
   const err = TASK_STATUS_COLORS.failed
-  const dim = '#8fa3bd'
+  const dim = SCENE_MUTED
   const num = (v) => (Number.isFinite(+v) ? +v : null)
   const clamp = (v) => Math.min(99, Math.max(1, Math.round(v)))
   const col = (pct) => (pct < 75 ? ok : pct < 90 ? warn : err)

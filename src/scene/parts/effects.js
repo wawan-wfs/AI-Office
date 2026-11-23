@@ -2,6 +2,7 @@
 // Ditulis ulang: tiap layar = fungsi renderer terpisah dalam tabel, bukan rangkaian if/else.
 import { tvPct } from './tv_canvas.js';
 import { fmtUptime } from './projectboard_data.js';
+import { SCENE_MUTED } from '../../lib/ui_palette.js';
 
 const GRID = (c, w, h, step, col, alpha) => {
   c.strokeStyle = col; c.globalAlpha = alpha; c.lineWidth = 0.5;
@@ -87,7 +88,7 @@ export const SCREEN_RENDERERS = {
   board(c, w, h, t, col) {
     const T = (typeof window !== 'undefined' && window.__tvData?.tasks) || null;
     if (!T) {
-      c.globalAlpha = 0.5; c.fillStyle = '#8fa3bd'; c.font = '6px monospace';
+      c.globalAlpha = 0.5; c.fillStyle = SCENE_MUTED; c.font = '6px monospace';
       c.fillText('papan task: memuat...', 6, h / 2);
       c.globalAlpha = 0.35; c.fillRect(6, h / 2 + 4, (w - 12) * (0.3 + 0.2 * Math.sin(t)), 4);
       return;
@@ -141,7 +142,7 @@ export const SCREEN_RENDERERS = {
     rows.forEach(([label, pct, cl], i) => {
       const v = Math.min(95, Math.max(5, pct)); // guard rentang bar
       const y = 10 + i * 17;
-      c.globalAlpha = 0.7; c.fillStyle = '#8fa3bd';
+      c.globalAlpha = 0.7; c.fillStyle = SCENE_MUTED;
       c.fillText(label, 8, y + 6);
       c.globalAlpha = 0.25; c.fillStyle = cl;
       c.fillRect(28, y, w - 40, 6);

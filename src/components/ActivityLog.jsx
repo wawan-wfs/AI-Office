@@ -5,7 +5,7 @@ import { taskStatusColor, TASK_STATUS_COLORS } from '../lib/task_status_colors.j
 import { fmtStampId } from '../lib/format_time.js'
 import { formatLogText, formatLogFilename, formatLogFileText } from '../lib/storage_prefs.js'
 import { downloadExportFile } from '../lib/kanban_export.js'
-import { PURE_TEXT } from '../lib/ui_palette.js';
+import { PURE_TEXT, whiteAlpha } from '../lib/ui_palette.js';
 
 // Warna status delegasi ke satu sumber (siklus 373) — dulu failed/pending drift.
 const COL = {
@@ -51,7 +51,7 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
                   <li> saat item terlama terpotong CAP 50. id task unik; fallback
                   index hanya utk item tanpa id. */}
               {items.map((x, i) => (
-                <li key={x?.id !== undefined && x?.id !== null ? `t-${x.id}` : `i-${i}`} style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.08)', fontSize: 13 }}>
+                <li key={x?.id !== undefined && x?.id !== null ? `t-${x.id}` : `i-${i}`} style={{ padding: '6px 0', borderBottom: '1px solid '+whiteAlpha(0.08), fontSize: 13 }}>
                   {/* Siklus 567: stempel epoch ms (App pushLog) → 'HH.MM.SS' id-ID
                       satu sumber fmtStampId; item lama 'HH.MM' string atau 0
                       (stempel gagal) tetap tampil apa adanya. */}

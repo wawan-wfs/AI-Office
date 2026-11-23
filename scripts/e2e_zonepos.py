@@ -6,7 +6,7 @@ g = {}
 exec(src.split("if __name__")[0], g)
 
 PORT = 9223
-URL = "http://127.0.0.1:9503"
+URL = "http://127.0.0.1:9503/app/?mode=office"
 CHROME = g.get("CHROME") or "/usr/bin/google-chrome"
 
 EXPR = """
@@ -77,4 +77,7 @@ def main():
         if xv: xv.kill()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise

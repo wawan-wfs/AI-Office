@@ -69,6 +69,18 @@ export const PALE_BLUE_CARD = '#ADDBF2';
 export const AMBER_ACCENT = '#F59E0B';
 
 /**
+ * Siklus 315 — warna teks muted kanvas scene (satu sumber).
+ *
+ * `#8fa3bd` sebelumnya literal inline di 6 painter kanvas scene (effects.js 2×,
+ * whiteboard_canvas.js 2×, projectboard.js 2×, projectboard_data.js 2×) dan
+ * diketik ulang di konstanta TV_MUTED/LS_MUTED. Berbeda dgn MUTED_TEXT UI
+ * (#8fa2c4) — nilai kanvas scene sengaja dipertahankan identik (tampilan tak
+ * berubah); satu titik kebenaran di sini.
+ */
+export const SCENE_MUTED_RGB = '143,163,189';
+export const SCENE_MUTED = `#${SCENE_MUTED_RGB.split(',').map(n => (+n).toString(16).padStart(2, '0')).join('')}`;
+
+/**
  * Siklus 400 — cyan neon & violet statistik (satu sumber).
  *
  * `#00F0FF` (cyan neon) sebelumnya literal di FloorNavigator (warna L2),
@@ -178,6 +190,62 @@ export const ITEM_TITLE_TEXT = '#e2e8f0';
 
 /** Teks gelap chip/tag beraksen (TaskBoard, #0b1320, siklus 408). */
 export const CHIP_TEXT = '#0b1320';
+
+/** rgb triplet hijau teal aksen (#10E5A0) — chip audio & kartu task on-time. */
+export const GREEN_RGB = '16,229,160';
+
+/** rgba(alpha 0..1) di atas hijau teal — komposisi satu sumber. */
+export function greenAlpha(a) {
+  const v = Number(a);
+  if (!Number.isFinite(v) || v < 0 || v > 1) return null; // anti-poisoning
+  return `rgba(${GREEN_RGB},${v})`;
+}
+
+/** rgba putih semi-transparan (overlay/border netral UI) — siklus 412.
+ *  Sebelumnya literal `rgba(255,255,255,x)` tersebar di SettingsModal &
+ *  AgentInspector; satu titik kebenaran agar alpha tak diketik ulang. */
+export function whiteAlpha(a) {
+  const v = Number(a);
+  if (!Number.isFinite(v) || v < 0 || v > 1) return null; // anti-poisoning
+  return `rgba(255,255,255,${v})`;
+}
+
+/** rgb triplet cyan neon CYAN_NEON (#00F0FF) — hover baris kartu agen. */
+export const CYAN_RGB = '0,240,255';
+
+/** rgba(alpha 0..1) di atas cyan neon — komposisi satu sumber. */
+export function cyanAlpha(a) {
+  const v = Number(a);
+  if (!Number.isFinite(v) || v < 0 || v > 1) return null; // anti-poisoning
+  return `rgba(${CYAN_RGB},${v})`;
+}
+
+/** rgb triplet amber AMBER_ACCENT (#F59E0B) — kartu pending/attention. */
+export const AMBER_RGB = '245,158,11';
+
+/** rgba(alpha 0..1) di atas amber — komposisi satu sumber. */
+export function amberAlpha(a) {
+  const v = Number(a);
+  if (!Number.isFinite(v) || v < 0 || v > 1) return null; // anti-poisoning
+  return `rgba(${AMBER_RGB},${v})`;
+}
+
+/** rgba(alpha 0..1) di atas emas GOLD_ACCENT (#d8bb84) — kartu catatan. */
+export const GOLD_RGB = '216,187,132';
+
+/** rgba(alpha 0..1) hitam semi-transparan (overlay/bayangan) — siklus 413. */
+export function shadowAlpha(a) {
+  const v = Number(a);
+  if (!Number.isFinite(v) || v < 0 || v > 1) return null; // anti-poisoning
+  return `rgba(0,0,0,${v})`;
+}
+
+/** rgba(alpha 0..1) di atas emas — komposisi satu sumber. */
+export function goldAlpha(a) {
+  const v = Number(a);
+  if (!Number.isFinite(v) || v < 0 || v > 1) return null; // anti-poisoning
+  return `rgba(${GOLD_RGB},${v})`;
+}
 
 /** Teks inisial avatar aksen AgentInspector (#020713, siklus 408). */
 export const AVATAR_TEXT = '#020713';

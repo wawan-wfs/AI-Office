@@ -272,7 +272,7 @@ describe('createMotion — walking_back', () => {
     const update = createMotion(mkCtx([ad]));
     update(0.05);
     expect(ad.resetStride).toBe(false);        // flag dikonsumsi sekali
-    expect(ad.label.position.z).toBeLessThan(8); // bergerak keluar pintu (menuju rute gang)
+    expect(ad.label.position.z).toBeGreaterThan(8); // siklus 297: rute koridor utara z=10 (bebas) → z naik dulu
   });
 });
 

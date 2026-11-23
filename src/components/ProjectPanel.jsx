@@ -8,7 +8,7 @@ import { normalizeTaskStatus, formatTaskId } from '../scene/parts/projectboard_d
 import { pctDone } from '../scene/parts/kanban_spec.js'
 import { POLL_PANEL_MS } from '../lib/connection_spec.js'
 import { taskStatusColor, taskStatusLabel, TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
-import { accentAlpha, NOTE_TEXT, GOLD_ACCENT , UNKNOWN_STROKE} from '../lib/ui_palette.js'
+import { accentAlpha, whiteAlpha, greenAlpha, goldAlpha, failedAlpha, NOTE_TEXT, GOLD_ACCENT , UNKNOWN_STROKE} from '../lib/ui_palette.js'
 
 const ST = {
   done: [taskStatusLabel('done'), taskStatusColor('done')],
@@ -99,7 +99,7 @@ export default function ProjectPanel() {
                 <div style={{ marginBottom: 14 }}>
                   <div className="note" style={{ marginBottom: 4 }}>Progres pengerjaan — {T.done}/{T.total} task selesai ({pct}%)</div>
                   <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={`Progres task: ${pct}% selesai`}
-                    style={{ height: 10, background: 'rgba(255,255,255,.08)', borderRadius: 6, overflow: 'hidden' }}>
+                    style={{ height: 10, background: whiteAlpha(0.08), borderRadius: 6, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: pct + '%', background: `linear-gradient(90deg,${TASK_STATUS_COLORS.done},${TASK_STATUS_COLORS.review})`, borderRadius: 6, transition: 'width .6s' }} />
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
@@ -127,8 +127,8 @@ export default function ProjectPanel() {
                           gap: 8,
                           alignItems: 'baseline',
                           color: NOTE_TEXT,
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: whiteAlpha(0.03),
+                          border: '1px solid '+whiteAlpha(0.06),
                           borderRadius: 6,
                           padding: '6px 8px',
                           textAlign: 'left',
@@ -163,7 +163,7 @@ export default function ProjectPanel() {
                 {/* SaaS live */}
                 <label className="note">Produk SaaS (live)</label>
                 {S.online === true ? (
-                  <div style={{ background: 'rgba(16,229,160,.08)', border: '1px solid rgba(16,229,160,.25)', borderRadius: 10, padding: '8px 12px', margin: '6px 0 14px' }}>
+                  <div style={{ background: greenAlpha(0.08), border: '1px solid '+greenAlpha(0.25), borderRadius: 10, padding: '8px 12px', margin: '6px 0 14px' }}>
                     <div className="note" style={{ color: TASK_STATUS_COLORS.done, fontWeight: 600 }}>● Backend online</div>
                     <div className="note" style={{ marginTop: 4 }}>
                       {S.stats?.tenants ?? 0} tenant · {S.stats?.conversations ?? 0} percakapan · {S.stats?.messages ?? 0} pesan
@@ -177,8 +177,8 @@ export default function ProjectPanel() {
                 ) : (
                   <div className="note" role="status" style={{
                     margin: '6px 0 14px', padding: '10px 12px',
-                    borderRadius: 10, border: '1px solid rgba(216,187,132,.3)',
-                    background: 'rgba(216,187,132,.07)', color: GOLD_ACCENT,
+                    borderRadius: 10, border: '1px solid '+goldAlpha(0.3),
+                    background: goldAlpha(0.07), color: GOLD_ACCENT,
                   }}>Status backend SaaS belum diverifikasi — tidak ada bukti health check.</div>
                 )}
 
@@ -187,9 +187,9 @@ export default function ProjectPanel() {
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
                   {(d.agents || []).map(a => (
                     <span key={a.name} className="note" style={{
-                      background: a.status === 'Up' ? 'rgba(16,229,160,.12)' : 'rgba(239,68,68,.12)',
+                      background: a.status === 'Up' ? greenAlpha(0.12) : failedAlpha(0.12),
                       color: a.status === 'Up' ? TASK_STATUS_COLORS.done : TASK_STATUS_COLORS.failed,
-                      border: `1px solid ${a.status === 'Up' ? 'rgba(16,229,160,.3)' : 'rgba(239,68,68,.3)'}`,
+                      border: `1px solid ${a.status === 'Up' ? greenAlpha(0.3) : failedAlpha(0.3)}`,
                       borderRadius: 8, padding: '3px 10px', fontWeight: 600,
                     }}>{a.status === 'Up' ? '●' : '○'} {a.name}</span>
                   ))}
@@ -201,8 +201,8 @@ export default function ProjectPanel() {
                   <div style={{ marginTop: 14 }}>
                     <label className="note">AI Router (OmniRoute)</label>
                     <div style={{
-                      background: d.omniroute.online ? accentAlpha(0.08) : 'rgba(239,68,68,.12)',
-                      border: `1px solid ${d.omniroute.online ? accentAlpha(0.25) : 'rgba(239,68,68,.3)'}`,
+                      background: d.omniroute.online ? accentAlpha(0.08) : failedAlpha(0.12),
+                      border: `1px solid ${d.omniroute.online ? accentAlpha(0.25) : failedAlpha(0.3)}`,
                       borderRadius: 10, padding: '8px 12px', marginTop: 6,
                     }}>
                       <div className="note" style={{ color: d.omniroute.online ? 'var(--teal)' : TASK_STATUS_COLORS.failed, fontWeight: 600 }}>

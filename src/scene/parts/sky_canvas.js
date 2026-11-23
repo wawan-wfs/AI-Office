@@ -10,6 +10,27 @@
 export const SKY_CLOUDS = [[40, 38, 60, 14], [130, 60, 80, 12], [190, 30, 55, 10], [80, 90, 70, 12]];
 export const SKY_CLOUD_SPEED = [1.6, 2.4, 1.1, 2.0]; // px/dtk — laju beda per awan (tak sinkron)
 const SKY_SPAN = 256;
+// Siklus 312: palet langit diekspor — satu sumber kebenaran dgn guard tes
+// (sky_night_swap.test.js kini import konstanta, bukan string literal duplikat).
+export const SKY_DAY_STOPS = ['#4EA8EE', '#93D0F5', '#D6EDFB'];
+export const SKY_NIGHT_STOPS = ['#050B22', '#0A1636', '#16264E'];
+// Siklus 313: palet glow & sheen diekspor — satu sumber dgn guard tes.
+export const SKY_SUN_GLOW = ['rgba(255,250,220,0.95)', 'rgba(255,250,220,0)'];
+export const SKY_MOON_GLOW = ['rgba(215,228,255,0.85)', 'rgba(215,228,255,0)'];
+export const SKY_CITY_GLOW = ['rgba(255,190,110,0)', 'rgba(255,190,110,0.22)'];
+export const GLASS_SHEEN_1 = [
+  [0, 'rgba(255,255,255,0.00)'],
+  [0.42, 'rgba(210,235,255,0.05)'],
+  [0.5, 'rgba(255,255,255,0.22)'],
+  [0.58, 'rgba(210,235,255,0.05)'],
+  [1, 'rgba(255,255,255,0.00)'],
+];
+export const GLASS_SHEEN_2 = [
+  [0, 'rgba(255,255,255,0.00)'],
+  [0.46, 'rgba(255,255,255,0.11)'],
+  [0.54, 'rgba(255,255,255,0.00)'],
+];
+export const GLASS_TINT = 'rgba(140,200,255,0.10)';
 // cloudOffset(i, elapsed): posisi pusat awan i pada waktu elapsed — deterministik,
 // wrap modulo 256+lebar (keluar kanan → masuk kiri), guard non-finite → posisi awal.
 export function cloudOffset(i, elapsed) {
@@ -24,13 +45,13 @@ export function cloudOffset(i, elapsed) {
 }
 export function drawSky(x, elapsed = 0) {
   const g = x.createLinearGradient(0, 0, 0, 128);
-  g.addColorStop(0, '#4EA8EE');g.addColorStop(.65, '#93D0F5');g.addColorStop(1, '#D6EDFB');
+  g.addColorStop(0, SKY_DAY_STOPS[0]);g.addColorStop(.65, SKY_DAY_STOPS[1]);g.addColorStop(1, SKY_DAY_STOPS[2]);
   x.fillStyle = g;x.fillRect(0, 0, 256, 128);
   // pita cahaya matahari utk depth (hindari langit flat/pucat)
   const sun = x.createRadialGradient(210, 22, 4, 210, 22, 80);
-  sun.addColorStop(0, 'rgba(255,250,220,0.95)');sun.addColorStop(1, 'rgba(255,250,220,0)');
+  sun.addColorStop(0, SKY_SUN_GLOW[0]);sun.addColorStop(1, SKY_SUN_GLOW[1]);
   x.fillStyle = sun;x.fillRect(0, 0, 256, 128);
-  x.fillStyle = 'rgba(255,255,255,0.85)';
+  x.fillStyle = SKY_CLOUD_COLOR;
   SKY_CLOUDS.forEach(([, cy, cw, ch], i) => {
     x.beginPath();x.ellipse(cloudOffset(i, elapsed), cy, cw / 2, ch / 2, 0, 0, 7);x.fill();
   });
@@ -40,6 +61,7 @@ export function drawSky(x, elapsed = 0) {
 // jam malam (daylight 0.3, latar NAVY) jendela memancarkan biru terang + awan
 // putih = kontras salah. drawSkyNight dipakai createLighting utk swap tekstur
 // jendela saat daylight turun (lihat daycycle.js skyWins).
+export const SKY_CLOUD_COLOR = 'rgba(255,255,255,0.85)';
 export const STAR_TWINKLE_SEC = 1.7; // satu kedipan bintang (rasio tak sinkron dgn lampu 5.2/3.9/3.6)
 export const STAR_TWINKLE_MIN = 0.55; // kedipan terendah — bintang tak pernah padam total
 
@@ -57,11 +79,11 @@ export function starTwinkle(i, elapsed) {
 
 export function drawSkyNight(x, step = 0) {
   const g = x.createLinearGradient(0, 0, 0, 128);
-  g.addColorStop(0, '#050B22');g.addColorStop(.65, '#0A1636');g.addColorStop(1, '#16264E');
+  g.addColorStop(0, SKY_NIGHT_STOPS[0]);g.addColorStop(.65, SKY_NIGHT_STOPS[1]);g.addColorStop(1, SKY_NIGHT_STOPS[2]);
   x.fillStyle = g;x.fillRect(0, 0, 256, 128);
   // glow bulan di (210,22) — posisi sama dgn matahari versi siang (swap mulus)
   const moon = x.createRadialGradient(210, 22, 2, 210, 22, 46);
-  moon.addColorStop(0, 'rgba(215,228,255,0.85)');moon.addColorStop(1, 'rgba(215,228,255,0)');
+  moon.addColorStop(0, SKY_MOON_GLOW[0]);moon.addColorStop(1, SKY_MOON_GLOW[1]);
   x.fillStyle = moon;x.fillRect(0, 0, 256, 128);
   // bintang: 15 titik deterministik — kedipan via starTwinkle(i, step detik) (siklus 501):
   // alpha dimodulasi fase per-index → repaint tiap 2 dtk menghasilkan langit hidup.
@@ -75,23 +97,17 @@ export function drawSkyNight(x, step = 0) {
   x.globalAlpha = 1;
   // glow kota hangat di horizon bawah (lampu gedung) — kaki langit malam
   const city = x.createLinearGradient(0, 84, 0, 128);
-  city.addColorStop(0, 'rgba(255,190,110,0)');city.addColorStop(1, 'rgba(255,190,110,0.22)');
+  city.addColorStop(0, SKY_CITY_GLOW[0]);city.addColorStop(1, SKY_CITY_GLOW[1]);
   x.fillStyle = city;x.fillRect(0, 84, 256, 44);
 }
 
 // sheen kaca: 2 pantulan diagonal + tint biru — overlay plane di tiap jendela
 export function drawGlassSheen(x) {
   const g = x.createLinearGradient(0, 128, 256, 0);
-  g.addColorStop(0, 'rgba(255,255,255,0.00)');
-  g.addColorStop(.42, 'rgba(210,235,255,0.05)');
-  g.addColorStop(.5, 'rgba(255,255,255,0.22)');
-  g.addColorStop(.58, 'rgba(210,235,255,0.05)');
-  g.addColorStop(1, 'rgba(255,255,255,0.00)');
+  GLASS_SHEEN_1.forEach(([o, c]) => g.addColorStop(o, c));
   x.fillStyle = g;x.fillRect(0, 0, 256, 128);
   const g2 = x.createLinearGradient(256, 128, 60, 0);
-  g2.addColorStop(0, 'rgba(255,255,255,0.00)');
-  g2.addColorStop(.46, 'rgba(255,255,255,0.11)');
-  g2.addColorStop(.54, 'rgba(255,255,255,0.00)');
+  GLASS_SHEEN_2.forEach(([o, c]) => g2.addColorStop(o, c));
   x.fillStyle = g2;x.fillRect(0, 0, 256, 128);
-  x.fillStyle = 'rgba(140,200,255,0.10)';x.fillRect(0, 0, 256, 128);
+  x.fillStyle = GLASS_TINT;x.fillRect(0, 0, 256, 128);
 }

@@ -4,6 +4,11 @@
 export const WALL_TEX_TOP = 'rgba(255,255,255,.12)';
 export const WALL_TEX_BOTTOM = 'rgba(0,0,0,.08)';
 
+// ── Palet dinding SIANG (siklus 414): dulu literal inline di walls.js (8× tex)
+// dan diketik ulang di tes — kini satu titik kebenaran. Nilai identik.
+export const WALL_UPPER_DAY = { base: '#E6EAF1', line: 'rgba(120,138,165,.48)' };
+export const WALL_WOOD_DAY  = { base: '#8A6244',  line: 'rgba(40,25,10,.40)'  };
+
 // ── Palet dinding MALAM (siklus 165): dulu 8 tekstur dinding (panel atas pucat
 // #E6EAF1 + wainscot kayu #8A6244) digambar SEKALI dgn palet siang via
 // MeshBasicMaterial ("tidak bergantung pencahayaan") — jam malam (daylight 0.3,

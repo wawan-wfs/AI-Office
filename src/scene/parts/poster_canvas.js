@@ -3,8 +3,10 @@
 // Urutan & parameter perintah gambar identik kode inline lama — tampilan tak berubah.
 import { CANVAS_W, CANVAS_H, posterLineY } from './poster_spec.js';
 
+export const POSTER_BG = '#14172b';
+
 export function drawPoster(ctx, color, text) {
-  ctx.fillStyle = '#14172b';
+  ctx.fillStyle = POSTER_BG;
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
   ctx.strokeStyle = color;
   ctx.lineWidth = 3;

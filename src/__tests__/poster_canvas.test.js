@@ -2,7 +2,7 @@
 // Unit test painter poster slogan WFS — parts/poster_canvas.js.
 // ctx recorder; memverifikasi urutan & parameter identik kode inline lama di furniture.js.
 import { describe, it, expect } from 'vitest';
-import { drawPoster } from '../scene/parts/poster_canvas.js';
+import { drawPoster, POSTER_BG } from '../scene/parts/poster_canvas.js';
 import { CANVAS_W, CANVAS_H, LINE_H, posterLineY } from '../scene/parts/poster_spec.js';
 
 function makeCtx() {
@@ -27,7 +27,8 @@ describe('drawPoster', () => {
   it('latar gelap penuh sebagai oper pertama, ukuran kanvas sesuai spec', () => {
     const c = makeCtx();
     drawPoster(c, '#0deef3', 'SHIP IT');
-    expect(c._ops[0]).toEqual(['fillStyle', '#14172b']);
+    expect(c._ops[0]).toEqual(['fillStyle', POSTER_BG]);
+    expect(POSTER_BG).toBe('#14172b');
     expect(c._ops[1]).toEqual(['fillRect', [0, 0, CANVAS_W, CANVAS_H]]);
     expect(CANVAS_W).toBe(120);
     expect(CANVAS_H).toBe(160);

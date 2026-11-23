@@ -4,6 +4,9 @@ import {
   COLLAB_CHANCE, TRIP_PAUSE_MIN, TRIP_PAUSE_JITTER, SIT_TIMER_MIN, SIT_TIMER_JITTER,
   STRIDE, stridePose, collabTarget, jitterDest, pickDest, fallbackSpot, REST_POSE,
 } from '../scene/parts/trip_plan.js';
+import { DESKS } from '../scene/parts/desk_layout.js';
+import { EXTENDED_SPECIALISTS } from '../scene/parts/extended_desks.js';
+import { inObstacle } from '../scene/parts/obstacles.js';
 import { FRONT, bandOf } from '../scene/parts/routing.js';
 
 const rngFixed = (r = 0.5, i = 0) => ({ r: () => r, i: () => i });
@@ -41,6 +44,34 @@ describe('collabTarget', () => {
   });
 });
 
+describe('collab stand-point (siklus 306): 26 meja aman di rintangan & sesama meja', () => {
+  // Titik berdiri menghampiri rekan (collabTarget) harus bebas: bukan di dalam
+  // footprint rintangan statis & tak menumpuk kursi meja lain (<0.9 dianggap
+  // terhuni oleh seatOccupied). Audit 14 meja utama + 12 spesialis: 0 pelanggaran.
+  const homes = [
+    ...DESKS.map((d) => ({ ...d, tag: d.tag || 'main' })),
+    ...EXTENDED_SPECIALISTS.map((a) => ({ x: a.desk.x, z: a.desk.z, tag: a.name })),
+  ];
+
+  it('stand-point tidak di dalam rintangan statis (OBSTACLES)', () => {
+    for (const h of homes) {
+      const t = collabTarget(h);
+      expect(inObstacle(t.x, t.z), `${h.tag} -> (${t.x},${t.z})`).toBe(false);
+    }
+  });
+
+  it('stand-point tidak menumpuk kursi meja lain (jarak >= 0.9)', () => {
+    for (const h of homes) {
+      const t = collabTarget(h);
+      for (const o of homes) {
+        if (o === h) continue;
+        const dist = Math.hypot(o.x - t.x, o.z - t.z);
+        expect(dist >= 0.9, `${h.tag} vs ${o.tag}: ${dist.toFixed(2)}`).toBe(true);
+      }
+    }
+  });
+});
+
 describe('jitterDest', () => {
   it('tanpa jitter tetap di titik dest', () => {
     expect(jitterDest({ x: 9, z: 3 }, { r: () => 0 })).toEqual({ x: 9, z: 3 });
@@ -53,6 +84,11 @@ describe('jitterDest', () => {
     expect(jitterDest({ x: 9, z: 3 }, rmock(1)).x).toBe(9.9);
     expect(jitterDest({ x: 9, z: 3 }, rmock(0)).z).toBe(2.1);
     expect(jitterDest({ x: 0, z: 0 }, rmock(1), 2)).toEqual({ x: 2, z: 2 });
+  });
+  it('guard anti-poisoning: dest NaN/undefined → spot netral; rng tanpa r → spot tanpa jitter', () => {
+    expect(jitterDest({ x: NaN, z: 3 }, { r: () => 0 })).toEqual({ x: 0, z: 0 });
+    expect(jitterDest(undefined, { r: () => 0 })).toEqual({ x: 0, z: 0 });
+    expect(jitterDest({ x: 5, z: 6 }, { i: () => 0 })).toEqual({ x: 5, z: 6 });
   });
 });
 
@@ -115,6 +151,15 @@ describe('fallbackSpot', () => {
   });
   it('x meja dipertahankan', () => {
     expect(fallbackSpot({ x: 8, z: 6 }).x).toBe(8);
+  });
+  it('guard: home null / NaN / Infinity → spot netral finite (anti-poisoning)', () => {
+    for (const bad of [null, undefined, {}, { x: NaN, z: NaN }, { x: Infinity, z: 1 }]) {
+      const s = fallbackSpot(bad);
+      expect(Number.isFinite(s.x)).toBe(true);
+      expect(Number.isFinite(s.z)).toBe(true);
+    }
+    expect(fallbackSpot(null)).toEqual({ x: 0, z: FRONT[1] });
+    expect(fallbackSpot({ x: Infinity, z: NaN })).toEqual({ x: 0, z: FRONT[1] });
   });
 });
 

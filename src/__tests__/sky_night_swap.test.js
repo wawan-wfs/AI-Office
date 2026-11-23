@@ -3,7 +3,7 @@
 // malam (daylight 0.3, latar NAVY) semua jendela memancarkan langit biru terang
 // + awan putih. Sekarang createLighting me-repaint kanvas skyTex sesuai daylight.
 import { describe, it, expect, vi } from 'vitest';
-import { drawSky, drawSkyNight } from '../scene/parts/sky_canvas.js';
+import { drawSky, drawSkyNight, SKY_DAY_STOPS, SKY_NIGHT_STOPS, SKY_MOON_GLOW, SKY_CITY_GLOW } from '../scene/parts/sky_canvas.js';
 import { createLighting } from '../scene/parts/daycycle.js';
 
 // ── recorder ctx (pola sky_canvas.test.js) ──
@@ -30,20 +30,20 @@ describe('drawSkyNight — langit malam jendela', () => {
     const c = rec();
     drawSkyNight(c);
     expect(c.ops[0]).toEqual(['linGrad', 0, 0, 0, 128]);
-    expect(c.ops[1]).toEqual(['stop', 0, '#050B22']);
-    expect(c.ops[2]).toEqual(['stop', 0.65, '#0A1636']);
-    expect(c.ops[3]).toEqual(['stop', 1, '#16264E']);
+    expect(c.ops[1]).toEqual(['stop', 0, SKY_NIGHT_STOPS[0]]);
+    expect(c.ops[2]).toEqual(['stop', 0.65, SKY_NIGHT_STOPS[1]]);
+    expect(c.ops[3]).toEqual(['stop', 1, SKY_NIGHT_STOPS[2]]);
     // tidak ada warna biru siang di stop manapun
     const stops = c.ops.filter(o => o[0] === 'stop').map(o => o[2]);
-    ['#4EA8EE', '#93D0F5', '#D6EDFB'].forEach((dayCol) => expect(stops).not.toContain(dayCol));
+    SKY_DAY_STOPS.forEach((dayCol) => expect(stops).not.toContain(dayCol));
   });
   it('glow bulan radial di posisi sama dgn matahari siang (210,22)', () => {
     const c = rec();
     drawSkyNight(c);
     const i = c.ops.findIndex(o => o[0] === 'radGrad');
     expect(c.ops[i]).toEqual(['radGrad', 210, 22, 2, 210, 22, 46]);
-    expect(c.ops[i + 1]).toEqual(['stop', 0, 'rgba(215,228,255,0.85)']);
-    expect(c.ops[i + 2]).toEqual(['stop', 1, 'rgba(215,228,255,0)']);
+    expect(c.ops[i + 1]).toEqual(['stop', 0, SKY_MOON_GLOW[0]]);
+    expect(c.ops[i + 2]).toEqual(['stop', 1, SKY_MOON_GLOW[1]]);
   });
   it('tepat 15 bintang (arc) via beginPath+fill; TANPA awan ellipse', () => {
     const c = rec();
@@ -58,8 +58,8 @@ describe('drawSkyNight — langit malam jendela', () => {
     const gi = c.ops.map(o => o.join('|')).join('\n');
     expect(gi).toContain('linGrad|0|84|0|128');
     const stops = c.ops.filter(o => o[0] === 'stop').map(o => o[2]);
-    expect(stops).toContain('rgba(255,190,110,0)');
-    expect(stops).toContain('rgba(255,190,110,0.22)');
+    expect(stops).toContain(SKY_CITY_GLOW[0]);
+    expect(stops).toContain(SKY_CITY_GLOW[1]);
   });
   it('drawSky (siang) tetap punya 4 awan — kontras dgn versi malam', () => {
     const c = rec();
@@ -100,7 +100,7 @@ describe('createLighting — swap langit jendela sesuai waktu (siklus 164)', () 
     const lin = cv.ops.filter(o => o[0] === 'linGrad');
     expect(lin[0].slice(1)).toEqual([0, 0, 0, 128]);
     const stops = cv.ops.filter(o => o[0] === 'stop').map(o => o[2]);
-    expect(stops).toContain('#050B22');
+    expect(stops).toContain(SKY_NIGHT_STOPS[0]);
   });
   it('siang (720): repaint balik ke langit siang (4 awan ellipse)', () => {
     const { cv, ctx } = makeSkyHarness();

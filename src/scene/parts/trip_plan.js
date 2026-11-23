@@ -36,6 +36,10 @@ export function collabTarget(home, off = COLLAB_OFFSET) {
 }
 
 export function jitterDest(dest, rng, jitter = DEST_JITTER) {
+  // Guard anti-poisoning: koordinat dest non-finite → spot netral (0,0) supaya
+  // NaN tidak masuk walkTarget/routePath (pola sama dgn pickDest).
+  if (!dest || !Number.isFinite(dest.x) || !Number.isFinite(dest.z)) return { x: 0, z: 0 };
+  if (!rng || typeof rng.r !== 'function') return { x: dest.x, z: dest.z };
   return { x: dest.x + rng.r(-jitter, jitter), z: dest.z + rng.r(-jitter, jitter) };
 }
 
@@ -62,8 +66,13 @@ export function pickDest(dests, rng, freeSpot, tries = 8) {
 
 // Fallback koridor depan baris meja (band dari routing.js), clamp aman.
 export function fallbackSpot(home) {
-  const band = FRONT[Math.min(2, Math.max(0, bandOf(home.z)))];
-  return { x: home.x, z: band };
+  // Guard anti-poisoning (konsisten dgn pickDest/jitterDest/stridePose): home
+  // null/tanpa koordinat finite → spot netral (0,0), bukan TypeError atau NaN
+  // yang lolos ke walkTarget/routePath.
+  const hx = home && Number.isFinite(home.x) ? home.x : 0;
+  const hz = home && Number.isFinite(home.z) ? home.z : 0;
+  const band = FRONT[Math.min(2, Math.max(0, bandOf(hz)))];
+  return { x: hx, z: Number.isFinite(band) ? band : 0 };
 }
 
 // Pose stride pada waktu t (sudah dikali TIME_SCALE) dan fase limb.

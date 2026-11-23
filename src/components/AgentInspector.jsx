@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { IconClose, IconChat, IconUser } from './Icons'
 import { getAgentCompetency } from '../scene/parts/agent_competencies.js'
 import { TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
-import { ACCENT_BLUE, accentAlpha, AVATAR_TEXT, PANEL_SOFT_TEXT , PURE_TEXT} from '../lib/ui_palette.js'
+import { ACCENT_BLUE, accentAlpha, amberAlpha, cyanAlpha, greenAlpha, whiteAlpha, AVATAR_TEXT, PANEL_SOFT_TEXT , PURE_TEXT} from '../lib/ui_palette.js'
 import { resolveAgentId } from '../scene/parts/running_tasks.js'
 import { findTeamByAgent } from '../scene/parts/team_spec.js'
 import { agentLiveStatus, findAgentLiveEntry, agentLiveLevel, floorZoneName, floorZonePrefix, FLOOR_ZONE_PREFIX } from '../scene/parts/agent_status.js'
@@ -76,7 +76,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
         animation: 'fadeUp .25s cubic-bezier(0.16, 1, 0.3, 1) both',
       }}
     >
-      <div className="ph" style={{ padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="ph" style={{ padding: '12px 14px', borderBottom: `1px solid ${whiteAlpha(0.08)}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
           <div
             style={{
@@ -119,7 +119,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {/* Status Chip & Lokasi Lantai */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '8px 10px' }}>
+          <div style={{ background: whiteAlpha(0.04), border: `1px solid ${whiteAlpha(0.06)}`, borderRadius: 12, padding: '8px 10px' }}>
             <span style={{ fontSize: 10, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 3 }}>Status</span>
             {(() => {
               // Status live dari state machine scene; scene belum ada → Standby (bukan klaim palsu)
@@ -139,8 +139,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             title={`Fokus kamera ke Lantai ${liveFloor || agent.floor || (isFounder ? 3 : 1)}`}
             aria-label={`Fokus kamera ke Lantai ${liveFloor || agent.floor || (isFounder ? 3 : 1)}`}
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: whiteAlpha(0.04),
+              border: `1px solid ${whiteAlpha(0.06)}`,
               borderRadius: 12,
               padding: '8px 10px',
               textAlign: 'left',
@@ -152,13 +152,13 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             onMouseEnter={(e) => {
               if (onFocusFloor) {
                 e.currentTarget.style.borderColor = 'var(--teal)'
-                e.currentTarget.style.background = 'rgba(0,240,255,0.08)'
+                e.currentTarget.style.background = cyanAlpha(0.08)
               }
             }}
             onMouseLeave={(e) => {
               if (onFocusFloor) {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                e.currentTarget.style.borderColor = whiteAlpha(0.06)
+                e.currentTarget.style.background = whiteAlpha(0.04)
               }
             }}
           >
@@ -190,8 +190,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             style={{
               textAlign: 'left',
               width: '100%',
-              background: 'rgba(16,229,160,0.08)',
-              border: '1px solid rgba(16,229,160,0.25)',
+              background: greenAlpha(0.08),
+              border: `1px solid ${greenAlpha(0.25)}`,
               borderRadius: 12,
               padding: '10px 12px',
               cursor: 'pointer',
@@ -214,7 +214,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
         ) : null}
 
         {/* Profil Kompetensi & Stack Teknologi */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px' }}>
+        <div style={{ background: whiteAlpha(0.03), border: `1px solid ${whiteAlpha(0.06)}`, borderRadius: 12, padding: '10px 12px' }}>
           <div style={{ fontSize: 10, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
             Kompetensi & Spesialisasi
           </div>
@@ -230,8 +230,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
                 key={tag}
                 style={{
                   fontSize: 10,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: whiteAlpha(0.05),
+                  border: `1px solid ${whiteAlpha(0.08)}`,
                   borderRadius: 6,
                   padding: '2px 7px',
                   color: PANEL_SOFT_TEXT,
@@ -245,7 +245,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
         </div>
 
         {/* AI Engine, Proyek & Sandbox */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px' }}>
+        <div style={{ background: whiteAlpha(0.03), border: `1px solid ${whiteAlpha(0.06)}`, borderRadius: 12, padding: '10px 12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4 }}>
             <span>Proyek</span>
             <span style={{ color: PURE_TEXT, fontWeight: 600 }}>WFS PROJECT</span>
@@ -272,8 +272,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
               gap: 8,
               width: '100%',
               fontWeight: 700,
-              background: 'rgba(245,158,11,0.12)',
-              border: '1px solid rgba(245,158,11,0.3)',
+              background: amberAlpha(0.12),
+              border: `1px solid ${amberAlpha(0.3)}`,
               color: TASK_STATUS_COLORS.running,
               borderRadius: 8,
               padding: '8px 12px',
@@ -298,8 +298,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             gap: 8,
             width: '100%',
             fontWeight: 600,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: whiteAlpha(0.05),
+            border: `1px solid ${whiteAlpha(0.1)}`,
             color: PANEL_SOFT_TEXT,
           }}
           onClick={() => {

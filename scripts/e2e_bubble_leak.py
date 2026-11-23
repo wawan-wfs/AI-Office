@@ -47,7 +47,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9458
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"
 N_SPAWN = 8       # jumlah bubble (spawn bertahap 1 per SPAWN_EVERY dtk)
 SPAWN_EVERY = 4.5  # > life 3.5 dtk → array tak penuh, expiry (bukan eviksi)
 
@@ -261,4 +261,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise

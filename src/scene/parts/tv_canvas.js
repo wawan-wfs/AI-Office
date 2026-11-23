@@ -4,14 +4,14 @@
 import { parseTimestampMs, resolveNow } from '../../lib/kanban_date.js'
 import { fmtStampId } from '../../lib/format_time.js'
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
-import { AMBER_ACCENT } from '../../lib/ui_palette.js'
+import { AMBER_ACCENT, SCENE_MUTED } from '../../lib/ui_palette.js';
 
 // Warna palet & koordinat layout (satu sumber kebenaran untuk render & test).
 export const TV_W = 256;
 export const TV_H = 144;
 export const TV_BG = '#0A1628';
 const TV_ACCENT = AMBER_ACCENT;
-export const TV_MUTED = '#8fa3bd';
+export const TV_MUTED = SCENE_MUTED;
 export const TV_GREEN = '#10E5A0';
 // Siklus 381 — TV_BLUE/TV_RED delegasi palet kanonik (dulu salinan drift
 // #448AFF/#ef4444). TV_GREEN sudah sama dgn done, tapi tetap eksplisit

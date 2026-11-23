@@ -1,6 +1,8 @@
 // Unit test logika murni scene: routing koridor & jadwal meeting.
 import { describe, it, expect } from 'vitest';
-import { routePath, FRONT, GANGS, bandOf } from '../scene/parts/routing.js';
+import { routePath, FRONT, GANGS, bandOf, ROWS } from '../scene/parts/routing.js';
+import { DESKS as DESK_LAYOUT, deskRows } from '../scene/parts/desk_layout.js';
+import { floorOf, STAIR1_START_Z, STAIR1_END_Z, STAIR2_START_Z, STAIR2_END_Z } from '../scene/parts/floor_elevation.js';
 import { OBSTACLES, inObstacle, seatOccupied } from '../scene/parts/obstacles.js';
 import { MEETING_WINDOWS, isMeetingTime, meetingWindowIndex } from '../scene/parts/meeting.js';
 
@@ -57,17 +59,36 @@ describe('routing.routePath', () => {
     }
   });
 
-  it('satu band dekat: langsung tanpa waypoint (tidak menembus apa pun)', () => {
+  it('satu band dekat: langsung (waypoint akhir = target, tak menembus apa pun)', () => {
     const path = routePath({ x: 4, z: 6 }, { x: 5, z: 6 });
-    expect(path).toEqual([]);
+    expect(path).toEqual([{ x: 5, z: 6 }]);
   });
 
-  it('satu band jauh: lewat koridor depan band asal', () => {
-    const a = { x: -2, z: 6 }, b = { x: 10, z: 6 };
+  it('satu band jauh di band lounge L3: koridor utara z=10 (siklus 297)', () => {
+    const a = { x: -2, z: 6 }, b = { x: 13.2, z: 6 }; // 13.2 bebas lounge (x>12.4)
     const path = routePath(a, b);
-    expect(path).toEqual([{ x: -2, z: FRONT[2] }, { x: 10, z: FRONT[2] }]);
+    // FRONT[2]=4.85 memotong lounge L3 (x 8..12.4 / z 4.3..9.4) — dipakai hanya
+    // bila segmen asal/tujuan bersih; di sini koridor utara z=10 yang dipilih.
+    expect(path[0]).toEqual({ x: -2, z: 10 });
+    expect(path[path.length - 1]).toEqual(b);
+    expect(noBlockedSegment(path, a, b)).toEqual([]);
     expect(crossingDesks(path, a, b)).toEqual([]);
   });
+
+  function noBlockedSegment(path, a, b) {
+    const bad = [];
+    let prev = a;
+    for (const p of [...path, b]) {
+      const dx = p.x - prev.x, dz = p.z - prev.z;
+      const n = Math.ceil(Math.hypot(dx, dz) / 0.25) || 1;
+      for (let i = 1; i <= n; i++) {
+        const x = prev.x + (dx * i) / n, z = prev.z + (dz * i) / n;
+        if (inObstacle(x, z)) bad.push({ prev, p, x: +x.toFixed(2), z: +z.toFixed(2) });
+      }
+      prev = p;
+    }
+    return bad;
+  }
 
   it('input non-finite (NaN/±Infinity/undefined/null) → jalur kosong (no-op aman)', () => {
     expect(routePath({ x: NaN, z: -3 }, { x: 8, z: 6 })).toEqual([]);
@@ -110,12 +131,17 @@ describe('meeting windows', () => {
 
 describe('obstacles', () => {
   it('footprint furnitur terdefinisi & titik pusatnya terdeteksi', () => {
-    expect(OBSTACLES.length).toBe(5);
-    // pusat counter pantry, printer, sofa lounge
+    expect(OBSTACLES.length).toBe(11);
+    // pusat counter pantry, printer, sofa lounge, rack server, cooler
     expect(inObstacle(-10.5, 2.55)).toBe(true);   // pantry counter
-    expect(inObstacle(3.0, -7.9)).toBe(true);     // printer
+    expect(inObstacle(3.0, -7.9)).toBe(true);     // printer L2
     expect(inObstacle(10.5, 6.0)).toBe(true);     // sofa lounge
     expect(inObstacle(-9.5, 7.5)).toBe(true);     // counter café
+    expect(inObstacle(2.8, -7.6)).toBe(true);     // rack server tengah (L2)
+    expect(inObstacle(-11.6, 0)).toBe(true);      // water cooler
+    expect(inObstacle(8, -3)).toBe(true);         // meja rapat (L1)
+    expect(inObstacle(6.7, -3)).toBe(true);       // kaki panel barat meja rapat
+    expect(inObstacle(9.3, -3)).toBe(true);       // kaki panel timur meja rapat
   });
 
   it('titik bebas (koridor, meja kosong) tidak dianggap rintangan', () => {
@@ -132,5 +158,38 @@ describe('obstacles', () => {
     expect(seatOccupied(4.5, 6.2, agents, { name: 'X' })).toBe(true);   // dekat A
     expect(seatOccupied(-4.3, -2.8, agents, { name: 'X' })).toBe(false); // B offsite
     expect(seatOccupied(4, 6, agents, agents[0].agent)).toBe(false);     // self dikecualikan
+  });
+});
+
+describe('routing.bandOf sinkron zona-lantai (siklus 290/291)', () => {
+  it('GANGS = [koridor, koridor, kaki/kepala tangga eksak dari floor_elevation] (siklus 293)', () => {
+    expect(GANGS).toEqual([-0.75, 3.75, STAIR1_START_Z, STAIR1_END_Z, STAIR2_START_Z, STAIR2_END_Z]);
+    expect(GANGS).toEqual([-0.75, 3.75, -1.8, -0.6, 3.8, 5.0]); // nilai efektif tak berubah
+  });
+  it('FRONT/GANGS/gang diturunkan eksak dari desk_layout (siklus 294)', () => {
+    expect(ROWS).toEqual(deskRows(DESK_LAYOUT));
+    expect(ROWS).toEqual([-3, 1.5, 6]);
+    expect(FRONT[0]).toBeCloseTo(-4.15, 10); // row-1.15, nilai efektif tak berubah
+    expect(FRONT[1]).toBeCloseTo(0.35, 10);
+    expect(FRONT[2]).toBeCloseTo(4.85, 10);
+    expect(GANGS.slice(0, 2)).toEqual([-0.75, 3.75]); // midpoint antar-baris
+  });
+  it('bandOf = floorOf-1 di seluruh rentang z kampus (±13)', () => {
+    for (let z = -13; z <= 13; z += 0.1) {
+      const fl = floorOf(z);
+      expect(bandOf(z)).toBe(fl - 1);
+    }
+  });
+  it('tepi zona: -0.8 → band 1 (bukan 0), 4.5 → band 1 (bukan 2)', () => {
+    expect(bandOf(-0.8)).toBe(1);
+    expect(bandOf(-0.81)).toBe(0);
+    expect(bandOf(4.5)).toBe(1);
+    expect(bandOf(4.51)).toBe(2);
+  });
+  it('kasus beda-lantai: L1→L3 lewat dua tangga dgn waypoint koridor', () => {
+    const p = routePath({ x: -8, z: -3 }, { x: 6, z: 6 });
+    expect(p.filter(w => w.x === -2.6).length).toBeGreaterThanOrEqual(3);
+    expect(p.filter(w => w.x === 2.6).length).toBeGreaterThanOrEqual(3);
+    expect(p[p.length - 1]).toEqual({ x: 6, z: 6 }); // waypoint akhir = target (siklus 297)
   });
 });

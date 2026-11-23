@@ -75,3 +75,13 @@ describe('fitZoneLabel (tercakup di flooring)', () => {
     expect(fs).toBe(20); // width konstan 800 > 460 → turun sampai batas MIN 20 lalu berhenti
   });
 });
+
+// Siklus 311: guard — warna repaint live di OfficeScene delegasi konstanta
+// kanonik (ZL_BG/ZL_BORDER), bukan hardcode tersalin (risiko drift visual).
+describe('konstanta kanonik dipakai ulang repaint live (311)', () => {
+  it('ZL_BG/ZL_BORDER identik nilai render awal createZones', () => {
+    // nilai historis hardcode lama di OfficeScene blok repaint 527
+    expect(ZL_BG).toBe('rgba(5,10,22,0.75)');
+    expect(ZL_BORDER).toBe('#F59E0B');
+  });
+});

@@ -125,4 +125,27 @@ describe('zoneViewportGuard', () => {
     expect(zt.position.z).toBeGreaterThanOrEqual(7.5 - 2.0); // clamp -2.0m aman
     expect(zt.position.z).toBeLessThan(7.5); // Z digeser ke arah tengah lantai
   });
+
+  it('scale/NDC non-finite → dilewati tanpa koreksi, posisi tak tersentuh', () => {
+    // NaN/±Infinity di zh/zw (scale korup) atau fy/fx (project NaN) membuat
+    // perbandingan batas false → guard lama diam senyap; kini skip eksplisit.
+    const cases = [
+      { scale: { x: NaN, y: 1 }, ndc: { x: 0, y: 1, z: 0.5 } },
+      { scale: { x: 1, y: Infinity }, ndc: { x: 0, y: 1, z: 0.5 } },
+      { scale: { x: 1, y: 1 }, ndc: { x: NaN, y: 1, z: 0.5 } },
+      { scale: { x: 1, y: 1 }, ndc: { x: 0, y: Infinity, z: 0.5 } },
+    ];
+    for (const c of cases) {
+      const cam = mkCamera(() => c.ndc);
+      const zt = mkZone(0, 1);
+      zt.scale = c.scale;
+      zt.position.y = 3;
+      zt.position.clone = () => ({ project: () => c.ndc });
+      const deps = DEPS(cam);
+      const before = zt.position.y;
+      expect(zoneViewportGuard([zt], deps)).toBe(0);
+      expect(zt.position.y).toBe(before);
+      expect(zt.userData || {}).toEqual({});
+    }
+  });
 });

@@ -38,7 +38,7 @@ def __wfs_pick_chrome():
 
 CHROME = __wfs_pick_chrome()
 PORT = 9468
-URL = "http://127.0.0.1:9503/"
+URL = "http://127.0.0.1:9503/app/?mode=office"
 ROUNDS = 20
 # Metrik PASS = heap TERTAHAN setelah GC dipaksa via CDP HeapProfiler
 # (window.gc TIDAK tersedia di run tanpa --expose-gc). Pertumbuhan lazy
@@ -283,4 +283,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise

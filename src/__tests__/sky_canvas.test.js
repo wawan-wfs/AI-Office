@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { drawSky, drawGlassSheen } from '../scene/parts/sky_canvas.js';
+import { drawSky, drawGlassSheen, SKY_DAY_STOPS, SKY_SUN_GLOW, GLASS_SHEEN_1, GLASS_SHEEN_2, GLASS_TINT, SKY_CLOUD_COLOR } from '../scene/parts/sky_canvas.js';
 
 // recorder ctx: mencatat ops & argumen; gradien palsu yang mencatat addColorStop
 const grad = ops => ({
@@ -27,9 +27,9 @@ describe('drawSky (256×128 langit jendela)', () => {
     const c = rec();
     drawSky(c);
     expect(c.ops[0]).toEqual(['linGrad', 0, 0, 0, 128]);
-    expect(c.ops[1]).toEqual(['stop', 0, '#4EA8EE']);
-    expect(c.ops[2]).toEqual(['stop', 0.65, '#93D0F5']);
-    expect(c.ops[3]).toEqual(['stop', 1, '#D6EDFB']);
+    expect(c.ops[1]).toEqual(['stop', 0, SKY_DAY_STOPS[0]]);
+    expect(c.ops[2]).toEqual(['stop', 0.65, SKY_DAY_STOPS[1]]);
+    expect(c.ops[3]).toEqual(['stop', 1, SKY_DAY_STOPS[2]]);
     expect(c.ops[4]).toEqual(['fillStyle', c.ops[4][1]]);
     expect(c.ops[5]).toEqual(['fillRect', 0, 0, 256, 128]);
   });
@@ -38,8 +38,8 @@ describe('drawSky (256×128 langit jendela)', () => {
     drawSky(c);
     const i = c.ops.findIndex(o => o[0] === 'radGrad');
     expect(c.ops[i]).toEqual(['radGrad', 210, 22, 4, 210, 22, 80]);
-    expect(c.ops[i + 1]).toEqual(['stop', 0, 'rgba(255,250,220,0.95)']);
-    expect(c.ops[i + 2]).toEqual(['stop', 1, 'rgba(255,250,220,0)']);
+    expect(c.ops[i + 1]).toEqual(['stop', 0, SKY_SUN_GLOW[0]]);
+    expect(c.ops[i + 2]).toEqual(['stop', 1, SKY_SUN_GLOW[1]]);
   });
   it('tepat 4 awan ellipse putih via beginPath+ellipse+fill', () => {
     const c = rec();
@@ -52,7 +52,8 @@ describe('drawSky (256×128 langit jendela)', () => {
     expect(clouds[3].slice(1)).toEqual([80, 90, 35, 6, 0, 0, 7]);
     expect(c.ops.filter(o => o[0] === 'beginPath').length).toBe(4);
     expect(c.ops.filter(o => o[0] === 'fill').length).toBe(4);
-    expect(c.ops.filter(o => o[0] === 'fillStyle' && o[1] === 'rgba(255,255,255,0.85)').length).toBe(1);
+    expect(c.ops.filter(o => o[0] === 'fillStyle' && o[1] === SKY_CLOUD_COLOR).length).toBe(1);
+    expect(SKY_CLOUD_COLOR).toBe('rgba(255,255,255,0.85)');
   });
 });
 
@@ -63,13 +64,13 @@ describe('drawGlassSheen (256×128 overlay kaca)', () => {
     const g1 = c.ops[0];
     expect(g1).toEqual(['linGrad', 0, 128, 256, 0]);
     expect(c.ops[1]).toEqual(['stop', 0, 'rgba(255,255,255,0.00)']);
-    expect(c.ops[2]).toEqual(['stop', 0.42, 'rgba(210,235,255,0.05)']);
+    expect(c.ops[2]).toEqual(['stop', 0.42, GLASS_SHEEN_1[1][1]]);
     expect(c.ops[3]).toEqual(['stop', 0.5, 'rgba(255,255,255,0.22)']);
-    expect(c.ops[4]).toEqual(['stop', 0.58, 'rgba(210,235,255,0.05)']);
+    expect(c.ops[4]).toEqual(['stop', 0.58, GLASS_SHEEN_1[3][1]]);
     expect(c.ops[5]).toEqual(['stop', 1, 'rgba(255,255,255,0.00)']);
     expect(c.ops[8]).toEqual(['linGrad', 256, 128, 60, 0]);
     expect(c.ops[9]).toEqual(['stop', 0, 'rgba(255,255,255,0.00)']);
-    expect(c.ops[10]).toEqual(['stop', 0.46, 'rgba(255,255,255,0.11)']);
+    expect(c.ops[10]).toEqual(['stop', 0.46, GLASS_SHEEN_2[1][1]]);
     expect(c.ops[11]).toEqual(['stop', 0.54, 'rgba(255,255,255,0.00)']);
     const rects = c.ops.filter(o => o[0] === 'fillRect');
     expect(rects).toEqual([
@@ -78,11 +79,28 @@ describe('drawGlassSheen (256×128 overlay kaca)', () => {
       ['fillRect', 0, 0, 256, 128],
     ]);
   });
+  it('guard siklus 313: palet glow & sheen terkunci ke nilai historis', () => {
+    expect(SKY_SUN_GLOW).toEqual(['rgba(255,250,220,0.95)', 'rgba(255,250,220,0)']);
+    expect(GLASS_SHEEN_1).toEqual([
+      [0, 'rgba(255,255,255,0.00)'],
+      [0.42, 'rgba(210,235,255,0.05)'],
+      [0.5, 'rgba(255,255,255,0.22)'],
+      [0.58, 'rgba(210,235,255,0.05)'],
+      [1, 'rgba(255,255,255,0.00)'],
+    ]);
+    expect(GLASS_SHEEN_2).toEqual([
+      [0, 'rgba(255,255,255,0.00)'],
+      [0.46, 'rgba(255,255,255,0.11)'],
+      [0.54, 'rgba(255,255,255,0.00)'],
+    ]);
+    expect(GLASS_TINT).toBe('rgba(140,200,255,0.10)');
+  });
+
   it('tint biru rgba(140,200,255,0.10) adalah fillStyle terakhir', () => {
     const c = rec();
     drawGlassSheen(c);
     const fs = c.ops.filter(o => o[0] === 'fillStyle');
-    expect(fs[fs.length - 1]).toEqual(['fillStyle', 'rgba(140,200,255,0.10)']);
+    expect(fs[fs.length - 1]).toEqual(['fillStyle', GLASS_TINT]);
     const lastRect = [...c.ops].reverse().find(o => o[0] === 'fillRect');
     expect(lastRect).toEqual(['fillRect', 0, 0, 256, 128]);
   });

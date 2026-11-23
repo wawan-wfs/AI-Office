@@ -43,7 +43,7 @@ import { drawPoster } from './parts/poster_canvas.js';
 import { createWalls } from './parts/walls.js';
 import { drawBlobShadow } from './parts/blob_canvas.js';
 import { LABEL_Y, LABEL_FULL, LABEL_SHORT, labelScale, drawLabelText, labelStatusColor } from './parts/label_spec.js';
-import { drawZoneLive, zoneAgentCount } from './parts/zone_label_canvas.js'; // siklus 527
+import { drawZoneLive, zoneAgentCount, ZL_BG, ZL_BORDER } from './parts/zone_label_canvas.js'; // siklus 527
 import { WALK_DESTINATIONS, CAMPUS_WALK_DESTINATIONS } from './parts/walk_destinations.js';
 import { OBSTACLES } from './parts/obstacles.js';
 import {
@@ -2216,9 +2216,12 @@ function animate(){
         if(__zoneLiveLast.get(zl)===n) return; // tak berubah → no-op (hemat GPU)
         __zoneLiveLast.set(zl,n);
         const zx=u.__zctx;
-        zx.fillStyle='rgba(5,10,22,0.75)';
+        // Siklus 311: warna latar/bingkai delegasi konstanta kanonik (ZL_BG/
+        // ZL_BORDER di zone_label_canvas.js, satu sumber dgn createZones) —
+        // dulu hex di-hardcode ulang di sini (risiko drift visual).
+        zx.fillStyle = ZL_BG;
         zx.beginPath();zx.roundRect(4,4,504,88,20);zx.fill();
-        zx.strokeStyle='#F59E0B';zx.lineWidth=3;zx.stroke();
+        zx.strokeStyle=ZL_BORDER;zx.lineWidth=3;zx.stroke();
         fitZoneLabel(zx,u.label);
         drawZoneLive(zx,u.label,n);
         u.__ztex.needsUpdate=true;

@@ -1,5 +1,5 @@
 import { clip } from '../lib/clip.js'
-import { NOTE_TEXT, ITEM_TITLE_TEXT , PURE_TEXT} from '../lib/ui_palette.js'
+import { NOTE_TEXT, ITEM_TITLE_TEXT , PURE_TEXT, whiteAlpha, amberAlpha} from '../lib/ui_palette.js'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../lib/api'
 import { useModalFlag } from '../lib/modal'
@@ -124,7 +124,7 @@ export default function TeamStats() {
                               <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: team.color }} />
                               <span>{team.name}</span>
                               <span className="team-card-tag">Lt. {team.floor}</span>
-                              {team.running > 0 && <span style={{ fontSize: 9.5, padding: '1px 5px', borderRadius: 4, background: 'rgba(245,158,11,.2)', color: TASK_STATUS_COLORS.running, fontWeight: 700 }}>● {team.running} jalan</span>}
+                              {team.running > 0 && <span style={{ fontSize: 9.5, padding: '1px 5px', borderRadius: 4, background: amberAlpha(0.2), color: TASK_STATUS_COLORS.running, fontWeight: 700 }}>● {team.running} jalan</span>}
                             </div>
                             <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                               <button
@@ -200,8 +200,8 @@ export default function TeamStats() {
                         borderLeft: `3px solid ${dot(t.status)}`,
                         textAlign: 'left',
                         cursor: 'pointer',
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.06)',
+                        background: whiteAlpha(0.03),
+                        border: '1px solid '+whiteAlpha(0.06),
                         borderRadius: 6,
                         color: PURE_TEXT,
                         fontFamily: 'inherit',
@@ -222,7 +222,7 @@ export default function TeamStats() {
               </>
             )}
             {res && (
-              <div style={{ marginTop: 10, background: 'rgba(255,255,255,.05)', borderRadius: 8, padding: '8px 10px', fontSize: 12 }}>
+              <div style={{ marginTop: 10, background: whiteAlpha(0.05), borderRadius: 8, padding: '8px 10px', fontSize: 12 }}>
                 <div style={{ color: TASK_STATUS_COLORS.done, fontWeight: 700, marginBottom: 4 }}>🖥 HOST: load {res.load} · RAM {res.ram_mb} MB</div>
                 {(res.containers || []).slice(0, 9).map(c => (
                   <div key={c.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0', color: 'var(--text-tertiary)' }}>

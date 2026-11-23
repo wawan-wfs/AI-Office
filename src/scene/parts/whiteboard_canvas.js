@@ -3,10 +3,11 @@
 // tanpa THREE/DOM. Urutan & parameter perintah identik kode inline lama.
 import { pctDone } from './kanban_spec.js';
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js';
-import { AMBER_ACCENT } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, SCENE_MUTED } from '../../lib/ui_palette.js';
 export const WB_W = 320, WB_H = 128;
 export const WB_BG = '#fbfbfa';
 export const WB_TITLE = { text: 'WFS SPRINT', color: AMBER_ACCENT, font: 'bold 22px sans-serif', x: 14, y: 30 };
+export const WB_BAR_TRACK = 'rgba(51,65,85,.18)';
 export const WB_ITEM_COLOR = '#334155';
 export const WB_ITEM_FONT = '15px sans-serif';
 export const WB_ITEMS = ['• Review task QA', '• Deploy tenant baru', '• Demo widget AI CS'];
@@ -39,11 +40,11 @@ export function sprintLiveRows(T) {
 export function drawSprintLive(ctx, T, w = WB_W, h = WB_H) {
   const rows = sprintLiveRows(T);
   if (!rows) return false; // tanpa data valid → pemanggil fallback ke agenda statis
-  ctx.fillStyle = '#8fa3bd'; ctx.font = '12px monospace';
+  ctx.fillStyle = SCENE_MUTED; ctx.font = '12px monospace';
   ctx.fillText('live · WFS PROJECT', WB_ITEM_X, WB_ITEM_Y0 - 8);
   rows.forEach(([label, val, col], i) => {
     const y = WB_ITEM_Y0 + i * WB_ITEM_DY;
-    ctx.fillStyle = '#8fa3bd'; ctx.font = '13px sans-serif';
+    ctx.fillStyle = SCENE_MUTED; ctx.font = '13px sans-serif';
     ctx.fillText(label, WB_ITEM_X, y);
     ctx.fillStyle = col; ctx.font = 'bold 15px sans-serif';
     ctx.fillText(val, WB_ITEM_X + 78, y);
@@ -52,7 +53,7 @@ export function drawSprintLive(ctx, T, w = WB_W, h = WB_H) {
   const barY = WB_ITEM_Y0 + rows.length * WB_ITEM_DY + 6;
   if (barY + 12 < h) {
     const T2 = T, total = +T2.total || 0, done = Math.min(Math.max(0, +T2.done || 0), total);
-    ctx.fillStyle = 'rgba(51,65,85,.18)'; ctx.fillRect(WB_ITEM_X, barY, w - 2 * WB_ITEM_X, 10);
+    ctx.fillStyle = WB_BAR_TRACK; ctx.fillRect(WB_ITEM_X, barY, w - 2 * WB_ITEM_X, 10);
     ctx.fillStyle = WB_LIVE_COLORS.done;
     ctx.fillRect(WB_ITEM_X, barY, Math.max(3, (w - 2 * WB_ITEM_X) * (total ? done / total : 0)), 10);
   }

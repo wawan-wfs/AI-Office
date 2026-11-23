@@ -12,7 +12,7 @@
 // Anti-poisoning: menit non-finite/korup → '--:--' & label netral, tidak pernah
 // 'NaN'/'Invalid Date' tampil permanen di dinding (kelas bug 268).
 import { officeStatusAt } from './office_hours.js';
-import { AMBER_ACCENT } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, SCENE_MUTED, SCENE_MUTED_RGB, amberAlpha } from '../../lib/ui_palette.js';
 
 export const LS_W = 256;
 export const LS_H = 160;
@@ -22,7 +22,11 @@ export const LS_TITLE_FONT = 'bold 19px "Segoe UI",Arial,sans-serif';
 export const LS_CLOCK_FONT = '900 54px "Segoe UI",Arial,sans-serif';
 export const LS_STATUS_FONT = '600 13px "Segoe UI",Arial,sans-serif';
 export const LS_FOOT_FONT = '10px monospace';
-export const LS_MUTED = '#8fa3bd';
+export const LS_MUTED = SCENE_MUTED;
+export const LS_FRAME = amberAlpha(0.55);   // bingkai layar amber redup
+export const LS_TICK = amberAlpha(0.75);    // garis di bawah judul
+export const LS_CLOCK = '#FFFFFF';          // jam besar
+export const LS_FOOT_META = `rgba(${SCENE_MUTED_RGB},0.85)`;
 export const LS_STATUS_NETRAL = 'WFS Project · HQ';
 
 /** Menit simulasi → 'HH:MM' 24 jam. Non-finite/NaN → '--:--'.
@@ -87,7 +91,7 @@ export function drawLobbyScreen(ctx, opts = {}) {
   ctx.fillStyle = LS_BG;
   ctx.fillRect(0, 0, LS_W, LS_H);
   // garis tepi tipis (bingkai layar) — amber redup
-  ctx.strokeStyle = 'rgba(245,158,11,0.55)';
+  ctx.strokeStyle = LS_FRAME;
   ctx.lineWidth = 2;
   ctx.strokeRect(1, 1, LS_W - 2, LS_H - 2);
 
@@ -96,12 +100,12 @@ export function drawLobbyScreen(ctx, opts = {}) {
   ctx.fillStyle = AMBER_ACCENT;
   ctx.font = LS_TITLE_FONT;
   ctx.fillText(LS_TITLE, 16, 30);
-  ctx.fillStyle = 'rgba(245,158,11,0.75)';
+  ctx.fillStyle = LS_TICK;
   ctx.fillRect(16, 38, 66, 2);
 
   // jam besar — pusat layar, putih (kontras tertinggi untuk dibaca dari jauh)
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = LS_CLOCK;
   ctx.font = LS_CLOCK_FONT;
   ctx.fillText(clock, LS_W / 2, 96);
 
@@ -112,7 +116,7 @@ export function drawLobbyScreen(ctx, opts = {}) {
 
   // footer: identitas meja & beban agen (kedua sisi)
   ctx.font = LS_FOOT_FONT;
-  ctx.fillStyle = 'rgba(143,163,189,0.85)';
+  ctx.fillStyle = LS_FOOT_META;
   ctx.textAlign = 'left';
   ctx.fillText('RESEPSIONIS · 24/7', 16, 148);
   ctx.textAlign = 'right';
