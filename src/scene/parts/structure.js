@@ -2,6 +2,8 @@
 // wainscot band, tekstur sky & glass sheen, glass edge frames.
 // Builder murni (diuji unit): semua THREE & painter di-inject; urutan, posisi,
 // warna & parameter mesh identik kode lama (tampilan tak berubah).
+import { STRUCT_CARPET, STRUCT_WAINSCOT, STRUCT_WAINSCOT_TRIM, STRUCT_GLASS_FRAME } from '../../lib/ui_palette.js';
+
 export function createStructure({ THREE, office, M, drawAoStrip, drawWoodFloor, drawSky, drawGlassSheen }) {
   // AO kontak: strip gradien gelap di pangkal 4 dinding (palsu ambient occlusion, membumikan dinding ke lantai)
   const aoMat=()=>new THREE.MeshBasicMaterial({map:(()=>{const c=document.createElement('canvas');c.width=16;c.height=64;
@@ -25,21 +27,21 @@ export function createStructure({ THREE, office, M, drawAoStrip, drawWoodFloor, 
   fl.position.y=-.075;fl.receiveShadow=true;office.add(fl);
 
   // Carpet
-  const cp=new THREE.Mesh(new THREE.BoxGeometry(10,.02,8),M(0xD0D8E0));
+  const cp=new THREE.Mesh(new THREE.BoxGeometry(10,.02,8),M(STRUCT_CARPET));
   cp.position.set(-3,.01,0);cp.receiveShadow=true;office.add(cp);
 
   // Wainscot band (panel bawah dinding belakang & depan — dinding kanan/kiri punya panel sendiri di blok dinding)
   [[0,-13.5,34],[0,13.5,34]].forEach(([wx,wz,ww])=>{
-    const band=new THREE.Mesh(new THREE.BoxGeometry(ww,1.1,.1),M(0xEFE9DD));
+    const band=new THREE.Mesh(new THREE.BoxGeometry(ww,1.1,.1),M(STRUCT_WAINSCOT));
     band.position.set(wx,.55,wz+(wz<0?.06:-.06));band.castShadow=true;office.add(band);
-    const trim=new THREE.Mesh(new THREE.BoxGeometry(ww,.06,.14),M(0xC9BFA8));
+    const trim=new THREE.Mesh(new THREE.BoxGeometry(ww,.06,.14),M(STRUCT_WAINSCOT_TRIM));
     trim.position.set(wx,1.12,wz+(wz<0?.06:-.06));trim.castShadow=true;office.add(trim);
   });
   // Wainscot band vertikal dinding kiri & kanan
   [[-17,0,27],[17,0,27]].forEach(([wx,wz,wd])=>{
-    const band=new THREE.Mesh(new THREE.BoxGeometry(.1,1.1,wd),M(0xEFE9DD));
+    const band=new THREE.Mesh(new THREE.BoxGeometry(.1,1.1,wd),M(STRUCT_WAINSCOT));
     band.position.set(wx+(wx<0?.06:-.06),.55,wz);band.castShadow=true;office.add(band);
-    const trim=new THREE.Mesh(new THREE.BoxGeometry(.14,.06,wd),M(0xC9BFA8));
+    const trim=new THREE.Mesh(new THREE.BoxGeometry(.14,.06,wd),M(STRUCT_WAINSCOT_TRIM));
     trim.position.set(wx+(wx<0?.06:-.06),1.12,wz);trim.castShadow=true;office.add(trim);
   });
   // Jendela dengan pemandangan langit (dinding belakang & depan, atas wainscot)
@@ -57,7 +59,7 @@ export function createStructure({ THREE, office, M, drawAoStrip, drawWoodFloor, 
 
   // Glass edge frames (subtle structural lines)
   [[-17,-13.5],[-17,13.5],[17,-13.5],[17,13.5]].forEach(([x,z])=>{
-    const f=new THREE.Mesh(new THREE.BoxGeometry(.08,4,.08),M(0xAABBCC));
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.08,4,.08),M(STRUCT_GLASS_FRAME));
     f.position.set(x,2,z);office.add(f);
   });
 

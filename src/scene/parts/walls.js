@@ -3,6 +3,7 @@ import { drawWallTex, WALL_NIGHT, WALL_UPPER_DAY, WALL_WOOD_DAY, TRIM_DAY, TRIM_
 import { drawWallLogo } from './logo_canvas.js';
 import { drawWelcomeSign } from './sign_canvas.js';
 import { uiTexture, uiMaterial } from './ui_colorspace.js';
+import { WALL_NAVY, WALL_TRIM, TERR_GOLD, WALL_WIN_FRAME, WALL_PLANTER_BOX, WALL_FLOWER_DAY, WALL_FLOWER_NIGHT, WALL_LOGO_BACKDROP, WALL_SPOT_BODY, WALL_BULB_WARM, WALL_SPOT_WARM } from '../../lib/ui_palette.js';
 
 // Builder murni dinding kampus WFS (diekstrak dari OfficeScene.js — pola sama dgn structure/cafe/reception):
 // 4 dinding solid 34x27m (WALL_X=17, WALL_Z=13.5) + tiang, jendela sky-view + frame, sheen kaca,
@@ -43,7 +44,7 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
   const woodA=tex(WALL_WOOD_DAY.base,WALL_WOOD_DAY.line,512,256,32);woodA.repeat.set(12,1);
   const upperB=tex(WALL_UPPER_DAY.base,WALL_UPPER_DAY.line);upperB.repeat.set(9,1);
   const woodB=tex(WALL_WOOD_DAY.base,WALL_WOOD_DAY.line,512,256,32);woodB.repeat.set(9,1);
-  const NAVY=0x24304A, GOLD=0xD4AF37, TRIM=0xF4F6FA;
+  const NAVY=WALL_NAVY, GOLD=TERR_GOLD, TRIM=WALL_TRIM;
   // ── Siklus 166: TRIM (crown molding/sill) & PILAR (0x8E9BB0) ikut siang↔malam ──
   // Dulu warna solid MeshBasicMaterial ini statis: jam malam panel dinding sudah
   // gelap (palet WALL_NIGHT, siklus 165) tapi lis putih #F4F6FA & pilar abu terang
@@ -126,7 +127,7 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
     const wm=new THREE.MeshBasicMaterial({map:skyTex,transparent:true});fadeMats.push(wm);
     if(skyWinMats)skyWinMats.push(wm); // daftar utk mode neon (tint malam)
     const win=new THREE.Mesh(new THREE.PlaneGeometry(3.0,1.9),wm);win.position.set(x,2.5,-13.38);office.add(win);wallFront.push(win);
-    const FR=0x2B3446;
+    const FR=WALL_WIN_FRAME;
     F(wallFront,B(3.2,.1,.1),FM(null,FR),x,3.5,-13.36);F(wallFront,B(3.2,.1,.1),FM(null,FR),x,1.5,-13.36);
     F(wallFront,B(.1,2.1,.1),FM(null,FR),x-1.55,2.5,-13.36);F(wallFront,B(.1,2.1,.1),FM(null,FR),x+1.55,2.5,-13.36);
     F(wallFront,B(3.3,.07,.2),FM(null,trimMat()),x,1.45,-13.3);
@@ -142,7 +143,7 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
     const wm=new THREE.MeshBasicMaterial({map:skyTex,transparent:true});fadeMats.push(wm);
     if(skyWinMats)skyWinMats.push(wm);
     const win=new THREE.Mesh(new THREE.PlaneGeometry(3.0,1.9),wm);win.position.set(16.88,2.5,z);win.rotation.y=-Math.PI/2;office.add(win);wallRight.push(win);
-    const FR=0x2B3446;
+    const FR=WALL_WIN_FRAME;
     F(wallRight,B(.1,.1,3.2),FM(null,FR),16.86,3.5,z);F(wallRight,B(.1,.1,3.2),FM(null,FR),16.86,1.5,z);
     F(wallRight,B(.1,2.1,.1),FM(null,FR),16.86,2.5,z-1.55);F(wallRight,B(.1,2.1,.1),FM(null,FR),16.86,2.5,z+1.55);
   });
@@ -156,14 +157,14 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
   // Siklus 167: warna bunga masuk inventaris trim (pasangan day/night per warna)
   // → ikut paintTrimNight — dulu krem #F6F2EA & kuning #F2C14E tetap menyala saat
   // malam (36 mesh MB statis di bawah jendela, terbaca di audit scene live).
-  const FLW=[0xE86A92,0xF2C14E,0x7FC8A9,0xF6F2EA];
-  const FLW_NIGHT=[0x5A2740,0x6B4E1E,0x1F4F3E,0x3A4256];
+  const FLW=WALL_FLOWER_DAY;
+  const FLW_NIGHT=WALL_FLOWER_NIGHT;
   [-12,-6,-0.5,5,10.5].forEach(x=>{
-    W(B(3.0,.22,.5),new THREE.MeshBasicMaterial({color:0x3A4A5E}),x,1.32,-13.28);
+    W(B(3.0,.22,.5),new THREE.MeshBasicMaterial({color:WALL_PLANTER_BOX}),x,1.32,-13.28);
     [-0.9,-0.3,0.3,0.9].forEach((dx,i)=>W(B(.16,.16,.16),note(new THREE.MeshBasicMaterial({color:FLW[i]}),FLW[i],FLW_NIGHT[i]),x+dx,1.5,-13.28));
   });
   [-10,-4.5,1,6.5].forEach(z=>{
-    W(B(.5,.22,3.0),new THREE.MeshBasicMaterial({color:0x3A4A5E}),16.7,1.32,z);
+    W(B(.5,.22,3.0),new THREE.MeshBasicMaterial({color:WALL_PLANTER_BOX}),16.7,1.32,z);
     [-0.9,-0.3,0.3,0.9].forEach((dz,i)=>W(B(.16,.16,.16),note(new THREE.MeshBasicMaterial({color:FLW[i]}),FLW[i],FLW_NIGHT[i]),16.7,1.5,z+dz));
   });
   // fade: tembus pandang bila kamera berada di luar sisi dinding itu; ikut menyembunyikan saat nyaris tak terlihat
@@ -227,16 +228,16 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
   // Siklus 496: logo transparan agar glow sorot (logoGlow) bisa bernapas via OfficeScene.
   logo.material.transparent=true;
   logo.position.set(1.0,2.55,13.24);logo.rotation.y=Math.PI;logo.renderOrder=5;office.add(logo);__wallObjs.push(logo);
-  W(B(8.8,2.9,.1),new THREE.MeshBasicMaterial({color:0x14243D}),1.0,2.55,13.36);
+  W(B(8.8,2.9,.1),new THREE.MeshBasicMaterial({color:WALL_LOGO_BACKDROP}),1.0,2.55,13.36);
   // lampu sorot di atas logo
   [-2,1,4].forEach(x=>{
-    W(B(.5,.12,.2),new THREE.MeshBasicMaterial({color:0x222222}),x,4.0,13.2);
-    W(B(.3,.04,.1),new THREE.MeshBasicMaterial({color:0xFFE9A8}),x,3.93,13.1);
+    W(B(.5,.12,.2),new THREE.MeshBasicMaterial({color:WALL_SPOT_BODY}),x,4.0,13.2);
+    W(B(.3,.04,.1),new THREE.MeshBasicMaterial({color:WALL_BULB_WARM}),x,3.93,13.1);
   });
-  const spot=new THREE.PointLight(0xFFE2A0,.9,8,1.5);spot.position.set(1,3.4,12.2);office.add(spot);
+  const spot=new THREE.PointLight(WALL_SPOT_WARM,.9,8,1.5);spot.position.set(1,3.4,12.2);office.add(spot);
   // Siklus 496: ekspor refs logo & sorot agar OfficeScene bisa menghidupkannya.
   logoFx.logo=logo; logoFx.spot=spot;
-  [-2,1,4].forEach(x=>{ const b=W(B(.3,.04,.1),new THREE.MeshBasicMaterial({color:0xFFE9A8}),x,3.93,13.1); b.material.transparent=true; logoFx.bulbs.push(b); });
+  [-2,1,4].forEach(x=>{ const b=W(B(.3,.04,.1),new THREE.MeshBasicMaterial({color:WALL_BULB_WARM}),x,3.93,13.1); b.material.transparent=true; logoFx.bulbs.push(b); });
 
   // ---- Jendela sky-view di dinding belakang (sisi kanan logo, area kosong) ----
   [6.6,10.8].forEach(x=>{
@@ -244,7 +245,7 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
     if(skyWinMats)skyWinMats.push(wm);
     const win=new THREE.Mesh(new THREE.PlaneGeometry(3.4,1.9),wm);
     win.position.set(x,2.6,13.26);win.rotation.y=Math.PI;office.add(win);wallBack.push(win);
-    const FR=0x2B3446;
+    const FR=WALL_WIN_FRAME;
     W(B(3.6,.1,.1),new THREE.MeshBasicMaterial({color:FR}),x,3.6,13.24);WB(B(3.6,.1,.1),new THREE.MeshBasicMaterial({color:FR}),x,1.6,13.24);
     WB(B(.1,2.1,.1),new THREE.MeshBasicMaterial({color:FR}),x-1.75,2.6,13.24);WB(B(.1,2.1,.1),new THREE.MeshBasicMaterial({color:FR}),x+1.75,2.6,13.24);
     WB(B(3.7,.07,.2),trimMat(),x,1.55,13.24);
@@ -262,7 +263,7 @@ export function createWalls({ THREE, office, skyTex, glassSheen, fl, ceil, skyWi
     const win=new THREE.Mesh(new THREE.PlaneGeometry(3.0,1.9),new THREE.MeshBasicMaterial({map:skyTex}));
     if(skyWinMats)skyWinMats.push(win.material);
     win.position.set(-16.8,2.5,z);win.rotation.y=Math.PI/2;office.add(win);__wallObjs.push(win);
-    const FR=0x2B3446;
+    const FR=WALL_WIN_FRAME;
     W(B(.1,.1,3.2),new THREE.MeshBasicMaterial({color:FR}),-16.78,3.5,z);W(B(.1,.1,3.2),new THREE.MeshBasicMaterial({color:FR}),-16.78,1.5,z);
     W(B(.1,2.1,.1),new THREE.MeshBasicMaterial({color:FR}),-16.78,2.5,z-1.55);W(B(.1,2.1,.1),new THREE.MeshBasicMaterial({color:FR}),-16.78,2.5,z+1.55);
     W(B(.1,2.0,.05),new THREE.MeshBasicMaterial({color:FR}),-16.78,2.5,z);

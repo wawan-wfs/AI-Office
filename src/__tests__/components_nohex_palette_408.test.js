@@ -28,7 +28,11 @@ describe('siklus 408 — komponen React bebas hex literal', () => {
   })
 
   it('tidak ada konstanta duplikat nilai di palette', () => {
-    const vals = Object.entries(palette).filter(([k,v]) => k === k.toUpperCase() && typeof v === 'string' && v.startsWith('#'))
+    // konstanta scene numerik (SCENE_*/FURN_*/DUCT_*/TUBE_/LEAD_MON_BODY/HELMET_/
+    // RING_BLUE/PARTICLE_WHITE, siklus 424-426) menyimpan nilai 0x… numerik atau
+    // hex non-UI — dikecualikan dari cek duplikasi UI.
+    const EXCLUDE = /^(SCENE_|FURN_|DUCT_|TUBE_NEON|LEAD_MON_|HELMET_|RING_BLUE|PARTICLE_WHITE|RC_FOUNDER_HEX|RC_FOUNDER_FALLBACK_HEX)/
+    const vals = Object.entries(palette).filter(([k,v]) => !EXCLUDE.test(k) && k === k.toUpperCase() && typeof v === 'string' && v.startsWith('#'))
     const seen = new Map()
     for (const [k,v] of vals) {
       expect(seen.has(v), `${k} duplikat ${seen.get(v)}`).toBe(false)

@@ -11,6 +11,15 @@ import { floorElevationAt } from './floor_elevation.js';
 // LUNCH_START/END di shift_spec.js) — menggeser satu tanpa dua lainnya → chip HUD
 // bilang "Stand-up pagi" tapi ruang rapat kosong. Kini satu tabel memutuskan.
 import { officeStatusAt, scheduleTable } from './office_hours.js';
+// Siklus 429: warna daycycle satu sumber dari palet UI terpusat
+import {
+  SCENE_SKY as DC_NAVY, DC_SUN_TINT_BASE, DC_SUN_SUNSET, DC_SUN_MORNING,
+  DC_NEON_FLOOR, DC_NEON_CARPET, DC_NEON_TUBE_LIGHT, DC_NEON_TUBE_MESH,
+  DC_NEON_CEIL_PANEL, DC_NEON_SKY_WIN, DC_NEON_PEND_BULB, DC_NEON_PEND_LIGHT,
+  DC_RESTORE_FLOOR, DC_RESTORE_CARPET, DC_RESTORE_TUBE_MESH,
+  DC_RESTORE_PEND_BULB, DC_RESTORE_PEND_LIGHT,
+} from '../../lib/ui_palette.js';
+import { CEIL_PANEL_DAY } from './ceiling_fixtures_palette.js';
 
 export const SCHEDULE = scheduleTable();
 
@@ -39,7 +48,7 @@ export function mixHex(a, b, t) {
 
 export function createLighting(ctx) {
   const { THREE, scene, renderer, sun, ambient, agentData, onTimeUpdate, onStatusUpdate, onTick, onTime } = ctx;
-  const NAVY = 0x010a28;
+  const NAVY = DC_NAVY;
   let current = 660;
 
   // ── Siklus 164: swap tekstur langit jendela siang↔malam ──
@@ -161,7 +170,7 @@ export function createLighting(ctx) {
   }
 
   // ── Siklus 169: PANEL PLAFON recessed & BOHLAM lampu gantung ikut meredup ──
-  // Panel 0xF0F4FF (114 mesh MB, bidang unlit terluas di audit) & bohlam 0xfff3d6
+  // Panel CEIL_PANEL_DAY (114 mesh MB, bidang unlit terluas di audit) & bohlam 0xfff3d6
   // (26 meja) — kelas bug 164-168. paintCeilNight dari createCeilingFixtures set
   // warna mesh ter-tag (__ceil). Guard state+ready terpisah, idempoten, ambang sama.
   const ceilRt = ctx.ceilPainter || null;
@@ -203,9 +212,9 @@ export function createLighting(ctx) {
     scene.fog.color = new THREE.Color(NAVY);
     renderer.toneMappingExposure = 1.0 + d * 0.3;
     // Warna matahari: jingga sore (16:00–18:00) dan hangat pagi (05:00–07:00)
-    let tint = 0xfff8f0;
-    if (min > 960 && min < 1080) tint = mixHex(0xfff8f0, 0xffaa66, (min - 960) / 120);
-    else if (min > 300 && min < 420) tint = mixHex(0xfff8f0, 0xffcc88, 1 - (min - 300) / 120);
+    let tint = DC_SUN_TINT_BASE;
+    if (min > 960 && min < 1080) tint = mixHex(DC_SUN_TINT_BASE, DC_SUN_SUNSET, (min - 960) / 120);
+    else if (min > 300 && min < 420) tint = mixHex(DC_SUN_TINT_BASE, DC_SUN_MORNING, 1 - (min - 300) / 120);
     sun.color = new THREE.Color(tint);
     agentData.forEach((a) => { a.dGlow.intensity = 0.15 + (1 - d) * 0.3; });
     // Jendela: langit malam saat gelap (daylight ≤ 0.55), siang saat terang
@@ -241,34 +250,34 @@ export const NEON = {
   ambient: 0.58,
   sun: 1.25,
   exposure: 1.15,
-  floor: 0x1a2638,
-  carpet: 0x142033,
+  floor: DC_NEON_FLOOR,
+  carpet: DC_NEON_CARPET,
   ceilOpacity: 0.75,
-  tubeLight: { intensity: 0.85, color: 0x00F0FF },
-  tubeMesh: { color: 0x18E0FF, opacity: 0.95 },
-  ceilPanel: 0x0A1526,
-  skyWin: 0x14213F,
+  tubeLight: { intensity: 0.85, color: DC_NEON_TUBE_LIGHT },
+  tubeMesh: { color: DC_NEON_TUBE_MESH, opacity: 0.95 },
+  ceilPanel: DC_NEON_CEIL_PANEL,
+  skyWin: DC_NEON_SKY_WIN,
   dGlow: { intensity: 0.9, distance: 4.5 },
   screenLight: 0.6,
   reception: 0.9,
-  pendBulb: 0x16243D,
-  pendLight: { intensity: 0.06, color: 0x1E3A5F },
+  pendBulb: DC_NEON_PEND_BULB,
+  pendLight: { intensity: 0.06, color: DC_NEON_PEND_LIGHT },
   panelLight: 0.03,
   // Restore (pasca-OFF): palet siang dasar. Pencahayaan global (ambient/sun/
   // exposure) TIDAK disetel di sini — restoreTime()→apply() daycycle yang
   // memulihkannya sesuai jam, lalu resync() (toggleCyberpunk OfficeScene)
   // memaksa painter 164-169 repaint sesuai jam NOW.
   restore: {
-    floor: 0xffffff,
-    carpet: 0xd0d8e0,
+    floor: DC_RESTORE_FLOOR,
+    carpet: DC_RESTORE_CARPET,
     ceilOpacity: 0.45,
     tubeLight: 0,
-    tubeMesh: { color: 0x334466, opacity: 0.3 },
+    tubeMesh: { color: DC_RESTORE_TUBE_MESH, opacity: 0.3 },
     dGlow: { intensity: 0.25, distance: 3.0 },
     screenLight: 0,
     reception: 0.4,
-    pendBulb: 0xffffff,
-    pendLight: { intensity: 0.15, color: 0xffe8cc },
+    pendBulb: DC_RESTORE_PEND_BULB,
+    pendLight: { intensity: 0.15, color: DC_RESTORE_PEND_LIGHT },
     panelLight: 0.25,
   },
 };
@@ -299,8 +308,8 @@ export function createNeonMode(ctx) {
     const R = NEON.restore;
     restoreTime();
     floor.material.color.set(R.floor); carpet.material.color.set(R.carpet); ceiling.material.opacity = R.ceilOpacity;
-    set(ceilPanels, (m) => { m.material.color.set(0xF0F4FF); });
-    set(skyWins, (m) => { m.color.set(0xffffff); });
+    set(ceilPanels, (m) => { m.material.color.set(CEIL_PANEL_DAY); });
+    set(skyWins, (m) => { m.color.set(DC_RESTORE_FLOOR); });
     set(tubeLights, (l) => { l.intensity = R.tubeLight; });
     set(tubes, (m) => { m.material.color.set(R.tubeMesh.color); m.material.opacity = R.tubeMesh.opacity; });
     set(screenLights, (l) => { l.intensity = R.screenLight; });

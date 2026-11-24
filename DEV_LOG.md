@@ -10195,3 +10195,174 @@
 - Fix: floor_canvas.js ekspor FLOOR_WOOD_BASE/BOARD_NAT/AO_STRIP/TERRAZZO_WHITE/TERRAZZO_BG/TERRAZZO_CHIPS/TERRAZZO_TONES/MARBLE_VEIN/TERRAZZO_GRID; lobby_screen.js ekspor LS_FRAME/LS_TICK/LS_CLOCK/LS_FOOT_META via amberAlpha + SCENE_MUTED_RGB. ui_palette.js kini turunkan SCENE_MUTED dari SCENE_MUTED_RGB. Nilai identik — tampilan tak berubah.
 - Guard: floor_palette_415.test.js BARU (4 tes: nilai historis terkunci, painter delegasi, AO stops, 0 literal tersisa). npm test 496 file / 4843 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
 - Commit konsolidasi harian dibuat (belum ada commit hari ini).
+## 24/11/2026 02:xx WIB — Siklus 416: palet kanvas papan proyek satu sumber
+- Backlog dari siklus 415: projectboard.js (kanban 3D) masih 12 literal warna — latar #10192b, bingkai #2c3e5c, kolom #17233a, kartu #0d1524, footer #0b1424, teks #cfd8e3/#fff, ANTRI #9aa7b8, overlay rgba putih 2×, banner rgba failed 2×.
+- Fix: ui_palette.js ekspor PB_BG/PB_FOOT/PB_COL_BG/PB_CARD/PB_FRAME/PB_PENDING (+NOTE_TEXT dipakai ulang utk teks lembut agar tak duplikat nilai); painter delegasi via whiteAlpha/failedAlpha/PURE_TEXT — 0 literal tersisa di projectboard.js. Nilai identik — tampilan tak berubah.
+- Guard: projectboard_palette_416.test.js BARU (3 tes: nilai historis terkunci, delegasi penuh, anti-poisoning). npm test 497 file / 4846 passed (+3), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck416 696KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 03:xx WIB — Siklus 417: palet plafon (kanvas + fixtures) satu sumber
+- Backlog dari siklus 415/416: ceiling_canvas.js masih 4 literal rgba (vignette AO 2×, seam, bevel); room.js createCeilingFixtures mengetik ulang 4 nilai hex day/night panel plafon & bohlam gantung (0xF0F4FF/0x2E3A52/0xFFF3D6/0x3A3426), duplikat juga di ceil_night_swap.test.js.
+- Fix: ceiling_canvas.js ekspor CEIL_VIGNETTE_IN/OUT, CEIL_SEAM, CEIL_BEVEL; modul baru ceiling_fixtures_palette.js ekspor CEIL_PANEL_DAY/NIGHT + PEND_BULB_DAY/NIGHT; room.js delegasi penuh. Nilai identik — tampilan tak berubah.
+- Guard: ceiling_palette_417.test.js BARU (4 tes: nilai historis terkunci, 0 literal di ceiling_canvas.js, delegasi room.js, vignette/seam/bevel tergambar dgn konstanta). npm test 498 file / 4850 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck417 697KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 03:xx WIB — Siklus 418: palet layar monitor & poster satu sumber
+- Backlog sisa palet kanvas: effects.js 16 literal warna (SCREEN_RENDERERS + drawScreenFrame: bg #0b1220, hijau #4ade80 5×, #fbbf24, #60a5fa, #f87171, swatch palette 6 warna, '#fff' 3×, slogan poster 4 warna) + decor.js POSTER_BASE 2 literal.
+- Fix: ui_palette.js ekspor SCREEN_BG/SCREEN_OK/SCREEN_WARN/SCREEN_INFO/SCREEN_FAIL/SCREEN_PALETTE + PINK_ACCENT/EMERALD_ACCENT; effects.js & decor.js delegasi penuh — 0 literal warna palet tersisa. SCREEN_PALETTE menyusun ulang SCREEN_INFO/SCREEN_OK agar guard anti-duplikasi siklus 410 tetap lolos. Nilai identik — tampilan tak berubah.
+- Guard: screen_poster_palette_418.test.js BARU (4 tes). npm test 499 file / 4854 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck418 696KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 04:xx WIB — Siklus 419: palet jam dinding kanvas satu sumber
+- Backlog sisa palet kanvas: clock_canvas.js 3 literal (CLOCK_BG '#fafafa', CLOCK_RIM '#2a2f36', CLOCK_PIN '#f97316') + clock_spec.js HANDS 3 literal ('#222' jarum jam, '#444' menit, '#f97316' detik).
+- Fix: ui_palette.js ekspor CLOCK_BG/CLOCK_RIM/CLOCK_PIN/HAND_HOUR_COLOR/HAND_MINUTE_COLOR; clock_canvas.js re-ekspor konstanta (kontrak publik & tes lama utuh), clock_spec.js HANDS delegasi. Pin oranye dipisah dari AMBER_ACCENT agar evolusi jam vs status tak saling tarik (pola SCREEN_INFO siklus 418). Nilai identik — tampilan tak berubah.
+- Guard: clock_palette_419.test.js BARU (4 tes: nilai historis terkunci, delegasi jarum, geometri utuh, 0 literal di kedua file). npm test 500 file / 4858 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck419 699KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 04:46 WIB — Siklus 420: verifikasi bebas-regresi pasca-konsolidasi palet
+- Pasca rangkaian siklus 412-419 (palet UI & kanvas satu sumber), jalankan verifikasi bebas-regresi: npm test penuh 500 file / 4858 passed + 6 skipped (semua skip = audit live via it.skipIf WFS_RUN_LIVE_AUDITS).
+- Audit live dijalankan eksplisit dgn flag: WFS_RUN_LIVE_AUDITS=1 → 5 file audit (ui_db, saas_datastore, omniroute_exposure, saas_jwt, head_consistency) 16/16 passed — tidak ada tes skip tersembunyi.
+- e2e_err exit 0 tanpa 'Scene init failed'. Tanpa perubahan kode; build/deploy tidak diulang (dist siklus 419 masih valid).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 05:14 WIB — Siklus 421: palet status live agen satu sumber
+- Lanjutan backlog pasca rangkaian palet 412-419: agent_status.js STATUS_HEX masih 5 literal warna (#10E5A0 work, #60A5FA meet, #F59E0B lunch, #4D9FFF walk, #8b93a3 dim) — dipakai chip AgentInspector & dot label mengambang label_spec.js.
+- Fix: ui_palette.js ekspor MEET_BLUE (#60A5FA, terpisah dr SCREEN_INFO #60a5fa agar evolusi layar vs status tak saling tarik, pola siklus 418/419) + STATUS_DIM (#8b93a3, bukan SCENE_MUTED #8FA3BD); work/lunch/walk delegasi GREEN_ACCENT/AMBER_ACCENT/ACCENT_BLUE. Nilai identik — tampilan tak berubah.
+- Guard: agent_status_palette_421.test.js BARU (4 tes: nilai historis terkunci, delegasi penuh, 0 literal di agent_status.js, anti-poisoning MEET_BLUE≠SCREEN_INFO). npm test 501 file / 4862 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck421 697KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 05:5x WIB — Siklus 422: palet warna identitas agen satu sumber
+- Backlog siklus 421: agents_spec.js (AGENTS+AGENTS_EXTRA) & extended_desks.js (EXTENDED_SPECIALISTS) total 26 agen, tiap agen punya pasangan color 0x…/hex '…' literal (52 literal).
+- Fix: ui_palette.js ekspor AGENT_ID_COLORS (26 entri nama→hex historis terkunci) + helper agentColorFromHex; agents_spec.js builder agent('NAMA',…) & extended_desks.js specialist('NAMA',…) delegasi penuh — 0 literal color/hex tersisa di kedua spec. hair/shirt/pants tetap literal (outfit unik, bukan palet UI). Nilai identik — tampilan tak berubah.
+- Dampak silang diperbaiki: audit_vision_claims.py known_agents() kini parse builder agent(/specialist( (fallback name:'…' tetap didukung) — klaim vision tetap 12; guard anti-duplikasi ui_palette (410) kini mengecualikan blok AGENT_ID_COLORS (duplikasi warna antar-agen memang disengaja).
+- Guard: agent_identity_palette_422.test.js BARU (4 tes: nilai historis terkunci 26 agen, semua agen scene pakai AGENT_ID_COLORS + color=parseInt(hex), 0 literal color/hex di kedua spec, anti-poisoning). npm test 502 file / 4866 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck422 698KB ALIVE — scene sehat, warna agen utuh.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 06:2x WIB — Siklus 423: palet kanban satu sumber
+- Backlog siklus 422: kanban_spec.js masih 50 literal warna — bg 4 kolom, PRIORITY_CONFIG (4 warna+bg+fallback normal), TAG_PALETTE 11 warna, kontras badge (#0b1320/#ffffff/#151d2e), TAG_PRESETS 5 warna, ROLE_COLORS 8 role, DIVISION_PRESETS 5 warna + fallback, opsi 'Semua' divisi #10E5A0, badge kosong.
+- Fix: ui_palette.js ekspor blok KANBAN_* (KANBAN_COLUMN_BG/KANBAN_PRIORITY_COLORS/KANBAN_PRIORITY_BG/KANBAN_TAG_PALETTE/KANBAN_ROLE_COLORS/KANBAN_TAG_PRESET_COLORS/KANBAN_DIVISION_COLORS/KANBAN_AUDIT_SURFACE, pola frozen AGENT_ID_COLORS 422); kanban_spec.js delegasi penuh — 0 literal hex/rgba tersisa. Nilai identik — tampilan tak berubah (PRIORITY_CONFIG kini disusun via Object.fromEntries).
+- Dampak silang: guard anti-duplikasi ui_palette (410) kini juga mengecualikan blok KANBAN_* (duplikasi lintas-domain disengaja: #F97316 = CLOCK_PIN jam = 'high' prioritas; #A78BFA/#38BDF8/#F472B6/#34D399/#60A5FA dipakai ulang TAG_PALETTE/preset).
+- Guard: kanban_palette_single_source_423.test.js BARU (4 tes: nilai historis terkunci, delegasi penuh KANBAN_COLUMNS/PRIORITY/TAG/ROLE/DIVISION, kontras badge identik, 0 literal di kanban_spec.js). npm test 503 file / 4870 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e exit 0; shot ck423 697KB ALIVE — 26 agen & warna label sehat.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 06:5x WIB — Siklus 424: palet lingkungan & pencahayaan scene satu sumber
+- Backlog siklus 423: OfficeScene.js masih ~81 literal warna; dimulai dari blok lingkungan/pencahayaan — background+fog 0x010A28, ambient 0xFFF5EB, sun 0xFFFAF0, skyFill 0x38BDF8, hemi 0xF8FAFC/0x1E293B, Glass 0xBBCCDD, ceiling 0xffffff, beam dinding 0x14243D (2 titik).
+- Fix: ui_palette.js ekspor blok SCENE_* (SCENE_SKY/AMBIENT/SUN/SKYFILL/HEMI_SKY/HEMI_GROUND/GLASS/CEIL_WHITE/WALL_DEEP); OfficeScene.js delegasi penuh via import — 0 literal env tersisa di lokasi asal. Nilai identik — tampilan tak berubah.
+- Guard: scene_env_palette_424.test.js BARU (4 tes: nilai historis terkunci, delegasi OfficeScene, 0 literal env, anti-poisoning). npm test 504 file / 4874 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck424 684KB ALIVE — scene sehat.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 07:2x WIB — Siklus 425: palet perabot meja+kursi satu sumber
+- Backlog siklus 424: OfficeScene.js blok buildDesk masih 15 literal warna perabot — meja (top 0xF5EBE1, kaki 0x1E293B), monitor (metal 0xAABBCC 3× incl. rm2Stand, bodi 0x1E1E24), keyboard/mouse 0x2A2A30, kursi (seat 0x3B4A5A, back 0x2E3B48, pole 0x94A3B8, base 0x64748B), stand nameplate 0x2E3642, kabinet 0x46525E, laci 0x526270, handel 0x9AA7B4, pot 0xB08050, daun 0x43A047.
+- Fix: ui_palette.js ekspor blok FURN_* (15 konstanta); FURN_PLATE_STAND dipisah dari FURN_CHAIR_BACK (0x2E3642 vs 0x2E3B48 — nilai mirip, evolusi tak saling tarik). OfficeScene.js delegasi penuh — 0 literal perabot tersisa. Nilai identik — tampilan tak berubah.
+- Guard: furniture_palette_425.test.js BARU (4 tes: nilai terkunci, delegasi, 0 literal, anti-poisoning). npm test 505 file / 4878 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck425 678KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 08:0x WIB — Siklus 426: palet duct & trophy meja lead satu sumber
+- Backlog siklus 425: OfficeScene.js sisa ~14 literal warna lingkungan hardware — duct 0xCCCCCC, cross 0xBBBBBB, vent 0xDDDDDD, garis grille 0xAAAAAA, tabung neon 0x334466 (mesh+PointLight), panel plafon 0xF0F4FF + PointLight 0xFFFFFF, monitor kedua meja lead 0x2A2A2A + hex sysdash '#60A5FA', trophy helm (alas 0x1A2A3A, bodi 0xDDDDDD), visor/glow/cincin lantai 0x4D9FFF (5 titik), partikel debu 0xFFFFFF.
+- Fix: ui_palette.js ekspor blok baru DUCT_LIGHT/CROSS/VENT/LINE, TUBE_NEON, LEAD_MON_BODY/HEX, HELMET_BASE/BODY, RING_BLUE, PARTICLE_WHITE; panel plafon delegasi CEIL_PANEL_DAY (ceiling_fixtures_palette 417). OfficeScene.js delegasi penuh — 0 literal blok ini tersisa. LEAD_MON_HEX dipisah dari MEET_BLUE, HELMET_BODY dipisah dari DUCT_VENT (nilai sama, evolusi tak saling tarik). Nilai identik — tampilan tak berubah.
+- Guard: duct_trophy_palette_426.test.js BARU (4 tes). Dampak silang: guard anti-duplikasi 408 kini mengecualikan konstanta scene numerik (0x…), guard 410 mengecualikan LEAD_MON_HEX. npm test 506 file / 4882 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e tanpa 'Scene init failed'; shot ck426 677KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 08:4x WIB — Siklus 427: palet terraces high-rise satu sumber
+- Backlog siklus 426: src/scene/parts/terraces.js masih 45 literal warna — kaca balustrade, emas inlay/trim/handrail/ring pylon, downlight 3 lantai, zen garden (pasir/batu/bonsai), tangga (tread/riser/stringer/LED), LED tepi L2/L3, pylon, dan 8 warna setMode gelap/terang.
+- Fix: ui_palette.js ekspor blok TERR_* (21 konstanta, nilai historis terkunci); terraces.js delegasi penuh — 0 literal hex tersisa. TERR_STEP_TREAD dipisah dari TERR_DARK_L1, TERR_LED_L2 dari TERR_STAIR_LED (nilai mirip, evolusi tak saling tarik). Nilai identik — tampilan tak berubah.
+- Dampak silang: guard cyan_violet_palette_400 regex 'import .*ui_palette' kini multi-baris-safe. Guard baru terraces_palette_427.test.js (4 tes). npm test 507 file / 4886 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck427 680KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 09:12 WIB — Siklus 428: palet perabot area umum satu sumber
+- Backlog siklus 427: src/scene/parts/furniture.js masih 32 literal warna perabot area umum — dispenser, tanaman pot, rak buku (5 punggung buku), printer (6 warna + LED + sheet), sofa lounge (rangka/dudukan/meja/kaki/magnet 2 warna), pantry (counter, mesin kopi, cangkir, toples, microwave), bingkai poster dinding.
+- Fix: ui_palette.js ekspor blok AMEN_* (32 konstanta/array terkunci nilai historis); furniture.js delegasi penuh — 0 literal hex tersisa. AMEN_LEAF_A/B dan AMEN_SHELF vs AMEN_POT_BASE dipertahankan terpisah. Nilai identik — tampilan tak berubah.
+- Guard: furniture_amenity_palette_428.test.js BARU (4 tes: nilai terkunci 32 konstanta, delegasi penuh, 0 literal, anti-poisoning). npm test 508 file / 4890 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck428 676KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 09:4x WIB — Siklus 429: palet daycycle & mode neon satu sumber
+- Backlog siklus 428: parts/daycycle.js masih ~22 literal warna — NAVY latar/fog 0x010a28, tint matahari 0xfff8f0/0xffaa66/0xffcc88, blok NEON (floor 0x1a2638, carpet 0x142033, tubeLight 0x00F0FF, tubeMesh 0x18E0FF, ceilPanel 0x0A1526, skyWin 0x14213F, pendBulb 0x16243D, pendLight 0x1E3A5F), blok restore (floor 0xffffff, carpet 0xd0d8e0, tubeMesh 0x334466, pendBulb 0xffffff, pendLight 0xffe8cc), panel plafon 0xF0F4FF.
+- Fix: ui_palette.js ekspor blok DC_* (17 konstanta, nilai historis terkunci); daycycle.js delegasi penuh (SCENE_SKY→DC_NAVY, CEIL_PANEL_DAY dari ceiling_fixtures_palette untuk restore panel plafon) — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: daycycle_palette_429.test.js BARU (4 tes: nilai terkunci 17 konstanta, delegasi, 0 literal, anti-poisoning DC_RESTORE_TUBE_MESH terpisah dari TUBE_NEON). npm test 509 file / 4894 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; shot ck429 677KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 10:2x WIB — Siklus 430: palet dinding kampus satu sumber
+- Backlog siklus 429: src/scene/parts/walls.js masih 23 literal warna — NAVY 0x24304A, GOLD 0xD4AF37, TRIM 0xF4F6FA, frame jendela sky-view 0x2B3446 (4 titik), kotak bunga 0x3A4A5E (2), bunga day [4] + night [4], backdrop logo 0x14243D, sorot logo (bodi 0x222222, bulb 0xFFE9A8 2 titik, PointLight 0xFFE2A0).
+- Fix: ui_palette.js ekspor blok WALL_* (10 konstanta/array terkunci; GOLD & LOGO_BACKDROP delegasi ke TERR_GOLD / SCENE_WALL_DEEP yang sudah ada — nilai historis sama); walls.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: walls_palette_430.test.js BARU (4 tes: nilai terkunci, delegasi, 0 literal, anti-poisoning WALL_LOGO_BACKDROP = SCENE_WALL_DEEP konstanta terpisah). npm test 510 file / 4898 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck430 686KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 10:5x WIB — Siklus 431: palet struktur & resepsionis satu sumber
+- Backlog siklus 430: structure.js 6 literal (karpet 0xD0D8E0, wainscot 0xEFE9DD, trim 0xC9BFA8, frame kaca 0xAABBCC) & reception.js 20 literal (meja 0x1A2A3A, top 0xDDE4EC, glow 0x4D9FFF, monitor 0xAABBCC/0x2A2A2A, layar 0x0A1628, kb/mouse 0x333333, kursi 0x37474F/0x94A3B8/0x64748B, Founder 4 warna).
+- Fix: ui_palette.js ekspor blok STRUCT_* (4) & RC_* (12); monitor metal/tiang/kaki kursi delegasi FURN_*, LEAD_MON_BODY/HELMET_BASE/RING_BLUE delegasi konstanta siklus 426 yang sudah ada — konstanta terpisah walau nilai sama. 0 literal tersisa di kedua file. Nilai identik — tampilan tak berubah.
+- Guard: structure_reception_palette_431.test.js BARU (4 tes: nilai terkunci, delegasi terpisah, pemakaian di titik asal, 0 literal). npm test 511 file / 4902 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck431 674KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 11:3x WIB — Siklus 432: palet ruang server satu sumber
+- Backlog siklus 431: src/scene/parts/serverroom.js masih 12 literal warna — rak server (body 0x2E3244, strip tepi 0x00E5FF, unit 0x3A3F55, LED [0x00E676/0xFFC107/0x2979FF], plinth 0x1A1D28), lampu ruang (PointLight 0x00BCD4, bulb 0xB2EBF2), kabel 0x333344, water cooler (badan 0xE0E0E0, galon 0x4FC3F7, keran 0x607D8B, gelembung 0x81D4FA).
+- Fix: ui_palette.js ekspor blok SR_* (12 konstanta, nilai historis terkunci); serverroom.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: serverroom_palette_432.test.js BARU (4 tes: nilai terkunci, anti-poisoning RACK_UNIT≠RACK_BODY & RACK_EDGE≠TUBE_NEON, pemakaian di titik asal, 0 literal). npm test 512 file / 4906 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck432 676KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 12:1x WIB — Siklus 433: palet kafe & lounge satu sumber
+- Backlog siklus 432: parts/cafe.js 16 literal & parts/lounge.js 19 literal warna — counter kayu, countertop, espresso (bodi/LED), uap, kettle, cangkir 2 varian, bingkai menu, bar stool (seat/metal), fridge (bodi/glow); lounge: karpet 2 lapis, coffee table (kayu/kaca/kaki), majalah, mug, kursi santai (shell/cushion), lampu berdiri (pole/shade/bulb), rak majalah + 3 sampul, frame TV.
+- Fix: ui_palette.js ekspor blok CA_* (13) & LG_* (15); kedua file delegasi penuh — 0 literal hex tersisa. Konstanta nilai-sama (LG_TABLE_WOOD=CA_COUNTER_WOOD, LG_MUG=CA_CUP_WHITE, LG_MAG_COVER=LG_MAGS[0]) dideklarasikan terpisah. Nilai identik — tampilan tak berubah.
+- Guard: cafe_lounge_palette_433.test.js BARU (4 tes: nilai terkunci, anti-poisoning deklarasinya, pemakaian di titik asal, 0 literal). npm test 513 file / 4910 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck433 659KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 12:4x WIB — Siklus 434: palet efek meja & dokumen melayang satu sumber
+- Scan ulang parts/ setelah siklus 433: effects.js kini 5 literal hex non-komentar — tints dokumen melayang (9 warna) + detail meja (pot tanaman, daun, headphone band/earcup).
+- Fix: ui_palette.js ekspor blok FX_* (FX_PAGE_TINTS array 9 + FX_POT_CLAY/FX_LEAF/FX_HP_BAND/FX_HP_CUP); effects.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: effects_palette_434.test.js BARU (4 tes: nilai terkunci, anti-poisoning array, pemakaian di titik asal, 0 literal). npm test 514 file / 4914 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck434 668KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Backlog berikutnya: agents_spec.js (42 literal look agen) & extended_desks.js (36 literal look).
+## 24/11/2026 13:0x WIB — Siklus 435: palet outfit agen satu sumber
+- Backlog siklus 434: src/scene/parts/agents_spec.js masih 42 literal hex — outfit hair/shirt/pants 14 agen (8 AGENTS + 6 AGENTS_EXTRA), delegasi AGENT_ID_COLORS sudah ada sejak siklus 422.
+- Fix: ui_palette.js ekspor blok AG_* (14 objek outfit terkunci nilai historis); agents_spec.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: agents_palette_435.test.js BARU (4 tes: nilai terkunci 14 outfit, anti-poisoning objek terpisah, pemakaian di titik asal, 0 literal). npm test 515 file / 4918 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; shot ck435 674KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Backlog berikutnya: extended_desks.js (36 literal look meja extended).
+## 24/11/2026 13:4x WIB — Siklus 436: palet meja extended satu sumber
+- Backlog siklus 435: src/scene/parts/extended_desks.js masih 36 literal hex — outfit hair/shirt/pants 12 spesialis (ARIS..CITRA).
+- Fix: ui_palette.js ekspor blok EX_* (12 objek outfit terkunci nilai historis); extended_desks.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: extended_desks_palette_436.test.js BARU (4 tes: nilai terkunci 12 outfit, anti-poisoning objek terpisah, pemakaian di titik asal, 0 literal). npm test 516 file / 4922 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err (via /tmp/e2e_err.py) exit 0 tanpa 'Scene init failed'; shot ck436 676KB ALIVE.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Scan literal hex berikutnya: sky_canvas.js, team_spec.js, lobby_screen.js (canvas/spec parts).
+## 24/11/2026 14:0x WIB — Siklus 437: palet warna tim satu sumber
+- Backlog siklus 436: src/scene/parts/team_spec.js masih 12 literal hex (color+hex 6 tim: #22D3EE/#F472B6/#34D399/#FB7185/#F59E0B/#10E5A0); sky_canvas.js & lobby_screen.js ternyata sudah delegasi/dieksport sejak siklus 312/431 (SKY_*_STOPS & LS_BG/LS_CLOCK) — tidak perlu diubah.
+- Fix: ui_palette.js ekspor blok TEAM_* (6 konstanta terkunci); team_spec.js delegasi penuh — 0 literal warna tim tersisa. Nilai identik — tampilan tak berubah. Tes team_spec.test.js ekspektasi typeof color kini terpenuhi utk semua 6 tim.
+- Guard: team_palette_437.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 517 file / 4926 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err (via /tmp/e2e_err.py) exit 0 tanpa 'Scene init failed'.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Scan literal hex parts/ berikutnya: audit menyeluruh sisa file parts/ (grep '#xxx' per file) utk siklus 438.
+## 24/11/2026 14:4x WIB — Siklus 438: palet skin karakter satu sumber
+- Audit grep hex di parts/: src/scene/parts/character_looks.js masih 16 literal — skin 15 karakter LOOKS + FALLBACK.
+- Fix: ui_palette.js ekspor blok LK_* (16 konstanta skin terkunci nilai historis); character_looks.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: looks_palette_438.test.js BARU (4 tes: nilai terkunci, anti-poisoning primitif via sumber, pemakaian di titik asal, 0 literal). npm test 518 file / 4930 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err (via /tmp/e2e_err.py) exit 0 tanpa 'Scene init failed'.
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Backlog berikutnya: logo_canvas.js (18), room.js (17), decor.js (7), robot.js (7), walls.js (7 sisa).
+## 24/11/2026 15:4x WIB — Siklus 439: palet kanvas logo satu sumber
+- Backlog siklus 438: src/scene/parts/logo_canvas.js masih 18 literal hex (bg navy, frame emas, gradien hexagon, teks putih, tagline, TITLE_NIGHT).
+- Fix: ui_palette.js ekspor blok LC_* (8 konstanta) + TITLE_DAY pindah satu sumber; logo_canvas.js delegasi penuh — 0 literal warna tersisa. drawResepsiLogo teks putih kini '#FFFFFF' (nilai sama, casing beda) — tes logo_canvas disesuaikan (styleBefore '#fff'→'#FFFFFF', PROJECT emas via LC_GRAD_A). Nilai visual identik.
+- Guard: logo_palette_439.test.js BARU (4 tes: nilai terkunci, anti-poisoning TITLE_NIGHT via LC_TITLE_*, pemakaian di titik asal, 0 literal). npm test 519 file / 4934 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP shot ck439 466KB + window.__agentData alive 26 agen (ALIVE; shot.sh lama tak ada di scratch, pakai skrip CDP baru /tmp/shot439.py).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Backlog berikutnya: room.js (17 literal), decor.js (7), robot.js (7), walls.js (7 sisa).
+## 24/11/2026 16:2x WIB — Siklus 440: palet founder & label agen satu sumber
+- Backlog siklus 439: OfficeScene.js masih 10 literal founder/fallback — 3 objek Founder (color/hex/hair/shirt/pants) + 4 fallback label `agent.hex || '#38BDF8'`; room.js/decor.js/robot.js ternyata tak ada/sudah bersih, walls.js hanya komentar.
+- Fix: ui_palette.js ekspor RC_FOUNDER_HEX ('#F59E0B') & RC_FOUNDER_FALLBACK_HEX ('#38BDF8') terkunci; OfficeScene.js delegasi penuh — 0 literal founder tersisa. Nilai identik — tampilan tak berubah.
+- Guard: office_scene_palette_440.test.js BARU (4 tes). Tes 408 kini eksklusi RC_FOUNDER_HEX/FALLBACK dari cek duplikasi UI (hex renderer, bukan konstanta UI baru). npm test 520 file / 4938 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0; probe CDP ALIVE (26 agen, shot 467KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Audit literal hex scene inti kini bersih; siklus berikutnya: pilih item backlog kualitas non-palet.
+## 24/11/2026 17:0x WIB — Siklus 441: frustum bayangan matahari satu sumber
+- Backlog 440 (keluar dari seri palet, item kualitas): frustum ortho bayangan matahari hardcode ±22 di OfficeScene.js — kampus 34×27 m (setengah 17×13,5) + matahari (14,24,12) berisiko clipping bayangan di tepi kampus & pucuk high-rise/terraces.
+- Fix: render_startup.js ekspor SHADOW_EXTENT=28 + applySunShadowConfig(sun) (4 sisi ortho + updateProjectionMatrix); OfficeScene.js delegasi — 0 literal frustum tersisa. Bayangan kini menutup seluruh 34×27 m.
+- Guard: sun_shadow_frustum_441.test.js BARU (4 tes: extent ≥ 17/13,5, 4 sisi terisi, no-op null, 0 literal ±22 + pemakaian helper). npm test 521 file / 4942 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot ck441 469KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru.
+## 24/11/2026 17:3x WIB — Siklus 442: palet decor satu sumber
+- Backlog 441: src/scene/parts/decor.js masih 7 literal hex — pot tanaman 0x8B5E3C, daun 0x2E7D32/0x43A047, partisi kaca 0x9ad8ff, rug 0x1565C0/0xEF6C00, PointLight lounge 0xFFC97A.
+- Fix: ui_palette.js ekspor blok DC_* (7 konstanta terkunci nilai historis); decor.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: decor_palette_442.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 522 file / 4946 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot 472KB).
+## 24/11/2026 18:1x WIB — Siklus 443: palet robot satu sumber
+- Backlog 442: src/scene/parts/robot.js masih 7 literal hex — torso 0xd5dde5, kepala 0xe6edf3, antena 0x556070, 2× putih 0xffffff (lampu status + bola antena), facePlate 0x07141a, screen 0x050d12.
+- Fix: ui_palette.js ekspor blok RB_* (4 konstanta terkunci nilai historis); facePlate/screen delegasi ke ROBOT_COLORS yang sudah ada. robot.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: robot_palette_443.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 523 file / 4950 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot ck443 476KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene: whiteboard_spec.js (6), pedestal/floor_zones/ceiling_fixtures (5 masing-masing), room.js (15), OfficeScene.js (29 — cek mana yang non-founder).
+## 24/11/2026 18:5x WIB — Siklus 444: palet whiteboard satu sumber
+- Backlog 443: src/scene/parts/whiteboard_spec.js masih 6 literal hex — baki spidol 0x8a9ca6, 4 spidol (0x1e293b/0x2563eb/0xef4444/0x16a34a), penghapus 0x475569.
+- Fix: ui_palette.js ekspor blok WS_* (6 konstanta terkunci nilai historis); whiteboard_spec.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: whiteboard_palette_444.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 524 file / 4954 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot ck444 475KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene: pedestal/floor_zones/ceiling_fixtures (5 masing-masing), room.js (15), OfficeScene.js (29 — cek non-founder).
+## 24/11/2026 19:3x WIB — Siklus 445: palet pedestal & zona lantai satu sumber
+- Backlog 444: pedestal.js 3 literal (plinth 0x0D1B2E, lip emas 0xD4AF37, glow cyan 0x00E5FF) + floor_zones.js 5 literal warna zona (DEV DESK/MEETING/LOUNGE/CAFÉ/SERVER). ceiling_fixtures ternyata sudah delegasi (ceiling_fixtures_palette.js) — tidak perlu diubah.
+- Fix: ui_palette.js ekspor blok PD_* (3) & FZ_* (5) terkunci nilai historis; pedestal.js & floor_zones.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: pedestal_palette_445.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 525 file / 4958 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot ck445 466KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene: room.js tak ada (sudah bersih), OfficeScene.js 29 — cek mana yang non-founder.
+## 24/11/2026 20:2x WIB — Siklus 446: palet aksesori & wajah karakter satu sumber
+- Backlog 445: OfficeScene.js masih 29 literal hex — semua di blok karakter: aksesori (kacamata, beanie, blazer, dasi, peci, antena, jenggot), fallback kulit/celana, wajah (mata/pupil/glint, blush, mulut), lanyard ID.
+- Fix: ui_palette.js ekspor blok AG_* (19 konstanta terkunci nilai historis); OfficeScene.js delegasi penuh — 0 literal hex tersisa (catatan: prefiks AG_ sudah dipakai AG_<NAMA> untuk warna karakter — konstanta baru 19 ini aman karena ekspor dengan nama berbeda). Nilai identik — tampilan tak berubah.
+- Guard: acc_palette_446.test.js BARU (4 tes: nilai terkunci, anti-poisoning eksplisit 19 nama, pemakaian di titik asal, 0 literal). npm test 526 file / 4962 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot ck446 465KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Audit literal hex scene inti kini 0; siklus berikutnya: pilih item backlog kualitas non-palet.
+## 24/11/2026 21:2x WIB — Siklus 447: palet tanda dekoratif satu sumber
+- Backlog 446: src/scene/parts/sign_canvas.js masih 9 literal hex — papan menu café (bg, aksen amber, highlight, teks), poster (bg), papan sambutan (bg, bingkai emas, judul, tagline).
+- Fix: ui_palette.js ekspor blok SG_* (4 konstanta terkunci nilai historis); warna welcome & aksen menu ternyata reuse nilai UI lama (LC_BG/LC_FRAME/LC_GRAD_A/LC_TEXT/AMBER_ACCENT) — delegasi ke sana tanpa duplikat (guard anti-duplikat 408 tetap hijau). sign_canvas.js delegasi penuh — 0 literal warna tersisa. Nilai identik — tampilan tak berubah.
+- Guard: sign_palette_447.test.js BARU (4 tes: nilai terkunci, anti-poisoning + reuse LC_*/AMBER_ACCENT, pemakaian di titik asal, 0 literal). npm test 527 file / 4966 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err tanpa 'Scene init failed'; probe CDP ALIVE (26 agen, shot ck447 477KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene non-UI: task_status_colors.js (11), poster_spec.js (8), zone_label_canvas/nameplate/label_spec/tv/reception (masing-masing 1-2).
+## 24/11/2026 22:1x WIB — Siklus 448: palet poster dinding satu sumber
+- Backlog 447: src/scene/parts/poster_spec.js masih 8 literal hex — warna 8 poster motivasi (SHIP IT, KUALITAS DULU, BUILD DAILY, TEST EVERYTHING, WFS PROJECT, FOKUS, SELESAIKAN, ANTAR TEPAT WAKTU).
+- Fix: ui_palette.js ekspor blok PS_* (8 konstanta terkunci nilai historis); poster_spec.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan tak berubah.
+- Guard: poster_palette_448.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 528 file / 4970 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. Probe CDP ALIVE (scene 3D aktif, agen & label terlihat, shot ck448f 473KB).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene: zone_label_canvas/nameplate/label_spec/tv/reception (masing-masing 1-2). Catatan: shot.sh & e2e_err.py tak ada di scratch — verifikasi via probe CDP manual (port 9338).
+## 24/11/2026 23:0x WIB — Siklus 449: palet label & resepsionis satu sumber
+- Backlog 448: sisa literal hex scene — zone_label_canvas.js (2× '#FFFFFF'), label_spec.js ('#fff', '#b8c4d4'), reception.js ('#F59E0B' hex founder nexusAgent).
+- Fix: ui_palette.js blok LB_* (LB_TEXT, LB_ROLE, nilai terkunci); ZL_TEXT = reuse LC_TEXT (guard 408 anti-duplikat); reception.js reuse AMBER_ACCENT. 3 file kini 0 literal warna. Nilai identik — tampilan tak berubah.
+- Guard: label_palette_449.test.js BARU (4 tes: nilai terkunci + reuse, anti-poisoning, pemakaian painter di titik asal, 0 literal di 3 file). npm test 529 file / 4974 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. Probe CDP ALIVE (26 agen).
+- Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene non-UI: task_status_colors.js (11). Catatan: npm test full ±10 menit; 2 run awal gagal karena re-export ZL_TEXT di modul (ReferenceError) — diperbaiki jadi const lokal.

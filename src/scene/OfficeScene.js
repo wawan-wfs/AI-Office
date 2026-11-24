@@ -1,4 +1,6 @@
 // Siklus 22 — 2026-10-24 — kualitas berkelanjutan; 0 edit perilaku
+import { SCENE_SKY, SCENE_AMBIENT, SCENE_SUN, SCENE_SKYFILL, SCENE_HEMI_SKY, SCENE_HEMI_GROUND, SCENE_GLASS, SCENE_CEIL_WHITE, SCENE_WALL_DEEP, FURN_DESK_TOP, FURN_DESK_LEG, FURN_MONO_METAL, FURN_SCREEN_BODY, FURN_INPUT_DARK, FURN_CHAIR_SEAT, FURN_CHAIR_BACK, FURN_PLATE_STAND, FURN_CHAIR_POLE, FURN_CHAIR_BASE, FURN_CABINET, FURN_DRAWER, FURN_HANDLE, FURN_POT, FURN_LEAF, DUCT_LIGHT, DUCT_CROSS, DUCT_VENT, DUCT_LINE, TUBE_NEON, LEAD_MON_BODY, LEAD_MON_HEX, HELMET_BASE, HELMET_BODY, RING_BLUE, PARTICLE_WHITE, RC_FOUNDER_ACCENT, RC_FOUNDER_HEX, RC_FOUNDER_HAIR, RC_FOUNDER_SHIRT, RC_FOUNDER_PANTS, RC_FOUNDER_FALLBACK_HEX, AG_GLASSES_DARK, AG_SKIN_CREAM, AG_HAT_BRIM, AG_BEANIE, AG_CAP_TOP, AG_BEARD, AG_ANTENNA_ROD, AG_BLAZER, AG_SHIRT_WHITE, AG_TIE, AG_PANTS_MATCH_A, AG_PANTS_MATCH_B, AG_PANTS_MATCH_C, AG_PANTS_DEFAULT, AG_PANTS_FALLBACK, AG_BLUSH, AG_PUPIL, AG_MOUTH, AG_LANYARD } from '../lib/ui_palette.js';
+import { CEIL_PANEL_DAY } from './parts/ceiling_fixtures_palette.js';
 import * as THREE from 'three';window.THREE=THREE;
 import { createFurniture } from './parts/furniture.js';
 import { DetRNG, sceneRng } from '../lib/rng.js';
@@ -15,7 +17,7 @@ import { applyZoneLod } from './parts/zone_lod.js';
 import { occlusionPass, OCCL_MIN_OPACITY } from './parts/label_occlusion.js';
 import { perfStep } from './parts/perf_quality.js';
 import { namesPrefOn, autoRotatePrefOn, setNamesPref, setAutoRotatePref, hasStoredPref, PREF_AUTOROT_KEY } from '../lib/storage_prefs.js';
-import { startupQuality, applyLightBudget } from './parts/render_startup.js';
+import { startupQuality, applyLightBudget, applySunShadowConfig } from './parts/render_startup.js';
 import { updateFollowGoal, focusStep, autoRotateStep, ensureHomeRadius, saveCam, resetFocusGoal, agentFocusPos } from './parts/kamera_focus.js';
 import { nextAgentIndex } from './parts/agent_cycle.js';
 import { dispatchTaskBoardEvent } from '../lib/taskboard_gate.js';
@@ -115,8 +117,8 @@ const rng = sceneRng;
 // ─── SCENE ─────────────────────────────────────────
 const scene=new THREE.Scene();window.__scene=scene;
 scene.name = 'Office3D';
- scene.background=new THREE.Color(0x010A28);
- scene.fog=new THREE.FogExp2(0x010A28,0.0048);
+ scene.background=new THREE.Color(SCENE_SKY);
+ scene.fog=new THREE.FogExp2(SCENE_SKY,0.0048);
  const __initAsp = computeAspect(container.clientWidth, container.clientHeight);
  const camera = new THREE.PerspectiveCamera(getResponsiveFov(__initAsp), __initAsp, 0.1, 500);
  const __hints={cores:navigator.hardwareConcurrency,memory:navigator.deviceMemory,devicePixelRatio:window.devicePixelRatio};
@@ -476,7 +478,7 @@ __onCanvas('pointerup',e=>{
     selectedIdx=-2;
     applySelected();
     if(onSelectAgent){
-      const ag=nxAgent?{...nxAgent,name:'Wahyu FS',floor:3}:{name:'Wahyu FS',color:0xF59E0B,hex:'#F59E0B',role:'Founder / CEO',hair:0x1a1a1a,shirt:0xB45309,pants:0x292524,floor:3};
+      const ag=nxAgent?{...nxAgent,name:'Wahyu FS',floor:3}:{name:'Wahyu FS',color:RC_FOUNDER_ACCENT,hex:RC_FOUNDER_HEX,role:'Founder / CEO',hair:RC_FOUNDER_HAIR,shirt:RC_FOUNDER_SHIRT,pants:RC_FOUNDER_PANTS,floor:3};
       onSelectAgent(ag);
     }
     return;
@@ -659,20 +661,21 @@ __onCanvas('wheel',e=>{
 },{passive:true});
 
 // ─── LIGHTS ────────────────────────────────────────
-const ambient=new THREE.AmbientLight(0xFFF5EB,0.65);scene.add(ambient);
-const sun=new THREE.DirectionalLight(0xFFFAF0,1.45);
+const ambient=new THREE.AmbientLight(SCENE_AMBIENT,0.65);scene.add(ambient);
+const sun=new THREE.DirectionalLight(SCENE_SUN,1.45);
 sun.position.set(14,24,12);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-22;sun.shadow.camera.right=22;sun.shadow.camera.top=22;sun.shadow.camera.bottom=-22;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
+applySunShadowConfig(sun); // frustum ±28 satu sumber (siklus 441) — tepi kampus & pucuk high-rise tak terpotong
+sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
 scene.add(sun);
-const skyFill=new THREE.DirectionalLight(0x38BDF8,0.45);skyFill.position.set(-16,18,-12);scene.add(skyFill);
-scene.add(new THREE.HemisphereLight(0xF8FAFC,0x1E293B,0.55));
+const skyFill=new THREE.DirectionalLight(SCENE_SKYFILL,0.45);skyFill.position.set(-16,18,-12);scene.add(skyFill);
+scene.add(new THREE.HemisphereLight(SCENE_HEMI_SKY,SCENE_HEMI_GROUND,0.55));
 
 // ─── HELPERS ───────────────────────────────────────
 const office=new THREE.Group();scene.add(office);
 const M=(c,o={})=>new THREE.MeshLambertMaterial({color:c,...o});
 const MB=c=>new THREE.MeshBasicMaterial({color:c});
-const Glass=()=>new THREE.MeshPhysicalMaterial({color:0xBBCCDD,transparent:true,opacity:0.08,roughness:0});
+const Glass=()=>new THREE.MeshPhysicalMaterial({color:SCENE_GLASS,transparent:true,opacity:0.08,roughness:0});
 // contact blob shadow — bidang radial gradient semi-transparan di lantai, anchor bayangan objek
 const __blobTex=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
   drawBlobShadow(x);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
@@ -717,15 +720,15 @@ const ceilCv=document.createElement('canvas');ceilCv.width=ceilCv.height=512;
 drawCeiling(ceilCv.getContext('2d'));
 const ceilTex=new THREE.CanvasTexture(ceilCv);
 ceilTex.wrapS=ceilTex.wrapT=THREE.RepeatWrapping;ceilTex.repeat.set(5,4);
-const ceil=new THREE.Mesh(new THREE.BoxGeometry(34,.1,27),new THREE.MeshLambertMaterial({color:0xffffff,map:ceilTex,transparent:true,opacity:0.85}));
+const ceil=new THREE.Mesh(new THREE.BoxGeometry(34,.1,27),new THREE.MeshLambertMaterial({color:SCENE_CEIL_WHITE,map:ceilTex,transparent:true,opacity:0.85}));
 ceil.position.y=4.3;office.add(ceil);
 // balok rangka penopang (beams) — memecah kepolosan bidang langit
 [[0,-9],[0,-4.5],[0,0],[0,4.5],[0,9]].forEach(([,z])=>{
-  const b=new THREE.Mesh(new THREE.BoxGeometry(33.6,.22,.4),M(0x14243D));
+  const b=new THREE.Mesh(new THREE.BoxGeometry(33.6,.22,.4),M(SCENE_WALL_DEEP));
   b.position.set(0,4.2,z);office.add(b);__ceilObjsSafe.push(b);
 });
 [[-11.2],[-5.6],[0],[5.6],[11.2]].forEach(([x])=>{
-  const b=new THREE.Mesh(new THREE.BoxGeometry(.4,.22,26.4),M(0x14243D));
+  const b=new THREE.Mesh(new THREE.BoxGeometry(.4,.22,26.4),M(SCENE_WALL_DEEP));
   b.position.set(x,4.2,0);office.add(b);__ceilObjsSafe.push(b);
 });
 
@@ -739,13 +742,13 @@ const __ceilPanels=[];const __skyWinMats=[];
 // langsung (const desks dideklarasikan belakangan — TDZ).
 const __ceilRt=createCeilingFixtures({THREE,office,M,MB},DESKS);
 for(let i=-3;i<=3;i++){for(let j=-2;j<=2;j++){
-  const p=new THREE.Mesh(new THREE.BoxGeometry(3,.03,1),MB(0xF0F4FF));
+  const p=new THREE.Mesh(new THREE.BoxGeometry(3,.03,1),MB(CEIL_PANEL_DAY));
   p.position.set(i*4.6,4.23,j*5.2);office.add(p);__ceilObjs.push(p);__ceilPanels.push(p);
   // Siklus 169: tag pasangan siang↔malam (nilai = warna siang) — paintCeilNight
   // dari createCeilingFixtures men-set warna material aktif (pola trim 166).
   p.userData.__ceil=__ceilRt.ceilDay;
   if(j===0){ // hanya 5 point light di jalur tengah — sisanya emissive saja
-    const pl=new THREE.PointLight(0xFFFFFF,0.35,12,1.6);
+    const pl=new THREE.PointLight(PARTICLE_WHITE,0.35,12,1.6);
     pl.userData.__panelLight=true; // siklus 504: ikut bernapas (panelBreath)
     pl.position.set(i*4.5,3.8,j*5);office.add(pl);
   }
@@ -803,35 +806,35 @@ function addAccessories(g,agent,headY,fz,torsoY){
   const add=(geo,mat,x,y,z)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);g.add(m);return m};
   const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
   if(has('glasses')){
-    [-1,1].forEach(sd=>add(B(.075,.06,.012),new THREE.MeshBasicMaterial({color:0x111111}),sd*.06,headY+.02,fz*.138));
-    add(B(.04,.012,.012),new THREE.MeshBasicMaterial({color:0x111111}),0,headY+.025,fz*.138);
+    [-1,1].forEach(sd=>add(B(.075,.06,.012),new THREE.MeshBasicMaterial({color:AG_GLASSES_DARK}),sd*.06,headY+.02,fz*.138));
+    add(B(.04,.012,.012),new THREE.MeshBasicMaterial({color:AG_GLASSES_DARK}),0,headY+.025,fz*.138);
   }
   if(has('hijab')){
-    const c=0xF5F0E6, hc=agent.color;
+    const c=AG_SKIN_CREAM, hc=agent.color;
     add(B(.29,.30,.27),M(c),0,headY+.0,-fz*.015); // kerudung membungkus kepala
     add(B(.31,.08,.28),M(hc),0,headY+.12,-fz*.015);
     // wajah tetap terlihat: lapis kulit di depan
     add(B(.2,.17,.02),M(L.skin),0,headY-.005,fz*.128);
-    [-1,1].forEach(sd=>{ add(B(.05,.016,.012),new THREE.MeshBasicMaterial({color:0x27303F}),sd*.06,headY+.04,fz*.14); });
+    [-1,1].forEach(sd=>{ add(B(.05,.016,.012),new THREE.MeshBasicMaterial({color:AG_HAT_BRIM}),sd*.06,headY+.04,fz*.14); });
     add(B(.34,.2,.22),M(c),0,headY-.2,-fz*.02);   // jatuh ke bahu
   }
   if(has('cap')){
     add(B(.27,.07,.25),M(agent.color),0,headY+.13,0);
     add(B(.2,.02,.12),M(agent.color),0,headY+.1,fz*.17);
   }
-  if(has('beanie')){ add(B(.26,.11,.25),M(0x37474F),0,headY+.13,0); add(B(.05,.04,.05),M(agent.color),0,headY+.2,0); }
+  if(has('beanie')){ add(B(.26,.11,.25),M(AG_BEANIE),0,headY+.13,0); add(B(.05,.04,.05),M(agent.color),0,headY+.2,0); }
   if(has('headphones')){
-    add(B(.27,.03,.05),M(0x212121),0,headY+.13,0);
+    add(B(.27,.03,.05),M(AG_CAP_TOP),0,headY+.13,0);
     [-1,1].forEach(sd=>add(B(.05,.1,.09),M(agent.color),sd*.14,headY,0));
   }
-  if(has('beard')){ add(B(.18,.07,.04),M(0x222222),0,headY-.1,fz*.115); }
+  if(has('beard')){ add(B(.18,.07,.04),M(AG_BEARD),0,headY-.1,fz*.115); }
   if(has('bun')){ add(new THREE.SphereGeometry(.07,8,6),M(agent.hair),0,headY+.2,-fz*.05); }
   if(has('ponytail')){ add(B(.06,.22,.06),M(agent.hair),0,headY-.02,-fz*.15); add(B(.07,.05,.07),M(agent.color),0,headY+.1,-fz*.14); }
   if(has('visor')){ add(B(.22,.06,.02),new THREE.MeshBasicMaterial({color:agent.color}),0,headY+.03,fz*.118); }
-  if(has('antenna')){ add(B(.015,.12,.015),M(0x90A4AE),0,headY+.2,0); add(new THREE.SphereGeometry(.025,6,6),new THREE.MeshBasicMaterial({color:agent.color}),0,headY+.27,0); }
-  if(has('blazer')){ add(B(.34,.38,.2),M(0x263238),0,torsoY,0); [-1,1].forEach(sd=>add(B(.04,.3,.02),M(0xFFFFFF),sd*.05,torsoY+.02,fz*.105)); }
-  if(has('tie')){ add(B(.04,.22,.015),M(0x7F1D1D),0,torsoY+.02,fz*.115); }
-  if(has('peci')){ add(B(.25,.1,.23),M(0x111111),0,headY+.14,0); }
+  if(has('antenna')){ add(B(.015,.12,.015),M(AG_ANTENNA_ROD),0,headY+.2,0); add(new THREE.SphereGeometry(.025,6,6),new THREE.MeshBasicMaterial({color:agent.color}),0,headY+.27,0); }
+  if(has('blazer')){ add(B(.34,.38,.2),M(AG_BLAZER),0,torsoY,0); [-1,1].forEach(sd=>add(B(.04,.3,.02),M(AG_SHIRT_WHITE),sd*.05,torsoY+.02,fz*.105)); }
+  if(has('tie')){ add(B(.04,.22,.015),M(AG_TIE),0,torsoY+.02,fz*.115); }
+  if(has('peci')){ add(B(.25,.1,.23),M(AG_GLASSES_DARK),0,headY+.14,0); }
 }
 
 function buildChar(agent, standing=false){
@@ -841,7 +844,7 @@ function buildChar(agent, standing=false){
   const isHairLong = isLongHair(agent.name);
   // Warna cerah hidup & berkarakter: gunakan warna ikonik agent untuk pakaian agar kontras tinggi & terbaca
   const shirtCol = agent.color || agent.shirt;
-  const pantsCol = (agent.pants === 0x08281F || agent.pants === 0x111827 || agent.pants === 0x212121) ? 0x1E293B : (agent.pants || 0x334155);
+  const pantsCol = (agent.pants === AG_PANTS_MATCH_A || agent.pants === AG_PANTS_MATCH_B || agent.pants === AG_PANTS_MATCH_C) ? AG_PANTS_DEFAULT : (agent.pants || AG_PANTS_FALLBACK);
 
   if(standing){
     // ── STANDING CHARACTER (Human Stylized 3D Avatar) ──
@@ -850,11 +853,11 @@ function buildChar(agent, standing=false){
       const leg=new THREE.Mesh(new THREE.CylinderGeometry(.052,.044,.52,12),M(pantsCol));
       leg.position.set(sd*.075,.26,0);leg.userData.isLeg=true;leg.userData.phase=sd>0?0:Math.PI;leg.castShadow=true;g.add(leg);
       // Sepatu Sneakers: sol putih + bodi berwarna + toe cap
-      const sole=new THREE.Mesh(new THREE.BoxGeometry(.11,.03,.20),M(0xFFFFFF));
+      const sole=new THREE.Mesh(new THREE.BoxGeometry(.11,.03,.20),M(AG_SHIRT_WHITE));
       sole.position.set(sd*.075,.015,.02);g.add(sole);
       const shoe=new THREE.Mesh(new THREE.BoxGeometry(.10,.05,.18),M(agent.color));
       shoe.position.set(sd*.075,.055,.01);g.add(shoe);
-      const toe=new THREE.Mesh(new THREE.SphereGeometry(.048,10,8),M(0xFFFFFF));
+      const toe=new THREE.Mesh(new THREE.SphereGeometry(.048,10,8),M(AG_SHIRT_WHITE));
       toe.position.set(sd*.075,.045,.09);g.add(toe);
     });
     // Pinggul & Torso ramping alami
@@ -863,7 +866,7 @@ function buildChar(agent, standing=false){
     const torso=new THREE.Mesh(new THREE.CylinderGeometry(.15,.13,.34,14),M(shirtCol));
     torso.position.set(0,.79,0);torso.castShadow=true;g.add(torso);
     // Kerah baju melingkar halus
-    const col=new THREE.Mesh(new THREE.CylinderGeometry(.09,.08,.04,12),M(0xFFFFFF));
+    const col=new THREE.Mesh(new THREE.CylinderGeometry(.09,.08,.04,12),M(AG_SHIRT_WHITE));
     col.position.set(0,.965,0);g.add(col);
     const btn=new THREE.Mesh(new THREE.BoxGeometry(.025,.09,.01),MB(new THREE.Color(shirtCol).multiplyScalar(.75)));
     btn.position.set(0,.8,.095);g.add(btn);
@@ -894,26 +897,26 @@ function buildChar(agent, standing=false){
     nose.position.set(0,1.13,.125);g.add(nose);
     // Pipi bersemu merah alami (Blush)
     [-1,1].forEach(sd=>{
-      const blush=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),M(0xFCA5A5));
+      const blush=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),M(AG_BLUSH));
       blush.scale.set(1.0,0.6,0.3);
       blush.position.set(sd*.08,1.10,.115);g.add(blush);
     });
     // Mata hidup: sklera putih + pupil espresso + specular glint
     [-1,1].forEach(sd=>{
-      const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,10,8),MB(0xFFFFFF));
+      const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,10,8),MB(AG_SHIRT_WHITE));
       eye.scale.set(1.0,1.1,0.4);
       eye.position.set(sd*.058,1.16,.118);g.add(eye);
-      const pup=new THREE.Mesh(new THREE.SphereGeometry(.016,8,8),MB(0x1E293B));
+      const pup=new THREE.Mesh(new THREE.SphereGeometry(.016,8,8),MB(AG_PUPIL));
       pup.scale.set(1.0,1.1,0.4);
       pup.position.set(sd*.058,1.158,.125);g.add(pup);
-      const glint=new THREE.Mesh(new THREE.SphereGeometry(.006,6,6),MB(0xFFFFFF));
+      const glint=new THREE.Mesh(new THREE.SphereGeometry(.006,6,6),MB(AG_SHIRT_WHITE));
       glint.position.set(sd*.058+.006,1.166,.132);g.add(glint);
       const brow=new THREE.Mesh(new THREE.BoxGeometry(.045,.015,.012),M(agent.hair));
       brow.rotation.z=sd*-.12;
       brow.position.set(sd*.058,1.21,.115);g.add(brow);
     });
     // Mulut senyum ramah
-    const mouth=new THREE.Mesh(new THREE.BoxGeometry(.055,.014,.012),MB(0xB45309));
+    const mouth=new THREE.Mesh(new THREE.BoxGeometry(.055,.014,.012),MB(AG_MOUTH));
     mouth.position.set(0,1.06,.12);g.add(mouth);
     // Rambut bersiluet alami melengkung
     const hairVol=new THREE.Mesh(new THREE.SphereGeometry(.135,18,14),M(agent.hair));
@@ -932,7 +935,7 @@ function buildChar(agent, standing=false){
     const badge=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,.015),MB(agent.color));
     badge.position.set(STANDING.badge.x,STANDING.badge.y,STANDING.badge.z);g.add(badge);
     g.userData.badge = badge;
-    const lany=new THREE.Mesh(new THREE.BoxGeometry(.03,.16,.01),MB(0x35507A));
+    const lany=new THREE.Mesh(new THREE.BoxGeometry(.03,.16,.01),MB(AG_LANYARD));
     lany.position.set(STANDING.lanyard.x,STANDING.lanyard.y,STANDING.lanyard.z);g.add(lany);
   } else {
     // ── SITTING CHARACTER (Menghadap -Z ke monitor) ──
@@ -944,7 +947,7 @@ function buildChar(agent, standing=false){
       const shin=new THREE.Mesh(new THREE.CylinderGeometry(.048,.044,.30,12),M(pantsCol));
       shin.position.set(sd*.085,.24,-.2);g.add(shin);
       // Sepatu di bawah meja
-      const sole=new THREE.Mesh(new THREE.BoxGeometry(.11,.03,.18),M(0xFFFFFF));
+      const sole=new THREE.Mesh(new THREE.BoxGeometry(.11,.03,.18),M(AG_SHIRT_WHITE));
       sole.position.set(sd*.085,.015,-.24);g.add(sole);
       const shoe=new THREE.Mesh(new THREE.BoxGeometry(.10,.05,.16),M(agent.color));
       shoe.position.set(sd*.085,.055,-.24);g.add(shoe);
@@ -955,7 +958,7 @@ function buildChar(agent, standing=false){
     const torso=new THREE.Mesh(new THREE.CylinderGeometry(.15,.13,.36,14),M(shirtCol));
     torso.position.set(0,.74,.02);torso.castShadow=true;g.add(torso);
     torso.userData.isTorso=true; torso.userData.baseY=.74;
-    const col=new THREE.Mesh(new THREE.CylinderGeometry(.09,.08,.04,12),M(0xFFFFFF));
+    const col=new THREE.Mesh(new THREE.CylinderGeometry(.09,.08,.04,12),M(AG_SHIRT_WHITE));
     col.position.set(0,.93,.02);g.add(col);
     const btn=new THREE.Mesh(new THREE.BoxGeometry(.025,.1,.01),MB(new THREE.Color(shirtCol).multiplyScalar(.75)));
     btn.position.set(0,.76,.115);g.add(btn);
@@ -988,26 +991,26 @@ function buildChar(agent, standing=false){
     nose.position.set(0,1.09,-.105);g.add(nose);
     // Pipi bersemu merah (arah -Z)
     [-1,1].forEach(sd=>{
-      const blush=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),M(0xFCA5A5));
+      const blush=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),M(AG_BLUSH));
       blush.scale.set(1.0,0.6,0.3);
       blush.position.set(sd*.08,1.06,-.095);g.add(blush);
     });
     // Mata menghadap monitor (-Z)
     [-1,1].forEach(sd=>{
-      const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,10,8),MB(0xFFFFFF));
+      const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,10,8),MB(AG_SHIRT_WHITE));
       eye.scale.set(1.0,1.1,0.4);
       eye.position.set(sd*.058,1.12,-.108);g.add(eye);
-      const pup=new THREE.Mesh(new THREE.SphereGeometry(.016,8,8),MB(0x1E293B));
+      const pup=new THREE.Mesh(new THREE.SphereGeometry(.016,8,8),MB(AG_PUPIL));
       pup.scale.set(1.0,1.1,0.4);
       pup.position.set(sd*.058,1.118,-.115);g.add(pup);
-      const glint=new THREE.Mesh(new THREE.SphereGeometry(.006,6,6),MB(0xFFFFFF));
+      const glint=new THREE.Mesh(new THREE.SphereGeometry(.006,6,6),MB(AG_SHIRT_WHITE));
       glint.position.set(sd*.058+.006,1.126,-.122);g.add(glint);
       const brow=new THREE.Mesh(new THREE.BoxGeometry(.045,.015,.012),M(agent.hair));
       brow.rotation.z=sd*-.12;
       brow.position.set(sd*.058,1.17,-.105);g.add(brow);
     });
     // Mulut senyum (arah -Z)
-    const mouth=new THREE.Mesh(new THREE.BoxGeometry(.055,.014,.012),MB(0xB45309));
+    const mouth=new THREE.Mesh(new THREE.BoxGeometry(.055,.014,.012),MB(AG_MOUTH));
     mouth.position.set(0,1.02,-.11);g.add(mouth);
     // Rambut bersiluet alami (arah belakang = +Z)
     const hairVol=new THREE.Mesh(new THREE.SphereGeometry(.135,18,14),M(agent.hair));
@@ -1025,7 +1028,7 @@ function buildChar(agent, standing=false){
     const badge=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,.015),MB(agent.color));
     badge.position.set(SITTING.badge.x,SITTING.badge.y,SITTING.badge.z);g.add(badge);
     g.userData.badge = badge;
-    const lany=new THREE.Mesh(new THREE.BoxGeometry(.03,.16,.01),MB(0x35507A));
+    const lany=new THREE.Mesh(new THREE.BoxGeometry(.03,.16,.01),MB(AG_LANYARD));
     lany.position.set(SITTING.lanyard.x,SITTING.lanyard.y,SITTING.lanyard.z);g.add(lany);
   }
   { const a = accessoryAnchor(standing); addAccessories(g,agent,a.headY,a.fz,a.torsoY); }
@@ -1054,9 +1057,9 @@ function makeLabel(agent){
     // 2. Glowing glassmorphism border dengan warna identitas agen
     const rad = spec.RADIUS || 14;
     c.save();
-    c.strokeStyle = agent.hex || '#38BDF8';
+    c.strokeStyle = agent.hex || RC_FOUNDER_FALLBACK_HEX;
     c.lineWidth = 3.5;
-    c.shadowColor = agent.hex || '#38BDF8';
+    c.shadowColor = agent.hex || RC_FOUNDER_FALLBACK_HEX;
     c.shadowBlur = 10;
     if (c.roundRect) {
       c.beginPath();
@@ -1074,7 +1077,7 @@ function makeLabel(agent){
     c.lineTo(W / 2 + 10, spec.H - 4);
     c.closePath();
     c.fill();
-    c.strokeStyle = agent.hex || '#38BDF8';
+    c.strokeStyle = agent.hex || RC_FOUNDER_FALLBACK_HEX;
     c.lineWidth = 3.0;
     c.beginPath();
     c.moveTo(W / 2 - 10, spec.H - 4);
@@ -1150,20 +1153,20 @@ function sizeLabels(){
 function buildDesk(agent,dp){
   const g=new THREE.Group();
   // Meja kayu oak skandinavia cerah modern
-  const top=new THREE.Mesh(new THREE.BoxGeometry(1.5,.07,.8),M(0xF5EBE1));
+  const top=new THREE.Mesh(new THREE.BoxGeometry(1.5,.07,.8),M(FURN_DESK_TOP));
   top.position.set(0,.74,0);top.castShadow=true;top.receiveShadow=true;g.add(top);
   const edge=new THREE.Mesh(new THREE.BoxGeometry(1.52,.02,.82),new THREE.MeshBasicMaterial({color:agent.color}));
   edge.position.set(0,.705,0);g.add(edge);
   [[-.68,-.33],[.68,-.33],[-.68,.33],[.68,.33]].forEach(([lx,lz])=>{
-    const leg=new THREE.Mesh(new THREE.BoxGeometry(.05,.72,.05),M(0x1E293B));
+    const leg=new THREE.Mesh(new THREE.BoxGeometry(.05,.72,.05),M(FURN_DESK_LEG));
     leg.position.set(lx,.36,lz);g.add(leg);
   });
   // Monitor — digeser ke samping kanan (+X=0.32) agar wajah & badan agent di X=0 terlihat jelas tanpa terhalang
-  const mBase=new THREE.Mesh(new THREE.BoxGeometry(.22,.02,.14),M(0xAABBCC));
+  const mBase=new THREE.Mesh(new THREE.BoxGeometry(.22,.02,.14),M(FURN_MONO_METAL));
   mBase.position.set(.32,.78,-.22);g.add(mBase);
-  const mStand=new THREE.Mesh(new THREE.BoxGeometry(.04,.2,.04),M(0xAABBCC));
+  const mStand=new THREE.Mesh(new THREE.BoxGeometry(.04,.2,.04),M(FURN_MONO_METAL));
   mStand.position.set(.32,.88,-.24);g.add(mStand);
-  const mBody=new THREE.Mesh(new THREE.BoxGeometry(.72,.42,.035),M(0x1E1E24));
+  const mBody=new THREE.Mesh(new THREE.BoxGeometry(.72,.42,.035),M(FURN_SCREEN_BODY));
   mBody.position.set(.32,1.08,-.24);mBody.castShadow=true;g.add(mBody);
   // Layar (canvas screen)
   const sc=document.createElement('canvas');sc.width=128;sc.height=76;
@@ -1176,18 +1179,18 @@ function buildDesk(agent,dp){
   const sLight=new THREE.PointLight(agent.color,.35,2.5,2);
   sLight.position.set(.32,1.08,-.05);g.add(sLight);
   // Keyboard & mouse di depan agent
-  const kb=new THREE.Mesh(new THREE.BoxGeometry(.4,.02,.14),M(0x2A2A30));
+  const kb=new THREE.Mesh(new THREE.BoxGeometry(.4,.02,.14),M(FURN_INPUT_DARK));
   kb.position.set(-.06,.79,-.05);g.add(kb);
-  const mouse=new THREE.Mesh(new THREE.BoxGeometry(.05,.02,.08),M(0x2A2A30));
+  const mouse=new THREE.Mesh(new THREE.BoxGeometry(.05,.02,.08),M(FURN_INPUT_DARK));
   mouse.position.set(.22,.79,-.05);g.add(mouse);
   // Kursi kantor ergonomis
-  const seat=new THREE.Mesh(new THREE.BoxGeometry(.42,.06,.42),M(0x3B4A5A));
+  const seat=new THREE.Mesh(new THREE.BoxGeometry(.42,.06,.42),M(FURN_CHAIR_SEAT));
   seat.position.set(0,.44,.55);g.add(seat);
-  const back=new THREE.Mesh(new THREE.BoxGeometry(.38,.38,.05),M(0x2E3B48));
+  const back=new THREE.Mesh(new THREE.BoxGeometry(.38,.38,.05),M(FURN_CHAIR_BACK));
   back.position.set(0,.65,.74);g.add(back);
-  const pole=new THREE.Mesh(new THREE.BoxGeometry(.05,.38,.05),M(0x94A3B8));
+  const pole=new THREE.Mesh(new THREE.BoxGeometry(.05,.38,.05),M(FURN_CHAIR_POLE));
   pole.position.set(0,.2,.55);g.add(pole);
-  const base=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.04,10),M(0x64748B));
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.04,10),M(FURN_CHAIR_BASE));
   base.position.set(0,.02,.55);g.add(base);
   // Glow di bawah meja (dGlow — dipakai updateShift/cyberpunk)
   const dGlow=new THREE.PointLight(agent.color,.15,3,2);
@@ -1199,23 +1202,23 @@ function buildDesk(agent,dp){
     const tex = uiTexture(new THREE.CanvasTexture(c)); tex.minFilter = THREE.LinearFilter;
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(PLATE.w, PLATE.h), uiMaterial(new THREE.MeshBasicMaterial({ map: tex, transparent: true })));
     plate.position.set(0, PLATE.y, PLATE.z); g.add(plate);
-    const stand = new THREE.Mesh(new THREE.BoxGeometry(PLATE.w, .02, .05), M(0x2E3642));
+    const stand = new THREE.Mesh(new THREE.BoxGeometry(PLATE.w, .02, .05), M(FURN_PLATE_STAND));
     stand.position.set(0, PLATE.standY, PLATE.standZ); g.add(stand);
   })();
   // Laci kabinet di bawah meja (sisi kiri) dengan handel
-  const cab=new THREE.Mesh(new THREE.BoxGeometry(.42,.5,.6),M(0x46525E));
+  const cab=new THREE.Mesh(new THREE.BoxGeometry(.42,.5,.6),M(FURN_CABINET));
   cab.position.set(-.5,.25,.05);cab.castShadow=true;g.add(cab);
   [.1,.32].forEach(ly=>{
-    const drw=new THREE.Mesh(new THREE.BoxGeometry(.4,.18,.55),M(0x526270));
+    const drw=new THREE.Mesh(new THREE.BoxGeometry(.4,.18,.55),M(FURN_DRAWER));
     drw.position.set(-.5,ly,.03);g.add(drw);
-    const hd=new THREE.Mesh(new THREE.BoxGeometry(.14,.02,.02),M(0x9AA7B4));
+    const hd=new THREE.Mesh(new THREE.BoxGeometry(.14,.02,.02),M(FURN_HANDLE));
     hd.position.set(-.5,ly,.32);g.add(hd);
   });
   // Tanaman kecil di meja (sisi kanan belakang)
-  const pot=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.08,8),M(0xB08050));
+  const pot=new THREE.Mesh(new THREE.CylinderGeometry(.05,.04,.08,8),M(FURN_POT));
   pot.position.set(.58,.815,-.28);g.add(pot);
   [[0,.9,0,.07],[.03,.95,.02,.05],[-.03,.94,-.02,.05]].forEach(([px,py,pz,r])=>{
-    const leaf=new THREE.Mesh(new THREE.SphereGeometry(r,6,5),M(0x43A047));
+    const leaf=new THREE.Mesh(new THREE.SphereGeometry(r,6,5),M(FURN_LEAF));
     leaf.position.set(.58+px,py,-.28+pz);g.add(leaf);
   });
   // Contact blob shadow di bawah meja kerja (menancapkan meja & laci kabinet ke lantai)
@@ -1538,21 +1541,21 @@ createCeilingFixtures({THREE,office,M,MB},desks);
 // AC VENTS / DUCTS ON CEILING
 // ═══════════════════════════════════════════════════
 // Long duct running across
-const duct=new THREE.Mesh(new THREE.BoxGeometry(22,.15,.3),M(0xCCCCCC));
+const duct=new THREE.Mesh(new THREE.BoxGeometry(22,.15,.3),M(DUCT_LIGHT));
 duct.position.set(0,3.9,0);office.add(duct);__ceilObjs.push(duct);
 // Cross ducts
 [-4,4].forEach(z=>{
-  const cd=new THREE.Mesh(new THREE.BoxGeometry(.3,.12,8),M(0xBBBBBB));
+  const cd=new THREE.Mesh(new THREE.BoxGeometry(.3,.12,8),M(DUCT_CROSS));
   cd.position.set(0,3.88,z);office.add(cd);__ceilObjs.push(cd);
 });
 // Vent grilles
 for(let i=-3;i<=3;i++){
   if(i===0)continue;
-  const vent=new THREE.Mesh(new THREE.BoxGeometry(.4,.03,.25),M(0xDDDDDD));
+  const vent=new THREE.Mesh(new THREE.BoxGeometry(.4,.03,.25),M(DUCT_VENT));
   vent.position.set(i*3,3.82,0);office.add(vent);__ceilObjs.push(vent);
   // Grille lines
   for(let g=0;g<3;g++){
-    const gl=new THREE.Mesh(new THREE.BoxGeometry(.35,.005,.02),M(0xAAAAAA));
+    const gl=new THREE.Mesh(new THREE.BoxGeometry(.35,.005,.02),M(DUCT_LINE));
     gl.position.set(i*3,3.815,-.08+g*.08);office.add(gl);__ceilObjs.push(gl);
   }
 }
@@ -1618,11 +1621,11 @@ const tubeMeshes=[];
 
 // Create glowing tube lights on ceiling (visible in cyberpunk mode)
 for(let i=-2;i<=2;i++){
-  const tube=new THREE.Mesh(new THREE.BoxGeometry(10,.04,.08),new THREE.MeshBasicMaterial({color:0x334466,transparent:true,opacity:0.3}));
+  const tube=new THREE.Mesh(new THREE.BoxGeometry(10,.04,.08),new THREE.MeshBasicMaterial({color:TUBE_NEON,transparent:true,opacity:0.3}));
   tube.position.set(i*4.5,3.92,0);office.add(tube);__ceilObjs.push(tube);
   tubeMeshes.push(tube);
   // Line light along tube
-  const tl=new THREE.PointLight(0x334466,0,12,1.5);
+  const tl=new THREE.PointLight(TUBE_NEON,0,12,1.5);
   tl.position.set(i*4.5,3.85,0);office.add(tl);
   tubeLights.push(tl);
 }
@@ -1677,16 +1680,16 @@ if (__terraces && __terraces.setMode) __terraces.setMode(false);
 const pN=40,pG=new THREE.BufferGeometry(),pP=new Float32Array(pN*3);
 for(let i=0;i<pN;i++){pP[i*3]=rng.r(-11,11);pP[i*3+1]=rng.r(.5,3.5);pP[i*3+2]=rng.r(-8,8)}
 pG.setAttribute('position',new THREE.BufferAttribute(pP,3));
-office.add(new THREE.Points(pG,new THREE.PointsMaterial({color:0xFFFFFF,size:.02,transparent:true,opacity:.25})));
+office.add(new THREE.Points(pG,new THREE.PointsMaterial({color:PARTICLE_WHITE,size:.02,transparent:true,opacity:.25})));
 
 // ═══════════════════════════════════════════════════
 // MEJA UTAMA — ruang kerja agent pertama (lead)
 // ═══════════════════════════════════════════════════
 const leadDesk=desks[0];
 // Second monitor
-const rm2Stand=new THREE.Mesh(new THREE.BoxGeometry(.03,.22,.03),M(0xAABBCC));
+const rm2Stand=new THREE.Mesh(new THREE.BoxGeometry(.03,.22,.03),M(FURN_MONO_METAL));
 rm2Stand.position.set(leadDesk.x+.5,.88,leadDesk.z-.2);office.add(rm2Stand);
-const rm2Body=new THREE.Mesh(new THREE.BoxGeometry(.65,.42,.03),M(0x2A2A2A));
+const rm2Body=new THREE.Mesh(new THREE.BoxGeometry(.65,.42,.03),M(LEAD_MON_BODY));
 rm2Body.position.set(leadDesk.x+.5,1.28,leadDesk.z-.24);office.add(rm2Body);
   // Siklus 531: dashboard monitor kedua meja lead — dulu kotak gelap kosong.
   // Kanvas live via screenData (stagger drawScreen) dgn renderer 'sysdash'.
@@ -1695,35 +1698,35 @@ rm2Body.position.set(leadDesk.x+.5,1.28,leadDesk.z-.24);office.add(rm2Body);
   const rm2Tex=uiTexture(new THREE.CanvasTexture(rm2Cv));rm2Tex.minFilter=THREE.LinearFilter;
   const rm2Screen=new THREE.Mesh(new THREE.PlaneGeometry(.58,.36), uiMaterial(new THREE.MeshBasicMaterial({map:rm2Tex})));
   rm2Screen.position.set(leadDesk.x+.5,1.28,leadDesk.z-.221);office.add(rm2Screen);
-  screenData.push({ctx:rm2Ctx,canvas:rm2Cv,tex:rm2Tex,type:'sysdash',hex:'#60A5FA'});
+  screenData.push({ctx:rm2Ctx,canvas:rm2Cv,tex:rm2Tex,type:'sysdash',hex:LEAD_MON_HEX});
 
 // Helmet trophy on desk
-const helmetBase=new THREE.Mesh(new THREE.BoxGeometry(.15,.03,.15),M(0x1A2A3A));
+const helmetBase=new THREE.Mesh(new THREE.BoxGeometry(.15,.03,.15),M(HELMET_BASE));
 helmetBase.position.set(leadDesk.x+.55,.79,leadDesk.z+.2);office.add(helmetBase);
 // Tiny helmet shape (V-visor)
-const helmetBody=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.1),M(0xDDDDDD));
+const helmetBody=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.1),M(HELMET_BODY));
 helmetBody.position.set(leadDesk.x+.55,.87,leadDesk.z+.2);office.add(helmetBody);
-const helmetVisor=new THREE.Mesh(new THREE.BoxGeometry(.1,.04,.02),MB(0x4D9FFF));
+const helmetVisor=new THREE.Mesh(new THREE.BoxGeometry(.1,.04,.02),MB(RING_BLUE));
 helmetVisor.position.set(leadDesk.x+.55,.88,leadDesk.z+.15);office.add(helmetVisor);
 helmetVisor.material.transparent=true;helmetVisor.userData.__trophy=true; // siklus 511: beacon bernapas
 // Tiny helmet glow
-const helmetGlow=new THREE.PointLight(0x4D9FFF,0.15,1,2);
+const helmetGlow=new THREE.PointLight(RING_BLUE,0.15,1,2);
 helmetGlow.position.set(leadDesk.x+.55,.9,leadDesk.z+.15);office.add(helmetGlow);
 
 // Cincin lantai di sekitar meja utama
 const ringGeo=new THREE.RingGeometry(1.2,1.25,32);
-const ringMat=new THREE.MeshBasicMaterial({color:0x4D9FFF,transparent:true,opacity:0.15,side:THREE.DoubleSide});
+const ringMat=new THREE.MeshBasicMaterial({color:RING_BLUE,transparent:true,opacity:0.15,side:THREE.DoubleSide});
 const floorRing=new THREE.Mesh(ringGeo,ringMat);
 floorRing.rotation.x=-Math.PI/2;
 floorRing.position.set(leadDesk.x,.02,leadDesk.z+.2);
 office.add(floorRing);
 // Inner ring
-const ringInner=new THREE.Mesh(new THREE.RingGeometry(1.05,1.08,32),new THREE.MeshBasicMaterial({color:0x4D9FFF,transparent:true,opacity:0.08,side:THREE.DoubleSide}));
+const ringInner=new THREE.Mesh(new THREE.RingGeometry(1.05,1.08,32),new THREE.MeshBasicMaterial({color:RING_BLUE,transparent:true,opacity:0.08,side:THREE.DoubleSide}));
 ringInner.rotation.x=-Math.PI/2;ringInner.position.set(leadDesk.x,.02,leadDesk.z+.2);
 office.add(ringInner);
 
 // Pulse ring (animated in render loop)
-const pulseRing=new THREE.Mesh(new THREE.RingGeometry(1.3,1.33,32),new THREE.MeshBasicMaterial({color:0x4D9FFF,transparent:true,opacity:0,side:THREE.DoubleSide}));
+const pulseRing=new THREE.Mesh(new THREE.RingGeometry(1.3,1.33,32),new THREE.MeshBasicMaterial({color:RING_BLUE,transparent:true,opacity:0,side:THREE.DoubleSide}));
 pulseRing.rotation.x=-Math.PI/2;pulseRing.position.set(leadDesk.x,.02,leadDesk.z+.2);
 office.add(pulseRing);
 
@@ -2679,7 +2682,7 @@ window.addEventListener('keydown',onKey);
       agentData.forEach(ad=>{ad.label.visible=namesVisible && ad.state !== 'offsite';ad.label.userData.antiY=0;ad.label.userData.antiX=0});
       if(window.__zoneLabels)resetZoneBaseOffsets(window.__zoneLabels.map(zt=>({ref:zt,base:window.__zoneBase&&window.__zoneBase.get(zt),visible:namesVisible}))); },
     isNamesVisible: () => namesVisible,
-    setSelected: (idx) => { selectedIdx=idx; applySelected(); if(onSelectAgent)onSelectAgent(idx>=0&&idx<agentData.length?agentData[idx].agent:(idx===-2?(nxAgent?{...nxAgent,name:'Wahyu FS',floor:3}:{name:'Wahyu FS',color:0xF59E0B,hex:'#F59E0B',role:'Founder / CEO',floor:3}):null)); },
+    setSelected: (idx) => { selectedIdx=idx; applySelected(); if(onSelectAgent)onSelectAgent(idx>=0&&idx<agentData.length?agentData[idx].agent:(idx===-2?(nxAgent?{...nxAgent,name:'Wahyu FS',floor:3}:{name:'Wahyu FS',color:RC_FOUNDER_ACCENT,hex:RC_FOUNDER_HEX,role:'Founder / CEO',floor:3}):null)); },
     getSelected: () => selectedIdx,
     resetFocus: () => { if(focusGoal){focusGoal=resetFocusGoal(HOME_TGT,homeRadius,sph.radius)} selectedIdx=-1; applySelected(); if(onSelectAgent)onSelectAgent(null); delete sph.__saved; },
     setAutoRotate: (v) => { autoRot=!!v; __userRot=!!v; setAutoRotatePref(autoRot) },
@@ -2761,7 +2764,7 @@ window.addEventListener('keydown',onKey);
         selectedIdx=-2;
         applySelected();
         if(onSelectAgent){
-          const ag=nxAgent?{...nxAgent,name:'Wahyu FS',floor:3}:{name:'Wahyu FS',color:0xF59E0B,hex:'#F59E0B',role:'Founder / CEO',hair:0x1a1a1a,shirt:0xB45309,pants:0x292524,floor:3};
+          const ag=nxAgent?{...nxAgent,name:'Wahyu FS',floor:3}:{name:'Wahyu FS',color:RC_FOUNDER_ACCENT,hex:RC_FOUNDER_HEX,role:'Founder / CEO',hair:RC_FOUNDER_HAIR,shirt:RC_FOUNDER_SHIRT,pants:RC_FOUNDER_PANTS,floor:3};
           onSelectAgent(ag);
         }
         return true;

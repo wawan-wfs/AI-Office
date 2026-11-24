@@ -1,17 +1,19 @@
 // Painter kanvas logo WFS Project — murni (ctx di-inject, tanpa THREE/DOM).
 // Urutan & parameter perintah gambar identik kode inline lama (tampilan tak berubah).
+// Siklus 439: semua warna delegasi blok LC_* di ui_palette.js.
+import { LC_BG, LC_FRAME, LC_GRAD_A, LC_GRAD_B, LC_TEXT, LC_TAGLINE, LC_TITLE_NIGHT_W, LC_TITLE_NIGHT_P, TITLE_DAY } from '../../lib/ui_palette.js';
 
 // Logo kecil resepsionis 1024x320 (hexagon gradien + W + WFS + PROJECT)
 export function drawResepsiLogo(ctx) {
-  ctx.fillStyle='#0F1B2E';ctx.fillRect(0,0,1024,320);
-  ctx.strokeStyle='#D4AF37';ctx.lineWidth=8;ctx.strokeRect(6,6,1012,308);
-  const g=ctx.createLinearGradient(40,40,240,280);g.addColorStop(0,'#FBBF24');g.addColorStop(1,'#F97316');
+  ctx.fillStyle=LC_BG;ctx.fillRect(0,0,1024,320);
+  ctx.strokeStyle=LC_FRAME;ctx.lineWidth=8;ctx.strokeRect(6,6,1012,308);
+  const g=ctx.createLinearGradient(40,40,240,280);g.addColorStop(0,LC_GRAD_A);g.addColorStop(1,LC_GRAD_B);
   const hx=(cx,cy,r)=>{ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}ctx.closePath();};
-  hx(150,160,115);ctx.fillStyle=g;ctx.fill();hx(150,160,98);ctx.fillStyle='#0F1B2E';ctx.fill();
+  hx(150,160,115);ctx.fillStyle=g;ctx.fill();hx(150,160,98);ctx.fillStyle=LC_BG;ctx.fill();
   ctx.fillStyle=g;ctx.font='900 130px Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('W',150,168);
   ctx.textAlign='left';ctx.textBaseline='alphabetic';
-  ctx.fillStyle='#fff';ctx.font='900 150px Arial,sans-serif';ctx.fillText('WFS',300,175);
-  ctx.fillStyle='#FBBF24';ctx.font='800 78px Arial,sans-serif';ctx.fillText('PROJECT',306,265);
+  ctx.fillStyle=TITLE_DAY.w;ctx.font='900 150px Arial,sans-serif';ctx.fillText('WFS',300,175);
+  ctx.fillStyle=LC_GRAD_A;ctx.font='800 78px Arial,sans-serif';ctx.fillText('PROJECT',306,265);
 }
 
 // Logo besar dinding belakang 2048x640 (hexagon gradien + W + WFS + PROJECT + tagline)
@@ -36,25 +38,25 @@ export function wallTaglines() { return WALL_TAGLINES.slice(); }
 export function drawWallLogo(ctx, taglineIdx = 0) {
   const safeIdx = Number.isInteger(taglineIdx) && taglineIdx >= 0 && taglineIdx < WALL_TAGLINES.length
     ? taglineIdx : 0;
-  ctx.fillStyle='#0F1B2E';ctx.fillRect(0,0,2048,640);
-  ctx.strokeStyle='#D4AF37';ctx.lineWidth=14;ctx.strokeRect(12,12,2024,616);
+  ctx.fillStyle=LC_BG;ctx.fillRect(0,0,2048,640);
+  ctx.strokeStyle=LC_FRAME;ctx.lineWidth=14;ctx.strokeRect(12,12,2024,616);
   const hex=(cx,cy,r)=>{ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}ctx.closePath();};
-  const grad=ctx.createLinearGradient(100,60,460,580);grad.addColorStop(0,'#FBBF24');grad.addColorStop(1,'#F97316');
+  const grad=ctx.createLinearGradient(100,60,460,580);grad.addColorStop(0,LC_GRAD_A);grad.addColorStop(1,LC_GRAD_B);
   hex(300,320,230);ctx.fillStyle=grad;ctx.fill();
-  hex(300,320,196);ctx.fillStyle='#0F1B2E';ctx.fill();
+  hex(300,320,196);ctx.fillStyle=LC_BG;ctx.fill();
   ctx.fillStyle=grad;ctx.font='900 250px "Segoe UI",Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText('W',300,335);
   ctx.textAlign='left';ctx.textBaseline='alphabetic';
-  ctx.fillStyle='#FFFFFF';ctx.font='900 310px "Segoe UI",Arial,sans-serif';ctx.fillText('WFS',610,290);
-  ctx.fillStyle='#FBBF24';ctx.font='800 170px "Segoe UI",Arial,sans-serif';ctx.fillText('PROJECT',616,470);
-  ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='600 62px "Segoe UI",Arial,sans-serif';ctx.fillText(WALL_TAGLINES[safeIdx],620,570);
+  ctx.fillStyle=LC_TEXT;ctx.font='900 310px "Segoe UI",Arial,sans-serif';ctx.fillText('WFS',610,290);
+  ctx.fillStyle=LC_GRAD_A;ctx.font='800 170px "Segoe UI",Arial,sans-serif';ctx.fillText('PROJECT',616,470);
+  ctx.fillStyle=LC_TAGLINE;ctx.font='600 62px "Segoe UI",Arial,sans-serif';ctx.fillText(WALL_TAGLINES[safeIdx],620,570);
 }
 
 // Judul dinding 1024x200 (teks WFS + PROJECT, latar transparan). Siklus 168:
 // warna parametrik — default SIANG identik kode lama (putih + amber #F59E0B);
 // malam di-repaint dgn palet TITLE_NIGHT (hue terjaga, lum ~½) oleh daycycle.
-export const TITLE_DAY = { w: '#FFFFFF', p: '#F59E0B' };
-export const TITLE_NIGHT = { w: '#7E90B4', p: '#8A5E1A' }; // silver-biru + amber redup
+export const TITLE_NIGHT = { w: LC_TITLE_NIGHT_W, p: LC_TITLE_NIGHT_P }; // silver-biru + amber redup
+export { TITLE_DAY }; // re-export dari palet (satu sumber)
 export function drawWallTitle(ctx, colors) {
   const c = colors || TITLE_DAY;
   ctx.clearRect(0,0,1024,200);

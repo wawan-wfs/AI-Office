@@ -15,6 +15,7 @@
 //   • warna 0x0D1B2E lebih terang dari void 0x010A28 + lip emas (bahasa terraces)
 // Semua di Y NEGATIF — tidak menambah permukaan walkable, agen & jalur tak tersentuh.
 import { drawPlatformShadow } from './pedestal_canvas.js';
+import { PD_PLINTH, PD_LIP, PD_GLOW } from '../../lib/ui_palette.js';
 
 // Parameter satu sumber (diuji unit); nilai dalam satuan dunia scene (meter).
 export const PLINTH = {
@@ -24,13 +25,13 @@ export const PLINTH = {
   FRONT_Z: -14.05,   // 0.15 m di depan bibir dek L1 (z=-13.9) → tak terocclude
   LEN: 30.2,         // menjangkau dari depan (-14.05) sampai belakang kampus (z=16.15)
 };
-export const LIP = { H: 0.05, COLOR: 0xD4AF37 }; // garis emas di bibir atas (bahasa trim terraces)
+export const LIP = { H: 0.05, COLOR: PD_LIP }; // garis emas di bibir atas (bahasa trim terraces)
 export const SHADOW = {
   MARGIN: 3.2,       // menjalar per sisi di luar plinth
   Y: -1.16,          // sedikit di bawah dasar plinth (TOP_Y - H - 0.02)
   OPACITY: 0.5,
 };
-export const GLOW = { W: 33.6, H: 0.1, COLOR: 0x00E5FF, PROUD: 0.07 }; // cyan = bahasa LED L2
+export const GLOW = { W: 33.6, H: 0.1, COLOR: PD_GLOW, PROUD: 0.07 }; // cyan = bahasa LED L2
 
 export function createPedestal({ THREE, M, MB, group }) {
   const g = new THREE.Group();
@@ -40,7 +41,7 @@ export function createPedestal({ THREE, M, MB, group }) {
   const cy = P.TOP_Y - P.H / 2;               // pusat Y plinth
 
   // 1) PLINTH — kotak tegas di bawah seluruh kampus
-  const plinth = new THREE.Mesh(new THREE.BoxGeometry(P.W, P.H, P.LEN), M(0x0D1B2E));
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(P.W, P.H, P.LEN), M(PD_PLINTH));
   plinth.position.set(0, cy, cz);
   plinth.receiveShadow = true;
   made.push(plinth);

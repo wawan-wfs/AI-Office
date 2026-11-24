@@ -4,6 +4,7 @@
 // Tidak ada THREE / DOM di sini — ctx 2D di-inject oleh pemanggil.
 import { ACRONYMS } from './nameplate_spec.js';
 import { STATUS_HEX } from './agent_status.js'; // siklus 530: warna dot status live
+import { LB_TEXT, LB_ROLE } from '../../lib/ui_palette.js'; // 449
 
 export const LABEL_Y = 2.45; // tepat di atas kepala (tinggi duduk ≈1.95)
 
@@ -53,9 +54,9 @@ export function drawLabelText(ctx, agent, spec, full) {
     else ctx.fillText(typeof r === 'string' ? r : String(val), W / 2 + 4, y); };
   const nmFull = labelName(agent.name);
   ctx.font = spec.NAME_FONT;
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = LB_TEXT;
   drawFit(nmFull, spec.NAME_MAX, spec.NAME_FONT, full ? 36 : 28, spec.NAME_Y);
-  if (full) { ctx.fillStyle = '#b8c4d4'; drawFit(agent.role, spec.ROLE_MAX, spec.ROLE_FONT, 22, spec.ROLE_Y); }
+  if (full) { ctx.fillStyle = LB_ROLE; drawFit(agent.role, spec.ROLE_MAX, spec.ROLE_FONT, 22, spec.ROLE_Y); }
 }
 
 // ── Siklus 530: warna dot status di label — LIVE dari state agen ──────────

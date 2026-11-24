@@ -1,9 +1,12 @@
 // Spesifikasi geometri jam dinding — murni (tanpa THREE/canvas), mudah diuji.
 // Sudut dari 12 (arah atas), searah jarum jam, dalam radian.
+import {
+  CLOCK_PIN, HAND_HOUR_COLOR, HAND_MINUTE_COLOR,
+} from '../../lib/ui_palette.js';
 export const HANDS = {
-  hour: { len: 22, w: 4, color: '#222' },
-  minute: { len: 32, w: 2.6, color: '#444' },
-  second: { len: 36, w: 1.2, color: '#f97316' },
+  hour: { len: 22, w: 4, color: HAND_HOUR_COLOR },
+  minute: { len: 32, w: 2.6, color: HAND_MINUTE_COLOR },
+  second: { len: 36, w: 1.2, color: CLOCK_PIN },
 };
 export const TICKS = 12;
 export const tickAngle = (i) => (i * Math.PI) / 6;

@@ -1,17 +1,16 @@
 import {
   TICKS, tickAngle, tickInnerR, hourHandAngle, minuteHandAngle, secondHandAngle, HANDS,
 } from './clock_spec.js';
+import { CLOCK_BG, CLOCK_RIM, CLOCK_PIN } from '../../lib/ui_palette.js';
 
 // Painter wajah jam dinding 96x96 — murni, ctx di-inject, tanpa THREE/DOM.
 export const CLOCK_SIZE = 96;
 export const CLOCK_CENTER = 48;
-export const CLOCK_BG = '#fafafa';
-export const CLOCK_RIM = '#2a2f36';
 export const CLOCK_RIM_W = 3;
 export const CLOCK_RIM_R = 45;
 export const CLOCK_TICK_OUTER_R = 43;
-export const CLOCK_PIN = '#f97316';
 export const CLOCK_PIN_R = 3;
+export { CLOCK_BG, CLOCK_RIM, CLOCK_PIN };
 
 // ── Siklus 266: arg ke-3 LAMA (timestamp waktu-nyata) DIHAPUS dari kontrak painter ──
 // Bug lanjutan 265: fix pipa (simClockSeconds + call-site) menghitung detik-sim

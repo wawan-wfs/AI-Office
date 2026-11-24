@@ -29,7 +29,7 @@ describe('Siklus 400 — cyan neon & violet statistik satu sumber', () => {
     const src = read('src/scene/parts/terraces.js')
     expect(src).toMatch(/'LEVEL 01', AMBER_ACCENT/)
     expect(src).toMatch(/'LEVEL 02', CYAN_NEON/)
-    expect(src).toMatch(/import .*ui_palette\.js/)
+    expect(src).toMatch(/import [\s\S]*ui_palette\.js/)
     expect(src).not.toMatch(/'#F59E0B'|'#00F0FF'/)
   })
 })

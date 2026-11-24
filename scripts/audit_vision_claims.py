@@ -62,8 +62,13 @@ def known_agents():
     out = set()
     for p in AGENT_SRC:
         with open(p, "r", encoding="utf-8") as f:
-            for m in re.finditer(r"name\s*:\s*'([^']+)'", f.read()):
-                out.add(m.group(1).strip().upper())
+            src = f.read()
+        # Siklus 422: spec pakai builder agent('NAMA', …) / specialist('NAMA', …);
+        # tetap dukung bentuk lama name:'NAMA' agar fallback aman.
+        for m in re.finditer(r"name\s*:\s*'([^']+)'", src):
+            out.add(m.group(1).strip().upper())
+        for m in re.finditer(r"\b(?:agent|specialist)\(\s*'([^']+)'", src):
+            out.add(m.group(1).strip().upper())
     out.add("WAHYU FS")  # founder (bukan di spec agen)
     return out
 

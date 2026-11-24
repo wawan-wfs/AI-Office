@@ -1,10 +1,11 @@
 // Robot asisten "Bantuin AI" — bukan manusia: badan logam, kepala kapsul, mata LED, antena, panel dada menyala.
 import { pose, ROBOT_COLORS } from './robot_spec.js';
+import { RB_TORSO, RB_HEAD, RB_ANTENNA, RB_WHITE } from '../../lib/ui_palette.js';
 
 export function buildRobot(THREE, agent, standing, M, MB) {
   const g = new THREE.Group();
   const glow = agent.color;                  // hijau neon Bantuin
-  const metal = ROBOT_COLORS.metal, dark = ROBOT_COLORS.dark, mid = ROBOT_COLORS.mid;
+  const metal = ROBOT_COLORS.metal, dark = ROBOT_COLORS.dark, mid = ROBOT_COLORS.mid, facePlate = ROBOT_COLORS.facePlate, screen = ROBOT_COLORS.screen;
   const { hipY, tz, fz, ty, hy } = pose(standing); // koordinat kunci per pose
   const shiny = (c) => new THREE.MeshStandardMaterial({ color: c, metalness: 0.75, roughness: 0.28 });
   const halo = (r, c, x, y, z) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 14, 12), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.28, depthWrite: false })); m.position.set(x, y, z); g.add(m); return m; };
@@ -32,14 +33,14 @@ export function buildRobot(THREE, agent, standing, M, MB) {
   box(0.26, 0.1, 0.16, M(dark), 0, hipY, tz);
 
   // ── Torso: dua pelat logam + panel dada menyala ──
-  { const tr = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.36, 0.2), shiny(0xd5dde5)); tr.position.set(0, ty, tz); tr.castShadow = true; g.add(tr); }
+  { const tr = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.36, 0.2), shiny(RB_TORSO)); tr.position.set(0, ty, tz); tr.castShadow = true; g.add(tr); }
   box(0.36, 0.03, 0.22, MB(glow), 0, ty - 0.17, tz);          // garis aksen neon pinggang
   box(0.36, 0.05, 0.22, M(mid), 0, ty + 0.19, tz);           // bahu
-  box(0.2, 0.14, 0.012, MB(0x07141a), 0, ty + 0.02, tz + fz * 0.106);
+  box(0.2, 0.14, 0.012, MB(facePlate), 0, ty + 0.02, tz + fz * 0.106);
   const bars = [0.04, 0.08, 0.06];
   const chestBars = [];
   bars.forEach((h, i) => { const b = box(0.035, h, 0.014, MBT(glow), -0.055 + i * 0.055, ty + 0.02 - 0.03 + h / 2, tz + fz * 0.112); b.userData.isRobotChest = true; b.userData.i = i; chestBars.push(b); });
-  const statLight = box(0.05, 0.05, 0.014, MBT(0xffffff), 0.1, ty + 0.12, tz + fz * 0.108);     // lampu status
+  const statLight = box(0.05, 0.05, 0.014, MBT(RB_WHITE), 0.1, ty + 0.12, tz + fz * 0.108);     // lampu status
   statLight.userData.isRobotStatus = true;
 
   // ── Lengan segmen + sendi bulat ──
@@ -60,10 +61,10 @@ export function buildRobot(THREE, agent, standing, M, MB) {
 
   // ── Leher + kepala kapsul ──
   cyl(0.045, 0.055, 0.07, M(dark), 0, hy - 0.13, tz);
-  const hd = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 0.1, 6, 16), shiny(0xe6edf3)); hd.position.set(0, hy, tz); hd.scale.set(1, 1, 0.9); hd.castShadow = true; g.add(hd);
+  const hd = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 0.1, 6, 16), shiny(RB_HEAD)); hd.position.set(0, hy, tz); hd.scale.set(1, 1, 0.9); hd.castShadow = true; g.add(hd);
     [-1, 1].forEach((sd) => cyl(0.05, 0.05, 0.05, M(dark), sd * 0.17, hy, tz).rotation.z = Math.PI / 2); // telinga/speaker
   // Layar wajah gelap + 2 mata LED + senyum
-  box(0.23, 0.15, 0.012, MB(0x050d12), 0, hy + 0.0, tz + fz * 0.134);
+  box(0.23, 0.15, 0.012, MB(screen), 0, hy + 0.0, tz + fz * 0.134);
   const eyeMeshes = [];
   [-1, 1].forEach((sd) => { const eye = box(0.055, 0.065, 0.014, MB(glow), sd * 0.058, hy + 0.025, tz + fz * 0.143); eye.userData.isRobotEye = true; eye.userData.side = sd; eyeMeshes.push(eye); halo(0.05, glow, sd * 0.058, hy + 0.025, tz + fz * 0.15); });
   box(0.1, 0.014, 0.014, MB(glow), 0, hy - 0.045, tz + fz * 0.143);
@@ -71,8 +72,8 @@ export function buildRobot(THREE, agent, standing, M, MB) {
   box(0.03, 0.014, 0.014, MB(glow), 0.06, hy - 0.035, tz + fz * 0.143);
 
   // ── Antena dengan bola menyala ──
-  cyl(0.012, 0.012, 0.16, shiny(0x556070), 0, hy + 0.25, tz);
-  sph(0.035, MB(0xffffff), 0, hy + 0.34, tz);
+  cyl(0.012, 0.012, 0.16, shiny(RB_ANTENNA), 0, hy + 0.25, tz);
+  sph(0.035, MB(RB_WHITE), 0, hy + 0.34, tz);
   const antHalo = halo(0.075, glow, 0, hy + 0.34, tz);
   antHalo.userData.isRobotAntenna = true;
 

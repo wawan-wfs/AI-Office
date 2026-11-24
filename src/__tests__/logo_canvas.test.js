@@ -3,6 +3,7 @@
 // ctx recorder + gradien palsu; memverifikasi urutan & parameter identik kode inline lama.
 import { describe, it, expect } from 'vitest';
 import { drawResepsiLogo, drawWallLogo, drawWallTitle, TITLE_DAY, TITLE_NIGHT } from '../scene/parts/logo_canvas.js';
+import { LC_GRAD_B } from '../lib/ui_palette.js';
 
 function makeCtx(){
   const ops=[]; let gid=0;
@@ -105,7 +106,7 @@ describe('drawResepsiLogo (logo resepsionis 1024×320)', ()=>{
     expect(texts).toContainEqual(['PROJECT',[306,265]]);
     const styleBefore=(idx,key)=>{ for(let j=idx-1;j>=0;j--) if(ops[j][0]===key) return ops[j][1]; };
     const iWfs=ops.findIndex(o=>o[0]==='fillText'&&o[1]==='WFS');
-    expect(styleBefore(iWfs,'fillStyle')).toBe('#fff');
+    expect(styleBefore(iWfs,'fillStyle')).toBe('#FFFFFF');
     expect(styleBefore(iWfs,'font')).toBe('900 150px Arial,sans-serif');
     expect(styleBefore(iWfs,'textAlign')).toBe('left');
     expect(styleBefore(iWfs,'textBaseline')).toBe('alphabetic');

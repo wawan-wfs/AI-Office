@@ -5,6 +5,9 @@
 // lantai ruang rapat — tetap bebas THREE/DOM.
 import { ROOM_CZ } from './meeting_room_spec.js';
 import { floorOf } from './floor_elevation.js';
+import {
+  GREEN_ACCENT, MEET_BLUE, AMBER_ACCENT, ACCENT_BLUE, STATUS_DIM, // siklus 421
+} from '../../lib/ui_palette.js';
 
 //
 // BUG yang diperbaiki (siklus 140): kartu AgentInspector sebelumnya SELALU
@@ -22,11 +25,11 @@ import { floorOf } from './floor_elevation.js';
 //   entri tidak ditemukan / state tak dikenal         → Standby
 
 export const STATUS_HEX = {
-  work: '#10E5A0',   // hijau  — var(--green)
-  meet: '#60A5FA',   // biru   — konsisten chip review kanban
-  lunch: '#F59E0B',  // oranye — konsisten chip running kanban
-  walk: '#4D9FFF',   // biru muda — ACCENT_BLUE lib/ui_palette.js (aksen kantor)
-  dim: '#8b93a3',    // abu — status netral/pasif
+  work: GREEN_ACCENT,  // hijau teal — aksen plakat LEVEL 03
+  meet: MEET_BLUE,     // biru   — konsisten chip review kanban
+  lunch: AMBER_ACCENT, // oranye — konsisten chip running kanban
+  walk: ACCENT_BLUE,   // biru muda — aksen kantor
+  dim: STATUS_DIM,     // abu — status netral/pasif
 };
 
 const STANDBY = { label: 'Standby', tone: 'dim', hex: STATUS_HEX.dim };

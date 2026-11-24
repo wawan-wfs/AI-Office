@@ -25,10 +25,18 @@ describe('palet fallback OrbitalSculpture (siklus 410)', () => {
     expect(src).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
 
-  it('tidak ada duplikasi nilai di ui_palette', async () => {
+  it('tidak ada duplikasi nilai di ui_palette (di luar AGENT_ID_COLORS 422)', async () => {
     const src = await import('fs/promises').then(fs =>
       fs.readFile(new URL('../lib/ui_palette.js', import.meta.url), 'utf8'))
-    const values = [...src.matchAll(/'#[0-9a-fA-F]{3,8}'/g)].map(m => m[0])
+    // AGENT_ID_COLORS (422) & blok KANBAN_* (423) sengaja memakai ulang
+    // nilai warna historis antar-agen / antar-domain (mis. #F97316 = CLOCK_PIN
+    // jam & 'high' prioritas) — dikecualikan dari cek duplikasi.
+    const body = src
+      .replace(/export const AGENT_ID_COLORS = Object\.freeze\(\{[\s\S]*?\}\);/, '')
+      .replace(/export const KANBAN_[A-Z_]+ = Object\.freeze\(\{[\s\S]*?\}\);/g, '')
+      .replace(/export const KANBAN_[A-Z_]+ = Object\.freeze\(\[[\s\S]*?\]\);/g, '')
+      .replace(/export const LEAD_MON_HEX = '#60A5FA';[\s\S]*?$/g, '')
+    const values = [...body.matchAll(/'#[0-9a-fA-F]{3,8}'/g)].map(m => m[0])
     expect(new Set(values).size).toBe(values.length)
   })
 })

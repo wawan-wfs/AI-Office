@@ -1,4 +1,19 @@
 // Capability hints are optional: unavailable information is not proof of a slow GPU.
+// Siklus 441 — frustum bayangan matahari satu sumber: kampus 34×27 m (setengah
+// 17×13,5) + elevasi matahari (14,24,12) menuntut cakupan lebih besar dari ±22;
+// dulu bayangan di tepi kampus & pucuk high-rise bisa terpotong (clipping).
+export const SHADOW_EXTENT = 28; // setengah-lebar ortho frustum bayangan (m)
+
+export function applySunShadowConfig(sun) {
+  if (!sun || !sun.shadow) return sun;
+  sun.shadow.camera.left = -SHADOW_EXTENT;
+  sun.shadow.camera.right = SHADOW_EXTENT;
+  sun.shadow.camera.top = SHADOW_EXTENT;
+  sun.shadow.camera.bottom = -SHADOW_EXTENT;
+  sun.shadow.camera.updateProjectionMatrix();
+  return sun;
+}
+
 export function startupQuality({ renderer = '', cores, memory, devicePixelRatio = 1 } = {}) {
   const low = /swiftshader|llvmpipe|softpipe|software rasterizer/i.test(renderer)
     || (cores > 0 && cores <= 2) || (memory > 0 && memory <= 2);

@@ -5,6 +5,12 @@ import { TEAMS, findTeamByRole, findTeamByAgent, computeTeamStats } from './team
 import { parseFileList } from '../../lib/files.js';
 import { isTaskInDateRange, DATE_RANGE_PRESETS } from '../../lib/kanban_date.js';
 import { taskStatusColor } from '../../lib/task_status_colors.js';
+import {
+  KANBAN_COLUMN_BG, KANBAN_PRIORITY_COLORS, KANBAN_PRIORITY_BG,
+  KANBAN_TAG_PALETTE, KANBAN_ROLE_COLORS, KANBAN_TAG_PRESET_COLORS,
+  KANBAN_DIVISION_COLORS, KANBAN_AUDIT_SURFACE,
+  CHIP_TEXT, PURE_TEXT, GREEN_ACCENT,
+} from '../../lib/ui_palette.js';
 
 export { isTaskInDateRange, DATE_RANGE_PRESETS };
 
@@ -13,7 +19,7 @@ export const KANBAN_COLUMNS = [
     key: 'pending',
     label: 'Antri',
     color: taskStatusColor('pending'),
-    bg: 'rgba(154, 167, 184, 0.12)',
+    bg: KANBAN_COLUMN_BG.pending,
     icon: '⏳',
     desc: 'Task dalam antrean',
   },
@@ -21,7 +27,7 @@ export const KANBAN_COLUMNS = [
     key: 'running',
     label: 'Sedang Jalan',
     color: taskStatusColor('running'),
-    bg: 'rgba(245, 158, 11, 0.12)',
+    bg: KANBAN_COLUMN_BG.running,
     icon: '⚡',
     desc: 'Sedang aktif dikerjakan AI',
   },
@@ -29,7 +35,7 @@ export const KANBAN_COLUMNS = [
     key: 'review',
     label: 'Review / Isu',
     color: taskStatusColor('review'),
-    bg: 'rgba(96, 165, 250, 0.12)',
+    bg: KANBAN_COLUMN_BG.review,
     icon: '🔍',
     desc: 'Menunggu QA atau perlu perbaikan',
   },
@@ -37,18 +43,18 @@ export const KANBAN_COLUMNS = [
     key: 'done',
     label: 'Selesai',
     color: taskStatusColor('done'),
-    bg: 'rgba(16, 229, 160, 0.12)',
+    bg: KANBAN_COLUMN_BG.done,
     icon: '✅',
     desc: 'Selesai dan terverifikasi',
   },
 ];
 
-export const PRIORITY_CONFIG = {
-  urgent: { key: 'urgent', label: 'Urgent', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.16)', icon: '🔥', order: 1 },
-  high: { key: 'high', label: 'Tinggi', color: '#F97316', bg: 'rgba(249, 115, 22, 0.16)', icon: '🔺', order: 2 },
-  medium: { key: 'medium', label: 'Sedang', color: '#EAB308', bg: 'rgba(234, 179, 8, 0.16)', icon: '▫️', order: 3 },
-  low: { key: 'low', label: 'Rendah', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.14)', icon: '🔽', order: 4 },
-};
+export const PRIORITY_CONFIG = Object.fromEntries(Object.entries({
+  urgent: { key: 'urgent', label: 'Urgent', icon: '🔥', order: 1 },
+  high: { key: 'high', label: 'Tinggi', icon: '🔺', order: 2 },
+  medium: { key: 'medium', label: 'Sedang', icon: '▫️', order: 3 },
+  low: { key: 'low', label: 'Rendah', icon: '🔽', order: 4 },
+}).map(([k, v]) => [k, { ...v, color: KANBAN_PRIORITY_COLORS[k], bg: KANBAN_PRIORITY_BG[k] }]));
 
 export const SORT_OPTIONS = [
   { key: 'newest', label: 'Terbaru', icon: '🕒' },
@@ -60,7 +66,7 @@ export const SORT_OPTIONS = [
 
 export function getTaskPriorityInfo(priority) {
   const p = String(priority || '').toLowerCase().trim();
-  return PRIORITY_CONFIG[p] || { key: 'normal', label: 'Normal', color: '#64748B', bg: 'rgba(100, 116, 139, 0.12)', icon: '•', order: 5 };
+  return PRIORITY_CONFIG[p] || { key: 'normal', label: 'Normal', color: KANBAN_PRIORITY_COLORS.normal, bg: KANBAN_PRIORITY_BG.normal, icon: '•', order: 5 };
 }
 
 export const SPECIAL_TAG_LABELS = {
@@ -100,19 +106,7 @@ export function formatTagLabel(tag) {
     .join('');
 }
 
-export const TAG_PALETTE = [
-  '#38BDF8', // sky-400 (lum: 0.440, contrast on dark: 7.86)
-  '#818CF8', // indigo-400 (lum: 0.302, contrast on dark: 5.65)
-  '#34D399', // emerald-400 (lum: 0.496, contrast on dark: 8.76)
-  '#FBBF24', // amber-400 (lum: 0.579, contrast on dark: 10.09)
-  '#F472B6', // pink-400 (lum: 0.346, contrast on dark: 6.36)
-  '#A78BFA', // purple/violet-400 (lum: 0.336, contrast on dark: 6.19)
-  '#60A5FA', // blue-400 (lum: 0.363, contrast on dark: 6.62)
-  '#FB923C', // orange-400 (lum: 0.414, contrast on dark: 7.44)
-  '#2DD4BF', // teal-400 (lum: 0.514, contrast on dark: 9.05)
-  '#A3E635', // lime-400 (lum: 0.646, contrast on dark: 11.17)
-  '#FB7185', // rose-400 (lum: 0.340, contrast on dark: 6.26)
-];
+export const TAG_PALETTE = KANBAN_TAG_PALETTE;
 
 export function parseHexColor(hex) {
   if (!hex || typeof hex !== 'string') return [0, 0, 0];
@@ -143,18 +137,18 @@ export function calcContrastRatio(colorA, colorB) {
   return Number(((max + 0.05) / (min + 0.05)).toFixed(2));
 }
 
-export function getContrastingTextColor(bgHex, darkColor = '#0b1320', lightColor = '#ffffff') {
+export function getContrastingTextColor(bgHex, darkColor = CHIP_TEXT, lightColor = PURE_TEXT) {
   const cDark = calcContrastRatio(darkColor, bgHex);
   const cLight = calcContrastRatio(lightColor, bgHex);
   return cDark >= cLight ? darkColor : lightColor;
 }
 
-export function auditBadgeContrast(badgeColor, bgSurface = '#151d2e') {
+export function auditBadgeContrast(badgeColor, bgSurface = KANBAN_AUDIT_SURFACE) {
   const lum = Number(calcRelativeLuminance(badgeColor).toFixed(3));
   const contrastOnSurface = calcContrastRatio(badgeColor, bgSurface);
-  const contrastWithDarkText = calcContrastRatio('#0b1320', badgeColor);
-  const contrastWithLightText = calcContrastRatio('#ffffff', badgeColor);
-  const bestTextColor = contrastWithDarkText >= contrastWithLightText ? '#0b1320' : '#ffffff';
+  const contrastWithDarkText = calcContrastRatio(CHIP_TEXT, badgeColor);
+  const contrastWithLightText = calcContrastRatio(PURE_TEXT, badgeColor);
+  const bestTextColor = contrastWithDarkText >= contrastWithLightText ? CHIP_TEXT : PURE_TEXT;
   const activeContrast = Math.max(contrastWithDarkText, contrastWithLightText);
   return {
     color: badgeColor,
@@ -222,7 +216,7 @@ export function matchTaskSearch(task, query) {
 
 export function getTagColor(tag) {
   const norm = normalizeTag(tag);
-  if (!norm) return '#64748B';
+  if (!norm) return KANBAN_PRIORITY_COLORS.normal;
   let hash = 0;
   for (let i = 0; i < norm.length; i++) {
     hash = (hash << 5) - hash + norm.charCodeAt(i);
@@ -347,8 +341,8 @@ export const TAG_PRESETS = [
     key: 'fullstack',
     label: 'Fullstack',
     icon: '⚡',
-    color: '#60A5FA',
-    textColor: '#0b1320',
+    color: KANBAN_TAG_PRESET_COLORS.fullstack,
+    textColor: CHIP_TEXT,
     tags: ['react', 'api', 'sql', 'python'],
     desc: 'Antarmuka web & endpoint API',
   },
@@ -356,8 +350,8 @@ export const TAG_PRESETS = [
     key: 'devops',
     label: 'DevOps & Infra',
     icon: '🐳',
-    color: '#38BDF8',
-    textColor: '#0b1320',
+    color: KANBAN_TAG_PRESET_COLORS.devops,
+    textColor: CHIP_TEXT,
     tags: ['docker', 'ci/cd'],
     desc: 'Kontainer & pipeline otomasi',
   },
@@ -365,8 +359,8 @@ export const TAG_PRESETS = [
     key: 'frontend',
     label: 'Frontend & UI',
     icon: '🎨',
-    color: '#F472B6',
-    textColor: '#0b1320',
+    color: KANBAN_TAG_PRESET_COLORS.frontend,
+    textColor: CHIP_TEXT,
     tags: ['react', 'ui/ux', 'css', 'vue'],
     desc: 'Desain antarmuka, komponen & gaya',
   },
@@ -374,8 +368,8 @@ export const TAG_PRESETS = [
     key: 'backend',
     label: 'Backend & DB',
     icon: '🛠',
-    color: '#34D399',
-    textColor: '#0b1320',
+    color: KANBAN_TAG_PRESET_COLORS.backend,
+    textColor: CHIP_TEXT,
     tags: ['api', 'sql', 'db', 'python', 'golang', 'prisma'],
     desc: 'Layanan data, server, & arsitektur sistem',
   },
@@ -383,8 +377,8 @@ export const TAG_PRESETS = [
     key: 'quality',
     label: 'QA & Security',
     icon: '🛡',
-    color: '#FBBF24',
-    textColor: '#0b1320',
+    color: KANBAN_TAG_PRESET_COLORS.quality,
+    textColor: CHIP_TEXT,
     tags: ['qa', 'security', 'review'],
     desc: 'Ulasan kualitas, audit & keamanan',
   },
@@ -676,16 +670,7 @@ export function sortTasks(tasks, sortBy = 'newest') {
   }
 }
 
-export const ROLE_COLORS = {
-  be: '#3B82F6',
-  fe: '#10B981',
-  ops: '#EC4899',
-  qa: '#A78BFA',
-  pm: '#F59E0B',
-  ai: '#06B6D4',
-  sec: '#FB7185',
-  sre: '#F97316',
-};
+export const ROLE_COLORS = KANBAN_ROLE_COLORS;
 
 export const ROLE_LABELS = {
   be: 'Backend',
@@ -732,7 +717,7 @@ export function computeColumnDistribution(columnCount, totalCount) {
 
 export function getTaskRoleBadgeColor(role) {
   const r = String(role || '').toLowerCase().trim();
-  return ROLE_COLORS[r] || '#64748B';
+  return ROLE_COLORS[r] || KANBAN_PRIORITY_COLORS.normal;
 }
 
 export function getTaskRoleLabel(role) {
@@ -758,7 +743,7 @@ export const DIVISION_PRESETS = [
     key: 'engineering',
     label: 'Engineering Core',
     icon: '⚡',
-    color: '#38BDF8',
+    color: KANBAN_DIVISION_COLORS.engineering,
     divisions: ['core-be', 'fe-design', 'ops-sec', 'qa-gov'],
     desc: 'Backend, Frontend, DevOps & QA',
   },
@@ -766,7 +751,7 @@ export const DIVISION_PRESETS = [
     key: 'fullstack',
     label: 'Fullstack Dev',
     icon: '🚀',
-    color: '#818CF8',
+    color: KANBAN_DIVISION_COLORS.fullstack,
     divisions: ['core-be', 'fe-design'],
     desc: 'Backend & Frontend',
   },
@@ -774,7 +759,7 @@ export const DIVISION_PRESETS = [
     key: 'platform-sec',
     label: 'Platform & QA',
     icon: '🛡️',
-    color: '#34D399',
+    color: KANBAN_DIVISION_COLORS['platform-sec'],
     divisions: ['ops-sec', 'qa-gov'],
     desc: 'DevOps, Infra, QA & Sec',
   },
@@ -782,7 +767,7 @@ export const DIVISION_PRESETS = [
     key: 'product-cs',
     label: 'Product & Support',
     icon: '✨',
-    color: '#F59E0B',
+    color: KANBAN_DIVISION_COLORS['product-cs'],
     divisions: ['prod-growth', 'ai-cs'],
     desc: 'Product, Growth, AI & Support',
   },
@@ -790,7 +775,7 @@ export const DIVISION_PRESETS = [
     key: 'frontend-product',
     label: 'Experience & UX',
     icon: '🎨',
-    color: '#F472B6',
+    color: KANBAN_DIVISION_COLORS['frontend-product'],
     divisions: ['fe-design', 'prod-growth'],
     desc: 'Frontend, UI/UX & Product',
   },
@@ -869,7 +854,7 @@ export function normalizeCustomDivPreset(rawPreset) {
   const icon = typeof rawPreset.icon === 'string' && rawPreset.icon.trim() ? rawPreset.icon.trim() : '🏢';
   const color = typeof rawPreset.color === 'string' && /^#[0-9a-fA-F]{6}$/i.test(rawPreset.color.trim())
     ? rawPreset.color.trim()
-    : '#38BDF8';
+    : KANBAN_DIVISION_COLORS.engineering;
   const textColor = getContrastingTextColor(color);
 
   const desc = String(rawPreset.desc || rawPreset.description || '').trim() ||
@@ -1121,7 +1106,7 @@ export function extractTaskDivisions(tasks) {
     key: 'all',
     label: 'Semua',
     fullName: 'Semua Divisi',
-    color: '#10E5A0',
+    color: GREEN_ACCENT,
     count: total,
     done: list.filter((t) => t && normalizeTaskStatus(t.status) === 'done').length,
     running: list.filter((t) => t && normalizeTaskStatus(t.status) === 'running').length,
@@ -1249,8 +1234,8 @@ export function getTaskCardBadges(task) {
       fileCount: 0,
       hasReview: false,
       roleLabel: 'General',
-      roleColor: '#64748B',
-      roleTextColor: '#ffffff',
+      roleColor: KANBAN_PRIORITY_COLORS.normal,
+      roleTextColor: PURE_TEXT,
       priority: getTaskPriorityInfo(null),
       tags: [],
     };

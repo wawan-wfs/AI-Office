@@ -4,7 +4,15 @@ import { drawTerrazzo } from './floor_canvas.js';
 // tangga arsitektural naik, tekstur prosedural marmer Carrara & parket jati mewah tanpa z-fighting/flicker.
 import { L1_Y, L2_Y, L3_Y, floorElevationAt } from './floor_elevation.js';
 import { uiTexture, uiMaterial } from './ui_colorspace.js';
-import { AMBER_ACCENT, CYAN_NEON, GREEN_ACCENT } from '../../lib/ui_palette.js';
+import {
+  AMBER_ACCENT, CYAN_NEON, GREEN_ACCENT,
+  TERR_GLASS_RAIL, TERR_WHITE, TERR_GOLD, TERR_DL1_WARM,
+  TERR_SAND, TERR_PEBBLE, TERR_TRUNK, TERR_FOLIAGE,
+  TERR_STEP_TREAD, TERR_STEP_RISER, TERR_STRINGER,
+  TERR_STAIR_LED, TERR_LED_L2, TERR_LED_L3, TERR_PYLON,
+  TERR_DARK_L1, TERR_DARK_L2, TERR_DARK_L3,
+  TERR_DAY_L1, TERR_DAY_L2, TERR_DAY_L3,
+} from '../../lib/ui_palette.js';
 import { drawFloorBadge, FB_W, FB_H } from './floor_badge_canvas.js'; // siklus 526
 export { L1_Y, L2_Y, L3_Y, floorElevationAt };
 
@@ -18,7 +26,7 @@ export function createTerraces({ THREE, office, M, MB }) {
 
   // Material Kaca Balustrade Transparan & Mewah
   const GlassRail = () => new THREE.MeshPhysicalMaterial({
-    color: 0xCCE8FF,
+    color: TERR_GLASS_RAIL,
     transparent: true,
     opacity: 0.25,
     roughness: 0.04,
@@ -46,7 +54,7 @@ export function createTerraces({ THREE, office, M, MB }) {
     drawTerrazzo(cv.getContext('2d'), tint);
     const t = new THREE.CanvasTexture(cv);
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; t.repeat.set(rx, ry);
-    return new THREE.MeshLambertMaterial({ color: 0xFFFFFF, map: t });
+    return new THREE.MeshLambertMaterial({ color: TERR_WHITE, map: t });
   };
 
   // ══════════════════════════════════════════════════════════
@@ -63,7 +71,7 @@ export function createTerraces({ THREE, office, M, MB }) {
   // Inlay lis emas elegan di Lantai 1
   const l1Inlay = new THREE.Mesh(
     new THREE.BoxGeometry(33.8, 0.015, 0.08),
-    M(0xD4AF37)
+    M(TERR_GOLD)
   );
   l1Inlay.position.set(0, 0.01, -13.0);
   terraces.add(l1Inlay);
@@ -75,24 +83,24 @@ export function createTerraces({ THREE, office, M, MB }) {
   terraces.add(badgeL1);
 
   // Downlight arsitektural Lantai 1
-  const l1Downlight = THREE.PointLight ? new THREE.PointLight(0xFFE8CC, 0.40, 14, 1.8) : new THREE.Group();
+  const l1Downlight = THREE.PointLight ? new THREE.PointLight(TERR_DL1_WARM, 0.40, 14, 1.8) : new THREE.Group();
   l1Downlight.position.set(0, 3.8, -7.4);
   if (l1Downlight.userData) l1Downlight.userData.base = 0.40; // siklus 497: base mode utk faktor napas (stub tanpa userData di-skip)
   terraces.add(l1Downlight);
 
   // ── AREA INDOOR ZEN GARDEN LANTAI 1 (Bonsai & River Pebbles Halus di Sudut Atrium) ──
   const zenGroup = new THREE.Group();
-  const zenBase = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.08, 2.8), M(0xD4AF37));
+  const zenBase = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.08, 2.8), M(TERR_GOLD));
   zenBase.position.set(-10.0, 0.04, -6.8);
   zenGroup.add(zenBase);
-  const sand = new THREE.Mesh(new THREE.BoxGeometry(3.3, 0.02, 2.5), M(0xFAF8F5));
+  const sand = new THREE.Mesh(new THREE.BoxGeometry(3.3, 0.02, 2.5), M(TERR_SAND));
   sand.position.set(-10.0, 0.09, -6.8);
   sand.receiveShadow = true;
   zenGroup.add(sand);
   // Batu kali lonjong halus tertata rapi di dalam halaman zen
   const PebbleGeom = THREE.SphereGeometry || THREE.BoxGeometry;
   [[-10.8, -7.4], [-9.4, -6.3], [-10.4, -6.2]].forEach(([bx, bz], bi) => {
-    const pebble = new THREE.Mesh(new PebbleGeom(0.24 + bi * 0.05, 12, 10), M(0x334155));
+    const pebble = new THREE.Mesh(new PebbleGeom(0.24 + bi * 0.05, 12, 10), M(TERR_PEBBLE));
     if (pebble.scale && pebble.scale.set) pebble.scale.set(1.3, 0.55, 1.0);
     pebble.position.set(bx, 0.16, bz);
     pebble.rotation.y = bi * 0.8;
@@ -101,12 +109,12 @@ export function createTerraces({ THREE, office, M, MB }) {
   });
   // Bonsai eksotis di tengah halaman zen
   const TrunkGeom = THREE.CylinderGeometry || THREE.BoxGeometry;
-  const trunk = new THREE.Mesh(new TrunkGeom(0.08, 0.12, 0.75, 8), M(0x4A2E18));
+  const trunk = new THREE.Mesh(new TrunkGeom(0.08, 0.12, 0.75, 8), M(TERR_TRUNK));
   trunk.position.set(-10.0, 0.45, -6.8);
   trunk.rotation.z = -0.15;
   zenGroup.add(trunk);
   const FoliageGeom = THREE.SphereGeometry || THREE.BoxGeometry;
-  const foliage = new THREE.Mesh(new FoliageGeom(0.46, 12, 10), M(0x10B981));
+  const foliage = new THREE.Mesh(new FoliageGeom(0.46, 12, 10), M(TERR_FOLIAGE));
   if (foliage.scale && foliage.scale.set) foliage.scale.set(1.3, 0.65, 1.1);
   foliage.position.set(-10.1, 0.82, -6.8);
   foliage.castShadow = true;
@@ -129,7 +137,7 @@ export function createTerraces({ THREE, office, M, MB }) {
       // Pijakan anak tangga (tread) marmer abu-abu gelap
       const step = new THREE.Mesh(
         new THREE.BoxGeometry(width, 0.08, Math.abs(dz) * 1.15),
-        M(0x1F2C42)
+        M(TERR_STEP_TREAD)
       );
       step.position.set(startX, stepY - 0.04, stepZ);
       step.castShadow = true;
@@ -139,7 +147,7 @@ export function createTerraces({ THREE, office, M, MB }) {
       // Bidang tegak penutup anak tangga (riser) padat
       const riser = new THREE.Mesh(
         new THREE.BoxGeometry(width * 0.98, riserHeight * 1.05, 0.04),
-        M(0x162236)
+        M(TERR_STEP_RISER)
       );
       riser.position.set(startX, stepY - riserHeight * 0.5 - 0.04, stepZ - dz * 0.46);
       riser.castShadow = true;
@@ -149,7 +157,7 @@ export function createTerraces({ THREE, office, M, MB }) {
       // Neon LED riser strip cyan menyala di hidung anak tangga
       const strip = new THREE.Mesh(
         new THREE.BoxGeometry(width * 0.96, 0.02, 0.035),
-        MB(0x00E5FF)
+        MB(TERR_STAIR_LED)
       );
       strip.position.set(startX, stepY - 0.045, stepZ + dz * 0.42);
       flight.add(strip);
@@ -161,7 +169,7 @@ export function createTerraces({ THREE, office, M, MB }) {
       // Dinding samping tangga (stringer solid)
       const stringer = new THREE.Mesh(
         new THREE.BoxGeometry(0.08, Math.abs(endY - startY) * 0.6 + 0.2, Math.abs(endZ - startZ) * 1.05),
-        M(0x0F172A)
+        M(TERR_STRINGER)
       );
       stringer.position.set(startX + side, (startY + endY) / 2 - 0.05, (startZ + endZ) / 2);
       flight.add(stringer);
@@ -175,7 +183,7 @@ export function createTerraces({ THREE, office, M, MB }) {
 
       const railMesh = new THREE.Mesh(
         new THREE.BoxGeometry(0.06, 0.04, Math.abs(endZ - startZ) * 1.1),
-        M(0xD4AF37)
+        M(TERR_GOLD)
       );
       railMesh.position.set(startX + side, (startY + endY) / 2 + 0.72, (startZ + endZ) / 2);
       railMesh.rotation.x = Math.atan2(endY - startY, endZ - startZ);
@@ -205,21 +213,21 @@ export function createTerraces({ THREE, office, M, MB }) {
   // Bibir list emas & LED Cyan di tepi depan Lantai 2 (Z = -0.6)
   const l2Trim = new THREE.Mesh(
     new THREE.BoxGeometry(34.04, 0.06, 0.10),
-    M(0xD4AF37)
+    M(TERR_GOLD)
   );
   l2Trim.position.set(0, L2_Y, -0.6);
   terraces.add(l2Trim);
 
   const l2Led = new THREE.Mesh(
     new THREE.BoxGeometry(34.04, 0.03, 0.05),
-    MB(0x00F0FF) // LED neon cyan terang
+    MB(TERR_LED_L2) // LED neon cyan terang
   );
   l2Led.position.set(0, L2_Y - 0.03, -0.64);
   terraces.add(l2Led);
   ledLines.push(l2Led);
 
   // Lampu downlight arsitektural Lantai 2
-  const l2Downlight = THREE.PointLight ? new THREE.PointLight(0x00E5FF, 0.45, 12, 1.8) : new THREE.Group();
+  const l2Downlight = THREE.PointLight ? new THREE.PointLight(TERR_STAIR_LED, 0.45, 12, 1.8) : new THREE.Group();
   l2Downlight.position.set(0, L2_Y + 3.8, 1.95);
   if (l2Downlight.userData) l2Downlight.userData.base = 0.45; // siklus 497
   terraces.add(l2Downlight);
@@ -229,7 +237,7 @@ export function createTerraces({ THREE, office, M, MB }) {
     const glass = new THREE.Mesh(new THREE.BoxGeometry(len, 0.65, 0.03), GlassRail());
     glass.position.set(x, y + 0.33, z);
     terraces.add(glass);
-    const handrail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.04, 0.06), M(0xD4AF37));
+    const handrail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.04, 0.06), M(TERR_GOLD));
     handrail.position.set(x, y + 0.66, z);
     terraces.add(handrail);
   };
@@ -264,21 +272,21 @@ export function createTerraces({ THREE, office, M, MB }) {
   // Bibir list emas & LED Emerald di tepi depan Lantai 3 (Z = 5.0)
   const l3Trim = new THREE.Mesh(
     new THREE.BoxGeometry(34.04, 0.06, 0.10),
-    M(0xD4AF37)
+    M(TERR_GOLD)
   );
   l3Trim.position.set(0, L3_Y, 5.0);
   terraces.add(l3Trim);
 
   const l3Led = new THREE.Mesh(
     new THREE.BoxGeometry(34.04, 0.03, 0.05),
-    MB(0x10E5A0) // LED emerald terang
+    MB(TERR_LED_L3) // LED emerald terang
   );
   l3Led.position.set(0, L3_Y - 0.03, 4.96);
   terraces.add(l3Led);
   ledLines.push(l3Led);
 
   // Lampu downlight arsitektural Lantai 3
-  const l3Downlight = THREE.PointLight ? new THREE.PointLight(0x10E5A0, 0.55, 14, 1.8) : new THREE.Group();
+  const l3Downlight = THREE.PointLight ? new THREE.PointLight(TERR_LED_L3, 0.55, 14, 1.8) : new THREE.Group();
   l3Downlight.position.set(0, L3_Y + 3.8, 10.5);
   if (l3Downlight.userData) l3Downlight.userData.base = 0.55; // siklus 497
   terraces.add(l3Downlight);
@@ -298,17 +306,17 @@ export function createTerraces({ THREE, office, M, MB }) {
   // ══════════════════════════════════════════════════════════
   const addSkyscraperPylon = (x, z) => {
     const colGroup = new THREE.Group();
-    const col = new THREE.Mesh(new THREE.BoxGeometry(0.7, 7.5, 0.7), M(0x182438));
+    const col = new THREE.Mesh(new THREE.BoxGeometry(0.7, 7.5, 0.7), M(TERR_PYLON));
     col.position.set(0, 3.75, 0);
     colGroup.add(col);
 
     [0, L2_Y, L3_Y].forEach(y => {
-      const ring = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.10, 0.76), M(0xD4AF37));
+      const ring = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.10, 0.76), M(TERR_GOLD));
       ring.position.set(0, y, 0);
       colGroup.add(ring);
     });
 
-    const vLed = new THREE.Mesh(new THREE.BoxGeometry(0.05, 7.0, 0.72), MB(0x00F0FF));
+    const vLed = new THREE.Mesh(new THREE.BoxGeometry(0.05, 7.0, 0.72), MB(TERR_LED_L2));
     vLed.position.set(0, 3.75, 0);
     colGroup.add(vLed);
     ledLines.push(vLed);
@@ -332,29 +340,29 @@ export function createTerraces({ THREE, office, M, MB }) {
   function setMode(isDark) {
     if (isDark) {
       // MODE GELAP (Cyberpunk Night Studio)
-      l1Deck.material.color.set(0x162236); // Marmer hitam obsidian mewah
-      l2Deck.material.color.set(0x182842); // Parquet navy eksekutif gelap
-      l3Deck.material.color.set(0x121E30); // Walnut slate gelap
-      l1Inlay.material.color.set(0x00E5FF);
-      zenBase.material.color.set(0x00E5FF);
-      l2Led.material.color.set(0x00F0FF);
-      l3Led.material.color.set(0x10E5A0);
-      stepStrips.forEach(s => s.material.color.set(0x00E5FF));
-      ledLines.forEach(l => l.material.color.set(0x00F0FF));
+      l1Deck.material.color.set(TERR_STEP_RISER); // Marmer hitam obsidian mewah
+      l2Deck.material.color.set(TERR_DARK_L2); // Parquet navy eksekutif gelap
+      l3Deck.material.color.set(TERR_DARK_L3); // Walnut slate gelap
+      l1Inlay.material.color.set(TERR_STAIR_LED);
+      zenBase.material.color.set(TERR_STAIR_LED);
+      l2Led.material.color.set(TERR_LED_L2);
+      l3Led.material.color.set(TERR_LED_L3);
+      stepStrips.forEach(s => s.material.color.set(TERR_STAIR_LED));
+      ledLines.forEach(l => l.material.color.set(TERR_LED_L2));
       if (l1Downlight && l1Downlight.intensity !== undefined) { l1Downlight.intensity = 0.65; if (l1Downlight.userData) l1Downlight.userData.base = 0.65; }
       if (l2Downlight && l2Downlight.intensity !== undefined) { l2Downlight.intensity = 0.65; if (l2Downlight.userData) l2Downlight.userData.base = 0.65; }
       if (l3Downlight && l3Downlight.intensity !== undefined) { l3Downlight.intensity = 0.75; if (l3Downlight.userData) l3Downlight.userData.base = 0.75; }
     } else {
       // MODE TERANG (Daylight Architectural Studio)
-      l1Deck.material.color.set(0xF1F5F9); // Marmer putih bersih berkelas
-      l2Deck.material.color.set(0xE2E8F0); // Parquet kayu hangat elegan
-      l3Deck.material.color.set(0xCBD5E1); // Slate eksekutif berkelas
-      l1Inlay.material.color.set(0xD4AF37); // Garis emas murni
-      zenBase.material.color.set(0xD4AF37);
-      l2Led.material.color.set(0x00F0FF);
-      l3Led.material.color.set(0x10E5A0);
-      stepStrips.forEach(s => s.material.color.set(0x00E5FF));
-      ledLines.forEach(l => l.material.color.set(0x00F0FF));
+      l1Deck.material.color.set(TERR_DAY_L1); // Marmer putih bersih berkelas
+      l2Deck.material.color.set(TERR_DAY_L2); // Parquet kayu hangat elegan
+      l3Deck.material.color.set(TERR_DAY_L3); // Slate eksekutif berkelas
+      l1Inlay.material.color.set(TERR_GOLD); // Garis emas murni
+      zenBase.material.color.set(TERR_GOLD);
+      l2Led.material.color.set(TERR_LED_L2);
+      l3Led.material.color.set(TERR_LED_L3);
+      stepStrips.forEach(s => s.material.color.set(TERR_STAIR_LED));
+      ledLines.forEach(l => l.material.color.set(TERR_LED_L2));
       if (l1Downlight && l1Downlight.intensity !== undefined) { l1Downlight.intensity = 0.45; if (l1Downlight.userData) l1Downlight.userData.base = 0.45; }
       if (l2Downlight && l2Downlight.intensity !== undefined) { l2Downlight.intensity = 0.45; if (l2Downlight.userData) l2Downlight.userData.base = 0.45; }
       if (l3Downlight && l3Downlight.intensity !== undefined) { l3Downlight.intensity = 0.45; if (l3Downlight.userData) l3Downlight.userData.base = 0.45; }

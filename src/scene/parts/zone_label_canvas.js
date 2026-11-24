@@ -2,7 +2,8 @@
 // agar bisa di-unit-test: ctx 2D di-inject (mock recorder), tanpa THREE/DOM.
 // Urutan & parameter perintah gambar identik kode inline lama.
 
-import { AMBER_ACCENT } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, LC_TEXT } from '../../lib/ui_palette.js';
+const ZL_TEXT = LC_TEXT; // 449: teks label zona = satu sumber dgn UI canvas
 
 export const ZL_BG = 'rgba(5,10,22,0.75)';
 export const ZL_BORDER = AMBER_ACCENT;
@@ -12,7 +13,7 @@ export const ZL_W = 512, ZL_H = 96;
 // (Latar roundRect & fitZoneLabel tetap di flooring.js — butuh measureText.)
 export function drawZoneLabel(zx, label) {
   zx.textAlign = 'center'; zx.textBaseline = 'middle';
-  zx.fillStyle = '#FFFFFF'; zx.fillText(label, 256, 50);
+  zx.fillStyle = ZL_TEXT; zx.fillText(label, 256, 50);
 }
 
 // ── Siklus 527: label zona menampilkan jumlah agen LIVE di area itu ──────
@@ -34,7 +35,7 @@ export function drawZoneLive(zx, label, count) {
     return;
   }
   zx.textAlign = 'center'; zx.textBaseline = 'middle';
-  zx.fillStyle = '#FFFFFF'; zx.fillText(label, 256, 34);
+  zx.fillStyle = ZL_TEXT; zx.fillText(label, 256, 34);
   zx.fillStyle = ZL_LIVE_COLOR; zx.font = ZL_LIVE_FONT;
   zx.fillText(Math.floor(+count) + ' di zona', 256, ZL_LIVE_Y);
 }

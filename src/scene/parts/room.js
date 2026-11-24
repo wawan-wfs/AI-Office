@@ -8,6 +8,7 @@ import {
 import { drawSprintBoard } from './whiteboard_canvas.js';
 import { drawClockFace } from './clock_canvas.js';
 import { uiTexture, uiMaterial } from './ui_colorspace.js';
+import { CEIL_PANEL_DAY, CEIL_PANEL_NIGHT, PEND_BULB_DAY, PEND_BULB_NIGHT } from './ceiling_fixtures_palette.js';
 
 // Ruang meeting, jam dinding, dan pencahayaan gantung — ditulis ulang untuk WFS Project.
 export function createMeetingRoom(ctx, glassMat) {
@@ -146,10 +147,11 @@ export function createCeilingFixtures(ctx, deskList) {
   // panel dinding/judul sudah gelap (165-168) tapi plafon tetap menyala penuh
   // seperti panel lampu. Pola trim 166: pasangan day/night, MESH ter-tag
   // (userData.__ceil) → warna material AKTIF ikut (aman dari klon wall-fade).
-  const CEIL_DAY = 0xF0F4FF;
-  const CEIL_NIGHT = 0x2E3A52;   // biru arsitektural gelap — harmonis panel dinding WALL_NIGHT #1B2436
-  const BULB_DAY = 0xFFF3D6;     // bohlam hangat (identik kode lama)
-  const BULB_NIGHT = 0x3A3426;   // amber sangat redup — hue hangat terjaga (R≥G>B), lum ~¼
+  // Nilai warna kini satu sumber di ceiling_fixtures_palette.js (siklus 417).
+  const CEIL_DAY = CEIL_PANEL_DAY;
+  const CEIL_NIGHT = CEIL_PANEL_NIGHT;
+  const BULB_DAY = PEND_BULB_DAY;
+  const BULB_NIGHT = PEND_BULB_NIGHT;
   const nightOf = { [CEIL_DAY]: CEIL_NIGHT, [BULB_DAY]: BULB_NIGHT };
   const dayOf = { [CEIL_NIGHT]: CEIL_DAY, [BULB_NIGHT]: BULB_DAY };
   // Lampu gantung industri di atas tiap meja

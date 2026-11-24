@@ -2,7 +2,7 @@
 // Ditulis ulang: tiap layar = fungsi renderer terpisah dalam tabel, bukan rangkaian if/else.
 import { tvPct } from './tv_canvas.js';
 import { fmtUptime } from './projectboard_data.js';
-import { SCENE_MUTED } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, PINK_ACCENT, SKY_DIVISION, EMERALD_ACCENT, SCENE_MUTED, PURE_TEXT, SCREEN_BG, SCREEN_OK, SCREEN_WARN, SCREEN_INFO, SCREEN_FAIL, SCREEN_PALETTE, FX_PAGE_TINTS, FX_POT_CLAY, FX_LEAF, FX_HP_BAND, FX_HP_CUP } from '../../lib/ui_palette.js';
 
 const GRID = (c, w, h, step, col, alpha) => {
   c.strokeStyle = col; c.globalAlpha = alpha; c.lineWidth = 0.5;
@@ -51,7 +51,7 @@ export const SCREEN_RENDERERS = {
   },
   // Desain: palet + lingkaran denyut
   palette(c, w, h, t, col) {
-    ['#e879f9', '#fb7185', '#8b5cf6', '#60a5fa', '#22d3ee', '#4ade80'].forEach((cl, i) => {
+    SCREEN_PALETTE.forEach((cl, i) => {
       c.globalAlpha = 0.65; c.fillStyle = cl;
       c.fillRect(8 + (i % 3) * 38, 8 + Math.floor(i / 3) * 22, 31, 17);
     });
@@ -75,11 +75,11 @@ export const SCREEN_RENDERERS = {
     c.font = '6px monospace'; c.globalAlpha = 0.85;
     c.fillText('Deploy ke produksi', 10, 36);
     c.fillText('Build #' + (Math.floor(t * 2) % 900 + 100), 10, 47);
-    c.fillStyle = '#4ade80'; c.fillText('✓ semua tes lolos', 10, 60);
+    c.fillStyle = SCREEN_OK; c.fillText('✓ semua tes lolos', 10, 60);
   },
   // Dokumen: catatan teks
   docs(c, w, h, t, col) {
-    c.globalAlpha = 0.09; c.fillStyle = '#fff'; c.fillRect(8, 8, w - 16, h - 16);
+    c.globalAlpha = 0.09; c.fillStyle = PURE_TEXT; c.fillRect(8, 8, w - 16, h - 16);
     c.font = '6px monospace'; c.fillStyle = col; c.globalAlpha = 0.65;
     ['# Catatan Desain', '', '> Sistem warna WFS', '  amber + navy', '', '## Komponen', '- Dock bawah', '- Papan task'].forEach((l, i) => c.fillText(l, 13, 19 + i * 7));
   },
@@ -98,7 +98,7 @@ export const SCREEN_RENDERERS = {
     c.fillText('PAPAN TASK', 6, 11);
     c.globalAlpha = 0.2; c.fillRect(6, 14, w - 12, 6);
     c.globalAlpha = 0.9; c.fillRect(6, 14, Math.max(4, (w - 12) * pct / 100), 6);
-    c.globalAlpha = 0.85; c.fillStyle = '#fff'; c.font = '6px monospace';
+    c.globalAlpha = 0.85; c.fillStyle = PURE_TEXT; c.font = '6px monospace';
     // Guard anti-poisoning: done/total non-finite tidak boleh tampil sebagai NaN
     // di teks (pct sudah diamankan via tvPct; di sini nilai mentah dilemahkan).
     const doneN = Number.isFinite(T.done) ? T.done : 0;
@@ -106,7 +106,7 @@ export const SCREEN_RENDERERS = {
     c.fillText(pct + '% · ' + doneN + '/' + totalN + ' task', 6, 30);
     c.globalAlpha = 0.5; c.fillStyle = col;
     c.fillText((T.review ? 'REVIEW: ' + T.review + '  ' : '') + (T.failed ? 'GAGAL: ' + T.failed : 'on track'), 6, 42);
-    if (Math.sin(t * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
+    if (Math.sin(t * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = SCREEN_OK; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // Dashboard sistem meja lead (monitor kedua, siklus 531): 4 baris metrik
   // dgn bar mini + FPS hidup. t = detik nyata (kontrak drawScreenFrame 264).
@@ -134,9 +134,9 @@ export const SCREEN_RENDERERS = {
     c.font = '6px monospace';
     const rows = [
       ['CPU', cpu != null ? cpu : 22 + Math.sin(tt * 0.7) * 12, col],
-      ['MEM', ramPct != null ? ramPct : 48 + Math.sin(tt * 0.4 + 2) * 8, '#4ade80'],
-      ['DISK', disk != null ? disk : 65 + Math.sin(tt * 1.1 + 4) * 15, '#fbbf24'],
-      ['NET', NETW != null ? NETW : 30 + Math.sin(tt * 2.2) * 25, '#60a5fa'],
+      ['MEM', ramPct != null ? ramPct : 48 + Math.sin(tt * 0.4 + 2) * 8, SCREEN_OK],
+      ['DISK', disk != null ? disk : 65 + Math.sin(tt * 1.1 + 4) * 15, SCREEN_WARN],
+      ['NET', NETW != null ? NETW : 30 + Math.sin(tt * 2.2) * 25, SCREEN_INFO],
     ];
     const val = (v) => Math.round(Math.min(95, Math.max(5, v)));
     rows.forEach(([label, pct, cl], i) => {
@@ -214,16 +214,16 @@ export const SCREEN_RENDERERS = {
           ? (nRx + nTx).toFixed(1) + 'M'
           : Math.round((nRx + nTx) * 1024) + 'K') : '';
     c.fillText('FPS ' + (Number.isFinite(fps) ? Math.round(fps) : 45 + Math.floor(Math.abs(Math.sin(tt * 3)) * 20)) + ' · UPTIME ' + up + loadTxt + cpuTxt + agenTxt + cfgTxt + memTxt + diskTxt + netTxt, 8, h - 5);
-    if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = '#4ade80'; c.fillRect(w - 11, 6, 5, 5); } // dot live
+    if (Math.sin(tt * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = SCREEN_OK; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // QA: daftar hasil tes
   bugs(c, w, h, t, col) {
     c.font = '6px monospace';
-    [['PASS', col], ['PASS', '#4ade80'], ['FAIL', '#f87171'], ['PASS', col], ['RUN..', col]].forEach(([txt, cl], i) => {
+    [['PASS', col], ['PASS', SCREEN_OK], ['FAIL', SCREEN_FAIL], ['PASS', col], ['RUN..', col]].forEach(([txt, cl], i) => {
       c.fillStyle = cl;
       c.globalAlpha = txt === 'RUN..' && Math.sin(t * 3) > 0 ? 0.3 : 0.75;
       c.fillText('● ' + txt, 9, 13 + i * 12);
-      c.fillStyle = '#fff'; c.globalAlpha = 0.3; c.fillText('tes_' + (i + 1) + '.js', 58, 13 + i * 12);
+      c.fillStyle = PURE_TEXT; c.globalAlpha = 0.3; c.fillText('tes_' + (i + 1) + '.js', 58, 13 + i * 12);
     });
   },
 };
@@ -569,7 +569,7 @@ export function drawScreenFrame(s, frame, elapsed) {
   // akumulasi dt antar redraw) — laju animasi layar identik di FPS mana pun.
   // Guard anti-poisoning: elapsed non-finite → fallback kontrak lama frame*.02.
   const t = Number.isFinite(elapsed) ? elapsed : frame * 0.02;
-  c.globalAlpha = 1; c.fillStyle = '#0b1220'; c.fillRect(0, 0, w, h);
+  c.globalAlpha = 1; c.fillStyle = SCREEN_BG; c.fillRect(0, 0, w, h);
   (SCREEN_RENDERERS[type] || SCREEN_RENDERERS.terminal)(c, w, h, t, hex);
   c.globalAlpha = 1; s.tex.needsUpdate = true;
 }
@@ -577,7 +577,7 @@ export function drawScreenFrame(s, frame, elapsed) {
 // Dokumen melayang: gerak driftnya memakai gelombang bertumpuk, bukan driver acak per-sumbu.
 export function createDriftingPages(ctx, count = 22) {
   const { THREE, office, rng } = ctx;
-  const tints = [0x22d3ee, 0xfbbf24, 0x4ade80, 0xe879f9, 0x60a5fa, 0xfb923c, 0x8b5cf6, 0xf87171, 0xfff3d6];
+  const tints = FX_PAGE_TINTS;
   const pages = [];
   for (let i = 0; i < count; i++) {
     const mesh = new THREE.Mesh(
@@ -619,15 +619,15 @@ export function addDeskTrinkets(ctx, desks) {
   const put = (w, h, d, col, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M(col)); m.position.set(x, y, z); office.add(m); return m; };
   desks.forEach((d, i) => {
     if (i % 2 === 0) {
-      put(0.09, 0.09, 0.09, 0xc4b5ae, d.x - 0.55, 0.8, d.z + 0.2);
-      for (let l = 0; l < 2; l++) put(0.06, 0.1 + rng.r(0, 0.06), 0.06, 0x57a85b, d.x - 0.55 + rng.r(-0.02, 0.02), 0.88 + l * 0.07, d.z + 0.2);
+      put(0.09, 0.09, 0.09, FX_POT_CLAY, d.x - 0.55, 0.8, d.z + 0.2);
+      for (let l = 0; l < 2; l++) put(0.06, 0.1 + rng.r(0, 0.06), 0.06, FX_LEAF, d.x - 0.55 + rng.r(-0.02, 0.02), 0.88 + l * 0.07, d.z + 0.2);
     }
     if (i % 2 === 0 && i < 8) {
       // headphone set: band + 2 earcup — semua mesh diberi basis Y (__hpBasis)
       // agar ikut terangkat bersama via headphonePick (siklus 517).
       const tagHp = (m) => { (m.userData = m.userData || {}).__hpBasis = m.position.y; return m; };
-      tagHp(put(0.22, 0.03, 0.16, 0x2f3236, d.x - 0.5, 0.82, d.z - 0.1)).rotation.z = 0.15;
-      [-1, 1].forEach((s) => tagHp(put(0.07, 0.09, 0.09, 0x1d1f22, d.x - 0.5 + s * 0.11, 0.8, d.z - 0.1)));
+      tagHp(put(0.22, 0.03, 0.16, FX_HP_BAND, d.x - 0.5, 0.82, d.z - 0.1)).rotation.z = 0.15;
+      [-1, 1].forEach((s) => tagHp(put(0.07, 0.09, 0.09, FX_HP_CUP, d.x - 0.5 + s * 0.11, 0.8, d.z - 0.1)));
     }
   });
 }
@@ -1259,10 +1259,10 @@ export function menuHighlight(elapsed) {
 // ("CODE\nCOFFEE", pink) digambar dengan offset indeks +1 — keduanya berganti
 // dgn fase saling terbalik (saat 0 menampilkan draf 0, 1 menampilkan draf 1).
 export const POSTER_SLOGANS = [
-  ['SHIP IT', '#F59E0B'],
-  ['CODE\nCOFFEE', '#F472B6'],
-  ['BUILD\nDAILY', '#38BDF8'],
-  ['SHIP\nVALUE', '#34D399'],
+  ['SHIP IT', AMBER_ACCENT],
+  ['CODE\nCOFFEE', PINK_ACCENT],
+  ['BUILD\nDAILY', SKY_DIVISION],
+  ['SHIP\nVALUE', EMERALD_ACCENT],
 ];
 export const POSTER_SLOGANS_COUNT = POSTER_SLOGANS.length;
 const POSTER_SLOGAN_IDX0 = [0, 1]; // fase awal per poster (offset draf)

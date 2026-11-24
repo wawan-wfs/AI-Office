@@ -3,14 +3,15 @@
 import { agentLiveTone, agentLiveLevel, levelOf } from './agent_status.js';
 import { pctDone } from './kanban_spec.js';
 import { normalizeTaskStatus } from './projectboard_data.js';
+import { TEAM_BACKEND, TEAM_FRONTEND, TEAM_DEVOPS, TEAM_QAGOV, TEAM_PROD, TEAM_AICS } from '../../lib/ui_palette.js';
 
 export const TEAMS = [
   {
     key: 'core-be',
+    color: TEAM_BACKEND.color,
+    hex: TEAM_BACKEND.hex,
     name: 'Backend & Data',
     shortName: 'Backend',
-    color: '#22D3EE',
-    hex: '#22D3EE',
     floor: 2,
     lead: 'GILANG',
     roles: ['backend', 'database', 'db', 'be', 'data'],
@@ -20,10 +21,10 @@ export const TEAMS = [
   },
   {
     key: 'fe-design',
+    color: TEAM_FRONTEND.color,
+    hex: TEAM_FRONTEND.hex,
     name: 'Frontend & Design',
     shortName: 'Frontend',
-    color: '#F472B6',
-    hex: '#F472B6',
     floor: 1,
     lead: 'DEWI',
     roles: ['frontend', 'fe', 'mobile', 'mob', 'design', 'ui/ux', 'ux'],
@@ -33,10 +34,10 @@ export const TEAMS = [
   },
   {
     key: 'ops-sec',
+    color: TEAM_DEVOPS.color,
+    hex: TEAM_DEVOPS.hex,
     name: 'DevOps & Security',
     shortName: 'DevOps',
-    color: '#34D399',
-    hex: '#34D399',
     floor: 3,
     lead: 'TONI',
     roles: ['devops', 'infra', 'sre', 'security', 'secops', 'cloud'],
@@ -46,10 +47,10 @@ export const TEAMS = [
   },
   {
     key: 'qa-gov',
+    color: TEAM_QAGOV.color,
+    hex: TEAM_QAGOV.hex,
     name: 'QA & Governance',
     shortName: 'QA & Gov',
-    color: '#FB7185',
-    hex: '#FB7185',
     floor: 3,
     lead: 'RINA',
     roles: ['qa', 'governance', 'release', 'test', 'tester'],
@@ -59,10 +60,10 @@ export const TEAMS = [
   },
   {
     key: 'prod-growth',
+    color: TEAM_PROD.color,
+    hex: TEAM_PROD.hex,
     name: 'Product & Growth',
     shortName: 'Product',
-    color: '#F59E0B',
-    hex: '#F59E0B',
     floor: 1,
     lead: 'SARI',
     roles: ['pm', 'product', 'strategy', 'growth', 'integration', 'integ'],
@@ -72,10 +73,10 @@ export const TEAMS = [
   },
   {
     key: 'ai-cs',
+    color: TEAM_AICS.color,
+    hex: TEAM_AICS.hex,
     name: 'AI & Customer Success',
     shortName: 'AI & CS',
-    color: '#10E5A0',
-    hex: '#10E5A0',
     floor: 1,
     lead: 'BANTUIN AI',
     roles: ['ai', 'support', 'customer', 'cs', 'knowledge'],
