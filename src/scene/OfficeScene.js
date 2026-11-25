@@ -1303,12 +1303,9 @@ allAgents.forEach((agent,i)=>{
     sittingChar, walker, label, dGlow, screenLight,
     walkTarget: null, walkPause: 0
   });
-  });
-setTimeout(()=>{
-  try{
-    createBubble(-8,2.8,-2.5,'“Halo! Semua tim AI WFS PROJECT aktif 24/7!”',TASK_STATUS_COLORS.done);
-  }catch{ /* abaikan: bubble intro opsional */ }
-},1200);
+  }); // Siklus 482: bubble intro kini SETELAH deklarasi __timeouts (dibawah) —
+      // dulu setTimeout telanjang sebelum deklarasi → destroy/remount dalam
+      // 1,2 dtk pertama membiarkan callback menembak graph scene mati.
 
   window.__agentData=agentData; window.__screens=screenData; window.__setTime=(m)=>updateTime(m); window.__skyNight=()=>__light.skyNight; window.__skyCv=__skyCv; window.__wallNight=()=>__light.wallNight; window.__wallTexCv=()=>(__wallsRt&&__wallsRt.wallTexPaints&&__wallsRt.wallTexPaints[0])?__wallsRt.wallTexPaints[0].cv:null; window.__trimNight=()=>__light.trimNight; window.__trimMat=()=>(__wallsRt&&__wallsRt.trimPaints&&__wallsRt.trimPaints[0])?__wallsRt.trimPaints[0].mat:null; window.__boardNight=()=>__light.boardNight; window.__boardMat=()=>__mr&&__mr.boardMesh?__mr.boardMesh.material:null; window.__titleNight=()=>__light.titleNight; window.__titleCv=()=>wtc; window.__ceilNight=()=>__light.ceilNight; window.__ceilMat=()=>{let out=null;office.traverse(o=>{if(!out&&o.isMesh&&o.userData&&o.userData.__ceil!==undefined&&o.material&&o.material.color)out=[o.material.color.r,o.material.color.g,o.material.color.b];});return out;}; window.__glLost=()=>__glLost; // siklus 172: status konteks WebGL utk probe E2E
  window.__dbg=()=>({t:timeOfDay,ph:__shift.phase,fr:frame,focus:focusGoal?{r:focusGoal.r,reset:!!focusGoal.reset,t:focusGoal.t?[focusGoal.t.x,focusGoal.t.y,focusGoal.t.z]:null}:null});window.__toggleNeon=()=>{toggleCyberpunk();return cyberpunkMode}; window.__meet=()=>({active:__meet.active,vis:__meet.figures.filter(f=>f.visible).length}); window.__lunch=()=>({on:__shift.lunch,atCafe:agentData.filter(a=>a.lunch).length}); window.__cam={sph,tgt,upd:()=>updCam()};window.__camCam=camera; // debug/e2e
@@ -1318,6 +1315,14 @@ window.__spawnBubble=(x,y,z,text,color,anchor)=>createBubble(x,y,z,text,color,an
   const __intervals=[];
   const __timeouts=[];
   const __destroyHooks=[]; // siklus 124: stopper async yang dijalankan destroy (fetch in-flight saat destroy TIDAK boleh menulis window/graph mati)
+  // Siklus 482: bubble intro kini dilacak __timeouts (dulu setTimeout telanjang
+  // SEBELUM deklarasi array) → destroy/remount dalam 1,2 dtk pertama tak lagi
+  // membiarkan callback menembak graph scene mati (pola pollStatus 124).
+  __timeouts.push(setTimeout(()=>{
+    try{
+      createBubble(-8,2.8,-2.5,'“Halo! Semua tim AI WFS PROJECT aktif 24/7!”',TASK_STATUS_COLORS.done);
+    }catch{ /* abaikan: bubble intro opsional */ }
+  },1200));
   (function(){
   const idMapFn=()=>agentIdMap(window.__wfsAgentIdList||[]);
   const findByGid=(gid)=>agentData.find(a=>idMapFn()[a.agent?.name]===gid);
@@ -1496,6 +1501,12 @@ const labelStatusKey=(ad)=>(!ad||typeof ad!=='object')?'?':String(ad.state||'')+
 const __lobbyCtx=__rc&&__rc.lobbyCtx?__rc.lobbyCtx:null;
 const __lobbyTex=__rc&&__rc.lobbyTex?__rc.lobbyTex:null;
 let __lobbyKeyLast=null;
+// Siklus 479: jumlah agen on-site ikut kunci repaint — dulu layar lobi hanya
+// digambar ulang saat MENIT-SIM berganti (lobbyScreenKey), sehingga agen yang
+// berangkat makan siang / pulang (state → 'offsite') baru tercermin di layar
+// resepsionis sampai menit berikutnya (beda sampai 60 dtk dgn lobbyOnsiteCount).
+// Kunci gabungan menit-sim + hitungan on-site: repaint juga saat hitungan berubah.
+let __lobbyOnsiteLast=null;
 
 // --- TANAMAN BESI tambahan di sudut ---
 addPlant(11.6,-8.5,true);
@@ -1970,9 +1981,10 @@ function animate(){
     // berganti (kunci lobbyScreenKey; ~1 repaint / 5 dtk nyata, bukan tiap frame).
     if(__lobbyCtx&&__lobbyTex){
       const lk=lobbyScreenKey(timeOfDay);
-      if(lk!==__lobbyKeyLast){
-        __lobbyKeyLast=lk;
-        drawLobbyScreen(__lobbyCtx,{minutes:timeOfDay,agents:lobbyOnsiteCount(agentData)??agentData.length,total:agentData.length}); // siklus 528: on-site, bukan total terdaftar
+      const on=lobbyOnsiteCount(agentData); // siklus 479: hitungan on-site kunci gabungan
+      if(lk!==__lobbyKeyLast||on!==__lobbyOnsiteLast){
+        __lobbyKeyLast=lk;__lobbyOnsiteLast=on;
+        drawLobbyScreen(__lobbyCtx,{minutes:timeOfDay,agents:on??agentData.length,total:agentData.length}); // siklus 528: on-site, bukan total terdaftar
         __lobbyTex.needsUpdate=true;
       }
     }

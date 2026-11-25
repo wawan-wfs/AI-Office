@@ -916,3 +916,5 @@ export const LBL_TAIL_BG = 'rgba(10,14,24,0.96)';
 // Siklus 475: badan rounded label agent (label_spec.drawLabelText) — satu sumber.
 // Nilai historis terkunci; beda alpha dari ekor (0.96) → konstanta sendiri (anti-duplikat 408).
 export const LBL_BODY_BG = 'rgba(10,14,24,0.84)';
+// ═══ SIKLUS 478 — NAMEPLATE BG (nameplate_spec.js) — nilai historis terkunci
+export const NP_BG = 'rgba(8,12,22,0.88)';

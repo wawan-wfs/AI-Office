@@ -401,7 +401,15 @@ export default function App() {
     const schedule = () => {
       if (!alive) return
       const delay = document.visibilityState === 'visible' ? nextPollDelay(connRef.current) : STALE_AFTER_MS
-      timer = setTimeout(() => { if (!alive) return; tick(); schedule() }, Math.max(1000, delay))
+      timer = setTimeout(() => {
+        if (!alive) return
+        // Siklus 480: saat tab hidden, fetch status di-skip penuh — data tak
+        // terlihat, dan onVis men-tick SEGERA saat kembali visible, jadi fetch
+        // di latar tiap 30 dtk sia-sia (1 req/30 dtk per tab). Loop tetap
+        // berjalan (murah) agar state timer tidak perlu direkonstruksi.
+        if (document.visibilityState !== 'hidden') tick()
+        schedule()
+      }, Math.max(1000, delay))
     }
     tick()
     schedule()

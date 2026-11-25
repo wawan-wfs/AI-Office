@@ -10519,3 +10519,32 @@
 - Guard BARU tests/whiteboard_change_gate_477.test.js (4 tes: gate perubahan-data sebelum redraw, basis dicatat dalam redraw, anti-regresi gate visibility 469 + interval tunggal, anti-poisoning kontrak destroy & pembanding referensi). Guard 469 room diselaraskan (early-return gate).
 - Verifikasi: npm test 553 file / 5073 passed (+4), 6 skipped (EXIT=0, run penuh ±11 menit; run pertama FAIL 1 = guard 469 mismatch format → diselaraskan, run ulang hijau). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
 - Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 20.4x WIB — Siklus 478: BG nameplate meja satu sumber (NP_BG)
+- Audit lanjutan palet: nameplate_spec.js masih hardcode `BG: 'rgba(8,12,22,0.88)'` (satu-satunya literal nama-plate di kode aktif; nama/role sudah satu sumber sejak 460).
+- Fix: ui_palette.js konstanta baru NP_BG ('rgba(8,12,22,0.88)', nilai historis terkunci — beda dari LBL_BODY_BG 0.84, anti-duplikat 408); nameplate_spec delegasi penuh. Nilai identik — tampilan nameplate tak berubah.
+- Guard BARU src/__tests__/nameplate_palette_478.test.js (4 tes: nilai terkunci, delegasi, anti-poisoning ≠ LBL_BODY_BG, literal rgba(8,12,22 1× di palet / 0× di spec).
+- Verifikasi: npm test 554 file EXIT=0 (run penuh ~10 menit; +1 file, 5077 tes), build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none. Commit hari ini sudah ada (4454e57); tanpa commit baru.
+
+## 25/11/2026 22.0x WIB — Siklus 479: layar lobi repaint ikut hitungan agen on-site
+- Audit lanjutan painter change-gate: layar resepsionis (OfficeScene, siklus 525/528) hanya repaint saat MENIT-SIM berganti (kunci lobbyScreenKey) — jumlah agen on-site (`lobbyOnsiteCount`, agen lunch/pulang → state 'offsite') bisa basi sampai 60 dtk di layar, padahal onsiteTick lounge & zona sudah change-gated.
+- Fix: kunci repaint gabungan menit-sim + hitungan on-site (`__lobbyOnsiteLast`); hitungan dihitung sekali per frame (bukan per painter-call); fallback `??agentData.length` (kompat 528) & gerbang menit-sim (525) tak diregresi. Repaint tetap jarang — hanya saat angka/jam benar-benar berubah.
+- Guard BARU src/__tests__/lobby_onsite_gate_479.test.js (4 tes: kunci gabungan sebelum draw, satu sumber lobbyOnsiteCount + fallback 528, anti-regresi kunci 525 + needsUpdate, paritas penghitung non-offsite murni).
+- Verifikasi: npm test 555 file EXIT=0 (run penuh ~10 menit; +1 file), build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none. Commit hari ini sudah ada (4454e57); tanpa commit baru.
+
+## 25/11/2026 22.5x WIB — Siklus 480: fetch scheduler status App berhenti saat tab hidden
+- Audit lanjutan tickers/fetch: scheduler setTimeout status (App.jsx) tetap men-tick() tiap STALE_AFTER_MS (30 dtk) BAHKAN saat tab hidden → 1 fetch status/30 dtk di latar sia-sia: data tak terlihat, dan onVis sudah men-tick SEGERA saat kembali visible (siklus 324). Interval scene semua visibility-gated sejak 469-473; jalur ini lolos audit.
+- Fix: tick() di-skip saat document.visibilityState==='hidden' di dalam callback scheduler; loop schedule() tetap direkursif (murah, state timer tak direkonstruksi); onVis refresh instan visible tetap utuh.
+- Guard BARU tests/app_sched_hidden_gate_480.test.js (4 tes: gate hidden sebelum tick, loop schedule tetap jalan di latar, anti-regresi onVis 324, anti-poisoning gate 471 + poll adaptif). Guard 471 diselaraskan tanpa perubahan perilaku.
+- Verifikasi: npm test 556 file / 5085 passed (+4), 6 skipped (EXIT=0, run penuh 600 dtk). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none. Commit hari ini sudah ada (4454e57); tanpa commit baru.
+
+## 25/11/2026 23.4x WIB — Siklus 481: sinkronisasi SCENE_HOOKS dipagari anti-drift
+- Audit sensus lengkap assignment `window.__*` vs daftar purge scene_hooks.js (Python scan src/** tanpa tests): 0 hook bocor (semua assignment milik scene terdaftar; pemilik non-scene — __wfs*, __escModalAtDispatch, __openSettings, __officeSceneDestroyed, __swUpdateDebug — sengaja dikecualikan) dan 0 dead entry (semua nama di SCENE_HOOKS memang pernah di-assign; verifikasi manual __tvData/__wallState/__zoneLabels/__collabCount dll via grep — di-assign tanpa pola `window.__x =` sederhana, mis. `(window.__zoneLabels=window.__zoneLabels||[]).push`).
+- Guard BARU src/__tests__/scene_hooks_sync_481.test.js (4 tes): scan sumber nyata via matchAll — semua hook scene terdaftar (missing → FAIL dgn nama persis), anti dead entry (nama tak pernah di-assign → FAIL), daftar pemilik non-scene tak bocor ke purge, sensus tak kosong (>30 assigned / >60 listed) agar guard tak diam saat glob gagal. Tanpa perubahan kode scene — daftar 481 bersih, tes menguncinya.
+- Verifikasi: vitest run guard 481: 4/4 passed (fix regex matchAll non-global → g flag). npm test 557 file / 5089 passed (+4), 6 skipped (EXIT=0, run penuh ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/ (index-9bpIEQVP.js). e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis). Commit hari ini sudah ada (4454e57); tanpa commit baru.
+
+## 26/11/2026 00.1x WIB — Siklus 482: bubble intro dilacak __timeouts (anti scene-mati)
+- Audit timer scene menyisakan satu setTimeout telanjang: bubble intro "Halo! Semua tim AI WFS PROJECT aktif 24/7!" (OfficeScene.js, delay 1200 ms) id-nya TAK dilacak __timeouts — destroy/remount/HMR dalam 1,2 dtk pertama membiarkan callback menembak createBubble di graph scene yang sudah di-dispose (pola bug kelas 124).
+- Fix: id kini `__timeouts.push(setTimeout(...))` (dipindah SETELAH deklarasi array pelacak) → clearTimeout di destroy mencegah callback scene mati; teks, delay, dan tampilan bubble tak berubah.
+- Guard BARU src/__tests__/intro_bubble_tracked_482.test.js (4 tes: bungkus push, 0 setTimeout telanjang utk createBubble, delay 1200 terkunci, urutan deklarasi + clearTimeout di destroy).
+- Verifikasi: vitest run guard 482 baru 4/4 passed; npm test penuh 558 file EXIT=0 (durasi 609 dtk, ringkasan passed terpotong `tail` — exit code jadi bukti). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1). Commit hari ini belum ada utk 26/11 — konsolidasi nanti sesuai aturan 1 commit/hari.
