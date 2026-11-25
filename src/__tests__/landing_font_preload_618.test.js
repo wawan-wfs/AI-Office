@@ -44,8 +44,8 @@ describe('Siklus 618: preload font landing.html valid & paritas dgn index.html',
     expect(lp.length).toBe(1);
   });
 
-  it('jumlah preload font landing == index (3)', () => {
-    expect(collectPreloads(landing).length).toBe(3);
+  it('jumlah preload font landing == index MINUS DM Mono (siklus 455: landing tak pakai mono → 2; index app pakai mono → 3)', () => {
+    expect(collectPreloads(landing).length).toBe(2);
     expect(collectPreloads(index).length).toBe(3);
   });
 });

@@ -2,8 +2,9 @@
 // diekstrak ke parts/poster_canvas.js agar murni dan bisa di-unit-test.
 // Urutan & parameter perintah gambar identik kode inline lama — tampilan tak berubah.
 import { CANVAS_W, CANVAS_H, posterLineY } from './poster_spec.js';
+import { PC_BG } from '../../lib/ui_palette.js';
 
-export const POSTER_BG = '#14172b';
+export const POSTER_BG = PC_BG;
 
 export function drawPoster(ctx, color, text) {
   ctx.fillStyle = POSTER_BG;

@@ -1,5 +1,6 @@
 // Nameplate meja: kanvas 256×64, garis aksen warna agen, nama + role — diekstrak dari buildDesk().
 // Semua fungsi murni (ctx 2D di-inject, tanpa THREE) agar bisa di-unit-test.
+import { LB_TEXT, NP_ROLE } from '../../lib/ui_palette.js';
 
 export const NAMEPLATE = {
   W: 256, H: 64,
@@ -10,8 +11,8 @@ export const NAMEPLATE = {
   F1: '800 22px "Segoe UI",Arial,sans-serif',
   F2: '500 14px "Segoe UI",Arial,sans-serif',
   MAX_TEXT_W: 220,
-  NAME_COLOR: '#fff',
-  ROLE_COLOR: '#a8b4c6',
+  NAME_COLOR: LB_TEXT,   // 460: reuse LB_TEXT (guard 408 anti-duplikat)
+  ROLE_COLOR: NP_ROLE,   // 460: satu sumber dari ui_palette
 };
 
 export const PLATE = {

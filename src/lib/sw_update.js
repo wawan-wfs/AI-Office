@@ -91,7 +91,14 @@ export function setupServiceWorkerUpdates({ onUpdateReady, pollMs = 10000 } = {}
       // (kunjungan kedua: waiting sudah terisi), lalu poll berkala (event
       // updatefound bisa terlewat — bukti diag 192: notified via poll).
       if (pollMs > 0 && !checkWaiting()) {
-        pollTimer = setInterval(() => { if (checkWaiting()) clearInterval(pollTimer) }, pollMs)
+        // Siklus 473: tick poll digerbang visibility — checkWaiting hanya cek
+        // state registrasi (murah), tapi tick 10 dtk tak perlu jalan di latar
+        // (banner tak terlihat). Paritas gerbang tick 469-472. Pasca-visible,
+        // statechange/updatefound event tetap menutup poll lebih awal.
+        pollTimer = setInterval(() => {
+          if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
+          if (checkWaiting()) clearInterval(pollTimer)
+        }, pollMs)
       }
     })
     .catch(() => { /* sw.js tak terjangkau / konteks non-secure — app tetap jalan */ })
@@ -110,6 +117,10 @@ export function setupServiceWorkerUpdates({ onUpdateReady, pollMs = 10000 } = {}
       reg = null
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
       try { navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange) } catch { /* no-op */ }
+      // Siklus 476: higiene hook debug — dulu window.__swUpdateDebug tertahan
+      // selamanya setelah dispose (pasca-HMR/unmount App menunjuk objek basi);
+      // paritas purgeSceneHooks siklus 123/242. Guard delete (jsdom stub aman).
+      if (typeof window !== 'undefined') { try { delete window.__swUpdateDebug } catch { /* non-konfigurable */ } }
     },
   }
 }

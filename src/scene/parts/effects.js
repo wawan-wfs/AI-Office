@@ -287,6 +287,13 @@ export function ambientTimeGate() { return makeTimeGate(AMBIENT_SEC); }
 export const BUBBLE_SEC = 3 / 60;    // = BUBBLE_EVERY(3)/60 s @60FPS
 export function bubbleTimeGate() { return makeTimeGate(BUBBLE_SEC); }
 
+// ── Siklus 474: scan pasangan obrolan ikut kontrak WAKTU-NYATA ─────────────
+// checkConversations (scan O(n²)) dulu jalan tiap frame ~60×/dtk; hasilnya
+// bubble sekali per cooldown 8 dtk per agen → 1×/dtk cukup. Gate waktu
+// CHAT_SCAN_SEC=1 — laju konsisten di GPU lambat & cepat (paritas 482-486).
+export const CHAT_SCAN_SEC = 1;
+export function chatTimeGate() { return makeTimeGate(CHAT_SCAN_SEC); }
+
 // Throttle kedip LED server room: 70+ LED di-update tiap frame padahal blink
 // lambat (sin dengan sp 2–6 rad/s) → cukup ~20×/dtk, tak terlihat bedanya.
 export const LED_UPDATE_EVERY = 3;

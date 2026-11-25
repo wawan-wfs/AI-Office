@@ -1,5 +1,5 @@
 // Siklus 22 — 2026-10-24 — kualitas berkelanjutan; 0 edit perilaku
-import { SCENE_SKY, SCENE_AMBIENT, SCENE_SUN, SCENE_SKYFILL, SCENE_HEMI_SKY, SCENE_HEMI_GROUND, SCENE_GLASS, SCENE_CEIL_WHITE, SCENE_WALL_DEEP, FURN_DESK_TOP, FURN_DESK_LEG, FURN_MONO_METAL, FURN_SCREEN_BODY, FURN_INPUT_DARK, FURN_CHAIR_SEAT, FURN_CHAIR_BACK, FURN_PLATE_STAND, FURN_CHAIR_POLE, FURN_CHAIR_BASE, FURN_CABINET, FURN_DRAWER, FURN_HANDLE, FURN_POT, FURN_LEAF, DUCT_LIGHT, DUCT_CROSS, DUCT_VENT, DUCT_LINE, TUBE_NEON, LEAD_MON_BODY, LEAD_MON_HEX, HELMET_BASE, HELMET_BODY, RING_BLUE, PARTICLE_WHITE, RC_FOUNDER_ACCENT, RC_FOUNDER_HEX, RC_FOUNDER_HAIR, RC_FOUNDER_SHIRT, RC_FOUNDER_PANTS, RC_FOUNDER_FALLBACK_HEX, AG_GLASSES_DARK, AG_SKIN_CREAM, AG_HAT_BRIM, AG_BEANIE, AG_CAP_TOP, AG_BEARD, AG_ANTENNA_ROD, AG_BLAZER, AG_SHIRT_WHITE, AG_TIE, AG_PANTS_MATCH_A, AG_PANTS_MATCH_B, AG_PANTS_MATCH_C, AG_PANTS_DEFAULT, AG_PANTS_FALLBACK, AG_BLUSH, AG_PUPIL, AG_MOUTH, AG_LANYARD } from '../lib/ui_palette.js';
+import { SCENE_SKY, SCENE_AMBIENT, SCENE_SUN, SCENE_SKYFILL, SCENE_HEMI_SKY, SCENE_HEMI_GROUND, SCENE_GLASS, SCENE_CEIL_WHITE, SCENE_WALL_DEEP, FURN_DESK_TOP, FURN_DESK_LEG, FURN_MONO_METAL, FURN_SCREEN_BODY, FURN_INPUT_DARK, FURN_CHAIR_SEAT, FURN_CHAIR_BACK, FURN_PLATE_STAND, FURN_CHAIR_POLE, FURN_CHAIR_BASE, FURN_CABINET, FURN_DRAWER, FURN_HANDLE, FURN_POT, FURN_LEAF, DUCT_LIGHT, DUCT_CROSS, DUCT_VENT, DUCT_LINE, TUBE_NEON, LEAD_MON_BODY, LEAD_MON_HEX, HELMET_BASE, HELMET_BODY, RING_BLUE, PARTICLE_WHITE, RC_FOUNDER_ACCENT, RC_FOUNDER_HEX, RC_FOUNDER_HAIR, RC_FOUNDER_SHIRT, RC_FOUNDER_PANTS, RC_FOUNDER_FALLBACK_HEX, AG_GLASSES_DARK, AG_SKIN_CREAM, AG_HAT_BRIM, AG_BEANIE, AG_CAP_TOP, AG_BEARD, AG_ANTENNA_ROD, AG_BLAZER, AG_SHIRT_WHITE, AG_TIE, AG_PANTS_MATCH_A, AG_PANTS_MATCH_B, AG_PANTS_MATCH_C, AG_PANTS_DEFAULT, AG_PANTS_FALLBACK, AG_BLUSH, AG_PUPIL, AG_MOUTH, AG_LANYARD, LBL_TAIL_BG } from '../lib/ui_palette.js';
 import { CEIL_PANEL_DAY } from './parts/ceiling_fixtures_palette.js';
 import * as THREE from 'three';window.THREE=THREE;
 import { createFurniture } from './parts/furniture.js';
@@ -10,7 +10,7 @@ import { floorElevationAt, floorOf } from './parts/floor_elevation.js';
 import { createZones, fitZoneLabel } from './parts/flooring.js';
 import { createMeeting } from './parts/meeting.js';
 import { createMotion } from './parts/motion.js';
-import { drawScreenFrame, createDriftingPages, addDeskTrinkets, screenTickGate, shouldRedrawScreenTime, SCREEN_REDRAW_EVERY, shouldRefreshShadow, shouldRelayoutLabels, labelRelayoutTimeGate, shouldRedrawClock, clockTimeGate, shadowTimeGate, shouldUpdateLeds, ledTimeGate, ledOpacity, shouldUpdateDust, dustTimeGate, dustY, DUST_UPDATE_EVERY, DUST_RATE, DUST_RATE_X, shouldUpdateAmbient, ambientFx, ambientTimeGate, pulseFx, shouldUpdateBubbles, bubbleTimeGate, charMotion, applyCharMotion, plantSway, coffeeSteam, printerCycle, coolerBubbles, robotIdle, pedestalBreath, lampFlicker, receptionGlow, deckNeonBreath, wallLogoBreath, downlightBreath, serverHum, floorLampBreath, receptionLightBreath, tubeLightBreath, pendantBreath, panelBreath, cafeGlowBreath, rackEdgeBreath, badgeBreath, screenGlowBreath, posterBreath, bookNudge, trophyPulse, zoneBreath, magTilt, cupLift, markerPick, headphonePick, menuHighlight, glassShimmer, posterSloganIdx, posterSloganFor, wallPosterIdx, wallPosterTextFor, floorBadgeIdx, floorMissionTextFor } from './parts/effects.js';
+import { drawScreenFrame, createDriftingPages, addDeskTrinkets, screenTickGate, shouldRedrawScreenTime, SCREEN_REDRAW_EVERY, shouldRefreshShadow, shouldRelayoutLabels, labelRelayoutTimeGate, shouldRedrawClock, clockTimeGate, shadowTimeGate, shouldUpdateLeds, ledTimeGate, ledOpacity, shouldUpdateDust, dustTimeGate, dustY, DUST_UPDATE_EVERY, DUST_RATE, DUST_RATE_X, shouldUpdateAmbient, ambientFx, ambientTimeGate, pulseFx, shouldUpdateBubbles, bubbleTimeGate, chatTimeGate, charMotion, applyCharMotion, plantSway, coffeeSteam, printerCycle, coolerBubbles, robotIdle, pedestalBreath, lampFlicker, receptionGlow, deckNeonBreath, wallLogoBreath, downlightBreath, serverHum, floorLampBreath, receptionLightBreath, tubeLightBreath, pendantBreath, panelBreath, cafeGlowBreath, rackEdgeBreath, badgeBreath, screenGlowBreath, posterBreath, bookNudge, trophyPulse, zoneBreath, magTilt, cupLift, markerPick, headphonePick, menuHighlight, glassShimmer, posterSloganIdx, posterSloganFor, wallPosterIdx, wallPosterTextFor, floorBadgeIdx, floorMissionTextFor } from './parts/effects.js';
 import { uiTexture, uiMaterial } from './parts/ui_colorspace.js';
 import { overlapPass, sweepClampRounds, worldPerPx, labelWorldOffset, accumulateZoneAnti, zoneViewportGuard, buildAgentPts, buildZonePts, buildBubblePts, resetZoneBaseOffsets, PX_PER_TAN, VIEW_TOP_MARGIN, VIEW_BOT_MARGIN, ZONE_TOP_EXTRA, PAD_X_ZONE } from './parts/label_overlap.js';
 import { applyZoneLod } from './parts/zone_lod.js';
@@ -1070,7 +1070,7 @@ function makeLabel(agent){
     }
     
     // 3. Ekor segitiga speech bubble mengarah ke kepala karakter
-    c.fillStyle = 'rgba(10,14,24,0.96)';
+    c.fillStyle = LBL_TAIL_BG;
     c.beginPath();
     c.moveTo(W / 2 - 10, spec.H - 4);
     c.lineTo(W / 2, spec.H + 11);
@@ -1324,7 +1324,7 @@ window.__spawnBubble=(x,y,z,text,color,anchor)=>createBubble(x,y,z,text,color,an
   const prevFailed={};
   let pollStopped=false; // siklus 124: destroy → stop; fetch in-flight tidak boleh lanjut
   async function pollStatus(){
-    if(pageHidden||pollStopped) return; // hemat fetch saat tab tidak dilihat
+    if(pageHidden||pollStopped||document.visibilityState==='hidden') return; // hemat fetch saat tab tidak dilihat — Siklus 472: tick interval 20 dtk juga digerbang hidden (onVis saja tak cukup jika listener mati/remount)
     window.__pollBadges=pollStatus; // diekspos utk refresh instan onVis
     try{
           const r=await fetchWithTimeout('/wfs-api/agents/status');
@@ -1805,7 +1805,13 @@ let __ambientGate=ambientTimeGate(); // siklus 485: efek ambient berbasis waktu
 let __bubbleGate=bubbleTimeGate();   // siklus 485: tick bubble berbasis waktu
 let __dustAcc=0; // akumulasi waktu NYATA antar tick dust (siklus 264 — pola relayoutDelta)
 let __dustGate=dustTimeGate(); // siklus 486: tick dust berbasis waktu
+let __chatGate=chatTimeGate(); // siklus 474: scan chat 1×/dtk (gate waktu-nyata)
 function checkConversations(){
+  // Siklus 474: scan pasangan terdekat O(n²) dulu jalan TIAP FRAME (~60×/dtk);
+  // hasilnya hanya bubble sekali per CHAT_COOLDOWN_SEC=8 dtk per agen → 1×/dtk
+  // sudah jauh lebih halus dari cooldown. Gate WAKTU-NYATA (bukan frame-count)
+  // — paritas kontrak gate 482-486: laju konsisten di GPU lambat & cepat.
+  if(!__chatGate(timer.getElapsed()))return;
   // Logika pasangan terdekat di parts/chat_check.js (murni + unit test).
   // Cooldown dihitung dgn delta detik NYATA (dulu 0.016 per frame — di GPU
   // lambat ~1.5 FPS agent terkunci dari chat bermenit-menit, bukan 8 detik).

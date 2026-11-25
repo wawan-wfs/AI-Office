@@ -407,7 +407,11 @@ export default function App() {
     schedule()
     // segarkan label umur data tiap 5s saat koneksi bermasalah (state non-live)
     // tanpa memicu fetch; saat sehat label statis → tidak perlu re-render.
+    // Siklus 471: tick di-skip saat tab hidden — label umur tak terlihat di
+    // latar, re-render React sia-sia 12×/menit berhenti (paritas gerbang
+    // tickers scene 469/470); pasca-visible onVis men-tick + schedule segar.
     const iv = setInterval(() => {
+      if (document.visibilityState === 'hidden') return
       setConn(c => (c && c.state !== 'live' ? { ...c } : c))
     }, 5000)
     // toast + status saat koneksi hilang / pulih

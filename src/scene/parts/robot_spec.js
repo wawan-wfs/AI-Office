@@ -2,7 +2,9 @@
 // hipY/ty/hy per pose (berdiri vs duduk), arah wajah, dan daftar bagian mesh dengan posisi & sifatnya.
 // buildRobot di robot.js memakai nilai-nilai ini; perubahan bentuk robot lolos dari sini.
 
-export const ROBOT_COLORS = { metal: 0xdfe6ec, dark: 0x2a3340, mid: 0x9aa7b4, facePlate: 0x07141a, screen: 0x050d12 };
+import { RB_METAL, RB_DARK, RB_MID, RB_FACEPLATE, RB_SCREEN, RB_STATUS } from '../../lib/ui_palette.js';
+
+export const ROBOT_COLORS = { metal: RB_METAL, dark: RB_DARK, mid: RB_MID, facePlate: RB_FACEPLATE, screen: RB_SCREEN };
 
 // Tingkat kunci per pose (berdiri / duduk)
 export function pose(standing) {
@@ -43,7 +45,7 @@ export function legsStanding() {
 // Lampu status & antena: putih di dada kanan-atas; antena puncak kepala + bola + halo
 export function accents(p) {
   return {
-    status: { x: 0.1, y: p.ty + 0.12, z: p.tz + p.fz * 0.108, color: 0xffffff },
+    status: { x: 0.1, y: p.ty + 0.12, z: p.tz + p.fz * 0.108, color: RB_STATUS },
     antenna: { y: p.hy + 0.25, tipY: p.hy + 0.34 },
   };
 }

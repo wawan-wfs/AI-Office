@@ -23,7 +23,7 @@ export function fmtUptime(sec) {
 import { clip } from '../../lib/clip.js'
 import { pctDone } from '../../lib/math_util.js'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
-import { SCENE_MUTED } from '../../lib/ui_palette.js'
+import { SCENE_MUTED, PB_DIVIDER } from '../../lib/ui_palette.js'
 export { clip }
 
 /**
@@ -184,7 +184,7 @@ export function stripSegments(snap, hostRes = null) {
   const ok = TASK_STATUS_COLORS.done
   const err = TASK_STATUS_COLORS.failed
   const dim = SCENE_MUTED
-  const div = '#44506a'
+  const div = PB_DIVIDER
   const segs = []
   const s = (snap && snap.saas) || {}
   segs.push({ txt: 'SaaS', col: accent })

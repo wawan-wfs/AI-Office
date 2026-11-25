@@ -132,6 +132,8 @@ export const PB_CARD = '#0d1524';
 export const PB_FRAME = '#2c3e5c';
 /** Label ANTRI papan (#9aa7b8) = TASK_STATUS_COLORS.pending — siklus 416. */
 export const PB_PENDING = '#9aa7b8';
+/** Pemisah '·' strip bawah papan (#44506a, pending gelap kustom — siklus 467). */
+export const PB_DIVIDER = '#44506a';
 /** Latar utama papan proyek (#10192b, siklus 416). */
 export const PB_BG = '#10192b';
 
@@ -830,3 +832,87 @@ export const BK_BOOK_5 = 0xAB47BC;       // ungu
 export const BK_BOOK_6 = 0xFF7043;       // oranye
 export const BK_BOOK_7 = 0x26C6DA;       // teal
 export const BK_BOOK_8 = 0xEC407A;       // pink
+
+// ═══ SIKLUS 451 — CINCIN SELEKSI/HOVER (ring_spec.js) — nilai historis terkunci
+export const SR_SEL_COLOR = 0xFFD75E;        // cincin seleksi (emas)
+export const SR_SEL_RGB = '255,205,80';      // rgb string gradient seleksi
+export const SR_HOVER_COLOR = 0x9FE8FF;      // cincin hover (biru muda)
+export const SR_HOVER_RGB = '120,220,255';   // rgb string gradient hover
+
+// ═══ SIKLUS 452 — ROBOT (robot_spec.js) — nilai historis terkunci
+export const RB_METAL = 0xdfe6ec;     // bodi logam robot
+export const RB_DARK = 0x2a3340;      // bagian gelap robot
+export const RB_MID = 0x9aa7b4;       // bagian abu tengah
+export const RB_FACEPLATE = 0x07141a; // pelat wajah
+export const RB_SCREEN = 0x050d12;    // layar wajah
+export const RB_STATUS = 0xffffff;    // lampu status dada
+
+// ═══ SIKLUS 453 — KANVAS DINDING (wall_canvas.js) — nilai historis terkunci
+export const WC_TEX_TOP = 'rgba(255,255,255,.12)';     // pita highlight atas tile
+export const WC_TEX_BOTTOM = 'rgba(0,0,0,.08)';        // AO bawah tile
+export const WC_UPPER_DAY = { base: '#E6EAF1', line: 'rgba(120,138,165,.48)' };
+export const WC_WOOD_DAY  = { base: '#8A6244',  line: 'rgba(40,25,10,.40)'  };
+export const WC_NIGHT_UPPER = { base: '#1B2436', line: 'rgba(96,116,150,0.32)' };
+export const WC_NIGHT_WOOD  = { base: '#3B2B1D', line: 'rgba(20,12,6,0.45)'  };
+export const WC_TRIM_DAY = 0xF4F6FA, WC_TRIM_NIGHT = 0x8FA0BC;
+export const WC_PIER_DAY = 0x8E9BB0, WC_PIER_NIGHT = 0x3E4A61;
+export const WC_STOP_0 = 'rgba(255,255,255,0)';        // pita satin: stop 0
+export const WC_STOP_22 = 'rgba(255,255,255,0.05)';    // pita satin: stop .22
+export const WC_STOP_34 = 'rgba(255,255,255,0)';       // pita satin: stop .34
+export const WC_STOP_72 = 'rgba(255,255,255,0.045)';   // pita satin: stop .72
+export const WC_STOP_86 = 'rgba(255,255,255,0)';       // pita satin: stop .86
+export const WC_AO_IN = 'rgba(0,0,0,0.09)';            // AO tepi tile (sisi dalam)
+export const WC_AO_OUT = 'rgba(0,0,0,0)';              // AO tepi tile (sisi luar)
+
+// ═══ SIKLUS 454 — RUANG MEETING (room.js) & BINGKAI PAPAN PROYEK — nilai historis terkunci
+export const RM_POST = 0x8fa1b4;         // tiang rangka kaca
+export const RM_TABLE_TOP = 0xe7ecf1;    // papan meja rapat
+export const RM_TABLE_LEG = 0xa9bccd;    // kaki meja
+export const RM_CHAIR_DARK = 0x3a4a54;   // dudukan sandaran kursi
+export const RM_CHAIR_LEG = 0x8a9ca6;    // kaki kursi
+export const RM_WB_FRAME = 0xbfc5ca;     // bingkai papan tulis
+export const RM_WB_TINT_NIGHT = 0x2A3446; // tint papan tulis malam
+export const RM_WB_TINT_DAY = 0xffffff;   // tint papan tulis siang
+export const RM_CLOCK_RIM = 0x2a2f36;     // rim jam dinding
+export const RM_PEND_ROD = 0x2e3238;      // tangkai lampu gantung
+export const RM_PEND_SHADE = 0x22262b;    // kap lampu gantung
+export const RM_PEND_LIGHT = 0xffe8cc;    // warna PointLight lampu gantung
+export const PB_FRAME_3D = 0x1A263E;     // bingkai mesh papan proyek (bukan PB_FRAME kanvas)
+
+// ═══ SIKLUS 456 — TV LOUNGE (tv_canvas.js) — nilai historis terkunci
+export const TV_BG_COLOR = '#0A1628';      // dasar layar TV dashboard
+export const TV_DIM_COLOR = '#5b6b82';     // stempel 'update' ter-pudar
+export const TV_BAR_TRACK = 'rgba(255,255,255,.1)'; // rel progress bar
+
+// ── Siklus 457: tint deck terrazzo terraces (string, input drawTerrazzo) ──
+// L1 putih reuse LC_TEXT (#FFFFFF, guard 408 anti-duplikat).
+export const TERR_TINT_L2 = '#F7EFE0';  // Lantai 2: oak blonde bervein lembut
+export const TERR_TINT_L3 = '#44576E';  // Lantai 3: slate biru eksekutif
+// Teks persen TV reuse LB_TEXT (#fff, guard 408 anti-duplikat).
+// Aksen brand TV reuse GREEN_ACCENT (guard 408 anti-duplikat) — nilai historis sama (#10E5A0).
+
+// ═══ SIKLUS 459 — WHITEBOARD (whiteboard_canvas.js) — nilai historis terkunci
+export const WB_BG_COLOR = '#fbfbfa';                 // dasar kanvas papan sprint
+export const WB_BAR_TRACK_COLOR = 'rgba(51,65,85,.18)'; // rel progress bar papan
+export const WB_ITEM_TEXT = '#334155';                // warna item agenda statis
+
+// ═══ SIKLUS 461 — FLOOR BADGE (floor_badge_canvas.js) — nilai historis terkunci
+export const FB_BG = 'rgba(6, 12, 26, 0.94)'; // dasar plakat lantai beriluminasi
+// Teks misi plakat reuse LB_TEXT (#fff, guard 408 anti-duplikat — nilai historis sama #FFFFFF).
+
+// ═══ SIKLUS 460 — NAMEPLATE (nameplate_spec.js) — nilai historis terkunci
+// Nama agen reuse LB_TEXT (#fff, guard 408 anti-duplikat — nilai historis sama).
+export const NP_ROLE = '#a8b4c6';                     // role abu di nameplate meja
+
+// ═══ SIKLUS 462 — POSTER (poster_canvas.js) — nilai historis terkunci
+export const PC_BG = '#14172b'; // dasar poster slogan WFS
+
+// ═══ SIKLUS 463 — BUBBLE CHAT (bubble_canvas.js) — nilai historis terkunci
+// Teks bubble reuse LB_TEXT (#fff, guard 408 anti-duplikat — nilai historis sama).
+
+// ═══ SIKLUS 468 — EKOR LABEL AGENT (OfficeScene.js makeLabel) — nilai historis terkunci
+// Bukan BUBBLE_BG (7,16,32,.94): ekor label memakai (10,14,24,0.96) — guard 408 anti-duplikat.
+export const LBL_TAIL_BG = 'rgba(10,14,24,0.96)';
+// Siklus 475: badan rounded label agent (label_spec.drawLabelText) — satu sumber.
+// Nilai historis terkunci; beda alpha dari ekor (0.96) → konstanta sendiri (anti-duplikat 408).
+export const LBL_BODY_BG = 'rgba(10,14,24,0.84)';

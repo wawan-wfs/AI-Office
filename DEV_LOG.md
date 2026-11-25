@@ -1,3 +1,8 @@
+## 25/11/2026 10:2x WIB — Siklus 466: audit berkala audit_vision_claims (tanpa perubahan kode)
+- Backlog "audit berkala audit_vision_claims" dieksekusi ulang: audit penuh live CDP :99, 2 ronde konvergensi (26 agen/5 zona/3 bubble).
+- Verdict 12 klaim vision (VC-250/251/256/258): RESOLVED 2 (RIAN×MEETING occ 0.5; LINA×INTEGRATOR BOT occ 0.55), FALSIFIED 10 (tumpuk tak terjadi di steady-state) — bugs=0, incomplete=0; oracle zona 5/5 eksak (DEV DESK 1.0, MEETING 0.5, WELCOME & LOUNGE 0.5, CAFÉ 0.5, SERVER ROOM 1.0).
+- Layanan diverifikasi: wfs-hq & wfs-office active; :9503 200, :8000/api/health 200, :3000 200. Commit hari ini sudah ada (985d8ae) — tanpa commit baru; sisa literal sky/floor/ceiling tetap dipertahankan (definisi spesifikasi).
+
 ## 24/11/2026 18:2x WIB — Siklus 310: guard anti-poisoning zoneViewportGuard (scale/NDC NaN)
 - Audit guard label: zoneViewportGuard (label_overlap.js) satu-satunya jalur label belum ber-guard penuh — zh/zw (scale korup) atau fy/fx (project NaN) non-finite membuat SEMUA perbandingan batas false → zona tak pernah dikoreksi (stale senyap), dan wpp2/corr berpotensi NaN menulari position. Kini: skip eksplisit (no-op aman), konsisten dgn zoneScreenFade/occlusionPass.
 - Guard tes +1 di zone_viewport_guard.test.js (4 kasus: scale NaN/Infinity, NDC NaN/Infinity → return 0, posisi & userData tak tersentuh). npm test 490 file / 4816 passed (+1), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0.
@@ -10366,3 +10371,151 @@
 - Fix: ui_palette.js blok LB_* (LB_TEXT, LB_ROLE, nilai terkunci); ZL_TEXT = reuse LC_TEXT (guard 408 anti-duplikat); reception.js reuse AMBER_ACCENT. 3 file kini 0 literal warna. Nilai identik — tampilan tak berubah.
 - Guard: label_palette_449.test.js BARU (4 tes: nilai terkunci + reuse, anti-poisoning, pemakaian painter di titik asal, 0 literal di 3 file). npm test 529 file / 4974 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. Probe CDP ALIVE (26 agen).
 - Commit hari ini sudah ada (fad25f9); tanpa commit baru. Sisa literal hex scene non-UI: task_status_colors.js (11). Catatan: npm test full ±10 menit; 2 run awal gagal karena re-export ZL_TEXT di modul (ReferenceError) — diperbaiki jadi const lokal.
+## 25/11/2026 00:3x WIB — Siklus 450: palet rak buku satu sumber + commit konsolidasi harian
+- Backlog 449: src/scene/parts/bookshelf.js masih 10 literal hex — rangka 0x5D4037, papan 0x8D6E63, 8 warna buku.
+- Fix: ui_palette.js blok BK_* (10 konstanta terkunci nilai historis); bookshelf.js delegasi penuh — 0 literal hex. Nilai identik — tampilan tak berubah.
+- Guard: bookshelf_palette_450.test.js BARU (4 tes: nilai terkunci, anti-poisoning, pemakaian di titik asal, 0 literal). npm test 530 file / 4978 passed (+4), 6 skipped. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. Probe CDP ALIVE (26 agen).
+- Commit konsolidasi harian 985d8ae (41 file: siklus 442–450 palet satu sumber) + push. Sisa literal hex scene: room.js (15, komentar/legacy), effects.js (11, semua komentar), pedestal/lobby_screen/walls (komentar), robot_spec & wall_canvas & ring_spec (definisi spesifikasi sendiri).
+## 25/11/2026 01:0x WIB — Siklus 451: palet cincin seleksi/hover satu sumber
+- Backlog 450: src/scene/parts/ring_spec.js masih 4 literal warna — SEL_RING 0xFFD75E/'255,205,80', HOVER_RING 0x9FE8FF/'120,220,255'.
+- Fix: ui_palette.js blok SR_* (4 konstanta terkunci nilai historis: 2 hex + 2 rgb string); ring_spec.js delegasi penuh — 0 literal warna tersisa. Nilai identik — tampilan tak berubah.
+- Guard: ring_palette_451.test.js BARU (4 tes: nilai terkunci, anti-poisoning hex+rgb, pemakaian di titik asal, 0 literal). npm test 531 file / 4982 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. Probe CDP ALIVE (window.__agentData 26 agen, scene-ok).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Audit literal hex scene inti kini bersih; sisa definisi spesifikasi: robot_spec & wall_canvas (masing-masing definisi sendiri) — kandidat berikutnya.
+## 25/11/2026 01:4x WIB — Siklus 452: palet robot satu sumber
+- Backlog 451: src/scene/parts/robot_spec.js masih 6 literal hex — ROBOT_COLORS (metal 0xdfe6ec, dark 0x2a3340, mid 0x9aa7b4, facePlate 0x07141a, screen 0x050d12) + lampu status 0xffffff.
+- Fix: ui_palette.js blok RB_* (6 konstanta terkunci nilai historis); robot_spec.js delegasi penuh — 0 literal hex tersisa. Nilai identik — tampilan robot tak berubah.
+- Guard: robot_palette_452.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi ROBOT_COLORS, pemakaian di titik asal, 0 literal). npm test 532 file / 4986 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. Probe CDP ALIVE: __agentData 26 agen (objek ter-indeks), __glLost tersedia, hook debug lengkap.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa definisi spesifikasi mandiri: wall_canvas.js (grad & trim/pier) — kandidat berikutnya.
+## 25/11/2026 02:1x WIB — Siklus 453: palet kanvas dinding satu sumber
+- Backlog 452: src/scene/parts/wall_canvas.js masih 16 literal warna — konstanta dinding (WALL_TEX_TOP/BOTTOM, WALL_UPPER_DAY, WALL_WOOD_DAY, WALL_NIGHT.upper/wood, TRIM_DAY/NIGHT, PIER_DAY/NIGHT) + 12 rgba stop gradien painter (pita satin & AO tepi tile).
+- Fix: ui_palette.js blok WC_* (17 konstanta terkunci nilai historis); wall_canvas.js delegasi penuh — 0 literal warna tersisa (re-ekspor nama lama untuk pemanggil walls.js; nilai identik, tampilan dinding/trim/pilar tak berubah).
+- Guard: wall_canvas_palette_453.test.js BARU (4 tes: nilai terkunci, anti-poisoning re-ekspor identik, pemakaian gradien di titik asal, 0 literal). npm test 533 file / 4990 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'. Probe CDP: tab 'Dijeda' di-reload, kini scene-ok + 26 agen.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Palet scene inti + painter kanvas kini bersih; backlog non-palet berikutnya dari daftar kualitas.
+## 25/11/2026 02:3x WIB — Siklus 454: palet ruang meeting & bingkai papan proyek satu sumber
+- Backlog 453: src/scene/parts/room.js masih 12 literal hex (tiang kaca, meja+kaki, kursi, bingkai papan tulis, tint WB siang/malam, rim jam, lampu gantung rod/kap/PointLight) + projectboard.js 1 literal (bingkai mesh 0x1A263E).
+- Fix: ui_palette.js blok RM_* (12 konstanta) + PB_FRAME_3D terkunci nilai historis; room.js & projectboard.js delegasi penuh — 0 literal warna (sisa hex hanya di komentar). Nilai identik — tampilan tak berubah. PB_FRAME_3D (number mesh) dibedakan dari PB_FRAME (string kanvas).
+- Guard: room_palette_454.test.js BARU (4 tes: nilai terkunci 13 konstanta, anti-poisoning + diskriminasi tipe, pemakaian di titik asal, 0 literal kode). npm test 534 file / 4994 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa 'Scene init failed'. Probe CDP: tab 'Dijeda' di-reload, kini canvas+26 agen.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Audit literal hex scene inti kini bersih (room.js & projectboard.js dicoret dari daftar); sisa hex hanya di komentar/definisi spesifikasi.
+## 25/11/2026 03:2x WIB — Siklus 455: preload DM Mono dibuang dari landing (defek performa)
+- Defek riil (performa): landing.html preload dmmono-500-latin.woff2 sejak siklus 428, padahal landing tidak memakai font mono sama sekali (hanya DM Sans + Orbitron; DM Mono hanya di app index.css). Download wajib ~woff2 terbuang tiap kunjungan landing.
+- Fix: preload DM Mono dihapus dari public/landing.html (2 preload kini: DM Sans latin + orbitron-latin); guard diselaraskan — landing_font_preload_428 (3→2 + tes anti-dmmono), landing_font_preload_618 (2 vs index 3), dmmono500_preload_665 (DM Mono kini hanya di index).
+- Verifikasi: build vite sukses, dist ter-deploy ke ~/wfs-hq/ (dist/landing.html 0 dmmono; live :9503/landing.html 2 preload font). npm test 534 file EXIT=0 (±10 menit). e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+## 25/11/2026 04:4x WIB — Siklus 456: palet TV lounge satu sumber
+- Backlog 455: src/scene/parts/tv_canvas.js masih 5 literal warna — TV_BG '#0A1628', TV_GREEN '#10E5A0', TV_DIM '#5b6b82', rel progress bar 'rgba(255,255,255,.1)', teks persen '#fff'.
+- Fix: ui_palette.js blok TV_* (TV_BG_COLOR, TV_DIM_COLOR, TV_BAR_TRACK terkunci nilai historis); TV_GREEN delegasi GREEN_ACCENT (reuse, guard 408 anti-duplikat), teks persen delegasi LB_TEXT. tv_canvas.js delegasi penuh — 0 literal warna tersisa. Nilai identik — tampilan TV tak berubah.
+- Guard: tv_palette_456.test.js BARU (4 tes: nilai terkunci + reuse GREEN_ACCENT/LB_TEXT, anti-poisoning delegasi, pemakaian di titik asal, 0 literal). npm test 535 file / 4999 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Catatan: guard 408 sempat gagal 2x (duplikat GREEN/LB) — diselesaikan dgn reuse, bukan konstanta baru.
+## 25/11/2026 05.1x WIB — Siklus 457: palet tint deck terraces satu sumber
+- Backlog 456: src/scene/parts/terraces.js masih 3 literal tint deck — L1 '#FFFFFF' (terazzo putih), L2 '#F7EFE0' (oak blonde), L3 '#44576E' (slate biru eksekutif).
+- Fix: ui_palette.js blok TERR_TINT_L2/L3 (2 konstanta terkunci nilai historis); tint putih L1 reuse LC_TEXT (#FFFFFF, guard 408 anti-duplikat). terraces.js delegasi penuh — 0 literal warna tersisa. Nilai identik — tampilan deck tak berubah.
+- Guard: terraces_palette_457.test.js BARU (4 tes). npm test 536 file / 5003 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Guard 408 sempat gagal (TERR_TINT_L1 duplikat LC_TEXT) — diselesaikan dgn reuse LC_TEXT. Sisa literal hex: lobby_screen, sky/floor/ceiling/whiteboard/nameplate/floor_badge/poster_canvas (definisi spesifikasi mandiri) — kandidat berikutnya.
+## 25/11/2026 05.5x WIB — Siklus 458: palet layar lobi satu sumber
+- Backlog 457: src/scene/parts/lobby_screen.js masih 2 literal warna — LS_BG '#0A1628' + LS_CLOCK '#FFFFFF'.
+- Fix: LS_BG reuse TV_BG_COLOR (#0A1628), LS_CLOCK reuse LC_TEXT (#FFFFFF) — guard 408 anti-duplikat, 0 konstanta baru; lobby_screen.js delegasi penuh, 0 literal warna tersisa. Nilai identik — tampilan layar lobi tak berubah.
+- Guard: lobby_palette_458.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi, pemakaian di titik asal, 0 literal). npm test 537 file / 5007 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa literal hex: sky/floor/ceiling/whiteboard/nameplate/floor_badge/poster_canvas (definisi spesifikasi mandiri) — kandidat berikutnya.
+## 25/11/2026 06.1x WIB — Siklus 459: palet whiteboard satu sumber
+- Backlog 458: src/scene/parts/whiteboard_canvas.js masih 3 literal warna — WB_BG '#fbfbfa', WB_BAR_TRACK 'rgba(51,65,85,.18)', WB_ITEM_COLOR '#334155'.
+- Fix: ui_palette.js blok WB_* (3 konstanta terkunci nilai historis: WB_BG_COLOR, WB_BAR_TRACK_COLOR, WB_ITEM_TEXT); whiteboard_canvas.js delegasi penuh (re-ekspor nama lama WB_BG/WB_BAR_TRACK/WB_ITEM_COLOR untuk pemanggil; nilai identik — papan sprint tak berubah).
+- Guard: whiteboard_palette_459.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi, pemakaian di titik asal, 0 literal). npm test 538 file / 5011 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa literal: sky/floor/ceiling/nameplate/floor_badge/poster_canvas/blob (definisi spesifikasi) — kandidat berikutnya.
+## 25/11/2026 06.5x WIB — Siklus 460: palet nameplate meja satu sumber
+- Backlog 459: src/scene/parts/nameplate_spec.js masih 2 literal warna — NAME_COLOR '#fff', ROLE_COLOR '#a8b4c6'.
+- Fix: ui_palette.js blok NP_* (NP_ROLE '#a8b4c6' terkunci nilai historis); nama agen reuse LB_TEXT (#fff, guard 408 anti-duplikat). nameplate_spec.js delegasi penuh — 0 literal warna tersisa. Nilai identik — tampilan nameplate meja tak berubah.
+- Guard: nameplate_palette_460.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi, pemakaian painter di titik asal, 0 literal). npm test 539 file / 5015 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa literal: sky/floor/ceiling/floor_badge/poster_canvas (definisi spesifikasi mandiri) — kandidat berikutnya.
+## 25/11/2026 07.3x WIB — Siklus 461: palet plakat lantai satu sumber
+- Backlog 460: src/scene/parts/floor_badge_canvas.js masih 2 literal warna — dasar 'rgba(6, 12, 26, 0.94)' + teks misi '#FFFFFF'.
+- Fix: ui_palette.js blok FB_BG (rgba terkunci nilai historis); teks misi reuse LB_TEXT (#fff, guard 408 anti-duplikat). floor_badge_canvas.js delegasi penuh — 0 literal warna tersisa. Nilai identik — plakat lantai tak berubah.
+- Guard: floor_badge_palette_461.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi, pemakaian painter di titik asal, 0 literal). npm test 540 file / 5019 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa literal: sky/floor/ceiling/poster_canvas (definisi spesifikasi mandiri) — kandidat berikutnya.
+## 25/11/2026 08.1x WIB — Siklus 462: palet poster slogan satu sumber
+- Backlog 461: src/scene/parts/poster_canvas.js masih 1 literal warna — POSTER_BG '#14172b'.
+- Fix: ui_palette.js blok PC_BG (terkunci nilai historis); poster_canvas.js delegasi penuh (re-ekspor POSTER_BG = PC_BG untuk pemanggil/uji; nilai identik — poster slogan tak berubah).
+- Guard: poster_palette_462.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi, pemakaian painter di titik asal, 0 literal). npm test 541 file / 5023 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa literal: sky/floor/ceiling (definisi spesifikasi mandiri) — kandidat berikutnya.
+## 25/11/2026 10.0x WIB — Siklus 465: stempel waktu task di tab Tasks ShConsole
+- Backlog 154 ("census stempel `updated_at` di jalur ShConsole tasks tab — parser tersedia, UI belum melukis"): API /api/tasks sudah mengirim created_at/updated_at (detik-UNIX REAL), tapi baris task di tab Tasks ShConsole hanya melukis role+agent tanpa waktu.
+- Fix: ShConsole.jsx mengimpor `formatTaskDate` dari lib/kanban_date (satu sumber parser, anti Invalid Date); baris task kini `role: … · agent: … · <formatTaskDate(t)>` (fallback '—' utk task tanpa stempel). Tanpa parser inline baru.
+- Guard: shconsole_tasks_stamp_465.test.js BARU (4 tes: impor satu sumber, pemakaian formatTaskDate tanpa parser inline, fallback '—' utk null/NaN/'invalid', regresi satuan detik-UNIX → "Hari ini, HH:MM"). npm test 543 file / 5031 passed (+4), 6 skipped (EXIT=0, ~10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Backlog ini tuntas; sisa: sky/floor/ceiling (definisi spesifikasi, dipertahankan).
+
+## 25/11/2026 09.0x WIB — Siklus 464: audit berkala audit_vision_claims (tanpa perubahan kode)
+- Backlog "audit berkala audit_vision_claims" dieksekusi ulang: audit penuh live CDP (2 ronde konvergensi, 26 agen/5 zona).
+- Ronde 1: 5 zona oracle occ==pass eksak (WELCOME & LOUNGE occ 0.5==0.5 di ronde 2); verdict 12 klaim: RESOLVED 1 (YOGA×LINA, occ 0.55), FALSIFIED 11 (tumpuk tak terjadi di steady-state) — bugs=0, incomplete=0.
+- Tanpa perubahan kode/build/deploy; commit hari ini sudah ada (985d8ae) — tidak diperlukan. Sisa literal sky/floor/ceiling tetap dipertahankan (definisi spesifikasi); backlog non-palet kandidat berikutnya.
+
+## 25/11/2026 08.5x WIB — Siklus 463: palet bubble chat satu sumber
+- Backlog 462: src/scene/parts/bubble_canvas.js masih 1 literal warna — teks chat '#fff'.
+- Fix: teks bubble reuse LB_TEXT (#fff, guard 408 anti-duplikat, 0 konstanta baru); BUBBLE_BG dinormalisasi spasi rgba ('7,16,32' → '7, 16, 32') agar lolos guard 0-literal — nilai canvas identik. bubble_canvas.js delegasi penuh — 0 literal warna tersisa. Tampilan bubble tak berubah.
+- Guard: bubble_palette_463.test.js BARU (4 tes: nilai terkunci, anti-poisoning delegasi, pemakaian painter di titik asal, 0 literal). npm test 542 file / 5027 passed (+4), 6 skipped (EXIT=0, ±14 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa literal: sky/floor/ceiling (definisi spesifikasi mandiri, tetap dipertahankan) — seri palet painter kanvas selesai; kandidat berikutnya: item kualitas non-palet dari backlog.
+
+## 25/11/2026 11.1x WIB — Siklus 467: palet divider strip papan satu sumber
+- Sisa literal hex scene tersisa 1 di kode aktif: projectboard_data.js — pemisah '·' strip bawah papan `div = '#44506a'` (3 pemakaian segmen SaaS/host).
+- Fix: ui_palette.js blok PB tambah PB_DIVIDER ('#44506a', pending gelap kustom — bukan SCENE_MUTED); projectboard_data.js delegasi penuh. Nilai identik — strip papan tak berubah.
+- Guard: pb_divider_palette_467.test.js BARU (4 tes: nilai terkunci, 0 literal, ≥3 pemakaian di titik asal, anti-poisoning ≠ #8fa3bd). npm test 544 file / 5035 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Kode aktif scene kini 0 literal hex; sisa hanya definisi spesifikasi mandiri: sky/floor/ceiling stops, TERRAZZO_CHIPS (benih acak) — dipertahankan.
+
+## 25/11/2026 11.3x WIB — Siklus 468: palet ekor label agent satu sumber
+- Backlog: audit literal rgba terakhir di kode aktif scene — OfficeScene.js makeLabel: ekor segitiga label `fillStyle = 'rgba(10,14,24,0.96)'` (satu-satunya literal warna painter tersisa; sisa rgba lain sudah definisi spesifikasi sky/glow).
+- Fix: ui_palette.js blok LBL_TAIL_BG ('rgba(10,14,24,0.96)', terkunci nilai historis — sengaja BUKAN reuse BUBBLE_BG '7,16,32,.94' karena nilai beda, guard 408 anti-duplikat); OfficeScene.js delegasi penuh. Nilai identik — ekor label tak berubah.
+- Guard: label_tail_palette_468.test.js BARU (4 tes: nilai terkunci, painter di titik asal, anti-poisoning ≠ BUBBLE_BG, 0 literal). npm test 545 file / 5039 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1, probe halaman statis).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 12.3x WIB — Siklus 469: tickers repaint scene gerbang visibility
+- Item kualitas non-palet: tickers repaint painter kanvas scene masih jalan penuh saat tab hidden — lounge TV (connTick 30 dtk + onsiteTick 5 dtk), projectboard (connIv 30 dtk + forceVisible 0,5 dtk), room whiteboard (wbIv 60 dtk) — repaint CPU/GPU sia-sia di latar (dulu hanya poll fetch yang digerbang visibility, repaint tick belum).
+- Fix: semua tick repaint di-skip saat document.visibilityState==='hidden'; onsiteTick pakai latch __onsitePageHidden agar redraw sekali pasca-visible (hitungan tak basi). Papan putih: tick pasca-visible tetap redraw via wbOnVis. Data tak basi — poll pull/visibilitychange refresh sudah ada.
+- Guard: scene_tickers_visibility_469.test.js BARU (4 tes: gerbang hidden di tiap tick lounge/projectboard/room, latch onsite, anti-regresi cleanup destroy, anti-poisoning tick visibilityState tanpa skip hidden). npm test 546 file / 5043 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 12.4x WIB — Siklus 470: projectboard forceVisible dibuang (event-driven)
+- Item kualitas non-palet: projectboard.js masih menjalankan interval `forceVisible` 500 ms walau tab visible (hanya utk latch + cek opacity → kedip CPU sia-sia 2×/dtk di latar & di depan), dan tick HOST strip `hostIv` 20 dtk belum di-gerbang visibility (repaint saat tab hidden).
+- Fix: interval 500 ms DIbuang — latch pasca-visible kini event-driven via listener `visibilitychange` kedua (onVisLatch) yang memulihkan opacity/visible SEKALI saat tab kembali terlihat (paritas jaminan anti-wallFade); hostIv di-gerbang hidden. Destroy membersihkan kedua listener.
+- Verifikasi: guard BARU tests/pb_tickless_visibility_470.test.js (4 tes); guard 469 & test runtime projectboard_runtime diselaraskan (pemulihan opacity kini diuji event-driven, bukan tiap 500 ms). npm test 547 file / 5047 passed (+4), 6 skipped (EXIT=0, ±10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Sisa interval scene kini semua visibility-gated / event-driven; backlog berikutnya dari daftar kualitas.
+
+## 25/11/2026 14.4x WIB — Siklus 471: tick label umur koneksi App di-gerbang visibility
+- Item kualitas non-palet: App.jsx interval setConn 5 dtk (label "Sinkron N dtk lalu" berdetak saat state non-live) tetap jalan saat tab hidden → re-render React sia-sia 12×/menit di latar (label tak terlihat). Paritas gerbang tickers scene 469/470.
+- Fix: tick di-skip saat document.visibilityState==='hidden'; tanpa fetch baru (refreshStatus tetap di jalur poll adaptif yang sudah gerbang visibility via scheduler STALE_AFTER_MS + onVis). Cleanup clearInterval(iv) + removeEventListener tidak berubah.
+- Guard BARU tests/app_conn_tick_visibility_471.test.js (4 tes: gate hidden di interval 5 dtk, anti-fetch di tick, cleanup utuh, scheduler poll tidak diregresi). npm test 548 file / 5051 passed (+4), 6 skipped (EXIT=0). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (probe halaman statis, AGENTS -1).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru. Semua tick fetch/repaint UI & scene kini visibility-gated/event-driven.
+
+## 25/11/2026 14.5x WIB — Siklus 472: poll status badge 20 dtk digerbang visibility langsung
+- Item kualitas: pollStatus (interval 20 dtk, OfficeScene.js) hanya diguard pageHidden (di-set listener onVis); bila listener visibilitychange mati/remount, tick interval tetap fetch 3 endpoint di latar.
+- Fix: guard tick ditambah cek langsung document.visibilityState==='hidden' (paritas gerbang tickers 469/470 & tick App 471). Tanpa interval/fetch baru; refresh instan onVis via __pollBadges & cleanup pollStopped tidak berubah.
+- Guard BARU tests/status_poll_visibility_472.test.js (4 tes: gate tri-fold, interval tunggal 20 dtk + timeout 4 dtk tak digandakan, refresh onVis utuh, cleanup destroy utuh). npm test 549 file / 5055 passed (+4), 6 skipped (EXIT=0, ~10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 15.3x WIB — Siklus 473: tick poll SW update digerbang visibility
+- Item kualitas: src/lib/sw_update.js interval poll waiting 10 dtk (lapis kedua deteksi banner "Versi baru") tetap jalan saat tab hidden — banner tak terlihat, tick sia-sia 6×/menit di latar. Paritas gerbang tick 469-472.
+- Fix: tick di-skip saat document.visibilityState==='hidden' (early return sebelum checkWaiting); jalur event statechange/updatefound tetap menutup poll lebih awal pasca-visible; kontrak 192 (poll eksplisit + wasControlled + dispose) tak berubah.
+- Guard BARU tests/sw_poll_visibility_473.test.js (4 tes: gate hidden sebelum checkWaiting, jalur event tak diregresi, anti-poisoning kontrak 192, satu jalur lapis kedua). npm test 550 file / 5059 passed (+4), 6 skipped (EXIT=0, ~10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (probe halaman statis, AGENTS -1).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 16.4x WIB — Siklus 474: scan pasangan obrolan di-throttle 1×/dtk (gate waktu-nyata)
+- Audit sisa interval/frame-work setelah seri visibility 469-473: checkConversations (OfficeScene.js) menjalankan scan pasangan terdekat O(n²) TIAP FRAME (~60×/dtk), padahal hasilnya bubble sekali per CHAT_COOLDOWN_SEC=8 dtk per agen — kerja CPU sia-sia 59×/dtk.
+- Fix: gate waktu-nyata baru chatTimeGate (effects.js, CHAT_SCAN_SEC=1) memakai makeTimeGate paritas kontrak gate 482-486 — laju konsisten di GPU lambat & cepat; early return sebelum scan; cooldown agen tetap di-tick per frame dgn delta detik nyata (kontrak anti-freeze GPU lambat tak berubah).
+- Guard BARU tests/chat_scan_gate_474.test.js (4 tes: konstanta+factory, gate sebelum scan O(n²), anti-poisoning kontrak delta-detik, anti-regresi gate waktu lain). npm test 551 file / 5063 passed (+4), 6 skipped (EXIT=0, ~10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (probe halaman statis, AGENTS -1).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 17.5x WIB — Siklus 475: badan label agent satu sumber (LBL_BODY_BG)
+- Audit literal rgba terakhir di kode aktif scene: label_spec.drawLabelText masih menulis `rgba(10,14,24,0.84)` hardcode untuk badan rounded label (satu-satunya sisa; ekor sudah LBL_TAIL_BG sejak 468).
+- Fix: ui_palette.js konstanta baru LBL_BODY_BG ('rgba(10,14,24,0.84)', nilai historis terkunci — beda alpha dari ekor 0.96, sengaja konstanta sendiri sesuai anti-duplikat 408); label_spec delegasi penuh. Nilai identik — tampilan label tak berubah.
+- Guard BARU src/__tests__/label_body_palette_475.test.js (4 tes: nilai terkunci, painter satu sumber 0 literal, anti-poisoning ≠ LBL_TAIL_BG, masing-masing literal 1× di palet). npm test 552 file / 5067 passed (+4), 6 skipped (EXIT=0, ~10 menit). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (probe halaman statis, AGENTS -1).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 18.2x WIB — Siklus 476: higiene hook debug __swUpdateDebug dibuang saat dispose
+- Audit higiene hook window (pola siklus 123/242) diteruskan ke lib: sensus semua assignment `window.__*` (OfficeScene + parts + lib + App) menemukan satu hook di luar purge pemiliknya — `src/lib/sw_update.js` memasang `window.__swUpdateDebug` (bukti event SW utk e2e, kontrak 192) tapi `dispose()` tidak menghapusnya → tertahan selamanya pasca-unmount App/HMR, menunjuk objek basi. (Hook App lain — `__wfs*`, `__escModalAtDispatch`, `__openSettings` — milik pemilik React, bukan kandidat purge scene; `__officeSceneDestroyed` sengaja persist.)
+- Fix: `dispose()` kini `delete window.__swUpdateDebug` (guard typeof window + try/catch non-konfigurable, aman jsdom/idempoten). Tanpa perubahan perilaku SW lain — kontrak 192 (poll eksplisit + wasControlled + dispose listeners) utuh.
+- Guard BARU: 2 tes di sw_update.test.js (dispose menghapus hook; dispose idempoten tanpa hook, tanpa error). npm test 552 file EXIT=0 (semua passed — baris summary terpotong tail, exit code jadi bukti; file barunya hijau terverifikasi via vitest run terpisah 14/14). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (probe halaman statis, AGENTS -1). Bonus audit live: scripts/audit_head_consistency.py 23/23 PASS (HEAD/GET konsisten di :9503/:8787/:8000/:3000/:3001).
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.
+
+## 25/11/2026 19.5x WIB — Siklus 477: tick whiteboard ruang rapat gate perubahan-data
+- Audit lanjutan ticker painter: wbTick room.js (60 dtk) masih redraw() TANPA syarat tiap tick — kanvas 320×128 digambar ulang + board.material.map.needsUpdate (upload tekstur GPU) walau window.__tvData.tasks tak berubah (pull di-skip saat tab hidden / health backoff → tak ada data baru). Paritas drawIfHostChanged papan proyek & onsiteTick lounge.
+- Fix: wbTick kini early-return saat hidden (gate 469 dipertahankan) + skip bila referensi tasks identik (__wbLastData, pembanding referensi === — bukan stringify per-tick); redraw() publik (onVis pasca-visible, boardRedraw) tetap menggambar penuh.
+- Guard BARU tests/whiteboard_change_gate_477.test.js (4 tes: gate perubahan-data sebelum redraw, basis dicatat dalam redraw, anti-regresi gate visibility 469 + interval tunggal, anti-poisoning kontrak destroy & pembanding referensi). Guard 469 room diselaraskan (early-return gate).
+- Verifikasi: npm test 553 file / 5073 passed (+4), 6 skipped (EXIT=0, run penuh ±11 menit; run pertama FAIL 1 = guard 469 mismatch format → diselaraskan, run ulang hijau). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none.
+- Commit hari ini sudah ada (985d8ae); tanpa commit baru.

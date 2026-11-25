@@ -276,11 +276,16 @@ describe('createProjectBoard — visibilitas tab & forceVisible', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2) // segarkan segera saat tab kembali
   })
 
-  it('forceVisible: mesh yang di-fade wallFade dikembalikan tampil tiap 500ms', async () => {
+  it('Siklus 470: mesh yang di-fade wallFade dikembalikan tampil saat kembali visible (event-driven, tanpa interval 500ms)', async () => {
     const { added, board } = await mount()
     const mesh = added[0]
     mesh.material.opacity = 0.3; mesh.material.transparent = true; mesh.visible = false
-    await vi.advanceTimersByTimeAsync(500)
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(mesh.material.opacity).toBe(0.3) // tanpa interval: tidak ada pemulihan diam-diam
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    document.dispatchEvent(new Event('visibilitychange'))
     expect(mesh.material.opacity).toBe(1)
     expect(mesh.material.transparent).toBe(false)
     expect(mesh.visible).toBe(true)

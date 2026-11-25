@@ -14,9 +14,9 @@ it('tidak ada preload DM Mono 400 yang basi di kedua halaman', () => {
   }
 });
 
-it('preload DM Mono 500 latin ada di landing & index (paritas)', () => {
+it('preload DM Mono 500 latin hanya di index (siklus 455: landing tak memakai font mono)', () => {
   const tag = '<link rel="preload" href="/fonts/dmmono-500-latin.woff2" as="font" type="font/woff2" crossorigin>';
-  expect(landing).toContain(tag);
+  expect(landing).not.toContain(tag);
   expect(index).toContain(tag);
 });
 

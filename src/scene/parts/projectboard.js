@@ -9,8 +9,8 @@ import { fetchWithTimeout } from '../../lib/fetch_timeout.js'
 import { parseTimestampMs } from '../../lib/kanban_date.js'
 import { fmtStampId } from '../../lib/format_time.js'
 import { uiTexture, uiMaterial } from './ui_colorspace.js'
-import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
-import { SCENE_MUTED, PB_BG, PB_FOOT, PB_FRAME, PB_COL_BG, PB_CARD, NOTE_TEXT as PB_TXT_SOFT, PB_PENDING, PURE_TEXT, whiteAlpha, failedAlpha } from '../../lib/ui_palette.js'
+import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js';
+import { SCENE_MUTED, PB_BG, PB_FOOT, PB_FRAME, PB_COL_BG, PB_CARD, NOTE_TEXT as PB_TXT_SOFT, PB_PENDING, PURE_TEXT, whiteAlpha, failedAlpha, PB_FRAME_3D } from '../../lib/ui_palette.js'
 
 // Polling adaptif papan 3D: cadence sehat 60 dtk (POLL_SCENE_HEALTHY_MS satu
 // sumber, siklus 375 — dulu konstanta lokal BOARD_POLL_HEALTHY_MS), tapi
@@ -32,7 +32,7 @@ export function createProjectBoard(office, THREE) {
   mesh.renderOrder = 5
   office.add(mesh)
   // bingkai elegan (mengelilingi papan proyek secara presisi, tidak menabrak dinding samping)
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(7.65, 4.25, .05), new THREE.MeshLambertMaterial({ color: 0x1A263E }))
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(7.65, 4.25, .05), new THREE.MeshLambertMaterial({ color: PB_FRAME_3D }))
   frame.position.set(-8.35, 2.6, 13.28)
   frame.userData.__keep = 1 // jangan ikut fade dinding belakang (wallFade collect)
   office.add(frame)
@@ -190,7 +190,10 @@ export function createProjectBoard(office, THREE) {
     const k = hostKey(typeof window !== 'undefined' ? window.__hostRes : null)
     if (k !== hostResKey) { hostResKey = k; draw() }
   }
-  const hostIv = setInterval(drawIfHostChanged, 20000)
+  // Siklus 470: tick repaint HOST strip gerbang visibility — tab hidden tak
+  // repaint (data tetap segar via pull saat visible; pasca-visible tick
+  // berikutnya menggambar ulang bila hostKey berubah).
+  const hostIv = setInterval(() => { if (document.visibilityState === 'hidden') return; drawIfHostChanged() }, 20000)
   // Polling adaptif: rantai setTimeout — delay dari tracker (60 dtk sehat,
   // backoff eksponensial 5→80s saat gateway mati, pulih → 60 dtk lagi).
   // Jadwal pertama menyusul pull awal selesai, agar delay dihitung dari tracker segar.
@@ -236,7 +239,10 @@ export function createProjectBoard(office, THREE) {
   // Umur data pada badge koneksi (label "Sinkron N dtk/mnt lalu" saat stale)
   // harus berdetak: segarkan strip tiap 30s. draw() menggambar hanya bila snap ada,
   // jadi aman sebelum fetch pertama berhasil.
-  const connIv = setInterval(() => { if (conn.state !== 'live') draw() }, CONN_TICK_MS)
+  // Siklus 469: tick repaint gerbang visibility — tab hidden tak repaint
+  // (dulu connIv + forceVisible tetap jalan 30 dtk/0,5 dtk di latar). Saat tab
+  // kembali visible, pull() (onVis) menggambar ulang penuh → tak ada data basi.
+  const connIv = setInterval(() => { if (document.visibilityState === 'hidden') return; if (conn.state !== 'live') draw() }, CONN_TICK_MS)
   // Tab kembali terlihat → segarkan data segera (jangan tunggu tick 60 detik);
   // tab hidden → interval tick di-skip agar tidak fetch sia-sia.
   let pageHidden = document.visibilityState === 'hidden'
@@ -247,20 +253,31 @@ export function createProjectBoard(office, THREE) {
   }
   document.addEventListener('visibilitychange', onVis)
 
-  // Paksa papan selalu penuh terlihat: wallFade mengklon material & menurunkan opacity
-  // saat dinding belakang memudar — data proyek harus tidak terpengaruh.
-  const forceVisible = setInterval(() => {
+  // Siklus 470: TANPA interval 500ms — dulu forceVisible jalan tiap 0,5 dtk
+  // walau visible (hanya utk latch + cek opacity), kedip CPU sia-sia. Kini
+  // event-driven: latch pageHidden di onVis (satu listener dgn refresh poll),
+  // pasca-visible satu repaint dijamin + opacity dipulihkan sekali.
+  function restoreFullVisible() {
     if (mesh.material.opacity !== undefined && mesh.material.opacity < 1) {
       mesh.material.opacity = 1
       mesh.material.transparent = false
       mesh.visible = true
     }
-  }, 500)
+  }
+  restoreFullVisible()
+  let __visHidden = document.visibilityState === 'hidden';
+  function onVisLatch() {
+    const hidden = document.visibilityState === 'hidden'
+    if (hidden) { __visHidden = true; return }
+    if (__visHidden) { __visHidden = false; restoreFullVisible() } // latch: satu repaint pasca-visible
+  }
+  document.addEventListener('visibilitychange', onVisLatch)
 
   function destroy() {
     pollStopped = true // hentikan rantai poll adaptif
     if (pollTimer !== null) clearTimeout(pollTimer)
-    clearInterval(connIv); clearInterval(forceVisible); clearInterval(hostIv); document.removeEventListener('visibilitychange', onVis)
+    clearInterval(connIv); clearInterval(hostIv); document.removeEventListener('visibilitychange', onVis)
+    document.removeEventListener('visibilitychange', onVisLatch) // siklus 470
   }
   return { destroy, refresh: pull, mesh, frame }
 }

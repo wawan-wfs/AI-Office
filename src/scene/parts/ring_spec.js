@@ -1,6 +1,7 @@
 // Selection & hover ring parameters (extracted from OfficeScene.js).
 // Pure functions/constants only — no THREE, no canvas.
 import { clamp01, expDamp } from '../../lib/math_util.js'
+import { SR_SEL_COLOR, SR_SEL_RGB, SR_HOVER_COLOR, SR_HOVER_RGB } from '../../lib/ui_palette.js'
 
 export const SEL_RING = {
   SIZE: 128,          // canvas px
@@ -8,8 +9,8 @@ export const SEL_RING = {
   INNER: 46,          // gradient inner radius
   OUTER: 62,          // gradient outer radius
   MID: 0.68,          // gradient mid stop
-  COLOR: 0xFFD75E,
-  RGB: '255,205,80',
+  COLOR: SR_SEL_COLOR,  // ui_palette (siklus 451)
+  RGB: SR_SEL_RGB,
   OPACITY: 0.9,
   Y: 0.03,
 };
@@ -20,8 +21,8 @@ export const HOVER_RING = {
   INNER: 44,
   OUTER: 62,
   MID: 0.7,
-  COLOR: 0x9FE8FF,
-  RGB: '120,220,255',
+  COLOR: SR_HOVER_COLOR, // ui_palette (siklus 451)
+  RGB: SR_HOVER_RGB,
   OPACITY: 0.85,
   Y: 0.02,
 };

@@ -1,4 +1,5 @@
 import { clamp01 } from '../../lib/math_util.js'
+import { LB_TEXT } from '../../lib/ui_palette.js'
 
 // Canvas drawing bubble chat: panel rounded-rect + ekor segitiga + teks.
 // Diekstrak murni dari createBubble (OfficeScene.js) agar bisa di-unit-test:
@@ -8,7 +9,7 @@ export const BUBBLE_H = 76;
 export const BUBBLE_FADE_IN_SEC = 0.22;
 export const BUBBLE_LIFE_SEC = 3.5;
 
-export const BUBBLE_BG = 'rgba(7,16,32,0.94)';
+export const BUBBLE_BG = 'rgba(7, 16, 32, 0.94)';
 export const BUBBLE_TEXT_FONT = '700 24px "Segoe UI",Arial,sans-serif';
 
 // Rounded rect path pada ctx (digunakan untuk fill & stroke — path sama).
@@ -50,7 +51,7 @@ export function drawBubble(ctx, text, color, { clampText } = {}){
   ctx.fillStyle = BUBBLE_BG;
   ctx.fill();
   ctx.font = BUBBLE_TEXT_FONT;
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = LB_TEXT;
   ctx.textAlign = 'center';
   const clamp = clampText || (t => String(t));
   const t = clamp(text);

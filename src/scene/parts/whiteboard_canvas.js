@@ -3,12 +3,12 @@
 // tanpa THREE/DOM. Urutan & parameter perintah identik kode inline lama.
 import { pctDone } from './kanban_spec.js';
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js';
-import { AMBER_ACCENT, SCENE_MUTED } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, SCENE_MUTED, WB_BG_COLOR, WB_BAR_TRACK_COLOR, WB_ITEM_TEXT } from '../../lib/ui_palette.js';
 export const WB_W = 320, WB_H = 128;
-export const WB_BG = '#fbfbfa';
+export const WB_BG = WB_BG_COLOR;
 export const WB_TITLE = { text: 'WFS SPRINT', color: AMBER_ACCENT, font: 'bold 22px sans-serif', x: 14, y: 30 };
-export const WB_BAR_TRACK = 'rgba(51,65,85,.18)';
-export const WB_ITEM_COLOR = '#334155';
+export const WB_BAR_TRACK = WB_BAR_TRACK_COLOR;
+export const WB_ITEM_COLOR = WB_ITEM_TEXT;
 export const WB_ITEM_FONT = '15px sans-serif';
 export const WB_ITEMS = ['• Review task QA', '• Deploy tenant baru', '• Demo widget AI CS'];
 export const WB_ITEM_X = 14, WB_ITEM_Y0 = 58, WB_ITEM_DY = 24;

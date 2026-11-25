@@ -9,6 +9,11 @@ import { drawSprintBoard } from './whiteboard_canvas.js';
 import { drawClockFace } from './clock_canvas.js';
 import { uiTexture, uiMaterial } from './ui_colorspace.js';
 import { CEIL_PANEL_DAY, CEIL_PANEL_NIGHT, PEND_BULB_DAY, PEND_BULB_NIGHT } from './ceiling_fixtures_palette.js';
+import {
+  RM_POST, RM_TABLE_TOP, RM_TABLE_LEG, RM_CHAIR_DARK, RM_CHAIR_LEG,
+  RM_WB_FRAME, RM_WB_TINT_NIGHT, RM_WB_TINT_DAY, RM_CLOCK_RIM,
+  RM_PEND_ROD, RM_PEND_SHADE, RM_PEND_LIGHT,
+} from '../../lib/ui_palette.js';
 
 // Ruang meeting, jam dinding, dan pencahayaan gantung — ditulis ulang untuk WFS Project.
 export function createMeetingRoom(ctx, glassMat) {
@@ -20,12 +25,12 @@ export function createMeetingRoom(ctx, glassMat) {
   // Kaca pembatas: sisi kiri + dua panel depan dengan celah pintu
   for (const p of glassPanels(CX, CZ)) put(B(p.w, p.h, p.d), glassMat, p.x, p.h / 2, p.z);
   // Tiang rangka
-  for (const p of framePosts(CX, CZ)) put(B(0.05, 3.5, 0.05), M(0x8fa1b4), p.x, 1.75, p.z);
+  for (const p of framePosts(CX, CZ)) put(B(0.05, 3.5, 0.05), M(RM_POST), p.x, 1.75, p.z);
 
   // Meja rapat oval-ish: papan + dua kaki panel
-  const top = put(B(3.9, 0.07, 1.55), M(0xe7ecf1), CX, 0.72, CZ);
+  const top = put(B(3.9, 0.07, 1.55), M(RM_TABLE_TOP), CX, 0.72, CZ);
   top.castShadow = top.receiveShadow = true;
-  [-1.55, 1.55].forEach((dx) => put(B(0.08, 0.7, 1.1), M(0xa9bccd), CX + dx, 0.35, CZ));
+  [-1.55, 1.55].forEach((dx) => put(B(0.08, 0.7, 1.1), M(RM_TABLE_LEG), CX + dx, 0.35, CZ));
   if (ctx.blobMat) {
     const tableShadow = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 1.8), ctx.blobMat);
     tableShadow.rotation.x = -Math.PI / 2;
@@ -38,15 +43,15 @@ export function createMeetingRoom(ctx, glassMat) {
   // Kursi (3 per sisi)
   const seats = meetingSeats(CX, CZ);
   seats.forEach((s) => {
-    put(B(0.36, 0.045, 0.36), M(0x3a4a54), s.x, 0.42, s.z);
-    put(B(0.36, 0.34, 0.045), M(0x3a4a54), s.x, 0.61, s.z + (s.ry === 0 ? -0.19 : 0.19));
-    put(B(0.045, 0.4, 0.045), M(0x8a9ca6), s.x, 0.2, s.z);
+    put(B(0.36, 0.045, 0.36), M(RM_CHAIR_DARK), s.x, 0.42, s.z);
+    put(B(0.36, 0.34, 0.045), M(RM_CHAIR_DARK), s.x, 0.61, s.z + (s.ry === 0 ? -0.19 : 0.19));
+    put(B(0.045, 0.4, 0.045), M(RM_CHAIR_LEG), s.x, 0.2, s.z);
   });
 
   // Whiteboard dengan agenda sprint — LIVE: data task nyata dari window.__tvData
   // (refresh bersama tvPull, 60 dtk + saat tab visible). Tanpa data → fallback
   // ke agenda statis (drawSprintBoard tanpa T).
-  const frame = put(B(WB_FRAME_W, WB_FRAME_H, WB_FRAME_D), M(0xbfc5ca), CX, WB_POS_Y, CZ + WB_DZ_FRAME);
+  const frame = put(B(WB_FRAME_W, WB_FRAME_H, WB_FRAME_D), M(RM_WB_FRAME), CX, WB_POS_Y, CZ + WB_DZ_FRAME);
   frame.userData.isWhiteboardFrame = true;
   frame.userData.__keep = 1;
 
@@ -70,10 +75,12 @@ export function createMeetingRoom(ctx, glassMat) {
     item.userData.__markerBasis = m.y; // siklus 515: basis tinggi utk markerPick
   });
 
+  let __wbLastData; // siklus 477: basis pembanding tick (referensi tasks terakhir digambar)
   const redraw = () => {
     drawSprintBoard(g, typeof window !== 'undefined' ? window.__tvData?.tasks : undefined);
     board.material.map.needsUpdate = true;
     if (typeof window !== 'undefined') window.__lastWbDrawAt = Date.now();
+    __wbLastData = typeof window !== 'undefined' ? window.__tvData?.tasks : undefined; // siklus 477: catat basis tick
   };
   redraw();
 
@@ -82,17 +89,31 @@ export function createMeetingRoom(ctx, glassMat) {
   // kelas bug 164-166. Warna MATERIAL di-tint (pola skyWins mode neon): redraw
   // live tiap 60 dtk hanya update map (needsUpdate), warna material tak tersentuh
   // → tint selamat dari redraw. Guard idempoten; material tanpa .set (stub) aman.
-  const WB_TINT_NIGHT = 0x2A3446; // harmonis dgn bingkai jendela FR 0x2B3446
+  const WB_TINT_NIGHT = RM_WB_TINT_NIGHT; // harmonis dgn bingkai jendela FR 0x2B3446
   let boardTintState = null;
   const paintBoardNight = (night) => {
     const c = board && board.material && board.material.color;
     if (!c || typeof c.set !== 'function') return 0;
     if (boardTintState === night) return 0;
     boardTintState = night;
-    c.set(night ? WB_TINT_NIGHT : 0xffffff);
+    c.set(night ? WB_TINT_NIGHT : RM_WB_TINT_DAY);
     return 1;
   };
-  const wbIv = setInterval(redraw, 60000);
+  // Siklus 469: ticker redraw gerbang visibility — dulu wbIv (60 dtk) tetap
+  // repaint saat tab hidden; kini tick di-skip saat hidden. Tab kembali visible
+  // → redraw langsung via wbOnVis (tak menunggu tick 60 dtk berikutnya).
+  // Siklus 477: selain gerbang visibility, tick kini juga hanya menggambar bila
+  // referensi window.__tvData.tasks BERUBAH — dulu redraw() jalan tiap 60 dtk
+  // walau pull di-skip (backoff kesehatan) sehingga kanvas 320×128 + upload
+  // tekstur GPU terpakai utk data identik (paritas drawIfHostChanged papan
+  // proyek & onsiteTick lounge). redraw() publik tetap menggambar penuh.
+  const wbTick = () => {
+    if (document.visibilityState === 'hidden') return;
+    const data = typeof window !== 'undefined' ? window.__tvData?.tasks : undefined;
+    if (data === __wbLastData) return; // tak ada data baru — repaint tekstur dilewati
+    redraw();
+  };
+  const wbIv = setInterval(wbTick, 60000);
   const wbOnVis = () => { if (document.visibilityState === 'visible') redraw() };
   document.addEventListener('visibilitychange', wbOnVis);
 
@@ -120,7 +141,7 @@ export function createWallClock(ctx, x, y, z, faceRotY = Math.PI) {
   const cv = document.createElement('canvas'); cv.width = 96; cv.height = 96;
   const c = cv.getContext('2d');
   const tex = uiTexture(new THREE.CanvasTexture(cv)); tex.minFilter = THREE.LinearFilter;
-  const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.04, 24), M(0x2a2f36));
+  const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.04, 24), M(RM_CLOCK_RIM));
   rim.rotation.x = Math.PI / 2; rim.position.set(x, y, z + (faceRotY ? 0.03 : -0.03)); office.add(rim);
   const face = new THREE.Mesh(new THREE.CircleGeometry(0.27, 28), uiMaterial(new THREE.MeshBasicMaterial({ map: tex })));
   face.position.set(x, y, z); face.rotation.y = faceRotY; office.add(face);
@@ -156,12 +177,12 @@ export function createCeilingFixtures(ctx, deskList) {
   const dayOf = { [CEIL_NIGHT]: CEIL_DAY, [BULB_NIGHT]: BULB_DAY };
   // Lampu gantung industri di atas tiap meja
   deskList.forEach((d) => {
-    put(B(0.02, 0.8, 0.02), M(0x2e3238), d.x, 3.65, d.z);
-    put(B(0.4, 0.14, 0.4), M(0x22262b), d.x, 3.2, d.z);
+    put(B(0.02, 0.8, 0.02), M(RM_PEND_ROD), d.x, 3.65, d.z);
+    put(B(0.4, 0.14, 0.4), M(RM_PEND_SHADE), d.x, 3.2, d.z);
     const bulb = put(B(0.12, 0.06, 0.12), MB(BULB_DAY), d.x, 3.11, d.z);
     bulb.userData.__ceil = BULB_DAY; // tag pasangan siang → malam
     bulb.userData.__pendBulb = true; // siklus 503: tag napas lampu gantung
-    const pl = new THREE.PointLight(0xffe8cc, 0.15, 4, 2); pl.position.set(d.x, 3.1, d.z); office.add(pl);
+    const pl = new THREE.PointLight(RM_PEND_LIGHT, 0.15, 4, 2); pl.position.set(d.x, 3.1, d.z); office.add(pl);
     pl.userData.__pendLight = true; // siklus 503: PointLight ikut bernapas
     pendBulbs.push(bulb); pendLights.push(pl);
   });

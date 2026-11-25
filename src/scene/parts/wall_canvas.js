@@ -1,33 +1,26 @@
 // painter kanvas tekstur dinding (panel + nat + bevel gradien) — murni, ctx di-inject.
 // Urutan & parameter perintah gambar identik fungsi tex() inline lama di OfficeScene.
 // Warna gradien juga diekspor agar pemanggil cukup memanggil painter tanpa melihat detail.
-export const WALL_TEX_TOP = 'rgba(255,255,255,.12)';
-export const WALL_TEX_BOTTOM = 'rgba(0,0,0,.08)';
+// Siklus 453: seluruh konstanta warna dinding delegasi ke ui_palette.js (blok WC_*) —
+// nilai historis terkunci; tampilan dinding & trim/pilar identik.
+import {
+  WC_TEX_TOP as WALL_TEX_TOP,
+  WC_TEX_BOTTOM as WALL_TEX_BOTTOM,
+  WC_UPPER_DAY as WALL_UPPER_DAY,
+  WC_WOOD_DAY  as WALL_WOOD_DAY,
+  WC_NIGHT_UPPER as NIGHT_UPPER,
+  WC_NIGHT_WOOD  as NIGHT_WOOD,
+  WC_TRIM_DAY, WC_TRIM_NIGHT,
+  WC_PIER_DAY, WC_PIER_NIGHT,
+  WC_STOP_0, WC_STOP_22, WC_STOP_34, WC_STOP_72, WC_STOP_86,
+  WC_AO_IN, WC_AO_OUT,
+} from '../../lib/ui_palette.js';
 
-// ── Palet dinding SIANG (siklus 414): dulu literal inline di walls.js (8× tex)
-// dan diketik ulang di tes — kini satu titik kebenaran. Nilai identik.
-export const WALL_UPPER_DAY = { base: '#E6EAF1', line: 'rgba(120,138,165,.48)' };
-export const WALL_WOOD_DAY  = { base: '#8A6244',  line: 'rgba(40,25,10,.40)'  };
+export { WALL_TEX_TOP, WALL_TEX_BOTTOM, WALL_UPPER_DAY, WALL_WOOD_DAY,
+         WC_TRIM_DAY as TRIM_DAY, WC_TRIM_NIGHT as TRIM_NIGHT,
+         WC_PIER_DAY as PIER_DAY, WC_PIER_NIGHT as PIER_NIGHT };
 
-// ── Palet dinding MALAM (siklus 165): dulu 8 tekstur dinding (panel atas pucat
-// #E6EAF1 + wainscot kayu #8A6244) digambar SEKALI dgn palet siang via
-// MeshBasicMaterial ("tidak bergantung pencahayaan") — jam malam (daylight 0.3,
-// latar NAVY, lantai Lambert menggelap, jendela malam) dinding tetap terang
-// penuh = kelas bug sama dgn jendela siklus 164. createWalls me-repaint kanvas
-// dgn palet ini saat daylight ≤ 0.55 (lihat daycycle.js).
-// Painter drawWallTex PARAMETRIK (base+line di-inject) → repaint = panggil ulang
-// painter dgn warna malam; urutan & pola panel/nat/bevel identik siang.
-export const WALL_NIGHT = {
-  upper: { base: '#1B2436', line: 'rgba(96,116,150,0.32)' }, // panel atas: biru arsitektural gelap, seam samar
-  wood: { base: '#3B2B1D', line: 'rgba(20,12,6,0.45)' },     // wainscot kayu: jati gelap, tetap kayu
-};
-
-// ── Palet TRIM & PILAR (siklus 166) — warna solid MeshBasicMaterial ──
-// Dulu crown molding/sill putih #F4F6FA & pilar abu terang #8E9BB0 statis terang
-// meski malam (kelas bug 164/165). Malam: trim jadi abu-biru pucat (tetap terbaca
-// sbg lis, jauh lebih redup dari putih), pilar menyatu dgn panel dinding malam.
-export const TRIM_DAY = 0xF4F6FA, TRIM_NIGHT = 0x8FA0BC;
-export const PIER_DAY = 0x8E9BB0, PIER_NIGHT = 0x3E4A61;
+export const WALL_NIGHT = { upper: NIGHT_UPPER, wood: NIGHT_WOOD };
 
 export function drawWallTex(ctx, base, line, wpx = 512, hpx = 256, step = 64) {
   ctx.fillStyle = base;
@@ -50,18 +43,16 @@ export function drawWallTex(ctx, base, line, wpx = 512, hpx = 256, step = 64) {
   }
   // pita satin lembut (kesan finishing dinding premium)
   const st = ctx.createLinearGradient(0, 0, wpx, 0);
-  st.addColorStop(0, 'rgba(255,255,255,0)');
-  st.addColorStop(0.22, 'rgba(255,255,255,0.05)');
-  st.addColorStop(0.34, 'rgba(255,255,255,0)');
-  st.addColorStop(0.72, 'rgba(255,255,255,0.045)');
-  st.addColorStop(0.86, 'rgba(255,255,255,0)');
+  st.addColorStop(0, WC_STOP_0); st.addColorStop(0.22, WC_STOP_22);
+  st.addColorStop(0.34, WC_STOP_34); st.addColorStop(0.72, WC_STOP_72);
+  st.addColorStop(0.86, WC_STOP_86);
   ctx.fillStyle = st; ctx.fillRect(0, 0, wpx, hpx);
   // AO tepi kiri/kanan tile — panel terasa berdimensi
   const aoL = ctx.createLinearGradient(0, 0, 46, 0);
-  aoL.addColorStop(0, 'rgba(0,0,0,0.09)'); aoL.addColorStop(1, 'rgba(0,0,0,0)');
+  aoL.addColorStop(0, WC_AO_IN); aoL.addColorStop(1, WC_AO_OUT);
   ctx.fillStyle = aoL; ctx.fillRect(0, 0, 46, hpx);
   const aoR = ctx.createLinearGradient(wpx, 0, wpx - 46, 0);
-  aoR.addColorStop(0, 'rgba(0,0,0,0.09)'); aoR.addColorStop(1, 'rgba(0,0,0,0)');
+  aoR.addColorStop(0, WC_AO_IN); aoR.addColorStop(1, WC_AO_OUT);
   ctx.fillStyle = aoR; ctx.fillRect(wpx - 46, 0, 46, hpx);
   const g = ctx.createLinearGradient(0, 0, 0, hpx);
   g.addColorStop(0, WALL_TEX_TOP);

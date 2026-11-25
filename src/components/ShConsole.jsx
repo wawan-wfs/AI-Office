@@ -8,6 +8,9 @@ import { useModalFlag } from '../lib/modal'
 import ConfirmModal from './ConfirmModal'
 import { STATUS_HEX } from '../scene/parts/agent_status'
 import { MUTED_TEXT, BRIGHT_TEXT, FAINT_META, PANEL_BORDER, SUB_TEXT, TAB_BG, BTN_BG, INPUT_BG, DRAWER_TEXT, DRAWER_GRADIENT, TITLE_TEXT, TAB_IDLE_BG, CARD_BG, ROW_DASH, GHOST_BG, GHOST_TEXT, TAG_TEXT, ERROR_TEXT, PRE_BG, REJECT_BG, STALE_TEXT, PURE_TEXT, shadowAlpha } from '../lib/ui_palette'
+// Siklus 465: stempel waktu task di tab Tasks (backlog 154) — parser satu-sumber
+// parseTaskTimestamp (detik-UNIX REAL → ms, anti Invalid Date) + formatTaskDate.
+import { formatTaskDate } from '../lib/kanban_date'
 
 const STYLE = {
   overlay: { position: 'fixed', inset: 0, zIndex: 2000, background: shadowAlpha(0.45) },
@@ -435,7 +438,7 @@ export default function ShConsole({ show, onClose }) {
                   <div key={t.id} style={STYLE.row}>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: BRIGHT_TEXT }}>#{t.id} {t.title}</div>
-                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>role: {t.role || '—'} · agent: {t.agent_id || '—'}</div>
+                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>role: {t.role || '—'} · agent: {t.agent_id || '—'} · {formatTaskDate(t)}</div>
                     </div>
                     <span style={STYLE.tag}>{t.status}</span>
                     {(t.status === 'pending' || t.status === 'failed' || t.status === 'review') && (

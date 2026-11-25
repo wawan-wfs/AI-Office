@@ -12,11 +12,13 @@
 // Anti-poisoning: menit non-finite/korup → '--:--' & label netral, tidak pernah
 // 'NaN'/'Invalid Date' tampil permanen di dinding (kelas bug 268).
 import { officeStatusAt } from './office_hours.js';
-import { AMBER_ACCENT, SCENE_MUTED, SCENE_MUTED_RGB, amberAlpha } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, SCENE_MUTED, SCENE_MUTED_RGB, TV_BG_COLOR, LC_TEXT, amberAlpha } from '../../lib/ui_palette.js';
 
 export const LS_W = 256;
 export const LS_H = 160;
-export const LS_BG = '#0A1628';
+// Siklus 458: 0 literal warna — LS_BG reuse TV_BG_COLOR (#0A1628), LS_CLOCK reuse LC_TEXT
+// (#FFFFFF); nilai historis identik, tampilan layar lobi tak berubah (guard 408 anti-duplikat).
+export const LS_BG = TV_BG_COLOR;
 export const LS_TITLE = 'WFS · LOBBY';
 export const LS_TITLE_FONT = 'bold 19px "Segoe UI",Arial,sans-serif';
 export const LS_CLOCK_FONT = '900 54px "Segoe UI",Arial,sans-serif';
@@ -25,7 +27,7 @@ export const LS_FOOT_FONT = '10px monospace';
 export const LS_MUTED = SCENE_MUTED;
 export const LS_FRAME = amberAlpha(0.55);   // bingkai layar amber redup
 export const LS_TICK = amberAlpha(0.75);    // garis di bawah judul
-export const LS_CLOCK = '#FFFFFF';          // jam besar
+export const LS_CLOCK = LC_TEXT;           // jam besar (#FFFFFF = LC_TEXT, siklus 458)
 export const LS_FOOT_META = `rgba(${SCENE_MUTED_RGB},0.85)`;
 export const LS_STATUS_NETRAL = 'WFS Project · HQ';
 

@@ -31,7 +31,7 @@ describe('bubble_canvas — konstanta sesuai render lama', () => {
     expect(w).toBeCloseTo(0.034 * 360 / 76);
   });
   it('warna bg, font, fade-in, life sesuai nilai historis', () => {
-    expect(BUBBLE_BG).toBe('rgba(7,16,32,0.94)');
+    expect(BUBBLE_BG).toBe('rgba(7, 16, 32, 0.94)');
     expect(BUBBLE_TEXT_FONT).toContain('24px');
     expect(BUBBLE_FADE_IN_SEC).toBeCloseTo(0.22);
     expect(BUBBLE_LIFE_SEC).toBeCloseTo(3.5);

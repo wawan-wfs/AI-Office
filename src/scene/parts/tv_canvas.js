@@ -4,21 +4,21 @@
 import { parseTimestampMs, resolveNow } from '../../lib/kanban_date.js'
 import { fmtStampId } from '../../lib/format_time.js'
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
-import { AMBER_ACCENT, SCENE_MUTED } from '../../lib/ui_palette.js';
+import { AMBER_ACCENT, SCENE_MUTED, TV_BG_COLOR, TV_DIM_COLOR, TV_BAR_TRACK, LB_TEXT, GREEN_ACCENT } from '../../lib/ui_palette.js';
 
 // Warna palet & koordinat layout (satu sumber kebenaran untuk render & test).
 export const TV_W = 256;
 export const TV_H = 144;
-export const TV_BG = '#0A1628';
+export const TV_BG = TV_BG_COLOR;
 const TV_ACCENT = AMBER_ACCENT;
 export const TV_MUTED = SCENE_MUTED;
-export const TV_GREEN = '#10E5A0';
+export const TV_GREEN = GREEN_ACCENT;
 // Siklus 381 — TV_BLUE/TV_RED delegasi palet kanonik (dulu salinan drift
 // #448AFF/#ef4444). TV_GREEN sudah sama dgn done, tapi tetap eksplisit
 // karena dipakai sebagai aksen brand TV, bukan status task.
 export const TV_BLUE = TASK_STATUS_COLORS.review;
 export const TV_RED = TASK_STATUS_COLORS.failed;
-const TV_DIM = '#5b6b82';
+const TV_DIM = TV_DIM_COLOR;
 
 // Berapa baris status (GAGAL/REVIEW) yang tampil, dan X untuk kolom kedua.
 export function statusRows(T){
@@ -92,10 +92,10 @@ export function drawTvDashboard(ctx,data,opts={}){
   }
   const pct=tvPct(T);
   // progress bar
-  ctx.fillStyle='rgba(255,255,255,.1)';ctx.fillRect(12,36,232,12);
+  ctx.fillStyle=TV_BAR_TRACK;ctx.fillRect(12,36,232,12);
   const grd=ctx.createLinearGradient(12,0,244,0);grd.addColorStop(0,TV_GREEN);grd.addColorStop(1,TV_BLUE);
   ctx.fillStyle=grd;ctx.fillRect(12,36,Math.max(6,232*pct/100),12);
-  ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';
+  ctx.fillStyle=LB_TEXT;ctx.font='bold 12px sans-serif';
   ctx.fillText(pct+'% · '+T.done+'/'+T.total+' task',12,62);
   ctx.font='11px monospace';
   for(const r of statusRows(T)){ctx.fillStyle=r.color;ctx.fillText(r.text,r.x,80);}

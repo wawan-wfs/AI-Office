@@ -4,7 +4,7 @@
 // Tidak ada THREE / DOM di sini — ctx 2D di-inject oleh pemanggil.
 import { ACRONYMS } from './nameplate_spec.js';
 import { STATUS_HEX } from './agent_status.js'; // siklus 530: warna dot status live
-import { LB_TEXT, LB_ROLE } from '../../lib/ui_palette.js'; // 449
+import { LB_TEXT, LB_ROLE, LBL_BODY_BG } from '../../lib/ui_palette.js'; // 449/475
 
 export const LABEL_Y = 2.45; // tepat di atas kepala (tinggi duduk ≈1.95)
 
@@ -44,7 +44,7 @@ export function fitLabel(ctx, text, max, font, basePx) {
 // Semantik persis makeLabel lama di OfficeScene.
 export function drawLabelText(ctx, agent, spec, full) {
   const W = spec.W, H = spec.H;
-  ctx.fillStyle = 'rgba(10,14,24,0.84)';
+  ctx.fillStyle = LBL_BODY_BG;
   ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(2, 2, W - 4, H - 4, spec.RADIUS); else ctx.rect(2, 2, W - 4, H - 4); ctx.fill();
   ctx.fillStyle = agent.hex; ctx.fillRect(2, full ? 14 : 10, 6, H - (full ? 28 : 20));
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';

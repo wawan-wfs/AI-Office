@@ -106,3 +106,26 @@ describe('sw_update — registrasi & alur pembaruan PWA', () => {
     expect(location.reload).not.toHaveBeenCalled()
   })
 })
+
+// Siklus 476: higiene hook debug — dispose() harus menghapus window.__swUpdateDebug
+// (dulu tertahan selamanya → pasca-HMR/unmount App menunjuk objek basi; paritas
+// purgeSceneHooks siklus 123/242).
+describe('sw_update — higiene hook __swUpdateDebug (476)', () => {
+  it('dispose menghapus window.__swUpdateDebug', async () => {
+    const { sw } = makeFakeSW({ controller: true })
+    stubNavigator(sw)
+    const api = setupServiceWorkerUpdates({ onUpdateReady: () => {} })
+    await vi.waitFor(() => expect(window.__swUpdateDebug).toBeTruthy())
+    api.dispose()
+    expect(window.__swUpdateDebug).toBeUndefined()
+  })
+  it('dispose idempoten tanpa __swUpdateDebug (jsdom stub, tanpa error)', async () => {
+    const { sw } = makeFakeSW({ controller: false })
+    stubNavigator(sw)
+    const api = setupServiceWorkerUpdates({ onUpdateReady: () => {} })
+    await vi.waitFor(() => expect(window.__swUpdateDebug).toBeTruthy())
+    delete window.__swUpdateDebug
+    expect(() => api.dispose()).not.toThrow()
+    expect(window.__swUpdateDebug).toBeUndefined()
+  })
+})

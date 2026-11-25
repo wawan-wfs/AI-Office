@@ -144,14 +144,21 @@ export function createLounge(ctx) {
   // Detak umur data: saat state non-live (stale/down), label "SINKRON N dtk/mnt
   // LALU" harus berdetak tiap 30 dtk — paritas papan 3D (connIv). Bila live,
   // drawTv sudah dipanggil tiap pull sukses; tick di-skip agar hemat.
-  const connTick = setInterval(() => { if (tvConn.state !== 'live') drawTv(); }, CONN_TICK_MS);
+  // Siklus 469: tickers repaint gerbang visibility — tab hidden tak melakukan
+  // repaint sia-sia (paritas useVisibilityPoll UI): tick conn & on-site di-skip
+  // saat document.visibilityState==='hidden'; tick on-site kembali melukis satu
+  // kali saat tab visible lagi (pageHidden latch) agar hitungan tak basi.
+  const connTick = setInterval(() => { if (document.visibilityState === 'hidden') return; if (tvConn.state !== 'live') drawTv(); }, CONN_TICK_MS);
   // Siklus 529: hitungan on-site berubah saat agen lunch/pulang (bukan saat
   // pull gateway) — ticker 5 dtk redraw hanya bila angka berubah (hemat).
   let __onsiteLast = null;
+  let __onsitePageHidden = document.visibilityState === 'hidden';
   const onsiteTick = setInterval(() => {
+    const hidden = document.visibilityState === 'hidden';
+    if (hidden) { __onsitePageHidden = true; return; }
     if (!Array.isArray(window.__agentData)) return;
     const n = window.__agentData.reduce((s, a) => s + (a && typeof a === 'object' && a.state !== 'offsite' ? 1 : 0), 0);
-    if (n !== __onsiteLast) { __onsiteLast = n; drawTv(); }
+    if (n !== __onsiteLast || __onsitePageHidden) { __onsiteLast = n; __onsitePageHidden = false; drawTv(); }
   }, 5000);
   function tvSchedule() {
     tvPollTimer = setTimeout(async () => {
