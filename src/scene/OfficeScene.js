@@ -2955,8 +2955,9 @@ window.addEventListener('keydown',onKey);
       window.removeEventListener('keydown', __onOrbitKey);
       window.removeEventListener('pointerup', onDragUp);
       window.removeEventListener('pointermove', onDragMove);
-      window.removeEventListener('keydown', __ensureAudio);
-      window.removeEventListener('pointerdown', __ensureAudio);
+      // siklus 486: penghapusan keydown/pointerdown __ensureAudio dihapus —
+      // listener itu TAK PERNAH dipasang di sini (sisa refaktor lama); wake
+      // audio kini dikelola installAudioWake dgn dispose sendiri (kontrak 57).
       __disposeAudioWake && __disposeAudioWake(); // lepaskan listener wake audio sekali-pakai (anti AudioContext leak)
       // Papan proyek: hentikan interval fetch /wfs-project + listener visibilitychange
       // (tanpa ini, tiap remount meninggalkan papan lama yang terus fetch selamanya).

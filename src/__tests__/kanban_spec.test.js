@@ -479,7 +479,7 @@ describe('kanban_spec — extractTaskSortValue & sortTasks', () => {
   ];
 
   it('extractTaskSortValue mengekstrak timestamp atau numeric ID secara cerdas', () => {
-    expect(extractTaskSortValue({ id: 99, created_at: 1700 })).toBe(1700);
+    expect(extractTaskSortValue({ id: 99, created_at: 1700000000 })).toBe(1700000000000);
     expect(extractTaskSortValue({ id: 55 })).toBe(55);
     expect(extractTaskSortValue({ id: 'task-123' })).toBe(123);
     expect(extractTaskSortValue({ id: 'custom-task' })).toBe('custom-task');

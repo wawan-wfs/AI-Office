@@ -10548,3 +10548,173 @@
 - Fix: id kini `__timeouts.push(setTimeout(...))` (dipindah SETELAH deklarasi array pelacak) → clearTimeout di destroy mencegah callback scene mati; teks, delay, dan tampilan bubble tak berubah.
 - Guard BARU src/__tests__/intro_bubble_tracked_482.test.js (4 tes: bungkus push, 0 setTimeout telanjang utk createBubble, delay 1200 terkunci, urutan deklarasi + clearTimeout di destroy).
 - Verifikasi: vitest run guard 482 baru 4/4 passed; npm test penuh 558 file EXIT=0 (durasi 609 dtk, ringkasan passed terpotong `tail` — exit code jadi bukti). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1). Commit hari ini belum ada utk 26/11 — konsolidasi nanti sesuai aturan 1 commit/hari.
+
+## 26/11/2026 01.0x WIB — Siklus 483: timer cleanup ramp ambience dilacak pending
+- Audit lanjutan timer (sound_engine): `stopAmbienceNodes(false)` (ramp-down ambience, AMBIENCE_RAMP_SEC) men-schedule `setTimeoutFn(cleanupAmbienceNodes)` TANPA pelacak — dispose di tengah ramp (600 dtk) tidak clear id ini, callback bisa menembak graph ambience yang sudah dibersihkan (pola bug kelas 124/482; dispose() hanya clear `pending` + previewTimer).
+- Fix: id kini `const cleanupTimer = setTimeoutFn(...)`, di-push ke `pending` (di-clear dispose) dan self-splice di callback sebelum cleanup nodes; perilaku suara tak berubah.
+- Guard BARU src/__tests__/sound_cleanup_timer_483.test.js (4 tes: bungkus const + push pending, 0 setTimeoutFn telanjang tersisa di sound_engine, self-splice sebelum cleanupAmbienceNodes, kontrak dispose pending.forEach(clearTimeoutFn)+length=0).
+- Verifikasi: vitest run guard 483: 4/4 passed. npm test penuh 559 file EXIT=0 (~14,5 mnt). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0, ERRS none (AGENTS -1). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 02.2x WIB — Siklus 484: timer toast App di-clear saat unmount + sensus timer tuntas
+- Sensus penuh setTimeout/setInterval sisa (13 lokasi aktif): semua tick scene & lib sudah terlacak/gated — yang tersisa bersih (autoTmr/hoverTmr di-clear destroy, daycycle `timers` Set, rantai poll lounge/projectboard stop-flag, dialogA11y & fetch_timeout & sw_update punya cleanup sendiri). SATU bocor nyata: `toastTimer` App.jsx tidak di-clear saat unmount — toast yang tampil <3,5 dtk sebelum unmount meninggalkan timer pending yang menembak setToast komponen gugur.
+- Fix: effect cleanup baru `useEffect(() => () => { clearTimeout(toastTimer.current) }, [])`; perilaku toast (delay 3500, flash) tak berubah.
+- Guard BARU src/__tests__/toast_timer_unmount_484.test.js (4 tes: cleanup unmount, delay 3500 terkunci, anti-duplikat effect, anti-poisoning cleanup scheduler 480 tak diregresi).
+- Verifikasi: vitest guard 484 4/4 passed. npm test penuh 560 file / 5101 passed (+4), 6 skipped (EXIT=0, ~10 mnt). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_errors.py exit 0 (tidak ada ERRS output). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 03.1x WIB — Siklus 485: higiene listener SW pasca-dispose (sensus listener App)
+- Sensus add/removeEventListener App non-scene (7 file: App.jsx, TaskBoard, ActivityBadge, wakelock, dialogA11y, sw_update, OrbitalSculpture): semuanya berpasangan rapi KECUALI sw_update.js (3 add / 1 rm) — listener `updatefound` di registrasi service worker tidak pernah dilepas saat dispose (HMR/unmount App → reg lama tetap memegang onUpdateFound; notify sudah digerbangi disposed tapi listener basi tetap menempel).
+- Fix: dispose() kini melepas `updatefound` dari reg + `statechange` dari reg.installing; onUpdateFound & onStateChange digerbangi `disposed` di awal (tak pasang listener baru / tak notify pasca-dispose). Perilaku banner pembaruan PWA tak berubah.
+- Guard BARU src/__tests__/sw_listener_hygiene_485.test.js (4 tes: updatefound dilepas saat dispose, onUpdateFound gated — tak pasang listener installing baru setelah dispose, onStateChange gated — tak notify setelah dispose, kontrak 476 tak diregresi: __swUpdateDebug dihapus + controllerchange dilepas).
+- Verifikasi: vitest guard 485 + sw_update (3 file) 18/18 passed. npm test penuh 561 file / 5105 passed (+4), 6 skipped EXIT=0 (~14 mnt). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0 (26 agen, ERRS none, shot 697KB, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 03.3x WIB — Siklus 486: sensus pasangan listener tuntas, dead removal __ensureAudio dihapus
+- Audit lanjutan higiene listener: sensus otomatis add/removeEventListener per file sumber non-test (regex Counter) menemukan TEPAT SATU ketidakseimbangan di seluruh repo: OfficeScene destroy() melepas keydown/pointerdown `__ensureAudio` yang TIDAK PERNAH dipasang di file itu (sisa refaktor lama; listener wake audio kini dikelola installAudioWake dgn dispose sendiri, kontrak 57). Dead removal menyesatkan pembaca & menyembunyikan leak nyata di balik pairing palsu. File lain (App, TaskBoard, ActivityBadge, wakelock, dialogA11y, sw_update, OrbitalSculpture, parts scene) semua berpasangan rapi.
+- Fix: dua baris dead removal dihapus; kontrak 57 (`__disposeAudioWake && __disposeAudioWake()`) tetap utuh. Perilaku runtime tak berubah.
+- Guard BARU src/__tests__/listener_pair_hygiene_486.test.js (4 tes: 0 dead removal __ensureAudio, pasangan keydown onKey/__onOrbitKey add=rm=2, sensus pasangan listener window scene 0 ketidakseimbangan, kontrak 57 dipanggil di destroy).
+- Verifikasi: vitest guard 486 4/4 passed. npm test penuh 562 file EXIT=0 (~10,3 mnt; ringkasan passed terpotong tail, exit code jadi bukti). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0 (26 agen, ERRS none, shot 700KB, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 03.5x WIB — Siklus 487: timer fokus ulang tablist WfsPanel dilacak
+- Audit lanjutan timer pasca-sensus 484 menemukan satu setTimeout telanjang yang lolos: tabKeys WfsPanel (navigasi panah tablist, WAI-ARIA) menjadwalkan setTimeout(60) fokus ulang TANPA pelacak — tak di-clear saat unmount (callback setelah panel tutup) dan menumpuk timer basi saat keypress cepat.
+- Fix: id timer disimpan di ref komponen (tabFocusTmr), di-clear saat unmount & sebelum jadwal baru (keypress cepat = satu timer aktif); perilaku navigasi (delay 60, roving tabindex, Home/End) tak berubah.
+- Guard BARU src/__tests__/wfs_tablist_timer_487.test.js (4 tes: parameter ref ketiga + pemanggilan, clear sebelum jadwal baru, cleanup unmount, anti-regresi delay 60/roving tabindex/useEscapeClose).
+- Verifikasi: vitest guard 487 4/4 passed. npm test penuh 563 file EXIT=0 (617 dtk). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa ERRS. Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 04.3x WIB — Siklus 488: timer preview ambience digerbangi kepemilikan
+- Audit lanjutan timer menemukan bug nyata di sound_engine: `previewAmbience()` yang dipanggil ulang (saat preview masih berjalan) menimpa `ambienceNodes.previewTimer` TANPA clearTimeout timer lama — timer lama tetap hidup dan callback-nya bisa menembak lebih awal (menghentikan ambience/swell sebelum waktunya) atau menulis `previewTimer = null` milik preview baru.
+- Fix: preview ulang kini clearTimeout timer lama dulu, dan callback di-gerbangi `ambienceNodes.previewTimer === timer` (hanya pemilik timer aktif boleh men-stop ambience). Pola konsisten dgn stopAmbienceNodes yang sudah meng-clear previewTimer.
+- Guard BARU src/__tests__/preview_timer_gate_488.test.js (4 tes: clear sebelum timpa, gerbang kepemilikan anti timer basi, kontrak 483 pending tak diregresi, delay Math.max(100, durationSec*1000) terkunci).
+- Verifikasi: vitest guard 488 + 483: 8/8 passed. npm test penuh 564 file EXIT=0 (618 dtk). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa ERRS. Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 05.1x WIB — Siklus 489: sortir task papan satu sumber timestamp
+- Audit backlog kualitas non-timer menemukan bug nyata di kanban_spec: `extractTaskSortValue` HANYA membaca `created_at` numerik — task tanpa created_at tetapi punya `updated_at` REAL (bentuk sah API /tasks) jatuh ke fallback numeric-ID → sortBy newest/oldest salah urutan (task lama ID besar tampil sebagai "terbaru"); created_at string ISO juga diabaikan.
+- Fix: delegasi penuh ke `parseTaskTimestamp` (kanban_date, parser satu sumber siklus 270) — menangkap created_at ?? updated_at ?? …, detik-UNIX diskalakan ms, string ISO diparsing; fallback ID untuk task tanpa timestamp dipertahankan.
+- Guard BARU src/__tests__/sort_timestamp_489.test.js (4 tes: updated_at diurutkan benar dgn bukti urutan, skala detik-UNIX + parsing ISO, fallback ID + kontrak lama, anti-regresi delegasi & pembacaan dangkal dihapus). Tes lama kanban_spec 473 diselaraskan ke nilai detik-UNIX nyata (1700 → 1700000000; skala ×1000 kini kontrak).
+- Verifikasi: vitest guard 489 + kanban_spec 96/96 passed. npm test penuh 565 file / 5121 passed (+4), 6 skipped (EXIT=0, 636 dtk). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0 (26 agen, ERRS none, shot 699KB, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 05.4x WIB — Siklus 490: lock reentrancy create task ShConsole
+- Audit anti-dobel-POST menemukan celah terakhir di ShConsole: tombol "Tambah task" hanya di-disabled via state `busy` — dua klik cepat sebelum re-render membuat createTask() jalan dua kali → POST /tasks dobel (dua task duplikat). runTask (runInFlight) dan runAllPending (bulkInFlight) sudah ber-lock ref; createTask lolos.
+- Fix: taskInFlight ref — cek+set sebelum POST, dilepas di finally HANYA bila rid masih milik sendiri (create lebih baru yang menang tetap terkunci, konsisten pola runTask).
+- Guard BARU src/__tests__/task_create_lock_490.test.js (4 tes: lock cek+set, pelepasan milik-rid, ref bukan state, kontrak rid per-surface + guardAct + runInFlight tak diregresi).
+- Verifikasi: vitest guard 490 4/4 passed. npm test penuh 566 file EXIT=0 (614 dtk). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe OK (26 agen, 0 console/page errors, shot 700KB, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 06.1x WIB — Siklus 491: lock reentrancy create project ShConsole
+- Lanjutan anti-dobel-POST: form "Buat project & jalankan container" (create) hanya di-disabled via state `busy` — dua klik cepat sebelum re-render menjalankan create() dua kali → POST /projects dobel (project duplikat). Pola lock ref sama (runTask/runAllPending/createTask 490).
+- Fix: `projectInFlight` ref — cek+set sebelum POST, dilepas di finally HANYA bila rid masih milik sendiri (create lebih baru yang menang tetap terkunci).
+- Guard BARU src/__tests__/project_create_lock_491.test.js (4 tes: lock cek+set, pelepasan milik-rid, ref bukan state, kontrak rid per-surface + lock task 490 tak diregresi).
+- Verifikasi: vitest guard 491+490 8/8 passed. npm test penuh 567 file / 5129 passed (+4), 6 skipped EXIT=0 (~10 mnt). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_errors.py exit 0 tanpa ERRS. Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+- Lanjutan anti-dobel-POST: tombol "Jalankan" TaskBoard lewat ConfirmModal generik `ask` (App: onConfirm → ask.onOk) TIDAK punya disabled sendiri (busy tidak di-set) — dobel klik cepat menjalankan run(t) dua kali → POST /tasks/{id}/run dobel (BERBAYAR, task dikirim ke agent dua kali).
+- Fix: runInFlight ref Set per task id (pola ShConsole 413/490/491) — cek+add sebelum POST, dilepas di finally; task lain tetap bisa dijalankan paralel.
+- Guard BARU src/__tests__/taskboard_run_lock_492.test.js (4 tes: cek+add, release finally per-id, ref bukan state, kontrak endpoint POST run + flash gagal jujur).
+- Verifikasi: vitest guard 492+490 8/8 passed. npm test penuh 568 file EXIT=0 (614 dtk). Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 (ERRS none); shot office 684KB (scene hidup). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 07.1x WIB — Siklus 493: lock reentrancy submit TaskModal
+
+- Lanjutan anti-dobel-POST: modal "＋ Task Baru" (TaskModal) — tombol Simpan / Simpan & Jalankan hanya di-disabled via state `busy`; dobel klik cepat sebelum re-render menjalankan submit() dua kali → POST /tasks dobel (task duplikat) atau POST /tasks/{id}/run dobel (BERBAYAR, task dikirim ke agent dua kali). Dengan rid 132 dobel klik bukan hanya respons basi: dua POST benar-benar terkirim.
+- Fix: `submitInFlight` ref — guard+set di awal submit() sebelum await apa pun, dilepas di finally (validasi judul gagal pun terlepas); lock via ref, bukan state (tak memicu render). Kontrak rid per-modal 132 tetap utuh.
+- Guard BARU src/__tests__/task_modal_lock_493.test.js (4 tes: urutan guard→set→rid→try, release finally, ref bukan state, kontrak 132 rid + run gated).
+- Verifikasi: vitest guard 493+490+492 12/12 passed. npm test penuh 569 file EXIT=0. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_errors.py exit 0 (tidak ada ERRS/Scene init failed). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 08.3x WIB — Siklus 494: lock reentrancy panel Chat AI Team + lock TaskModal per-rid
+
+- Lanjutan anti-dobel-POST: WfsPanel — tombol Simpan/Reset konfigurasi dan Uji koneksi hanya di-disabled via state `cfgBusy`; dobel klik cepat menjalankan saveCfg()/testCfg() dua kali → POST config/{id} atau test dobel. Fix: `cfgInFlight` ref menggerbangi keduanya (field config sama), dilepas di akhir try/catch; guard BARU src/__tests__/wfs_cfg_lock_494.test.js (4 tes).
+- Bug dari guard 493: lock boolean global TaskModal memblokir submit generasi BARU setelah modal dibuka ulang (submit #1 masih menggantung memegang lock) — 2 tes kontrak rid 132 (task_modal.test.jsx) gagal. Fix: lock per-rid — rid HANYA naik saat modal dibuka (effect 132), submit memegang `submitInFlight = rid.current`, dobel klik = generasi sama ditolak, generasi baru (rid lebih tinggi) boleh mengambil alih; finally melepas lock hanya jika masih milik sendiri. Guard 493 diselaraskan (4 tes).
+- Verifikasi: vitest guard 493+494+task_modal 22/22 passed. npm test penuh 570 file / 5141 passed, 6 skipped EXIT=0. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_errors.py exit 0 (tanpa ERRS). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 09.0x WIB — Siklus 495: lock dobel klik konfirmasi pause/resume ALL
+
+- Lanjutan anti-dobel-POST: dialog konfirmasi "Jeda/Lanjutkan semua task" (App.jsx doConfirm) — tombol konfirmasi hanya di-disabled via state `busy` setelah re-render; dobel klik cepat menjalankan doConfirm() dua kali → POST tasks/pause_all atau tasks/resume_all dobel (resume BERBAYAR, task dikirim ke agent dua kali).
+- Fix: `confirmInFlight` ref per-rid — cek SEBELUM bump rid (klik ditolak tak menggeser kepemilikan), openConfirm/closeConfirm me-reset lock (dialog buka ulang = generasi baru boleh submit), finally melepas lock hanya jika masih milik rid sendiri. Konsisten pola 490-494.
+- Guard BARU src/__tests__/app_confirm_lock_495.test.jsx (dobel klik resume → HANYA SATU POST resume_all); guard lama app_confirm_guard (5 tes) tetap lolos.
+- Verifikasi: vitest guard 495+confirm_guard 6/6 passed. npm test penuh 571 file / 5142 passed, 6 skipped EXIT=0. Build vite sukses, dist ter-deploy ke ~/wfs-hq/. e2e_err_probe OK (agents=26, shot 676KB, pixels_ok). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 10.0x WIB — Siklus 496: lock dobel klik Kirim chat WfsPanel
+
+- Sensus permukaan POST pasca-495 menemukan SATU-satunya POST tanpa lock ref tersisa: send() chat AI Team (WfsPanel) — tombol Kirim hanya di-disabled via state `chatBusy`; dobel klik cepat sebelum re-render menjalankan send() dua kali → POST chat dobel (dobel pesan ke agent, dobel biaya LLM).
+- Fix: `chatInFlight` ref — guard+set sebelum await/POST apa pun, dilepas setelah try/catch (semua jalur termasuk error melepas lock); guard `chatBusy` state tetap untuk UI. Pola konsisten 490–496; kini seluruh permukaan POST UI terkunci.
+- Guard BARU src/__tests__/wfs_chat_lock_496.test.js (4 tes: guard→set sebelum POST, pelepasan lock + ref bukan state, POST chat tunggal, kontrak 494 + chatBusy tak diregresi).
+- Verifikasi: vitest guard 496+494+wfs_panel 15/15 passed. npm run build vite sukses; npm test penuh EXIT=0 (572 file, 617 dtk). dist ter-deploy ke ~/wfs-hq/. e2e_errors.py exit 0 tanpa ERRS; shot 517KB (scene hidup). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 14.0x WIB — Siklus 497: lock dobel klik act() SecureProjectPanel
+
+- Sensus lanjutan pasca-496 menemukan satu celah POST tersisa: `act()` SecureProjectPanel (brief/enqueue/cancel BERBAYAR) hanya di-guard `busy` state + abort ctrl lama — dobel klik cepat meng-abort permintaan pertama tapi POST kedua TETAP terkirim (abort hanya membatalkan respons, bukan pengiriman).
+- Fix: `actInFlight` ref — cek+set SEBELUM abort ctrl lama, dilepas di finally (semua jalur termasuk error/abort); pola lock ref konsisten 490–496. Kontrak lama tak berubah: Idempotency-Key brief, abort unmount, validasi SAFE_ID.
+- Guard BARU src/__tests__/secure_act_lock_497.test.js (4 tes: ref bukan state, guard sebelum abort, release finally, kontrak idempotency/abort/validasi).
+- Verifikasi: vitest guard 497 + secure_project_panel + 493 + 492: 17/17 passed. npm test penuh 573 file / 5150 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/ (index.html identik). e2e_errors.py exit 0 tanpa ERRS; probe klik "Aktifkan kantor 3D": agents=26, canvas=true, shot 470KB (scene hidup). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 15.1x WIB — Siklus 498: lock dobel klik POST approval/git/sandbox ShConsole
+
+- Sensus pasca-497 menemukan 3 POST ShConsole tanpa lock ref: decideApproval (approvals/{id}/decide), commitWs (projects/{id}/git/commit), sbAction (projects/{id}/sandbox/{action}) — hanya di-guard rid per-surface, dobel klik cepat sebelum re-render mengirim POST kedua.
+- Fix: 3 lock ref baru (approvalInFlight/gitInFlight/sbInFlight) — cek+set sebelum POST, dilepas di finally semua jalur; pola konsisten 490–497, rid per-surface tak berubah.
+- Guard BARU src/__tests__/shconsole_post_lock_498.test.js (4 tes). Tes lama 'git commit LAMA GAGAL telat' diselaraskan (lock menolak commit #2 saat #1 menggantung, jadi skenario out-of-order tak lagi mungkin; diganti dobel-klik ditolak + kegagalan milik sendiri tampil jujur).
+- Verifikasi: vitest guard 498 + shconsole 51/51 passed. npm test penuh 574 file / 5154 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 (tanpa ERRS). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 15.4x WIB — Siklus 499: audit berkala audit_vision_claims (tanpa perubahan kode)
+- Backlog "audit berkala audit_vision_claims" dieksekusi ulang: audit penuh live CDP :99, 2 ronde konvergensi (26 agen/5 zona; ronde 2 bubbles=3).
+- Oracle oklusi zona 5/5 eksak (DEV DESK 0.5, MEETING 1.0, WELCOME & LOUNGE 0.5, CAFÉ 0.5, SERVER ROOM 1.0).
+- Verdict 12 klaim vision (VC-250/251/256/258): RESOLVED 1 (LINA×INTEGRATOR BOT occ 0.55), FALSIFIED 8, FADED-BY-OTHER 3 — bugs=0, incomplete=0, exit 0.
+- Layanan diverifikasi: wfs-hq & wfs-office active; :9503/app/ 200. e2e_err_probe exit 0 (agents=26, ERRS none, shot 676KB, hygiene 40 refs 0 missing).
+- Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 16.3x WIB — Siklus 500: lock reentrancy PATCH status TaskBoard (kanban)
+- Sensus permukaan mutasi pasca-498: satu-satunya mutasi tanpa lock ref tersisa = handleMoveTask TaskBoard (PATCH tasks/{id}/status, approval-gate paritas run) — dobel drop/pointerup cepat pada kartu sama mengirim PATCH kedua.
+- Fix: `statusInFlight` ref Set per-task — cek+set SEBELUM PATCH, dilepas di finally (semua jalur termasuk gagal); pola konsisten 490–498. Kontrak 235 tak berubah: optimistic move, failed→review tetap failed, flash gagal jujur, sfx drop.
+- Guard BARU src/__tests__/task_status_lock_500.test.js (4 tes: ref bukan state, urutan guard→set→api→finally, kontrak PATCH tunggal + 235, optimistic/sfx tak diregresi). Permukaan mutasi UI kini 100% terkunci.
+- Verifikasi: vitest guard 500 + kanban_drag + kanban_spec 112/112 passed. npm test penuh 575 file / 5158 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0 (agents=26, ERRS none, shot 681KB, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 17.2x WIB — Siklus 501: purge hook window __wfsAgentIdList/__wfsSelectAgent saat unmount WfsPanel
+- Audit higiene hook window lanjutan (pola 476 __swUpdateDebug / 481 NON_SCENE_OWNERS) menemukan celah pemilik: `loadAgents()` WfsPanel memasang `window.__wfsAgentIdList` + `window.__wfsSelectAgent` TANPA purge — pasca-remount/HMR hook basi menunjuk closure komponen gugur (setOpen komponen mati). Scene/OfficeScene membaca dgn guard `if(window.__wfsSelectAgent…)` sehingga penghapusan aman.
+- Fix: effect cleanup unmount `delete window.__wfsAgentIdList; delete window.__wfsSelectAgent` di WfsPanel (pemilik non-scene kini purge sendiri, paritas dispose sw_update 476).
+- Guard BARU src/__tests__/wfs_hook_purge_501.test.jsx (2 tes: pasang→unmount menghapus keduanya via fetch stub pola wfs_panel, unmount tanpa load idempoten).
+- Verifikasi: vitest guard 501 + wfs_panel + scene_hooks 22/22 passed. npm test penuh 576 file / 5160 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0 (agents=26, ERRS none, shot 687KB, pixels_ok, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 18.0x WIB — Siklus 502: purge hook window __openSettings App saat unmount
+- Lanjutan audit higiene hook window (pola 501/476/481): daftar PEMILIK LAIN non-scene menyebut __openSettings (App), tetapi audit menemukan App tidak pernah menghapusnya — effect render memasang `window.__openSettings = () => setShowSettings(true)` tiap render tanpa cleanup; pasca-unmount/HMR hook basi memanggil setState komponen gugur. __wfsSceneSelect sudah punya purge (cleanup scene init).
+- Fix: effect purge `useEffect(() => () => { delete window.__openSettings }, [])` di App.jsx (pemilik non-scene kini purge sendiri semua: __openSettings App, __wfsAgentIdList/__wfsSelectAgent WfsPanel 501, __swUpdateDebug lib 476).
+- Guard BARU src/__tests__/app_hook_purge_502.test.jsx (2 tes: render 3D → unmount menghapus __wfsSceneSelect & __openSettings + destroy scene 1x; mode ringan unmount tetap bersih/idempoten). Pola stub fetch entry_mode.
+- Verifikasi: vitest guard 502 + entry_mode + wfs_hook_purge_501 18/18 passed. npm test penuh 577 file / 5162 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa ERRS; e2e_err_probe OK (agents=26, hooks_ok, shot 682KB pixels_ok, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 19.0x WIB — Siklus 503: satu sumber clamp01 — salinan lokal effects.js dihapus
+
+- Sensus anti-duplikasi math_util: effects.js masih mendefinisikan `const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v)` padahal lib/math_util.js clamp01 (siklus 361) sudah satu sumber — salinan ternary membiarkan NaN/non-numerik lolos sebagai NaN (clamp01(NaN)=NaN), konsumen robotIdle/blush menulis NaN ke canvas tanpa sadar.
+- Fix: salinan lokal dihapus, import clamp01 dari lib/math_util.js (nilai dalam rentang biasa identik; bonus anti-poisoning NaN → 0). Import ui_palette dikembalikan utuh (PURE_TEXT/SCENE_MUTED dst tetap dipakai renderer docs/board/sysdash).
+- Guard BARU src/__tests__/clamp01_source_503.test.js (4 tes: 0 definisi lokal + import math_util, sweep repo tanpa pola ternary clamp01 sisa, kontrak anti-poisoning clamp01, robotIdle nilai finite).
+- Verifikasi: vitest guard 503 + effects_wall_poster 14/14 passed. npm test penuh 578 file / 5166 passed, 6 skipped EXIT=0 (run pertama gagal 28 tes karena import ui_palette terpangkas — diperbaiki). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe OK (agents=26, ERRS none, shot 695KB pixels_ok, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 19.5x WIB — Siklus 504: anti-poisoning motion_math (dist2/stepMove) & trip_plan (collabTarget)
+
+- Audit ketahanan gerak agen & anti-poisoning menemukan celah di motion_math.js & trip_plan.js:
+  - `dist2(a, b)`: sebelumnya langsung mengevaluasi `b.x - a.x`, melempar `TypeError: Cannot read properties of undefined` jika salah satu argumen null/undefined/non-object. Padahal `leaving` di motion.js sudah menyiapkan `!Number.isFinite(d)` untuk memulihkan agen saat walkTarget invalid.
+  - Fix: integrasi delegasi ke `distXZ` (lib/math_util.js) — bila argumen null/undefined atau koordinat non-finite, kembalikan `{ dx: 0, dz: 0, d: NaN }` tanpa melempar TypeError. String numerik dinormalisasi aman; impor `faceYaw` tetap terpisah agar kontrak guard siklus 368 terjaga.
+  - `stepMove(pos, target, speed, delta)`: guard input `pos` dan `target` — null/undefined/non-finite menghasilkan posisi netral/posisi asal finite aman dan `arrived=true` tanpa melangkah ke NaN atau loop sub-step mubazir.
+  - `collabTarget(home, off)` di trip_plan.js: sebelumnya langsung `home.x + off.x`, melempar TypeError bila `home` null; kini di-guard (konsisten pola `fallbackSpot` & `jitterDest`) mengembalikan titik netral `{ x: 0, z: 0 }` jika home invalid, serta fallback offset valid bila `off` invalid.
+- Guard BARU src/__tests__/motion_poison_guard_504.test.js (11 tes: dist2 null/undefined/non-object, koordinat non-finite, akurasi Pythagoras, normalisasi string, stepMove pos/target null/NaN, large delta target null, collabTarget home invalid, fallback offset, integrasi leaving recovery).
+- Verifikasi: vitest guard 504 + motion_math + trip_plan + dist_xz + face_yaw + motion_runtime 104/104 passed. npm test penuh 579 file / 5177 passed (+11), 6 skipped EXIT=0 (587 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe OK (agents=26, shot 699KB, pixels_ok, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 20.5x WIB — Siklus 505: SecureProjectPanel satu sumber jaringan (fetchWithTimeout)
+
+- Audit permukaan jaringan menemukan SATU-satunya `await fetch` mentah tersisa di kode aktif: `request()` SecureProjectPanel — gateway menggantung → `busy` state tak pernah lepas (tombol "Menghubungkan…" selamanya, lock ref 497 ikut terkunci tanpa batas waktu). Semua permukaan lain sudah `fetchWithTimeout`.
+- Fix: `request()` diganti `fetchWithTimeout` (lib/fetch_timeout.js, deadline fase transport+body siklus 252) dgn `timeoutMs: 20000` — TimeoutError ≤ 2× deadline; abort ctrl pemanggil tetap menang (AbortSignal.any). Pesan TimeoutError baru di `readableError` ("Gateway tidak merespons (deadline terlampaui)"). Kontrak lama utuh: credentials omit, cache no-store, headers auth + Idempotency-Key.
+- Guard BARU src/__tests__/secure_fetch_deadline_505.test.jsx (4 tes: tanpa fetch mentah tersisa + import satu sumber, timeoutMs 20000 terkunci, pesan TimeoutError, E2E panel memuat data dgn headers kontrak).
+- Verifikasi: vitest guard 505 + secure_project_panel + secure_act_lock_497 13/13 passed. npm test penuh 580 file / 5181 passed (+4), 6 skipped EXIT=0 (555 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 (0 err, hooks=True); probe agents OK (canvas-ada, errs=[], cons=[]); shot 696KB (scene hidup). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 22.00 WIB — Siklus 506: anti-poisoning matchTaskSearch (field non-string)
+
+- Audit kualitas non-jaringan menemukan bug poisoning di `matchTaskSearch` (kanban_spec.js): searchBag menulis `task.title || ''` dst lalu `.toLowerCase()` gabungan — task dengan field non-string (bentuk sah API: title numerik, desc objek, priority null) melempar TypeError → pencarian papan task crash alih-alih sekadar tidak cocok (pola sama dgn seri distXZ/stepMove 504).
+- Fix: semua 12 field teks dipaksa aman via `s(v) = v == null ? '' : String(v)` — null/undefined → '', objek/angka → string; kontrak lama (token '#tag', subset per token, task non-object false) utuh.
+- Guard BARU src/__tests__/tasksearch_poison_506.test.js (5 tes: title numerik tercari, desc objek/priority null tak crash, task non-object false, filterTasks penuh dgn task campuran, kontrak teks/tag normal).
+- Verifikasi: vitest guard 506 + kanban_spec 97/97 passed. npm test penuh 581 file / 5186 passed (+5), 6 skipped EXIT=0 (553 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa EXC/CON; shot 696KB (scene hidup). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 22.5x WIB — Siklus 507: anti-poisoning ekspor Kanban (CSV & JSON, field non-string)
+
+- Lanjutan audit kualitas non-jaringan pasca-506: `kanban_export.js` — `formatCsvCell` memaksa `String(val)` mentah → task dgn title numerik / description objek (bentuk sah API) diekspor sebagai `[object Object]` di CSV; `buildTaskJson` menulis field mentah tanpa normalisasi.
+- Fix: `formatCsvCell` — objek/Array diserialisasi JSON (escape CSV RFC 4180 tetap jalan); `buildTaskJson` — field teks via helper `s(v)` (null → '', objek → JSON, lainnya → String); `id` tetap dipertahankan tipe aslinya (kontrak tes lama `id === 101`).
+- Guard BARU src/__tests__/export_poison_507.test.js (4 tes: formatCsvCell objek/primitive/null + escape lama, formatCsvRow tanpa [object Object], buildTaskCsv task campuran, buildTaskJson normalisasi).
+- Verifikasi: vitest guard 507 + kanban_export 24/24 passed. npm test penuh 582 file / 5190 passed (+4), 6 skipped EXIT=0 (555 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err exit 0 tanpa ERRS; probe agents=26; shot 476KB (scene hidup, 3 lantai, name tag ter-render). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 26/11/2026 23.4x WIB — Siklus 508: anti-poisoning clip() (field teks non-string)
+
+- Lanjutan audit kualitas non-jaringan pasca-506/507: `clip()` (lib/clip.js, dipakai App flash log, TeamStats, Dashboard, Ticker, kartu kanban 3D via formatCardTitle) membaca `s.length`/`s.slice` langsung — task dgn title numerik / description objek / tags array (bentuk sah API) melempar TypeError → kartu & flash log crash (pola seri 504-507).
+- Fix: helper `normalizeClipText` satu sumber — null/undefined/'' → '', string utuh, angka finite/boolean → String, NaN/±Infinity → '', objek/array → JSON (bukan "[object Object]"), siklik → '' via try/catch. `n` tidak valid (NaN/≤0/bukan angka) → teks utuh (dulu '…' telanjang); n string numerik tetap dipangkas. Kontrak pemangkasan batas kata + elipsis utuh.
+- Guard BARU src/__tests__/clip_poison_508.test.js (13 tes: poisoning non-string, siklik, n invalid, kontrak lama, sweep repo tanpa pemanggil clip().trim()).
+- Verifikasi: vitest guard 508 + clip + lib_clip 29/29 passed. npm test penuh 583 file / 5202 passed (+12), 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe OK (agents=26, ERRS none, shot 701KB pixels_ok, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.

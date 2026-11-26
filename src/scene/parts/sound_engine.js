@@ -204,9 +204,14 @@ export function createSoundEngine({
         }
         nodes.gain.gain.linearRampToValueAtTime(0.0001, curTime + AMBIENCE_RAMP_SEC);
       } catch { /* noop */ }
-      setTimeoutFn(() => {
+      // Siklus 483: id pelacak `pending` (di-clear di dispose) — dulu setTimeout
+      // telanjang; dispose selama ramp 600 dtk bisa membiarkan callback cleanup
+      // menembak graph ambience yang sudah dibersihkan (pola bug kelas 124/482).
+      const cleanupTimer = setTimeoutFn(() => {
+        const ix = pending.indexOf(cleanupTimer); if (ix >= 0) pending.splice(ix, 1);
         cleanupAmbienceNodes(nodes);
       }, Math.floor(AMBIENCE_RAMP_SEC * 1000));
+      pending.push(cleanupTimer);
     } else {
       cleanupAmbienceNodes(nodes);
     }
@@ -276,7 +281,10 @@ export function createSoundEngine({
     } catch { /* noop */ }
 
     const timer = setTimeoutFn(() => {
-      if (ambienceNodes) {
+      // Siklus 488: callback hanya berlaku bila timer ini MASIH preview aktif —
+      // preview ulang menimpa previewTimer dgn clearTimeout timer lama dulu,
+      // jadi timer basi tidak bisa menembak & menghentikan ambience lebih awal.
+      if (ambienceNodes && ambienceNodes.previewTimer === timer) {
         ambienceNodes.previewTimer = null;
         if (!ambienceEnabled) {
           stopAmbienceNodes(false);
@@ -284,6 +292,10 @@ export function createSoundEngine({
       }
     }, Math.max(100, Math.floor(durationSec * 1000)));
 
+    if (ambienceNodes.previewTimer) {
+      clearTimeoutFn(ambienceNodes.previewTimer);
+      ambienceNodes.previewTimer = null;
+    }
     ambienceNodes.previewTimer = timer;
     dbg();
     return true;

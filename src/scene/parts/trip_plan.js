@@ -32,7 +32,13 @@ export const STRIDE = {
 };
 
 export function collabTarget(home, off = COLLAB_OFFSET) {
-  return { x: home.x + off.x, z: home.z + off.z };
+  // Guard anti-poisoning (konsisten dgn pickDest/jitterDest/fallbackSpot):
+  // home non-valid/non-finite → spot netral (0,0), jangan biarkan NaN/TypeError
+  // merambat ke walkTarget karakter.
+  if (!home || !Number.isFinite(home.x) || !Number.isFinite(home.z)) return { x: 0, z: 0 };
+  const ox = off && Number.isFinite(off.x) ? off.x : COLLAB_OFFSET.x;
+  const oz = off && Number.isFinite(off.z) ? off.z : COLLAB_OFFSET.z;
+  return { x: home.x + ox, z: home.z + oz };
 }
 
 export function jitterDest(dest, rng, jitter = DEST_JITTER) {

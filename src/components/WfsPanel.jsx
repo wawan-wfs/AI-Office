@@ -8,17 +8,24 @@ import { POLL_PANEL_MS } from '../lib/connection_spec.js'
 
 // Navigasi panah tablist (pola WAI-ARIA tabs): Left/Right/Home/End memindahkan
 // fokus antar tab; Tab keluar seperti biasa (roving tabindex di render).
-const tabKeys = (e, setTab) => {
+// Siklus 487: timer fokus ulang DILACAK via ref — di-clear unmount & sebelum
+// jadwal baru (keypress cepat tak menumpuk timer basi; pola 482/484).
+const tabKeys = (e, setTab, pendingFocusRef) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
   const tabs = ['chat', 'config']
   const i = tabs.indexOf(document.activeElement?.id === 'wfs-tab-config' ? 'config' : 'chat')
   let n
   if (e.key === 'Home') n = 0
   else if (e.key === 'End') n = tabs.length - 1
-  else n = e.key === 'ArrowRight' ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length
+  else n = e.key === 'ArrowRight' ? (i + 1) % tabs.length : (e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length : i)
   e.preventDefault(); setTab(tabs[n])
   // fokus ulang tab tujuan setelah re-render (roving tabindex berganti)
-  setTimeout(() => { const el = document.getElementById('wfs-tab-' + tabs[n]); if (el) el.focus() }, 60)
+  if (pendingFocusRef) {
+    clearTimeout(pendingFocusRef.current)
+    pendingFocusRef.current = setTimeout(() => { const el = document.getElementById('wfs-tab-' + tabs[n]); if (el) el.focus() }, 60)
+  } else {
+    setTimeout(() => { const el = document.getElementById('wfs-tab-' + tabs[n]); if (el) el.focus() }, 60)
+  }
 }
 
 // Panel chat AI + konfigurasi per agent — gateway :8787 via /wfs-api
@@ -44,6 +51,19 @@ export default function WfsPanel() {
   const inputRef = useRef(null)
   const agentsRef = useRef([])
   const onCloseRef = useRef(() => setOpen(false))
+  // Siklus 487: id timer fokus ulang tablist dilacak (dibersihkan saat unmount)
+  const tabFocusTmr = useRef(null)
+  useEffect(() => () => { if (tabFocusTmr.current) clearTimeout(tabFocusTmr.current) }, [])
+  // Siklus 501: hook window milik panel dibuang saat unmount — pola parity
+  // __swUpdateDebug (476). loadAgents memasang __wfsAgentIdList/__wfsSelectAgent
+  // tanpa purge: pasca-remount/HMR hook basi menunjuk closure komponen gugur
+  // (setOpen komponen mati). Scene membaca dgn guard `if(window.__wfsSelectAgent…)`,
+  // jadi menghapusnya aman — scene hanya kehilangan rute ke panel yang memang sudah
+  // tidak ada. (Didaftarkan di NON_SCENE_OWNERS guard 481 — pemilik kini purge sendiri.)
+  useEffect(() => () => {
+    delete window.__wfsAgentIdList
+    delete window.__wfsSelectAgent
+  }, [])
   // setOpen dari useState stabil, jadi useCallback([]) memberi identitas permanen.
   // Kalau inline closure: effect useDialogA11y re-run tiap render (setTab dsb) —
   // cleanup-nya memindahkan fokus ke tombol pertama (✕) & merusak navigasi tablist.
@@ -113,6 +133,8 @@ export default function WfsPanel() {
   const send = async () => {
     const q = input.trim()
     if (!q || !sel || chatBusy) return
+    if (chatInFlight.current) return // siklus 496: dobel klik Kirim sebelum re-render tak mengirim POST chat kedua
+    chatInFlight.current = true
     const id = sel.id
     const history = (logs[id] || []).filter(m => m.who !== 'err').map(m => ({ role: m.who === 'me' ? 'user' : 'assistant', content: m.text }))
     setInput(''); setChatBusy(true); pushLog(id, { who: 'me', text: q })
@@ -121,10 +143,15 @@ export default function WfsPanel() {
       if (d && d.ok === false) pushLog(id, { who: 'err', text: '⚠ ' + (d.error || 'Gagal'), retry: q })
       else pushLog(id, { who: 'ai', text: (d && d.reply) || '(kosong)' })
     } catch (e) { pushLog(id, { who: 'err', text: '⚠ ' + e.message, retry: q }) }
+    chatInFlight.current = false
     setChatBusy(false)
   }
 
+  const chatInFlight = useRef(false) // siklus 496: lock reentrancy send() — dobel klik Kirim tak mengirim POST chat kedua
+  const cfgInFlight = useRef(false) // siklus 494: lock reentrancy — dobel klik Simpan/Uji tak mengirim POST config/test kedua
   const saveCfg = async (reset = false) => {
+    if (cfgInFlight.current) return
+    cfgInFlight.current = true
     setCfgBusy(true); setCfgMsg('')
     try {
       const body = reset ? { base: '-', key: '-', model: '-', prompt: '-' }
@@ -138,15 +165,19 @@ export default function WfsPanel() {
         }
       }
     } catch (e) { setCfgMsg('⚠ ' + e.message) }
+    cfgInFlight.current = false
     setCfgBusy(false)
   }
 
   const testCfg = async () => {
+    if (cfgInFlight.current) return
+    cfgInFlight.current = true
     setCfgBusy(true); setCfgMsg('⏳ Menguji…')
     try {
       const d = await api('test', { method: 'POST', body: { base: cfg.base_url, key: cfg.api_key, model: cfg.model } })
       setCfgMsg(d.ok ? '✅ OK — ' + (d.models != null ? d.models + ' model tersedia' : 'tersambung') : '⚠ ' + (d.error || 'gagal'))
     } catch (e) { setCfgMsg('⚠ ' + e.message) }
+    cfgInFlight.current = false
     setCfgBusy(false)
   }
 
@@ -164,7 +195,7 @@ export default function WfsPanel() {
               <span className="sr-only">✕</span>
             </button>
           </div>
-          <div className="tabs" role="tablist" aria-label="Panel chat / konfigurasi" onKeyDown={e => tabKeys(e, setTab)}>
+          <div className="tabs" role="tablist" aria-label="Panel chat / konfigurasi" onKeyDown={e => tabKeys(e, setTab, tabFocusTmr)}>
             <button type="button" role="tab" id="wfs-tab-chat" tabIndex={tab === 'chat' ? 0 : -1} aria-selected={tab === 'chat'} aria-controls="wfs-tabpanel-chat" onClick={() => setTab('chat')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <IconChat size={15} />
               <span>Chat</span>

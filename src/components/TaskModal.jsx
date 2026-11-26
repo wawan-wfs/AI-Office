@@ -28,6 +28,12 @@ export default function TaskModal({ show, onClose, onDone }) {
   // Ref didefinisikan di ATAS early-return `if (!show)` — jumlah hook wajib
   // konsisten antar render (modal tutup vs buka), rules of hooks.
   const rid = useRef(0)
+  // Lock reentrancy submit (siklus 493, pola 490/491/492): tombol Simpan /
+  // Simpan & Jalankan hanya di-disabled via state `busy` — dua klik cepat
+  // sebelum re-render menjalankan submit() dua kali → POST /tasks dobel
+  // (task duplikat) atau POST /tasks/{id}/run dobel (BERBAYAR, task dikirim
+  // ke agent dua kali). Lock ref langsung di awal submit(), sebelum await.
+  const submitInFlight = useRef(false)
   useModalFlag(show)
   useEffect(() => { onCloseRef.current = onClose })
   useEffect(() => {
@@ -45,10 +51,12 @@ export default function TaskModal({ show, onClose, onDone }) {
 
   if (!show) return null
   const submit = async (run) => {
-    const my = ++rid.current
-    if (!title.trim()) return setErr('Judul task wajib diisi')
-    setBusy(true); setErr('')
+    const my = rid.current // rid HANYA naik saat modal dibuka (effect) — dobel klik = generasi sama
+    if (submitInFlight.current === my) return // dobel klik cepat pada submit SAMA: POST dobel dicegah
+    submitInFlight.current = my
     try {
+      if (!title.trim()) return setErr('Judul task wajib diisi')
+      setBusy(true); setErr('')
       const d = await api('tasks', { method: 'POST', body: { title: title.trim(), role, prompt: prompt.trim() } })
       if (my !== rid.current) return // basi: task lama TIDAK dijalankan (run berbayar — jangan auto-run task yang sudah di-abandon user)
       if (run) await api(`tasks/${d.task_id}/run`, { method: 'POST' })
@@ -60,6 +68,8 @@ export default function TaskModal({ show, onClose, onDone }) {
       if (my !== rid.current) return // kegagalan basi — jangan munculkan alert di form baru
       setErr(e.message)
       setBusy(false)
+    } finally {
+      if (submitInFlight.current === my) submitInFlight.current = false
     }
   }
   return (

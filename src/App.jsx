@@ -265,6 +265,10 @@ export default function App() {
     clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 3500)
   }, [])
+  // Siklus 484: timer toast di-clear saat unmount — dulu toast yang tampil <
+  // 3,5 dtk sebelum unmount meninggalkan timer pending yang menembak setToast
+  // komponen gugur (closure 3,5 dtk tertahan; pola higiene timer 482/483).
+  useEffect(() => () => { clearTimeout(toastTimer.current) }, [])
 
   // Siklus 189: langganan gerbang papan — event pertama (shortcut T, tombol,
   // klik kartu, whiteboard 3D) menaikkan tbWanted → chunk lazy terunduh;
@@ -596,6 +600,10 @@ export default function App() {
   wfsSetAppModalBase(!!(showTask || confirm || ask || showHelp || showSettings || showLog || selectedAgent))
   wfsRefreshModalFlag()
   window.__openSettings = () => setShowSettings(true)
+  // Siklus 502: hook window milik App di-purge saat unmount (pola 501) —
+  // __openSettings menutup over closure setShowSettings komponen; tanpa
+  // purge, pasca-remount/HMR hook basi memanggil setState komponen gugur.
+  useEffect(() => () => { delete window.__openSettings }, [])
 
   // Snapshot flag di fase CAPTURE (window capture jalan sebelum semua bubble handler):
   // handler Escape overlay menutup modal & React flush sinkron, sehingga saat handler
@@ -827,10 +835,13 @@ export default function App() {
   // langsung siap). Server-side POST tetap sudah terkirim — yang dibatalkan
   // hanya penulisannya ke UI.
   const confirmRid = useRef(0)
-  const openConfirm = (mode) => { ++confirmRid.current; setConfirmBusy(false); setConfirm(mode) }
-  const closeConfirm = () => { ++confirmRid.current; setConfirmBusy(false); setConfirm(null) }
+  const confirmInFlight = useRef(0) // siklus 495: lock per-rid dobel klik tombol konfirmasi — pause_all/resume_all tak terkirim dobel (resume BERBAYAR)
+  const openConfirm = (mode) => { ++confirmRid.current; confirmInFlight.current = 0; setConfirmBusy(false); setConfirm(mode) }
+  const closeConfirm = () => { ++confirmRid.current; confirmInFlight.current = 0; setConfirmBusy(false); setConfirm(null) }
   const doConfirm = async () => {
+    if (confirmInFlight.current) return // siklus 495: dobel klik tombol konfirmasi pada generasi sama tak mengirim POST kedua (resume_all BERBAYAR) — cek SEBELUM bump rid, klik ditolak tak menggeser kepemilikan
     const rid = ++confirmRid.current
+    confirmInFlight.current = rid // lock per-rid: generasi baru (buka ulang dialog) me-reset lock di openConfirm/closeConfirm
     setConfirmBusy(true)
     try {
       if (confirm === 'pause') {
@@ -848,7 +859,7 @@ export default function App() {
       if (rid !== confirmRid.current) return // kegagalan basi: jangan toast / tutup dialog baru
       flash(e.message, true); setConfirm(null)
     } finally {
-      if (rid === confirmRid.current) setConfirmBusy(false) // jangan hapus busy generasi baru
+      if (rid === confirmRid.current) { confirmInFlight.current = 0; setConfirmBusy(false) } // jangan hapus busy/lock generasi baru
     }
   }
 

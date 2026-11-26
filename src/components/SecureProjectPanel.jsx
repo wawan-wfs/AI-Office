@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { fmtMicroUSD } from '../lib/format_time.js'
+import { fetchWithTimeout } from '../lib/fetch_timeout.js' // siklus 505: satu sumber jaringan dgn deadline
 
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/
 const SAFE_NUMBER = /^[0-9]{1,10}$/
 
 function readableError(error) {
   if (error?.name === 'AbortError') return 'Permintaan dibatalkan.'
+  if (error?.name === 'TimeoutError') return 'Gateway tidak merespons (deadline terlampaui) — coba lagi.'
   return String(error?.message || 'Layanan tidak dapat dihubungi.').slice(0, 180)
 }
 
@@ -31,6 +33,7 @@ export default function SecureProjectPanel() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const pending = useRef(null)
+  const actInFlight = useRef(false) // siklus 497: lock ref reentrancy act()
   const briefKey = useRef(null)
 
   useEffect(() => () => pending.current?.abort(), [])
@@ -55,8 +58,11 @@ export default function SecureProjectPanel() {
 
   const request = async (suffix, method = 'GET', ctrl, body = null, extraHeaders = {}) => {
     const base = '/api/v4/projects/' + encodeURIComponent(project)
-    const response = await fetch(base + suffix, {
-      method, credentials: 'omit', cache: 'no-store', signal: ctrl.signal,
+    // siklus 505: fetchWithTimeout — satu sumber jaringan dgn deadline transport
+    // (TimeoutError ≤ 2× deadline) + abort pemanggil tetap menang. Kontrak lama
+    // utuh: credentials omit, cache no-store, headers auth + Idempotency-Key.
+    const response = await fetchWithTimeout(base + suffix, {
+      method, credentials: 'omit', cache: 'no-store', signal: ctrl.signal, timeoutMs: 20000,
       headers: { Authorization: 'Bearer ' + token, Accept: 'application/json',
         ...(body ? { 'Content-Type': 'application/json' } : {}), ...extraHeaders },
       ...(body ? { body: JSON.stringify(body) } : {}),
@@ -83,6 +89,8 @@ export default function SecureProjectPanel() {
       setError('Task ID harus berupa angka.')
       return
     }
+    if (actInFlight.current) return // siklus 497: lock dobel klik — abort ctrl lama tak menahan POST baru
+    actInFlight.current = true
     pending.current?.abort()
     const ctrl = new AbortController()
     pending.current = ctrl
@@ -142,6 +150,7 @@ export default function SecureProjectPanel() {
         pending.current = null
         setBusy(false)
       }
+      actInFlight.current = false // siklus 497: lock dilepas di semua jalur
     }
   }
 

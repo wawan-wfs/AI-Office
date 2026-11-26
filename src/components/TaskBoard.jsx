@@ -77,6 +77,8 @@ const FILTERS = [['all', 'Semua'], ['pending', taskStatusLabel('pending')], ['ru
 
 // Papan Task: daftar nyata dari task engine, filter divisi/status, kanban view, detail, jalankan per task.
 export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
+  const runInFlight = useRef(new Set()) // siklus 492: lock reentrancy POST run BERBAYAR — dobel klik tombol "Jalankan" di dialog konfirmasi tak mengirim POST run kedua
+  const statusInFlight = useRef(new Set()) // siklus 500: lock reentrancy PATCH status — dobel drop kartu sama tak mengirim PATCH kedua
   const [open, setOpen] = useState(false)
   // Siklus 189: gate lazy-load — komponen ini SATU-SATUNYA pemasang listener
   // 'wfs-open-task-board' (App mengalirkan dispatch lewat lib taskboard_gate.js).
@@ -412,10 +414,14 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
   }, [open, sel])
 
   const run = async (t) => {
+    if (runInFlight.current.has(t.id)) return // siklus 492: POST run BERBAYAR — dobel klik/Enter tak mengirim POST kedua
+    runInFlight.current = new Set(runInFlight.current).add(t.id)
     try {
       await api(`tasks/${t.id}/run`, { method: 'POST', body: {} })
       onFlash(`Task #${t.id} dijalankan`); load()
-    } catch (e) { onFlash(e.message || 'Gagal menjalankan task', true) }
+    } catch (e) { onFlash(e.message || 'Gagal menjalankan task', true) } finally {
+      runInFlight.current = new Set(runInFlight.current); runInFlight.current.delete(t.id)
+    }
   }
   const ask = (t) => onAsk({ title: `Jalankan task #${t.id}?`, body: `"${t.title}" akan dikerjakan oleh ${t.agent_id} dan memanggil model AI (memakai kuota API).`, ok: 'Jalankan', onOk: () => run(t) })
 
@@ -436,9 +442,16 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     // paritas run). Status dikirim PERSIS status engine (failed tetap failed —
     // bukan dipetakan ke review), flash gagal jujur saat persist ditolak.
     const persistedStatus = task.status === 'failed' && targetColKey === 'review' ? 'failed' : targetColKey
+    // siklus 500: PATCH status BERBAYAR (approval-gate paritas run) — dobel drop /
+    // pointerup cepat pada kartu yang sama tak mengirim PATCH kedua (lock ref per-task).
+    if (statusInFlight.current.has(task.id)) return
+    statusInFlight.current = new Set(statusInFlight.current).add(task.id)
     api(`tasks/${task.id}/status`, { method: 'PATCH', body: { status: persistedStatus } })
       .catch(e => {
         if (onFlash) onFlash(`Gagal memindahkan task #${task.id}: ${e.message || 'server menolak'}`, true)
+      })
+      .finally(() => {
+        statusInFlight.current = new Set(statusInFlight.current); statusInFlight.current.delete(task.id)
       })
 
     if (onFlash) onFlash(formatDragDropNotification(task, targetColKey, targetLabel))

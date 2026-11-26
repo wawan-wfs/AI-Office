@@ -41,7 +41,11 @@ export { STATUS_LABELS };
  */
 export function formatCsvCell(val) {
   if (val === null || val === undefined) return '';
-  const str = String(val);
+  // Siklus 507: nilai non-string sah dari data API (angka di CSV, objek di
+  // task.title) dulu dipaksa String() mentah → [object Object] bocor ke
+  // berkas ekspor. Kini objek/Array diserialisasi JSON agar isi terbaca;
+  // primitive tetap String() seperti sebelumnya.
+  const str = typeof val === 'object' ? JSON.stringify(val) : String(val);
   if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
     return `"${str.replace(/"/g, '""')}"`;
   }
@@ -91,6 +95,8 @@ export function buildTaskCsv(tasks, options = {}) {
       dateFormatted !== '—' ? dateFormatted : '',
       t.description || t.desc || '',
     ];
+    // Semua sel lewat formatCsvCell (anti-poisoning 507: objek → JSON,
+    // primitive → String) — baris tak pernah berisi [object Object].
     rows.push(formatCsvRow(row));
   }
 
@@ -116,24 +122,29 @@ export function buildTaskJson(tasks, options = {}) {
       const tags = extractTaskTags(t);
       const files = parseFileList(t.files);
       const statusLabel = STATUS_LABELS[t.status] || t.status || '';
+      // Siklus 507: field teks non-string (bentuk sah API — judul numerik,
+      // deskripsi objek) dulu ditulis mentah → JSON ekspor berisi [object
+      // Object] / angka tanpa konteks. Dipaksa aman dgn helper s(v): null →
+      // '', objek → JSON, lainnya → String.
+      const s = (v) => (v == null ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
       return {
         id: t.id,
-        title: t.title || '',
-        status: t.status || '',
+        title: s(t.title),
+        status: s(t.status),
         status_label: statusLabel,
         priority: prio.key || 'normal',
         priority_label: prio.label || 'Normal',
         division: divisionKey,
         division_label: divisionLabel,
-        role: t.role || '',
+        role: s(t.role),
         role_label: roleLabel,
-        agent_id: t.agent_id || null,
+        agent_id: s(t.agent_id) || null,
         tags,
         file_count: files.length,
         files,
         review: t.review || null,
-        description: t.description || t.desc || null,
+        description: s(t.description || t.desc) || null,
         created_at: t.created_at || t.createdAt || null,
       };
     });

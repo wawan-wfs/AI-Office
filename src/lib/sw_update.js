@@ -58,6 +58,7 @@ export function setupServiceWorkerUpdates({ onUpdateReady, pollMs = 10000 } = {}
   }
 
   const onStateChange = () => {
+    if (disposed) return
     const sw = reg && reg.installing
     if (typeof window !== 'undefined' && window.__swUpdateDebug && sw && sw.state === 'installed') {
       window.__swUpdateDebug.stateInstalled += 1
@@ -67,6 +68,7 @@ export function setupServiceWorkerUpdates({ onUpdateReady, pollMs = 10000 } = {}
     if (sw && sw.state === 'installed' && navigator.serviceWorker.controller) notify()
   }
   const onUpdateFound = () => {
+    if (disposed) return
     if (typeof window !== 'undefined' && window.__swUpdateDebug) window.__swUpdateDebug.updateFound += 1
     if (reg && reg.installing) {
       try { reg.installing.addEventListener('statechange', onStateChange) } catch { /* SW sudah gone */ }
@@ -114,6 +116,11 @@ export function setupServiceWorkerUpdates({ onUpdateReady, pollMs = 10000 } = {}
     },
     dispose() {
       disposed = true
+      // Siklus 485: listener updatefound di registrasi ikut dilepas (3 add / 1 rm
+      // sebelumnya) — reg.app LAMA tetap menerima event setelah dispose (HMR/
+      // unmount), menyalakan jalur notify yang sudah digerbangi disposed.
+      try { reg?.removeEventListener('updatefound', onUpdateFound) } catch { /* no-op */ }
+      try { reg?.installing?.removeEventListener('statechange', onStateChange) } catch { /* no-op */ }
       reg = null
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
       try { navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange) } catch { /* no-op */ }

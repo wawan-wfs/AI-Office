@@ -1,6 +1,7 @@
 // Matematika gerak karakter — murni (tanpa THREE/performance.now/DOM), bisa di-unit-test.
 // Diekstrak dari motion.js: dist2, hard clamp batas dunia, langkah menuju target.
 import { faceYaw } from '../../lib/math_util.js';
+import { distXZ } from '../../lib/math_util.js';
 
 // Lantai: BoxGeometry(26, z 20) → ±13 / ±10. Dinding kiri x=-13, belakang z=-10.
 // Pintu masuk kantor (spawn shift) di x=-12, z=8 → walker spawn 0.6 unit di dalam.
@@ -25,8 +26,11 @@ export function angleDelta(target, current) {
 }
 
 export function dist2(a, b) {
-  const dx = b.x - a.x, dz = b.z - a.z;
-  return { dx, dz, d: Math.hypot(dx, dz) };
+  // Guard anti-poisoning via distXZ: bila a atau b null/undefined atau koordinat non-finite,
+  // kembalikan { dx: 0, dz: 0, d: NaN } tanpa melempar TypeError.
+  const d = distXZ(a, b);
+  if (d === null) return { dx: 0, dz: 0, d: NaN };
+  return { dx: Number(b.x) - Number(a.x), dz: Number(b.z) - Number(a.z), d };
 }
 
 // Satu langkah menuju target. Return { x, z, rot, arrived, clamped }.
@@ -37,6 +41,14 @@ export function dist2(a, b) {
 // terpenuhi DAN total jarak tempuh tetap proporsional delta penuh (dulu
 // pemanggil OfficeScene meng-clamp 0.05 → jarak tempuh 0.3 FPS kacau).
 export function stepMove(pos, target, speed, delta) {
+  // Guard anti-poisoning (pos / target): pos/target null, undefined, atau non-finite
+  // TIDAK boleh melempar TypeError atau menulari posisi walker dengan NaN.
+  if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.z)) {
+    return { x: 0, z: 0, rot: (pos && Number.isFinite(pos.rot)) ? pos.rot : 0, arrived: true, clamped: false };
+  }
+  if (!target || !Number.isFinite(target.x) || !Number.isFinite(target.z)) {
+    return { x: pos.x, z: pos.z, rot: Number.isFinite(pos.rot) ? pos.rot : 0, arrived: true, clamped: false };
+  }
   // Overload lama dipertahankan: delta ≤ STEP_MAX → perilaku & return identik.
   // Sub-step: fisika per langkah ≤ STEP_MAX detik (kontrak motion.js 20+);
   // langkah linier & stateless → jumlah sub-step hanya membagi, total identik.

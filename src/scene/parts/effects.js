@@ -2,6 +2,7 @@
 // Ditulis ulang: tiap layar = fungsi renderer terpisah dalam tabel, bukan rangkaian if/else.
 import { tvPct } from './tv_canvas.js';
 import { fmtUptime } from './projectboard_data.js';
+import { clamp01 } from '../../lib/math_util.js'; // Siklus 503: satu sumber clamp01
 import { AMBER_ACCENT, PINK_ACCENT, SKY_DIVISION, EMERALD_ACCENT, SCENE_MUTED, PURE_TEXT, SCREEN_BG, SCREEN_OK, SCREEN_WARN, SCREEN_INFO, SCREEN_FAIL, SCREEN_PALETTE, FX_PAGE_TINTS, FX_POT_CLAY, FX_LEAF, FX_HP_BAND, FX_HP_CUP } from '../../lib/ui_palette.js';
 
 const GRID = (c, w, h, step, col, alpha) => {
@@ -739,8 +740,6 @@ export const ROBOT_BLINK_DUR = 0.14;  // lama mata tertutup
 export const ROBOT_SCAN_SEC = 1.6;    // satu sapuan panel dada
 export const ROBOT_STATUS_HZ = 1.1;   // kedip lampu status
 export const ROBOT_BEACON_HZ = 0.8;   // napas halo antena
-
-const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 // ── Siklus 492: pedestal dasar kampus bernapas ────────────────────────────
 // Glow rim cyan & lip emas pedestal statis konstan — elemen identitas dek

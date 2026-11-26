@@ -112,6 +112,11 @@ export default function ShConsole({ show, onClose }) {
   const guardAct = (k, rid) => actRid.current[k] === rid
   const [runningTask, setRunningTask] = useState(() => new Set()) // id task dgn POST /run in-flight (tombol per-task disabled)
   const runInFlight = useRef(new Set()) // lock reentrancy per-task: dobel klik/Enter pada task sama tak mengirim POST run kedua (BERBAYAR)
+  const taskInFlight = useRef(false) // siklus 490: lock reentrancy create task — dobel klik/Enter tak mengirim POST tasks kedua
+  const projectInFlight = useRef(false) // siklus 491: lock reentrancy create project — dobel klik/Enter tak mengirim POST projects kedua
+  const approvalInFlight = useRef(false) // siklus 498: lock reentrancy decideApproval — dobel klik tak mengirim POST decide kedua
+  const gitInFlight = useRef(false) // siklus 498: lock reentrancy commitWs — dobel klik tak mengirim POST commit kedua
+  const sbInFlight = useRef(false) // siklus 498: lock reentrancy sbAction — dobel klik tak mengirim POST sandbox kedua
 
   const loadOverview = useCallback(async () => {
     const rid = ++ovRid.current
@@ -161,6 +166,8 @@ export default function ShConsole({ show, onClose }) {
     catch (e) { if (!guardTab('approvals', rid)) return; setErr(e.message) }
   }, [])
   const decideApproval = async (aid, action) => {
+    if (approvalInFlight.current) return // siklus 498: dobel klik cepat tak mengirim POST decide kedua
+    approvalInFlight.current = true
     const rid = ++actRid.current.approval
     try {
       await api('approvals/' + aid + '/decide', { method: 'POST', body: { action } })
@@ -168,6 +175,7 @@ export default function ShConsole({ show, onClose }) {
       await loadApprovals()
     }
     catch (e) { if (!guardAct('approval', rid)) return; setErr(e.message) }
+    finally { approvalInFlight.current = false }
   }
 
   // Loader Workspace (files/logs/git) — dideklarasikan SEBELUM effect loader
@@ -203,20 +211,26 @@ export default function ShConsole({ show, onClose }) {
   }, [])
   const commitWs = async (pid) => {
     if (!gitMsg.trim()) { setErr('Pesan commit wajib'); return }
+    if (gitInFlight.current) return // siklus 498: dobel klik cepat tak mengirim POST commit kedua
+    gitInFlight.current = true
     const rid = ++actRid.current.git
     try {
       await api('projects/' + pid + '/git/commit', { method: 'POST', body: { message: gitMsg.trim() } })
       if (!guardAct('git', rid)) return // commit basi — konteks ganti / aksi commit lain menyusul
       setGitMsg(''); await loadWsGit(pid); setErr('')
     } catch (e) { if (!guardAct('git', rid)) return; setErr(e.message) }
+    finally { gitInFlight.current = false }
   }
   const sbAction = async (pid, action) => {
+    if (sbInFlight.current) return // siklus 498: dobel klik cepat tak mengirim POST sandbox kedua
+    sbInFlight.current = true
     const rid = ++actRid.current.sb
     try {
       await api('projects/' + pid + '/sandbox/' + action, { method: 'POST', body: {} })
       if (!guardAct('sb', rid)) return // aksi sandbox basi — jangan refresh daftar dgn state basi
       await loadProjects(); setErr('')
     } catch (e) { if (!guardAct('sb', rid)) return; setErr(e.message) }
+    finally { sbInFlight.current = false }
   }
   const runPreset = async (pid, kind) => {
     const cmd = kind === 'py'
@@ -303,24 +317,34 @@ export default function ShConsole({ show, onClose }) {
 
   const create = async () => {
     if (!name.trim() || !brief.trim()) { setErr('Nama dan brief wajib diisi'); return }
+    if (projectInFlight.current) return // siklus 491: dobel klik/Enter pada form sama tak mengirim POST projects kedua
+    projectInFlight.current = true
     setBusy(true); setErr('')
     const rid = ++actRid.current.create
     try {
       await api('projects', { method: 'POST', body: { name: name.trim(), brief: brief.trim() } })
       if (!guardAct('create', rid)) return // create LAMA telat — form BARU milik user, jangan dihapus
       setName(''); setBrief(''); await loadProjects(); setTab('projects')
-    } catch (e) { if (!guardAct('create', rid)) return; setErr(e.message) } finally { setBusy(false) }
+    } catch (e) { if (!guardAct('create', rid)) return; setErr(e.message) } finally {
+      if (actRid.current.create === rid) projectInFlight.current = false // hanya milik sendiri — create baru yang menang tetap terkunci
+      setBusy(false)
+    }
   }
 
   const createTask = async () => {
     if (!tTitle.trim()) { setErr('Judul task wajib diisi'); return }
+    if (taskInFlight.current) return // siklus 490: dobel klik/Enter pada form sama tak mengirim POST tasks kedua
+    taskInFlight.current = true
     setBusy(true); setErr('')
     const rid = ++actRid.current.task
     try {
       await api('tasks', { method: 'POST', body: { title: tTitle.trim(), role: tRole, prompt: tPrompt.trim() } })
       if (!guardAct('task', rid)) return // create LAMA telat — input task BARU tak dihapus
       setTTitle(''); setTPrompt(''); await loadTasks()
-    } catch (e) { if (!guardAct('task', rid)) return; setErr(e.message) } finally { setBusy(false) }
+    } catch (e) { if (!guardAct('task', rid)) return; setErr(e.message) } finally {
+      if (actRid.current.task === rid) taskInFlight.current = false // hanya milik sendiri — create baru yang menang tetap terkunci
+      setBusy(false)
+    }
   }
 
   const runTask = async (tid) => {

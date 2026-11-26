@@ -3,7 +3,7 @@
 
 import { TEAMS, findTeamByRole, findTeamByAgent, computeTeamStats } from './team_spec.js';
 import { parseFileList } from '../../lib/files.js';
-import { isTaskInDateRange, DATE_RANGE_PRESETS } from '../../lib/kanban_date.js';
+import { isTaskInDateRange, DATE_RANGE_PRESETS, parseTaskTimestamp } from '../../lib/kanban_date.js';
 import { taskStatusColor } from '../../lib/task_status_colors.js';
 import {
   KANBAN_COLUMN_BG, KANBAN_PRIORITY_COLORS, KANBAN_PRIORITY_BG,
@@ -187,19 +187,23 @@ export function matchTaskSearch(task, query) {
   const statusIndo = INDONESIAN_STATUS_KEYWORDS[String(task.status || '').toLowerCase()] || '';
 
   const idStr = task.id != null ? String(task.id) : '';
+  // Siklus 506: field non-string (task lama / bentuk sah API) dulu memicu
+  // TypeError di .toLowerCase() bagian bawah — pencarian board crash alih-alih
+  // sekadar tidak cocok. String() aman memaksa semua field teks.
+  const s = (v) => (v == null ? '' : String(v));
   const searchBag = [
     idStr ? `#${idStr}` : '',
     idStr,
-    task.title || '',
-    task.desc || '',
-    task.description || '',
-    task.agent_id || '',
-    task.role || '',
+    s(task.title),
+    s(task.desc),
+    s(task.description),
+    s(task.agent_id),
+    s(task.role),
     roleLabel,
-    task.status || '',
+    s(task.status),
     statusIndo,
-    task.priority || '',
-    prio.label || '',
+    s(task.priority),
+    s(prio.label),
     ...taskTags,
     ...taskTags.map((tg) => `#${tg}`),
   ]
@@ -597,9 +601,13 @@ export function computePriorityBreakdown(tasks, divisionFilter = 'all', customDi
 
 export function extractTaskSortValue(task) {
   if (!task || typeof task !== 'object') return 0;
-  if (task.created_at != null && !isNaN(Number(task.created_at))) {
-    return Number(task.created_at);
-  }
+  // Siklus 489: timestamp task satu sumber via parseTaskTimestamp (kanban_date)
+  // — menangkap created_at ?? updated_at ?? … (detik-UNIX diskalakan ms, string
+  // ISO diparsing). Dulu HANYA created_at numerik dibaca: task tanpa created_at
+  // tetapi punya updated_at REAL dulu jatuh ke fallback ID (urutan salah di
+  // sortBy newest/oldest), dan created_at string ISO juga diabaikan.
+  const ts = parseTaskTimestamp(task);
+  if (ts != null) return ts;
   const idStr = String(task.id ?? '');
   const num = Number(idStr);
   if (!isNaN(num)) return num;

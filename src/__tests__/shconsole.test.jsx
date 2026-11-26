@@ -932,7 +932,7 @@ describe('ShConsole — guard aksi POST/exec (terminal, commit, sandbox, approva
     expect(screen.getByText(/Exit status: 0/)).toBeTruthy()
   })
 
-  it('git commit LAMA GAGAL telat setelah commit BARU sukses → banner basi tidak muncul, gitMsg tetap kosong', async () => {
+  it('git commit: dobel klik saat POST menggantung tak mengirim commit kedua (lock 498); commit sukses reset gitMsg', async () => {
     const t = stubDeferred(
       { '/git/commit': null },
       { ...WS_INSTANT, '/wfs-api/projects/1/git': { repo: true, branch: 'main', status: 'bersih', log: 'abc fitur' } },
@@ -942,15 +942,16 @@ describe('ShConsole — guard aksi POST/exec (terminal, commit, sandbox, approva
     fireEvent.change(screen.getByLabelText('Pesan commit'), { target: { value: 'lama' } })
     fireEvent.click(screen.getByRole('button', { name: 'Commit' })) // #1 menggantung
     await waitFor(() => expect(t.countD()).toBe(1))
-    fireEvent.change(screen.getByLabelText('Pesan commit'), { target: { value: 'baru' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Commit' })) // #2
-    await waitFor(() => expect(t.countD()).toBe(2))
-    await t.settle(2, { ok: true, committed: true }) // commit BARU sukses duluan
+    fireEvent.click(screen.getByRole('button', { name: 'Commit' })) // #2 dobel klik cepat — DITOLAK lock
+    await new Promise((r) => setTimeout(r, 25))
+    expect(t.countD()).toBe(1) // kode lama: POST commit kedua terkirim
+    await t.settle(1, { ok: true, committed: true }) // commit sukses
     await waitFor(() => expect(screen.getByLabelText('Pesan commit').value).toBe('')) // gitMsg di-reset
-    await t.settle(1, {}, { fail: true }) // commit LAMA gagal tiba belakangan
-    expect(screen.queryByText(/HTTP 503/)).toBeNull() // kode lama: banner basi
-    expect(screen.queryByRole('alert')).toBeNull()
-    expect(screen.getByLabelText('Pesan commit').value).toBe('')
+    fireEvent.change(screen.getByLabelText('Pesan commit'), { target: { value: 'baru' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Commit' })) // commit baru SETELAH lock lepas — boleh
+    await waitFor(() => expect(t.countD()).toBe(2))
+    await t.settle(2, {}, { fail: true })
+    expect(screen.queryByText(/HTTP 503/)).toBeTruthy() // kegagalan MILIK sendiri tampil jujur
   })
 
   it('sandbox: tutup drawer saat aksi menggantung → kegagalan telat tak memunculkan banner saat dibuka lagi', async () => {
