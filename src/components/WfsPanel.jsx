@@ -5,6 +5,12 @@ import { useDialogA11y, useEscapeClose, useVisibleLoad, useVisibilityPoll } from
 import { IconChat, IconClose, IconGear, IconSave, IconPlay, IconRotate } from './Icons'
 import { taskStatusColor, taskStatusLabel } from '../lib/task_status_colors.js'
 import { POLL_PANEL_MS } from '../lib/connection_spec.js'
+import { normalizeClipText } from '../lib/clip.js'
+
+// Siklus 517 — ANTI-POISONING: field chat/agent bentuk sah API non-string
+// (d.reply objek, e.message non-string, sel.name/role numerik) dulu dirender
+// mentah → "[object Object]" atau crash "Objects are not valid as a React
+// child". Satu sumber normalisasi normalizeClipText (lib/clip.js).
 
 // Navigasi panah tablist (pola WAI-ARIA tabs): Left/Right/Home/End memindahkan
 // fokus antar tab; Tab keluar seperti biasa (roving tabindex di render).
@@ -116,7 +122,7 @@ export default function WfsPanel() {
           setOpen(true); setTab('chat')
         }
       }
-    }).catch(e => setLoadErr('Gagal memuat daftar agent: ' + e.message)).finally(() => setLoading(false))
+    }).catch(e => setLoadErr('Gagal memuat daftar agent: ' + normalizeClipText(e.message))).finally(() => setLoading(false))
   }, [choose])
 
   // Siklus 322→341: mount-time load digerbang visibility (tab dibuka di
@@ -140,9 +146,9 @@ export default function WfsPanel() {
     setInput(''); setChatBusy(true); pushLog(id, { who: 'me', text: q })
     try {
       const d = await api('chat', { method: 'POST', body: { agent_id: id, message: q, history } })
-      if (d && d.ok === false) pushLog(id, { who: 'err', text: '⚠ ' + (d.error || 'Gagal'), retry: q })
-      else pushLog(id, { who: 'ai', text: (d && d.reply) || '(kosong)' })
-    } catch (e) { pushLog(id, { who: 'err', text: '⚠ ' + e.message, retry: q }) }
+      if (d && d.ok === false) pushLog(id, { who: 'err', text: '⚠ ' + (normalizeClipText(d.error) || 'Gagal'), retry: q })
+      else pushLog(id, { who: 'ai', text: d && d.reply != null ? normalizeClipText(d.reply) : '(kosong)' })
+    } catch (e) { pushLog(id, { who: 'err', text: '⚠ ' + normalizeClipText(e.message), retry: q }) }
     chatInFlight.current = false
     setChatBusy(false)
   }
@@ -161,10 +167,10 @@ export default function WfsPanel() {
       if (selectedAgentIdRef.current === activeId) {
         await loadCfg(sel)
         if (selectedAgentIdRef.current === activeId) {
-          setCfgMsg(d.ok ? (reset ? '✅ Direset ke default' : '✅ Tersimpan') : '⚠ ' + (d.error || 'gagal'))
+          setCfgMsg(d.ok ? (reset ? '✅ Direset ke default' : '✅ Tersimpan') : '⚠ ' + (normalizeClipText(d.error) || 'gagal'))
         }
       }
-    } catch (e) { setCfgMsg('⚠ ' + e.message) }
+    } catch (e) { setCfgMsg('⚠ ' + normalizeClipText(e.message)) }
     cfgInFlight.current = false
     setCfgBusy(false)
   }
@@ -175,8 +181,8 @@ export default function WfsPanel() {
     setCfgBusy(true); setCfgMsg('⏳ Menguji…')
     try {
       const d = await api('test', { method: 'POST', body: { base: cfg.base_url, key: cfg.api_key, model: cfg.model } })
-      setCfgMsg(d.ok ? '✅ OK — ' + (d.models != null ? d.models + ' model tersedia' : 'tersambung') : '⚠ ' + (d.error || 'gagal'))
-    } catch (e) { setCfgMsg('⚠ ' + e.message) }
+      setCfgMsg(d.ok ? '✅ OK — ' + (d.models != null ? d.models + ' model tersedia' : 'tersambung') : '⚠ ' + (normalizeClipText(d.error) || 'gagal'))
+    } catch (e) { setCfgMsg('⚠ ' + normalizeClipText(e.message)) }
     cfgInFlight.current = false
     setCfgBusy(false)
   }
@@ -189,7 +195,7 @@ export default function WfsPanel() {
       {open && (
         <div ref={box} id="wfs-panel" className="panel" role="dialog" aria-label="Chat dan konfigurasi agent" aria-modal="true" aria-describedby={loadErr ? 'wp-err' : undefined}>
           <div className="ph">
-            <div className="t">{sel ? sel.name : 'Chat AI Team'}<small>{sel ? sel.role : ''} · {tab === 'chat' ? 'percakapan' : 'konfigurasi model'}</small></div>
+            <div className="t">{sel ? normalizeClipText(sel.name) : 'Chat AI Team'}<small>{sel ? normalizeClipText(sel.role) : ''} · {tab === 'chat' ? 'percakapan' : 'konfigurasi model'}</small></div>
             <button type="button" className="x" onClick={() => setOpen(false)} aria-label="Tutup panel chat" title="Tutup panel chat (Esc)">
               <IconClose size={18} />
               <span className="sr-only">✕</span>
@@ -210,13 +216,13 @@ export default function WfsPanel() {
             {loadErr && <div id="wp-err" role="alert" className="msg err" style={{ maxWidth: '100%', marginBottom: 8 }}>{loadErr} <button type="button" className="btn" style={{ minHeight: 32, marginLeft: 6 }} onClick={loadAgents}>Muat ulang</button></div>}
             {agents.length > 0 && (
               <select className="sel" aria-label="Pilih agent" value={sel ? sel.id : ''} onChange={e => choose(agents.find(a => a.id === e.target.value))}>
-                {agents.map(a => <option key={a.id} value={a.id}>{a.name} — {a.role}</option>)}
+                {agents.map(a => <option key={a.id} value={a.id}>{normalizeClipText(a.name)} — {normalizeClipText(a.role)}</option>)}
               </select>
             )}
           </div>
           {sel && (() => { const st = stat[sel.id] || {}; const it = [['done'],['running'],['pending'],['review'],['failed']].map(([k]) => [k, taskStatusLabel(k), taskStatusColor(k)]); return (
             <div aria-label="Info agent" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', padding: '8px 14px 0', fontSize: 12.5 }}>
-              {it.map(([k, l, c]) => <span key={k}><b style={{ color: c }}>{st[k] || 0}</b> {l}</span>)}
+              {it.map(([k, l, c]) => <span key={k}><b style={{ color: c }}>{normalizeClipText(st[k] || 0)}</b> {l}</span>)}
             </div>) })()}
           {tab === 'chat' ? (
             <>
@@ -226,7 +232,7 @@ export default function WfsPanel() {
                 {log.length === 0 && <div className="note" style={{ textAlign: 'center', margin: 'auto' }}>Tanya apa saja ke {sel ? sel.name : 'agent'}…</div>}
                 {log.map((m, i) => (
                   <div key={i} className={'msg ' + (m.who === 'me' ? 'me' : m.who === 'err' ? 'err' : '')} role={m.who === 'err' ? 'alert' : undefined}>
-                    {m.text}
+                    {normalizeClipText(m.text)}
                     {m.retry && i === log.length - 1 && <div><button type="button" className="btn" style={{ minHeight: 32, marginTop: 6 }} onClick={() => { setInput(m.retry); inputRef.current && inputRef.current.focus() }}>Kirim ulang</button></div>}
                   </div>
                 ))}

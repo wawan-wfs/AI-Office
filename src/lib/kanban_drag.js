@@ -8,6 +8,7 @@
  * Pemetaan antara kunci kolom Kanban UI dan status model Task.
  */
 import { clamp } from './math_util.js';
+import { normalizeClipText } from './clip.js';
 export const KANBAN_COL_TO_STATUS = Object.freeze({
   todo: 'pending',
   in_progress: 'in_progress',
@@ -46,9 +47,9 @@ export function setupCardDragData(dataTransfer, task) {
   try {
     const payload = JSON.stringify({
       id: task.id,
-      title: task.title || '',
-      status: task.status || 'pending',
-      priority: task.priority || 'normal',
+      title: normalizeClipText(task.title),
+      status: task.status == null ? 'pending' : String(task.status),
+      priority: task.priority == null ? 'normal' : String(task.priority),
     })
     dataTransfer.setData('application/json', payload)
   } catch {

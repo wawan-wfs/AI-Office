@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { normalizeClipText } from '../lib/clip.js'
 import { useModalFlag } from '../lib/modal'
 import { dispatchTaskBoardEvent } from '../lib/taskboard_gate.js'
 import { useDialogA11y, useEscapeClose, useVisibilityPoll, useWindowEvent } from '../lib/dialogA11y'
@@ -97,14 +98,14 @@ export default function ProjectPanel() {
               <>
                 {/* Progres task engine */}
                 <div style={{ marginBottom: 14 }}>
-                  <div className="note" style={{ marginBottom: 4 }}>Progres pengerjaan — {T.done}/{T.total} task selesai ({pct}%)</div>
+                  <div className="note" style={{ marginBottom: 4 }}>Progres pengerjaan — {normalizeClipText(T.done)}/{normalizeClipText(T.total)} task selesai ({pct}%)</div>
                   <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={`Progres task: ${pct}% selesai`}
                     style={{ height: 10, background: whiteAlpha(0.08), borderRadius: 6, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: pct + '%', background: `linear-gradient(90deg,${TASK_STATUS_COLORS.done},${TASK_STATUS_COLORS.review})`, borderRadius: 6, transition: 'width .6s' }} />
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                     {Object.entries(ST).map(([k, [l, c]]) => T[k] > 0 && (
-                      <span key={k} className="note" style={{ color: c, fontWeight: 600 }}>{l}: {T[k]}</span>
+                      <span key={k} className="note" style={{ color: c, fontWeight: 600 }}>{l}: {normalizeClipText(T[k])}</span>
                     ))}
                   </div>
                 </div>
@@ -139,10 +140,10 @@ export default function ProjectPanel() {
                           dispatchTaskBoardEvent('wfs-open-task-board', { taskId: x.id, view: 'kanban' })
                         }}
                         title={`Buka task ${displayId} di papan sprint kanban`}
-                        aria-label={`Task ${displayId}: ${x.title}`}
+                        aria-label={`Task ${displayId}: ${normalizeClipText(x.title)}`}
                       >
                         <span style={{ color: stColor, fontWeight: 700 }}>{isDone ? '✓' : '•'}</span>
-                        <span style={{ fontSize: 12.5, flex: 1 }}>{displayId} {x.title}</span>
+                        <span style={{ fontSize: 12.5, flex: 1 }}>{displayId} {normalizeClipText(x.title)}</span>
                       </button>
                     )
                   })}
@@ -166,10 +167,10 @@ export default function ProjectPanel() {
                   <div style={{ background: greenAlpha(0.08), border: '1px solid '+greenAlpha(0.25), borderRadius: 10, padding: '8px 12px', margin: '6px 0 14px' }}>
                     <div className="note" style={{ color: TASK_STATUS_COLORS.done, fontWeight: 600 }}>● Backend online</div>
                     <div className="note" style={{ marginTop: 4 }}>
-                      {S.stats?.tenants ?? 0} tenant · {S.stats?.conversations ?? 0} percakapan · {S.stats?.messages ?? 0} pesan
+                      {normalizeClipText(S.stats?.tenants ?? 0)} tenant · {normalizeClipText(S.stats?.conversations ?? 0)} percakapan · {normalizeClipText(S.stats?.messages ?? 0)} pesan
                     </div>
                     <div className="note" style={{ marginTop: 4 }}>
-                      Tenant: {(S.tenants || []).map(t => t.name).join(', ') || '—'}
+                      Tenant: {(S.tenants || []).map(t => normalizeClipText(t?.name)).join(', ') || '—'}
                     </div>
                   </div>
                 ) : S.online === false ? (
@@ -191,7 +192,7 @@ export default function ProjectPanel() {
                       color: a.status === 'Up' ? TASK_STATUS_COLORS.done : TASK_STATUS_COLORS.failed,
                       border: `1px solid ${a.status === 'Up' ? greenAlpha(0.3) : failedAlpha(0.3)}`,
                       borderRadius: 8, padding: '3px 10px', fontWeight: 600,
-                    }}>{a.status === 'Up' ? '●' : '○'} {a.name}</span>
+                    }}>{a.status === 'Up' ? '●' : '○'} {normalizeClipText(a.name)}</span>
                   ))}
                   {!(d.agents || []).length && <span className="note">Tidak ada agent aktif</span>}
                 </div>

@@ -1,3 +1,19 @@
+## 27/11/2026 07.4x WIB — Siklus 518: anti-poisoning field sekunder SecureProjectPanel + Ticker
+
+- Lanjutan audit non-jaringan pasca-517: SecureProjectPanel masih merender field MENTAH — `{evidence.tests_passed}` (manifest QA), `{job.role}`, `{job.status}`, `{job.id}` (daftar job database); Ticker merender `{s.count} {s.label}` (presence) dan `{conn.label}` + `title/aria-label={conn.detail}` (status koneksi). Field numerik/objek (bentuk sah API) → "Objects are not valid as a React child" atau "[object Object]".
+- Fix: SecureProjectPanel dapat helper `normalizeSecondary` (kontrak konsisten siklus 512-515: null→'', string utuh, angka finite/boolean → String, objek → JSON try/catch) — 4 titik render dibungkus; Ticker memakai `normalizeClipText` yang sudah diimpor — 4 titik dibungkus.
+- Guard BARU src/__tests__/secondary_poison_518.test.js (4 tes: kontrak helper + sweep titik render SecureProjectPanel/Ticker).
+- Verifikasi: vitest guard 518 4/4 passed. npm test penuh 593 file / 5272 passed EXIT=0 (605 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors exit 0. Shot ?mode=office 519KB >500KB — scene 3D hidup.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 07.1x WIB — Siklus 517: anti-poisoning WfsPanel (chat agent + konfigurasi model)
+
+- Lanjutan audit non-jaringan pasca-516: WfsPanel masih menelan field non-string MENTAH — bubble chat `{m.text}` (d.reply objek / e.message non-string → "[object Object]" atau crash "Objects are not valid as a React child"), header agent `{sel.name}/{sel.role}`, option dropdown `{a.name}/{a.role}`, pesan konfigurasi `(d.error || …)` (objek → fallback salah nilai) dan 4 lokasi `+ e.message`.
+- Fix satu sumber: `normalizeClipText` (lib/clip.js) — 12 titik dibungkus: header agent, dropdown, bubble chat, reply/error chat sebelum pushLog, cfgMsg saveCfg/testCfg (d.error), loadErr + catch e.message (4 lokasi). Kontrak pushLog/history/retry utuh.
+- Guard BARU src/__tests__/wfs_poison_517.test.js (8 tes: kontrak normalizeClipText + objek siklik, sweep header/dropdown/bubble/reply/cfg — tidak ada React child mentah tersisa).
+- Verifikasi: vitest guard 517 8/8 passed. npm run build sukses; npm test penuh 592 file EXIT=0 (~634 dtk). dist ter-deploy ke ~/wfs-hq/. Probe CDP ?mode=office: canvas=true, agents=26, tanpa EXC. Screenshot CDP scene 3D 468KB — L1 Ops & AI ter-render penuh (klaster meja, avatar + name tag, tab L1/L2/L3 9/9/8), tanpa [object Object].
+- Catatan probe: e2e_errors.py via uv pipe menghasilkan output kosong (pola dikenal siklus 512) — digantikan verifikasi manual CDP. Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
 ## 25/11/2026 10:2x WIB — Siklus 466: audit berkala audit_vision_claims (tanpa perubahan kode)
 - Backlog "audit berkala audit_vision_claims" dieksekusi ulang: audit penuh live CDP :99, 2 ronde konvergensi (26 agen/5 zona/3 bubble).
 - Verdict 12 klaim vision (VC-250/251/256/258): RESOLVED 2 (RIAN×MEETING occ 0.5; LINA×INTEGRATOR BOT occ 0.55), FALSIFIED 10 (tumpuk tak terjadi di steady-state) — bugs=0, incomplete=0; oracle zona 5/5 eksak (DEV DESK 1.0, MEETING 0.5, WELCOME & LOUNGE 0.5, CAFÉ 0.5, SERVER ROOM 1.0).
@@ -10718,3 +10734,218 @@
 - Fix: helper `normalizeClipText` satu sumber — null/undefined/'' → '', string utuh, angka finite/boolean → String, NaN/±Infinity → '', objek/array → JSON (bukan "[object Object]"), siklik → '' via try/catch. `n` tidak valid (NaN/≤0/bukan angka) → teks utuh (dulu '…' telanjang); n string numerik tetap dipangkas. Kontrak pemangkasan batas kata + elipsis utuh.
 - Guard BARU src/__tests__/clip_poison_508.test.js (13 tes: poisoning non-string, siklik, n invalid, kontrak lama, sweep repo tanpa pemanggil clip().trim()).
 - Verifikasi: vitest guard 508 + clip + lib_clip 29/29 passed. npm test penuh 583 file / 5202 passed (+12), 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe OK (agents=26, ERRS none, shot 701KB pixels_ok, hygiene 40 refs 0 missing). Commit hari ini sudah ada (7034715); tanpa commit baru.
+
+## 27/11/2026 02.3x WIB — Siklus 510: anti-poisoning render judul task (React child + bubble 3D)
+
+- Lanjutan audit kualitas non-jaringan pasca-509: field `title` non-string (bentuk sah API: title numerik, desc objek) dirender MENTAH di banyak titik UI — sebagai React child menyebabkan "Objects are not valid as a React child" (crash papan/log/ticker), dan di bubble dialog 3D tampil "[object Object]".
+- Fix satu sumber: semua titik render kini melewati `normalizeClipText` (clip.js) — TaskBoard (7 titik: kartu kanban, list, highlight pencarian, modal detail, aria-label, confirm jalankan), TeamStats, Dashboard, ActivityLog, AgentInspector (bubble "Mengerjakan Task"), ProjectPanel, ShConsole, Ticker, sel.title & sel.review.
+- Scene 3D: `dialog.js` autoTalkText (bubble obrolan agen) & `projectboard_data.js` (formatCardTitle, cardMeta, bannerNames, bannerLayout) dinormalisasi — bubble 3D tak lagi menampilkan [object Object].
+- Guard BARU src/__tests__/render_title_poison_510.test.js (13 tes: sweep regex komponen tanpa render title mentah, kontrak normalizeClipText null/objek/angka/siklik, formatCardTitle/cardMeta/bannerNames/bannerLayout/autoTalkText JSON bukan [object Object], kontrak clampBubbleText utuh).
+- Koreksi eksperimen: mock clip.js di remaining_components.test.jsx dilengkapi export normalizeClipText (tes lama hanya mock `clip`).
+- Verifikasi: vitest guard 510 13/13 + remaining_components 22/22. npm test penuh 585 file / 5224 passed (+13), 6 skipped EXIT=0 (602 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors exit 0 tanpa EXC/CON. Probe CDP ?mode=office: agents=26, hooks [__cam,__setTime]=true. Shot ?mode=office 290KB dgn 10.337 warna unik + 22.580 px terang (scene ter-render; lebih kecil dari biasanya — langit malam sim-time, bukan scene mati).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 01.0x WIB — Siklus 509: anti-poisoning hashtag scan extractTaskTags + push konsolidasi 26/11
+
+- Buka hari: konsolidasi harian 26/11 di-commit & push 1x (06b00ba, 43 file, siklus 483-508; 25 guard baru).
+- Lanjutan audit kualitas non-jaringan: `extractTaskTags` (kanban_spec.js) memakai `[task.title, task.desc, task.description].filter(Boolean).join(' ')` — field non-string (bentuk sah API: desc objek, title numerik) menghasilkan "[object Object]" dalam scan hashtag/bracket. Fix: helper `tagScanText` — null → '', string utuh, angka finite/boolean → String, objek → JSON via try/catch (siklik aman).
+- `getSearchMatchSegments` (kanban_search.js) diuji untuk normalisasi serupa, TAPI dikembalikan ke kontrak lama: tes eksplisit `kanban_search.test.js` mengunci text non-string → [] ("tidak pernah dipecah"). Guard 509 mencatat kontrak tersebut, bukan mengubahnya.
+- Guard BARU src/__tests__/tagsearch_poison_509.test.js (9 tes: desc objek dgn #api terdeteksi, title numerik tak crash, kontrak bracket/hashtag string, matchTaskTags/matchTaskSearch task campuran, kontrak non-string getSearchMatchSegments).
+- Verifikasi: vitest guard 509 + kanban_search 33/33 passed. npm test penuh 584 file / 5211 passed (+9), 6 skipped EXIT=0 (600 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors.py exit 0 tanpa EXC/CON. Probe CDP ?mode=office: agents=26, canvas=true, err=null, hooks [cam,setTime,wallState]=true. Shot ?mode=office 699KB — scene 3D hidup (lantai, meja, name tag agen ter-render). Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+- Catatan: skrip e2e_err.py/shot.sh lama di ~/.hermes/cache/scratch sudah di-prune; lokasi aktif kini ~/.hermes/skills/ai-office-ui-audit/scripts/ (e2e_errors.py, shot.sh) dan shot butuh query `?mode=office` (default `/` kini landing page).
+
+## 27/11/2026 03.0x WIB — Siklus 511: anti-poisoning payload drag Kanban (kanban_drag.js)
+
+- Lanjutan audit kualitas non-jaringan pasca-510: `setupCardDragData` (kanban_drag.js) menulis `task.title || ''` mentah ke payload `application/json` — title objek (bentuk sah API) diserialisasi jadi "[object Object]" saat kartu di-drag; `task.status || 'pending'` juga menelan field numerik tanpa normalisasi.
+- Fix: title via `normalizeClipText` (clip.js, satu sumber dgn 508-510); status/priority `null → default ('pending'/'normal')`, selain itu `String()` — kontrak `task.id` tipe asli & urutan setData text/plain dulu utuh.
+- Guard BARU src/__tests__/drag_poison_511.test.js (6 tes: title numerik/objek/null, status-priority null & numerik, kontrak lama + fallback false).
+- Verifikasi: vitest guard 511 + kanban_drag + clip 34/34 passed. npm test penuh 586 file EXIT=0 (619 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors ?mode=office exit 0 tanpa EXC; shot 519KB >500KB (scene hidup).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 04.1x WIB — Siklus 512: anti-poisoning field sekunder TaskBoard (agent_id/role/status/prompt/result)
+
+- Lanjutan audit kualitas non-jaringan pasca-511: field sekunder task masih dirender MENTAH sebagai React child di TaskBoard — `sel.agent_id`, `sel.role`, `sel.status`, `sel.prompt`, `sel.result`, `t.agent_id`, `t.status` (bentuk sah API: numerik/objek) → "Objects are not valid as a React child" (crash detail & kartu list/kanban) atau tampil "[object Object]" (pola seri 504-511).
+- Fix: helper `normalizeSecondary` (TaskBoard.jsx, satu sumber komponen) — null/'' → '', string utuh, angka/boolean → String, objek/array → JSON via try/catch (siklik aman); 7 titik render dibungkus (detail bar agent/role/status, brief/hasil agen, kartu list & kanban agent_id/status).
+- Guard BARU src/__tests__/secondary_poison_512.test.js (7 tes: kontrak normalizeSecondary + sweep titik render dibungkus).
+- Verifikasi: vitest guard 512 + taskboard 54/54 passed. npm test penuh 587 file EXIT=0 (612 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. Probe CDP ?mode=office: canvas=true, __agentData=true, agents=26; CDP screenshot 477KB — scene 3D isometrik ter-render (3 lantai, klaster meja, avatar + name tag).
+- Catatan eksperimen: uv run python inline script output hilang via pipe (konten print tak muncul di stdout pipe) — probe akhir dijalankan dari file .tmp agar output terbaca. Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 04.4x WIB — Siklus 513: anti-poisoning field sekunder TeamStats/Dashboard/ShConsole
+
+- Lanjutan audit kualitas non-jaringan pasca-512: field sekunder task masih dirender MENTAH sebagai React child di 3 komponen lain — TeamStats ({t.agent_id}, {t.status}), Dashboard ({t.agent_id || t.status}), ShConsole ({t.role || '—'}, {t.agent_id || '—'}, {t.status} sebagai tag). Bentuk sah API non-string (numerik/objek) → "Objects are not valid as a React child" atau "[object Object]".
+- Fix: helper `normalizeSecondary` (null/'' → '', string utuh, angka/boolean → String, objek/array → JSON via try/catch) ditambahkan di ketiga komponen, 7 titik render dibungkus.
+- Guard BARU src/__tests__/secondary_poison_513.test.js (8 tes: kontrak helper + sweep titik render 3 komponen).
+- Verifikasi: vitest guard 513 8/8 passed. npm test penuh 588 file EXIT=0 (612 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. Probe CDP ?mode=office: canvas=true, agents=26, hooks [cam,setTime]=true; CDP screenshot 473KB — scene 3D ter-render.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 06.1x WIB — Siklus 516: anti-poisoning pipeline log aktivitas (pushLog + formatLogText + render)
+
+- Lanjutan audit non-jaringan pasca-515: pipeline log aktivitas masih menelan field non-string MENTAH — App.pushLog menulis `label: L[x.status] || x.status` (status numerik → label numerik/objek), formatLogText/formatLogFileText (tombol Salin & unduh .txt) memakai `(x.label)||''` → "[object Object]" di teks ekspor, dan ActivityLog merender `{x.label}` sebagai React child (risiko crash "Objects are not valid as a React child").
+- Fix satu sumber: label pushLog dibungkus `normalizeClipText` (clip.js, alias normText); formatLogText menormalisasi label & title via normalizeClipText; render ActivityLog `{x.label}` dibungkus normalizeClipText. Kontrak dedupeLogHead & format log lama utuh.
+- Guard BARU src/__tests__/activitylog_poison_516.test.js (8 tes: kontrak normalizeClipText, formatLogText/LogFileText bebas [object Object], dedupe kontrak lama, sweep 3 titik dibungkus).
+- Verifikasi: vitest guard 516 8/8 passed. npm test penuh 591 file EXIT=0 (617 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors exit 0. Shot ?mode=office 253KB, 9.177 warna unik + 31.589 px terang — scene ter-render (pola langit malam sim-time, konsisten siklus 510/514).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 05.4x WIB — Siklus 515: anti-poisoning field sekunder agent (ShConsole agents/approvals + AgentInspector header)
+
+- Lanjutan audit non-jaringan pasca-514: field sekunder object `agent`/`approval` masih dirender MENTAH — ShConsole tab Agents ({a.role}, {a.model}, {a.status || 'idle'}), tab Approvals ({a.action_type}, {a.description}), dan AgentInspector header ({agent.name}, {agent.role || 'AI Specialist'}). Bentuk sah API non-string → "Objects are not valid as a React child" atau "[object Object]".
+- Fix: ShConsole memakai `normalizeSecondary` yang sudah ada (siklus 513); AgentInspector mendapat helper identik — 7 titik render dibungkus.
+- Guard BARU src/__tests__/secondary_poison_515.test.js (5 tes: sweep titik render dibungkus, tidak ada sisa child mentah, kontrak helper null/angka/objek/array/siklik).
+- Verifikasi: vitest guard 515 5/5 passed. npm test penuh 590 file EXIT=0 (606 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors exit 0. Shot ?mode=office 519KB >500KB (17.026 warna unik, 172.855 px terang — scene hidup).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 05.1x WIB — Siklus 514: anti-poisoning agent_id tersisa (TaskBoard fokus + Dashboard aria-label)
+
+- Lanjutan audit non-jaringan pasca-513: dua titik render sekunder masih mentah — TaskBoard tombol "🎯 Fokus Agen" di kartu kanban ({t.agent_id} React child) & detail ({sel.agent_id} dalam teks tombol), serta Dashboard aria-label baris task (`status ${t.status}`). Field numerik/objek (bentuk sah API) → "Objects are not valid as a React child" atau aria-label "[object Object]".
+- Fix: ketiganya dibungkus `normalizeSecondary` (satu sumber per komponen, konsisten siklus 512-513); pemakaian raw di template literal (title/aria fokus kamera) dibiarkan — string interpolation aman.
+- Guard BARU src/__tests__/secondary_poison_514.test.js (3 tes: sweep React child mentah TaskBoard/TeamStats/Dashboard/ShConsole — pemakaian dalam template literal dikecualikan —, kontrak normalizeSecondary null/angka/objek/siklik, kontras 4 komponen).
+- Verifikasi: vitest guard 514 + 513 → 11/11 passed. npm test penuh 589 file EXIT=0 (612 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors ?mode=office exit 0 tanpa EXC. Shot ?mode=office 252KB, 9.144 warna unik + 20.557 px terang — scene 3D ter-render (pola langit malam sim-time seperti siklus 510, bukan scene mati).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 08.3x WIB — Siklus 519: anti-poisoning string turunan Ticker (teks task, aria-live, stat host)
+
+- Lanjutan audit pasca-518: Ticker masih punya 3 permukaan string turunan yang menelan field API mentah — (1) teks ticker task `${x.agent_id ? name[x.agent_id] || x.agent_id : …} [${x.status}]` (agent_id/objek → "[object Object]" di teks berjalan), (2) string aria-live `liveText`/`livePresence` memakai `conn.label` & `s.count/s.label` mentah (screen reader membaca "[object Object]"), (3) teks stat host `${s.mem_available_mb}/${s.mem_total_mb}/disk GB` mentah.
+- Fix: semuanya dibungkus `normalizeClipText` (satu sumber clip.js) — 8 titik interpolasi dinormalisasi; fallback nama agen juga di-clip 24 char agar ticker tak melar.
+- Guard BARU src/__tests__/ticker_text_poison_519.test.js (3 tes: kontrak teks task + aria-live, sweep regex TIDAK ada interpolasi `${x/s/conn.field}` mentah tersisa di seluruh Ticker — sweep inilah yang menemukan kelompok stat host).
+- Verifikasi: vitest guard 519 + 518 → 7/7 passed. npm test penuh 594 file / 5275 passed, 6 skipped EXIT=0 (609 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors exit 0. Shot ?mode=office 290KB, 10.395 warna unik + 22.520 px terang — scene hidup (langit malam sim-time).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 10.4x WIB — Siklus 520: anti-poisoning ShConsole sisa (log realtime, agents name/floor, projects)
+
+- Lanjutan audit pasca-519: sweep regex menemukan 3 permukaan ShConsole yang masih menelan field API mentah — baris log realtime/overview `{l.level||'INFO'}`/`{l.message}`/`{l.source||'system'}` (message level objek → crash React child), tab Agents `{a.name||{ a.id}` & } ; `Lantai {a.floor||'—'}` (name/floor numerik → "[object Object]"), kartu Projects `{p.status||{ '—'}` & } ; `{p.description||''}`.
+- Fix: semuanya dibungkus `normalizeSecondary`/`normalizeClipText` yang sudah ada (satu sumber per komponen) — 8 titik render dinormalisasi.
+- Guard BARU src/__tests__/secondary_poison_520.test.js (3 tes: kontrak baris log, baris agents, kartu projects + sweep tanpa child mentah tersisa).
+- Verifikasi: vitest guard 520+513+515 → 16/16 passed. npm test penuh 595 file / 5278 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_errors exit 0. Shot ?mode=office 252KB, 9.066 warna unik — scene hidup (langit malam sim-time).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 11.5x WIB — Siklus 521: anti-poisoning pesan error (e.message) ke state UI
+
+- Lanjutan audit pasca-520: pipeline pesan error masih menelan `e.message` MENTAH ke state UI — ShConsole (18 titik `setErr(e.message)`/`'ERROR: '+e.message` + `d.stderr||''` termOut), TaskModal (`setErr(e.message)` form task baru), TaskBoard (`onFlash(e.message ...)` run & geser kartu), App (`flash(e.message, true)` di dialog pause/resume). Bentuk sah non-string (objek detail dari api.js yang gagal di-JSON.stringify, angka) → "Objects are not valid as a React child" (crash seluruh konsol/form) atau "[object Object]" di toast.
+- Fix: semua titik catch membungkus `normErr` (alias normalizeClipText, satu sumber clip.js) — 22 titik dinormalisasi (18 ShConsole + 2 termOut stderr/stdout + TaskModal + TaskBoard 2 + App).
+- Guard BARU src/__tests__/errmsg_poison_521.test.js (8 tes: kontrak normalizeClipText utk pesan error + sweep regex tanpa `e.message` mentah tersisa di 4 file).
+- Verifikasi: vitest guard 521 8/8 passed. npm test penuh 596 file EXIT=0 (614 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. Probe CDP ?mode=office: canvas=true, agents=26, hooks [cam,setTime,wallState]=true, err=null — scene hidup.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 12.3x WIB — Siklus 522: anti-poisoning permukaan terakhir (Dashboard proyek/container, TeamStats stat host, ProjectPanel chip agent)
+
+- Lanjutan audit pasca-521: sweep `{x.field}` menemukan 3 permukaan terakhir yang masih menelan field API mentah — Dashboard baris proyek (aria-label `{p.name}/{p.status}`, title `{p.preview_url}`, child `{p.status}{p.preview_port}`) & baris stat container (`{c.name.replace(...)}` → TypeError bila name non-string, child `{c.cpu}·{c.mem}`), TeamStats stat host (pola sama), ProjectPanel chip sandbox agent (`{a.name}`).
+- Fix: semuanya dibungkus `normalizeClipText`/`normalizeSecondary` satu sumber (clip.js) — 8 titik dinormalisasi (Dashboard 6, TeamStats 2, ProjectPanel 1; `c.name` di-coerce String sebelum .replace).
+- Guard BARU src/__tests__/secondary_poison_522.test.js (3 tes: sweep Dashboard/TeamStats/ProjectPanel tanpa child & interpolasi mentah tersisa).
+- Verifikasi: vitest guard 521+522 → 11/11 passed. npm test penuh 597 file EXIT=0 (614 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err_probe exit 0: console_errors=[], hooks_ok, shot 669KB (scene hidup), hygiene ok.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 13.4x WIB — Siklus 523: anti-poisoning sisa AgentInspector (avatar inisial & tombol chat)
+
+- Sweep pasca-522 menemukan 2 method-call mentah tersisa di AgentInspector: avatar inisial `agent.name.slice(0,2).toUpperCase()` (TypeError bila name bentuk sah non-string dari gateway) dan tombol chat `agent.name.split(' ')[0]` (crash React child bila name objek). Seluruh jalur lain kartu (findAgentLiveEntry, resolveAgentId, findTeamByAgent, liveFloor, aria-label) sudah tahan non-string (String() coercing) — diverifikasi baca sumber.
+- Fix: keduanya dibungkus `normalizeSecondary` satu sumber (lib/clip.js) — avatar: `normalizeSecondary(String(agent.name).slice(0,2))`, chat: `normalizeSecondary(agent.name).split(' ')[0] || 'Agen'`.
+- Guard BARU src/__tests__/secondary_poison_523.test.js (2 tes: tanpa `.slice(`/`.split(` mentah pada agent.name + pemakaian normalizer). Guard lama taskboard_run_lock_492 disinkronkan dgn kontrak normErr siklus 521 (sebelumnya gagal atas string lama `onFlash(e.message || …)`).
+- Verifikasi: vitest guard 523+492 → 6/6 passed. npm run build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 (tanpa EXC/console error). Shot ?mode=office 252KB, 9.097 warna unik — scene hidup (langit malam sim-time). Suite penuh dijalankan ulang setelah sinkronisasi guard.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 14.3x WIB — Siklus 524: anti-poisoning SysMeter (meter host, chip & aria-label)
+
+- Lanjutan audit pasca-523: SysMeter (widget status host kanan-atas) luput dari seri 512-523 — field API `d.agents`, `d.load`, `d.ram`, `d.disk_used_gb`, `d.disk_total_gb` dirender MENTAH sebagai React child & interpolasi aria-label (bentuk sah non-string/objek → "Objects are not valid as a React child" atau "[object Object]" di chip meter & screen reader). `fmtUptime` sudah tahan non-angka (lib/uptime.js) — diverifikasi.
+- Fix: 6 titik render dibungkus `normalizeClipText` (alias norm, satu sumber clip.js, pola seri 512-523) + fallback '—' untuk nilai kosong; aria-label ikut dinormalisasi.
+- Guard BARU src/__tests__/sysmeter_poison_524.test.js (3 tes: kontrak normalizer null/angka/objek/siklik, sweep regex tanpa field API mentah tersisa + impor satu sumber, kompatibilitas guard a11y 415).
+- Verifikasi: vitest guard 524+415+523 → 8/8 passed. npm run build vite sukses; dist ter-deploy ke ~/wfs-hq/. npm test penuh 599 file / 5294 passed, 6 skipped EXIT=0 (639 dtk). e2e_err.py exit 0 tanpa EXC. Shot ?mode=office 519KB >500KB — scene hidup.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 15.3x WIB — Siklus 525: anti-poisoning meter host & angka progres terakhir
+
+- Lanjutan audit pasca-524: angka meter/progres masih dirender MENTAH — TeamStats `res.load`/`res.ram_mb` (HOST), Dashboard `res.load`/`res.ram_mb`/`containers.length`, ProjectPanel `T.done/T.total`, `T[k]` chip status, `S.stats` tenants/conversations/messages, `t.name` tenant list, WfsPanel chip `st[k] || 0` — objek bentuk sah API → "[object Object]" / crash React child.
+- Fix: 10 titik dinormalisasi (normalizeSecondary TeamStats/Dashboard; normalizeClipText ProjectPanel/WfsPanel — satu sumber clip.js, pola seri 512-524).
+- Guard BARU src/__tests__/meter_poison_525.test.js (4 tes: kontrak normalizer meter + sweep regex 4 file tanpa child angka mentah tersisa).
+- Verifikasi: vitest guard 525+524+522 → 10/10 passed. npm run build vite sukses; dist ter-deploy ke ~/wfs-hq/. npm test penuh 600 file / 5298 passed, 6 skipped EXIT=0. e2e_err.py exit 0 tanpa EXC. Shot ?mode=office 252KB, 9.504 warna unik + 22.462 px terang — scene hidup (langit malam sim-time).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 15.5x WIB — Siklus 526: ErrorBoundary menangkap error global (window error & unhandledrejection)
+
+- Backlog kualitas non-poisoning: error di luar render React (callback async, unhandled promise rejection) sebelumnya hanya tercatat di console — UI diam-diam gagal tanpa panel boundary. ErrorBoundary kini memasang listener `window error` + `unhandledrejection` saat mount (dilepas saat unmount) dan merender panel alert yang sama; event tanpa `error`/`reason` (resource-load) diabaikan agar tak false-positive.
+- Guard BARU src/__tests__/error_boundary_global_526.test.jsx (4 tes: window error → panel + pesan tampil, unhandledrejection → panel, siklus mount/unmount listener, event tanpa detail diabaikan).
+- Verifikasi: vitest guard 526 + boundary lama → 15/15 passed. npm test penuh 601 file / 5302 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 17.1x WIB — Siklus 527: anti-poisoning kartu statistik angka (Dashboard, ShConsole Overview, TeamStats guard)
+
+- Lanjutan audit pasca-526: nilai KARTU ANGKA & stat masih dirender MENTAH — Dashboard `card(...)` 8 nilai (`stats.projects_total/tasks_total/agents_count`, totalFiles, jumlah sandbox) → objek bentuk sah API → "[object Object]" di kartu; `presence.total/text` child mentah; `/regex.test(c.name)` TypeError bila name non-string; `stats.logs||[]` tidak menahan non-array (`.slice` crash); ShConsole Overview `stats` array 5 nilai (`ov.projects/tasks/agents/running_subtasks/total_logs`) + nilai `v` by-status + `{live}` badge mentah; TeamStats `setData(d.tasks||[])` tidak menahan `d.tasks` non-array → `data.slice` crash.
+- Fix: semua dibungkus `normalizeClipText` satu sumber (clip.js); `stats.logs` & `d.tasks` di-guard `Array.isArray`; by-status `Object.entries` di-guard objek murni; container filter `.test(normalizeClipText(c.name))`.
+- Guard BARU src/__tests__/stat_poison_527.test.js (4 tes: kontrak normalizer + sweep Dashboard/ShConsole/TeamStats tanpa child angka mentah & guard array).
+- Verifikasi: vitest guard 527+525+524 → 11/11 passed. npm test penuh 602 file / 5306 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0. Shot ?mode=office 518KB >500KB — scene hidup.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 17.5x WIB — Siklus 528: anti-poisoning workspace file-browser ShConsole
+
+- Lanjutan sweep permukaan render mentah pasca-527: tab Workspace ShConsole masih men-render MENTAH — nama file `{en.name}` child (objek → "[object Object]"), ukuran `{en.size} B`, isi viewer `{fileView.content}` (objek → crash React child), aria-label `Isi file ${fileView.name}` & `Folder/File: ${en.name}`, navigasi path `wsPath.split('/')` (non-string → TypeError), dan dropdown project `{p.name}` (2 select, objek → "[object Object]").
+- Fix: entry di-guard `typeof en !== 'object' || en === null || !en.name → return null` (baris kosong tak dirender); nama/ukuran/isi/path semua via `normalizeClipText` satu sumber (clip.js); dropdown project pakai `normalizeClipText(p.name || p.title)` (3 titik, konsisten dgn Projects card).
+- Guard BARU src/__tests__/wsbrowser_poison_528.test.js (3 tes: kontrak normalizer, sweep entry/viewer/path tanpa child mentah, dropdown project 3 titik). Satu koreksi regex guard (whitespace JSX `{' '}`) sebelum lolos.
+- Verifikasi: vitest guard 528+527+shconsole → 54/54 passed. npm test penuh 603 file / 5309 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 18.5x WIB — Siklus 529: anti-poisoning AgentInspector (aria-label/title/child lantai & task)
+
+- Lanjutan sweep permukaan render mentah (backlog 528): AgentInspector masih interpolasi MENTAH — aria-label `Profil ${agent.name}`, aria-label/title `Fokus kamera ke Lantai ${liveFloor || agent.floor || …}` (3× duplikat ekspresi), `Task #${activeTask.id}` (aria-label, title, child), title divisi `${findTeamByAgent(...).name || agent.name}` & chip `(shortName)` — objek bentuk sah API → "[object Object]" / label rusak di screen reader.
+- Fix: semua via `normalizeClipText` satu sumber (clip.js); badge lantai dikonsolidasi ke SATU deklarasi `floorBadge` (dipakai onClick/title/aria-label — hilangkan duplikasi 3×); `Task #` di-title/aria-label/child dinormalisasi.
+- Guard BARU src/__tests__/agentinspector_poison_529.test.js (3 tes: kontrak normalizer, sweep regex tanpa interpolasi mentah, floorBadge satu sumber). Satu koreksi: `title` task id juga ternyata mentah → ikut dinormalisasi.
+- Verifikasi: vitest guard 529 → 3/3 passed. npm test penuh 604 file / 5312 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 19.5x WIB — Siklus 530: anti-poisoning TaskBoard (title/aria-label kanban)
+
+- Lanjutan sweep permukaan render mentah (backlog 529): TaskBoard masih interpolasi MENTAH di title/aria-label — `Progres sprint ${activeDivision?.fullName}`, `Filter tag #${tg.label}`, `Pindahkan task #${sel.id} ke kolom ${col.label}`, divisi/preset/priority/agent_id/shortName, chip badge `#${tg.label}`, drop-slot `Lepas di kolom ${col.label}` — objek bentuk sah API → "[object Object]" / label screen reader rusak.
+- Fix: ~30 titik dinormalisasi via `normalizeClipText` satu sumber (clip.js); angka murni (count/pct/id numerik hasil agregasi internal) dibiarkan.
+- Guard BARU src/__tests__/taskboard_poison_530.test.js (3 tes: kontrak normalizer, sweep regex tanpa interpolasi label mentah di title/aria-label, impor clip). Dua koreksi regex guard (prio\b vs fileCount; kontrak normalizer).
+- Verifikasi: vitest guard 530 → 3/3 passed. npm test penuh 605 file EXIT=0 (ringkasan count terpotong output tail; guard seri 519-530 selektif re-run passed). Build vite sukses 2.8s; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 20.2x WIB — Siklus 531: anti-poisoning HUD (chip fase/conn/perf/status)
+
+- Lanjutan sweep permukaan render mentah (backlog 530): HUD masih interpolasi MENTAH — child chip fase `{phaseInfo.label}`, title `Fase kantor: ...`; title+aria-label & child `conn.detail`/`conn.label`, `perf.detail`/`perf.label`; child status engine `{status}` — nilai bentuk sah dari API → "[object Object]"/label rusak di screen reader.
+- Fix: semua via `normalizeClipText` satu sumber (clip.js), 8 titik; className tone/state dibiarkan (internal enum).
+- Guard BARU src/__tests__/hud_poison_531.test.js (3 tes: kontrak normalizer — objek → JSON string, null/undefined → ''; sweep HUD tanpa interpolasi/child mentah; impor clip). Koreksi ekspektasi kontrak: normalizer menghasilkan JSON string, bukan "[object Object]".
+- Verifikasi: vitest guard 531 → 3/3 passed. npm test penuh 606 file / 5318 passed, 6 skipped EXIT=0 (runtime 628s). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 21.2x WIB — Siklus 532: anti-poisoning TeamStats (nama divisi/lantai/lead/awayLabel/id task)
+
+- Lanjutan sweep permukaan render mentah (backlog 531): TeamStats masih interpolasi MENTAH — 15 titik: aria-label stat `${byStatus[s] || { 0} task ${l.toLowerCase()}`, kartu tim aria-label `${team.name}: ...` & } ; title `... (Lantai ${team.floor})`, child `{team.name}` + tag `Lt. {team.floor}`, 4× aria-label/title kanban/fokus `${team.name}`, `Lead: {team.lead}`, presence title `... pod ${team.name}` + child/aria `{pr.awayLabel}` (2×), task `#{t.id}` (title/aria/child 3×).
+- Fix: semua via `normalizeClipText` satu sumber (clip.js); angka agregasi internal (done/total/pct/running) dibiarkan.
+- Guard BARU src/__tests__/teamstats_poison_532.test.js (3 tes: kontrak normalizer + sweep regex 13 pola mentah + impor clip). Vitest guard 530-532 → 9/9 passed.
+- Verifikasi: npm test penuh EXIT=0, 5327 tests / 5321 passed / 0 failed (6 skipped; runtime ~630 dtk). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 21.5x WIB — Siklus 533: anti-poisoning Dashboard log aktivitas
+
+- Sweep lanjutan (backlog 532): baris Log aktivitas terbaru di Dashboard masih render MENTAH `clip(l.message, 86)` — pesan log bentuk sah non-string/objek dari API → "[object Object]" di aria-live region. Ticker/FloorNavigator/TaskBoard lain sudah bersih (audit titik interpolasi tersisa: semua numerik/internal).
+- Fix: `clip(normalizeClipText(l.message), 86)` satu sumber (clip.js).
+- Guard BARU src/__tests__/dashboard_poison_533.test.js (3 tes: kontrak normalizer, sweep regex tanpa `{l.message}` mentah, impor clip).
+- Verifikasi: vitest guard 532-533 → 6/6 passed. npm test penuh 608 file / 5324 passed, 6 skipped EXIT=0 (runtime ~624 dtk; vitest sendiri kira-kira ~387 dtk bisa dihemat dengan isolate:false). Build vite sukses; dist ter-deploy ke ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 22.5x WIB — Siklus 534: eksperimen vitest isolate:false
+
+- Uji konfigurasi vitest isolate:false (vitest.config.js mergeConfig di atas vite.config) — target hemat waktu npm test penuh (baseline ~624 dtk).
+- HASIL: GAGAL — 47 file / 212 tes failed (sebagian besar timeout 1s–13s, pola fake-timer/polling lintas file saling ganggu saat berbagi worker). Durasi justru 519 dtk tak lebih cepat signifikan.
+- vitest.config.js DIHAPUS, kembali isolate default (true). Verifikasi pasca-revert: vitest guard 533 passed, build vite sukses, dist ter-deploy ~/wfs-hq, e2e_err.py exit 0 tanpa EXC.
+- npm test penuh tidak diulang di siklus ini (baseline 5324 passed / EXIT=0 pada siklus 533 masih berlaku; hanya konfigurasi sementara yang ditambah-lalu-dihapus).
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 23.3x WIB — Siklus 535: anti-poisoning toast global App.jsx
+
+- Sweep lanjutan (backlog 534): toast global di App.jsx masih render MENTAH `{toast.msg}` di aria-live region — pesan dari callback `flash()` (mis. TaskModal onDone, field API bentuk sah non-string) → "[object Object]".
+- Fix: `{normText(toast.msg)}` satu sumber (clip.js); pesan flash internal di App.jsx sudah berupa string literal/templat, sumber eksternal hanya TaskModal onDone.
+- Guard BARU src/__tests__/toast_poison_535.test.js (3 tes: kontrak normalizer, sweep tanpa `{toast.msg}` mentah, impor clip).
+- Verifikasi: vitest guard 533+535 → 6/6 passed. npm test penuh EXIT=0 (runtime ~624 dtk; ringkasan count terpotong tail — baseline siklus 533: 608 file / 5324 passed / 6 skipped). Build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 27/11/2026 23.5x WIB — Siklus 536: guard kontrak warna identitas agen
+
+- Sweep lanjutan: permukaan interpolasi JSX besar sudah bersih (guard 529-535). Titik rapuh tersisa: `agent.hex` dipakai langsung di CSS AgentInspector (`${agent.hex}44` → "undefined44" bila nama agen tak terdaftar di AGENT_ID_COLORS) dan nameplate bubble scene.
+- Audit: AGENTS (8) + AGENTS_EXTRA (3) + EXTENDED_SPECIALISTS (15) = 26 agen; semua hex valid via AGENT_ID_COLORS satu sumber — tidak ada undefined saat ini.
+- Guard BARU src/__tests__/agent_color_poison_536.test.js (3 tes: hex #RRGGBB valid semua agen, color numerik, AGENT_ID_COLORS valid & mencakup semua nama). Vitest guard 536 → 3/3 passed (603ms).
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit hari ini sudah ada (06b00ba); tanpa commit baru.
+
+## 28/11/2026 00.2x WIB — Konsolidasi harian siklus 509–536
+
+- Commit rangkuman 1x/hari: seluruh sweep anti-poisoning normalizeClipText (HUD, TaskBoard, TeamStats, Dashboard, App toast, AgentInspector), guard warna agen, dst. di working tree lokal dipusatkan dalam SATU commit.
+- Verifikasi: npm test penuh 610 file / 5330 passed, 6 skipped EXIT=0 (runtime ~626 dtk). Build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.

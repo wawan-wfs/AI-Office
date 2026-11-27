@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import { normalizeClipText } from '../lib/clip.js'
 import { IconClose, IconChat, IconUser } from './Icons'
 import { getAgentCompetency } from '../scene/parts/agent_competencies.js'
 import { TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
@@ -10,12 +11,18 @@ import { dispatchTaskBoardEvent } from '../lib/taskboard_gate.js'
 import { useModalFlag } from '../lib/modal'
 import { useDialogA11y, useEscapeClose, useVisibilityPoll } from '../lib/dialogA11y'
 
+/* Siklus 515: field sekunder agent non-string (bentuk sah API) → aman sebagai
+   React child; konsisten dgn normalizeSecondary TaskBoard/ShConsole. */
+const normalizeSecondary = (v) => {
+  if (v == null || v === '') return ''
+  if (typeof v === 'string') return v
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  try { return JSON.stringify(v) } catch { return '' }
+}
+
 // Kartu Inspektur Agen Interaktif — Tampil saat agen 3D diklik di ruangan
 export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloor, onOpenConsole }) {
-  // Status live dari state machine scene (window.__agentData). Dulu HARDCODED
-  // "Aktif Bekerja" utk semua agen — agen rapat/makan siang/berjalan tetap
-  // dilabeli bekerja. Polling 1 dtk selama kartu terbuka: agen berjalan antar
-  // lantai berpindah status tanpa perlu membuka ulang kartu.
+  // Siklus 529: badge lantai satu sumber + aman non-angka (objek bentuk sah API)
   const [live, setLive] = useState(null)
   // Lantai LIVE (siklus 142): dulu badge "Lokasi Lantai" statis dari agent.floor
   // (posisi MEJA saat scene build) — agen rapat (L1), makan siang kafe (L3),
@@ -58,6 +65,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
   const agentGid = resolveAgentId(agent.name, window.__wfsAgentIdList)
   const activeTask = agentGid ? runningByAgent[agentGid] : null
   const isFounder = comp.isFounder || agent.name === 'Wahyu FS'
+  // Siklus 529: badge lantai satu sumber + aman non-angka (objek bentuk sah API)
+  const floorBadge = liveFloor || agent.floor || (isFounder ? 3 : 1)
 
   return (
     <aside
@@ -65,7 +74,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
       ref={cardRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`Profil ${agent.name}`}
+      aria-label={`Profil ${normalizeClipText(agent.name)}`}
       style={{
         position: 'fixed',
         right: 18,
@@ -93,14 +102,14 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
               boxShadow: `0 0 16px ${agent.hex || ACCENT_BLUE}44`,
             }}
           >
-            {agent.name ? agent.name.slice(0, 2).toUpperCase() : <IconUser size={18} />}
+            {agent.name ? normalizeSecondary(String(agent.name).slice(0, 2)).toUpperCase() : <IconUser size={18} />}
           </div>
           <div>
             <div style={{ fontSize: 15, fontWeight: 700, color: PURE_TEXT, letterSpacing: 0.3 }}>
-              {agent.name}
+              {normalizeSecondary(agent.name)}
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 500, marginTop: 1 }}>
-              {agent.role || 'AI Specialist'}
+              {normalizeSecondary(agent.role) || 'AI Specialist'}
             </div>
           </div>
         </div>
@@ -135,9 +144,9 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
           <button
             type="button"
             className="agent-floor-badge-btn"
-            onClick={() => onFocusFloor && onFocusFloor(liveFloor || agent.floor || (isFounder ? 3 : 1))}
-            title={`Fokus kamera ke Lantai ${liveFloor || agent.floor || (isFounder ? 3 : 1)}`}
-            aria-label={`Fokus kamera ke Lantai ${liveFloor || agent.floor || (isFounder ? 3 : 1)}`}
+            onClick={() => onFocusFloor && onFocusFloor(floorBadge)}
+            title={`Fokus kamera ke Lantai ${normalizeClipText(floorBadge)}`}
+            aria-label={`Fokus kamera ke Lantai ${normalizeClipText(floorBadge)}`}
             style={{
               background: whiteAlpha(0.04),
               border: `1px solid ${whiteAlpha(0.06)}`,
@@ -185,8 +194,8 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
               } catch { /* ignore */ }
               onClose()
             }}
-            title={`Buka task #${activeTask.id} di Papan Kanban`}
-            aria-label={`Mengerjakan Task #${activeTask.id}: ${activeTask.title}. Klik untuk buka detail di Papan Kanban.`}
+            title={`Buka task #${normalizeClipText(activeTask.id)} di Papan Kanban`}
+            aria-label={`Mengerjakan Task #${normalizeClipText(activeTask.id)}: ${normalizeClipText(activeTask.title)}. Klik untuk buka detail di Papan Kanban.`}
             style={{
               textAlign: 'left',
               width: '100%',
@@ -203,12 +212,12 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: 'var(--green)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 8px var(--green)' }} />
-                Mengerjakan Task #{activeTask.id}
+                Mengerjakan Task #{normalizeClipText(activeTask.id)}
               </div>
               <span style={{ fontSize: 9.5, color: 'var(--teal)', fontWeight: 700 }}>KANBAN ↗</span>
             </div>
             <div style={{ fontSize: 12, color: PURE_TEXT, fontWeight: 600, lineHeight: 1.35 }}>
-              {activeTask.title}
+              {normalizeClipText(activeTask.title)}
             </div>
           </button>
         ) : null}
@@ -309,9 +318,9 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
             } catch { /* ignore */ }
             onClose()
           }}
-          title={`Buka papan sprint kanban untuk divisi ${findTeamByAgent(agent.name)?.name || agent.name}`}
+          title={`Buka papan sprint kanban untuk divisi ${normalizeClipText(findTeamByAgent(agent.name)?.name || agent.name)}`}
         >
-          📋 Papan Kanban {findTeamByAgent(agent.name)?.shortName ? `(${findTeamByAgent(agent.name).shortName})` : ''}
+          📋 Papan Kanban {findTeamByAgent(agent.name)?.shortName ? `(${normalizeClipText(findTeamByAgent(agent.name).shortName)})` : ''}
         </button>
 
         <button type="button"
@@ -330,7 +339,7 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
           }}
         >
           <IconChat size={16} />
-          Buka Chat dengan {agent.name ? agent.name.split(' ')[0] : 'Agen'}
+          Buka Chat dengan {agent.name ? normalizeSecondary(agent.name).split(' ')[0] || 'Agen' : 'Agen'}
         </button>
       </div>
     </aside>

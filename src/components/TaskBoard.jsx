@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { api } from '../lib/api'
+import { clip, normalizeClipText, normalizeClipText as normErr } from '../lib/clip'
 import { useModalFlag } from '../lib/modal'
 import { useDialogA11y, useEscapeClose, useVisibilityPoll, useWindowEvent } from '../lib/dialogA11y'
 import { parseFileList } from '../lib/files'
@@ -65,6 +66,11 @@ import {
 import { TEAMS, findTeamByRole, findTeamByAgent } from '../scene/parts/team_spec'
 import { taskStatusColor, taskStatusLabel, TASK_STATUS_COLORS } from '../lib/task_status_colors'
 import { SKY_DIVISION, NOTE_TEXT, CHIP_TEXT, UNKNOWN_STROKE } from '../lib/ui_palette'
+// Siklus 512 — field sekunder non-string (bentuk sah API: agent_id/role/status/
+// prompt/result numerik-atau-objek) dinormalisasi sebelum masuk React child /
+// atribut — objek tidak crash papan dan tidak tampil "[object Object]".
+const normalizeSecondary = (v) => (v == null || v === '' ? '' : typeof v === 'string' ? v : typeof v === 'number' || typeof v === 'boolean' ? String(v) : (() => { try { return JSON.stringify(v) } catch { return '' } })())
+
 // ST delegasi ke satu sumber warna/label status (siklus 373).
 const ST = {
   done: [taskStatusLabel('done'), taskStatusColor('done')],
@@ -419,11 +425,11 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     try {
       await api(`tasks/${t.id}/run`, { method: 'POST', body: {} })
       onFlash(`Task #${t.id} dijalankan`); load()
-    } catch (e) { onFlash(e.message || 'Gagal menjalankan task', true) } finally {
+    } catch (e) { onFlash(normErr(e.message) || 'Gagal menjalankan task', true) } finally {
       runInFlight.current = new Set(runInFlight.current); runInFlight.current.delete(t.id)
     }
   }
-  const ask = (t) => onAsk({ title: `Jalankan task #${t.id}?`, body: `"${t.title}" akan dikerjakan oleh ${t.agent_id} dan memanggil model AI (memakai kuota API).`, ok: 'Jalankan', onOk: () => run(t) })
+  const ask = (t) => onAsk({ title: `Jalankan task #${t.id}?`, body: `"${normalizeClipText(t.title)}" akan dikerjakan oleh ${t.agent_id} dan memanggil model AI (memakai kuota API).`, ok: 'Jalankan', onOk: () => run(t) })
 
   const handleMoveTask = useCallback((task, targetColKey) => {
     if (!task || !targetColKey) return
@@ -448,7 +454,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     statusInFlight.current = new Set(statusInFlight.current).add(task.id)
     api(`tasks/${task.id}/status`, { method: 'PATCH', body: { status: persistedStatus } })
       .catch(e => {
-        if (onFlash) onFlash(`Gagal memindahkan task #${task.id}: ${e.message || 'server menolak'}`, true)
+        if (onFlash) onFlash(`Gagal memindahkan task #${task.id}: ${normErr(e.message) || 'server menolak'}`, true)
       })
       .finally(() => {
         statusInFlight.current = new Set(statusInFlight.current); statusInFlight.current.delete(task.id)
@@ -698,7 +704,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={metrics.pct}
-              aria-label={`Progres sprint ${!isDivAll ? (activeDivision?.fullName || divisionSummary) : 'kampus'}: ${metrics.pct}% selesai`}
+              aria-label={`Progres sprint ${normalizeClipText(!isDivAll ? (activeDivision?.fullName || divisionSummary) : 'kampus')}: ${metrics.pct}% selesai`}
               title={`Progres sprint: ${metrics.done}/${metrics.total} task (${metrics.pct}%) selesai`}
             >
               <div
@@ -718,9 +724,9 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                 sfx.playSelect()
                 setSel(null)
               }} style={{ marginBottom: 10 }}>← Kembali</button>
-              <h3 style={{ fontSize: 15, marginBottom: 6 }}>#{sel.id} {sel.title}</h3>
+              <h3 style={{ fontSize: 15, marginBottom: 6 }}>#{sel.id} {normalizeClipText(sel.title)}</h3>
               <p className="note" style={{ marginBottom: 8 }}>
-                Agent: {sel.agent_id || '—'} · Role: {sel.role || '—'} ({getTaskRoleLabel(sel.role)}) · Prioritas: <b style={{ color: getTaskPriorityInfo(sel.priority).color }}>{getTaskPriorityInfo(sel.priority).icon} {getTaskPriorityInfo(sel.priority).label}</b> · <b style={{ color: ST[sel.status]?.[1] }}>{ST[sel.status]?.[0] || sel.status}</b>{parseTaskTimestamp(sel) ? <> · Waktu: <b>{formatTaskDate(sel)}</b></> : null}
+                Agent: {normalizeSecondary(sel.agent_id) || '—'} · Role: {normalizeSecondary(sel.role) || '—'} ({getTaskRoleLabel(sel.role)}) · Prioritas: <b style={{ color: getTaskPriorityInfo(sel.priority).color }}>{getTaskPriorityInfo(sel.priority).icon} {getTaskPriorityInfo(sel.priority).label}</b> · <b style={{ color: ST[sel.status]?.[1] }}>{ST[sel.status]?.[0] || normalizeSecondary(sel.status)}</b>{parseTaskTimestamp(sel) ? <> · Waktu: <b>{formatTaskDate(sel)}</b></> : null}
               </p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
                 <button
@@ -762,19 +768,19 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         window.__wfsSceneSelect(sel.agent_id)
                       }
                     }}
-                    title={`Fokus kamera 3D langsung ke meja agen ${sel.agent_id}`}
+                    title={`Fokus kamera 3D langsung ke meja agen ${normalizeClipText(sel.agent_id)}`}
                   >
-                    🎯 Fokus Agen ({sel.agent_id}) ↗
+                    🎯 Fokus Agen ({normalizeSecondary(sel.agent_id)}) ↗
                   </button>
                 )}
               </div>
               {(() => { const fl = parseFileList(sel.files); return fl.length > 0 && <><label className="note">File dihasilkan</label><pre className="note" style={{ whiteSpace: 'pre-wrap', margin: '4px 0 10px', color: NOTE_TEXT }}>{fl.join('\n')}</pre></> })()}
-              {sel.review && <><label className="note">Ulasan QA</label><div className="msg" style={{ maxWidth: '100%', marginTop: 4, fontSize: 13 }}>{sel.review}</div></>}
+              {sel.review && <><label className="note">Ulasan QA</label><div className="msg" style={{ maxWidth: '100%', marginTop: 4, fontSize: 13 }}>{normalizeClipText(sel.review)}</div></>}
               {/* Siklus 236 — Brief & Hasil Agen: sumber detail GET /tasks/{id}
                   (prompt/result hanya di sana; list poll ramping tanpa keduanya).
                   fallback sel menjaga tampilan bila detail gagal dimuat. */}
-              {(detail?.prompt ?? sel.prompt) && <><label className="note">Brief</label><div className="msg" style={{ maxWidth: '100%', marginTop: 4, fontSize: 13, whiteSpace: 'pre-wrap' }}>{detail?.prompt ?? sel.prompt}</div></>}
-              {(detail?.result ?? sel.result) && <><label className="note">Hasil Agen</label><div className="msg" style={{ maxWidth: '100%', marginTop: 4, fontSize: 13, whiteSpace: 'pre-wrap' }}>{detail?.result ?? sel.result}</div></>}
+              {(detail?.prompt ?? sel.prompt) && <><label className="note">Brief</label><div className="msg" style={{ maxWidth: '100%', marginTop: 4, fontSize: 13, whiteSpace: 'pre-wrap' }}>{normalizeSecondary(detail?.prompt ?? sel.prompt)}</div></>}
+              {(detail?.result ?? sel.result) && <><label className="note">Hasil Agen</label><div className="msg" style={{ maxWidth: '100%', marginTop: 4, fontSize: 13, whiteSpace: 'pre-wrap' }}>{normalizeSecondary(detail?.result ?? sel.result)}</div></>}
               {(() => {
                 const selBadges = getTaskCardBadges(sel)
                 return selBadges.tags.length > 0 ? (
@@ -793,8 +799,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                               handleTagClick(tg.tag, e)
                               setSel(null)
                             }}
-                            title={`Lihat semua task dengan tag #${tg.label}`}
-                            aria-label={`Filter tag #${tg.label}`}
+                            title={`Lihat semua task dengan tag #${normalizeClipText(tg.label)}`}
+                            aria-label={`Filter tag #${normalizeClipText(tg.label)}`}
                           >
                             #{tg.label}
                           </button>
@@ -817,8 +823,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                       style={{ '--btn-accent': col.color }}
                       disabled={!canMove}
                       onClick={() => handleMoveTask(sel, col.key)}
-                      title={isCurrent ? `Saat ini di kolom ${col.label}` : `Pindahkan task ke kolom ${col.label}`}
-                      aria-label={`Pindahkan task #${sel.id} ke kolom ${col.label}`}
+                      title={isCurrent ? `Saat ini di kolom ${normalizeClipText(col.label)}` : `Pindahkan task ke kolom ${normalizeClipText(col.label)}`}
+                      aria-label={`Pindahkan task #${normalizeClipText(sel.id)} ke kolom ${normalizeClipText(col.label)}`}
                     >
                       <span aria-hidden="true">{col.icon}</span>
                       <span>{col.label}</span>
@@ -1040,8 +1046,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                           className={'div-chip' + (isActive ? ' active' : '')}
                           onClick={(e) => handleDivisionClick(div.key, e)}
                           aria-pressed={isActive}
-                          aria-label={div.key === 'all' ? 'Tampilkan semua divisi' : `Filter divisi ${div.fullName || div.label}`}
-                          title={div.key === 'all' ? 'Tampilkan semua divisi' : `Filter ${div.fullName || div.label}: ${div.count} task (${div.done || 0} selesai)`}
+                          aria-label={div.key === 'all' ? 'Tampilkan semua divisi' : `Filter divisi ${normalizeClipText(div.fullName || div.label)}`}
+                          title={div.key === 'all' ? 'Tampilkan semua divisi' : `Filter ${normalizeClipText(div.fullName || div.label)}: ${div.count} task (${div.done || 0} selesai)`}
                         >
                           <span className="div-chip-dot" style={{ background: div.color }} aria-hidden="true" />
                           <span className="div-chip-label">{div.label}</span>
@@ -1066,8 +1072,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             }
                           }
                         }}
-                        title={activeDivList.length === 1 ? `Fokus kamera 3D ke pod ${activeDivision?.fullName || activeDivList[0]}` : 'Fokus kamera 3D ke gambaran kampus'}
-                        aria-label={activeDivList.length === 1 ? `Fokus kamera 3D ke pod ${activeDivision?.fullName || activeDivList[0]}` : 'Fokus kamera 3D ke gambaran kampus'}
+                        title={activeDivList.length === 1 ? `Fokus kamera 3D ke pod ${normalizeClipText(activeDivision?.fullName || activeDivList[0])}` : 'Fokus kamera 3D ke gambaran kampus'}
+                        aria-label={activeDivList.length === 1 ? `Fokus kamera 3D ke pod ${normalizeClipText(activeDivision?.fullName || activeDivList[0])}` : 'Fokus kamera 3D ke gambaran kampus'}
                       >
                         <span>{activeDivList.length === 1 ? 'Fokus Pod 3D ↗' : 'Fokus Kampus 3D ↗'}</span>
                       </button>
@@ -1094,7 +1100,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             onClick={() => handleDivPresetClick(preset.key)}
                             aria-pressed={isPresetOn}
                             title={preset.desc || preset.label}
-                            aria-label={`Preset ${preset.label}: ${count} task`}
+                            aria-label={`Preset ${normalizeClipText(preset.label)}: ${count} task`}
                           >
                             <span className="div-preset-icon">{preset.icon}</span>
                             <span className="div-preset-label">{preset.label}</span>
@@ -1105,8 +1111,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                               type="button"
                               className="div-preset-del-btn"
                               onClick={(e) => handleDeleteCustomDivPreset(preset.key, e)}
-                              title={`Hapus preset kustom ${preset.label}`}
-                              aria-label={`Hapus preset kustom ${preset.label}`}
+                              title={`Hapus preset kustom ${normalizeClipText(preset.label)}`}
+                              aria-label={`Hapus preset kustom ${normalizeClipText(preset.label)}`}
                             >
                               ✕
                             </button>
@@ -1165,7 +1171,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             type="button"
                             className={`div-preset-icon-btn${divPresetFormIcon === icon ? ' active' : ''}`}
                             onClick={() => setDivPresetFormIcon(icon)}
-                            aria-label={`Ikon ${icon}`}
+                            aria-label={`Ikon ${normalizeClipText(icon)}`}
                           >
                             {icon}
                           </button>
@@ -1180,7 +1186,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             className={`div-preset-color-btn${divPresetFormColor === c ? ' active' : ''}`}
                             style={{ background: c, '--dot-color': c }}
                             onClick={() => setDivPresetFormColor(c)}
-                            aria-label={`Warna ${c}`}
+                            aria-label={`Warna ${normalizeClipText(c)}`}
                           />
                         ))}
                       </div>
@@ -1200,7 +1206,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                               )
                             }}
                             aria-pressed={isSelected}
-                            aria-label={`Divisi ${team.shortName}`}
+                            aria-label={`Divisi ${normalizeClipText(team.shortName)}`}
                           >
                             <span className="div-selector-dot" style={{ background: team.color }} aria-hidden="true" />
                             <span>{team.shortName}</span>
@@ -1259,8 +1265,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         style={{ '--chip-accent': item.color, '--chip-text-color': item.textColor || CHIP_TEXT }}
                         onClick={(e) => handleTagClick(item.tag, e)}
                         aria-pressed={isAct}
-                        title={`Filter task #${item.label} (${item.count} task) — Shift+Klik untuk multi-pilih`}
-                        aria-label={`Filter tag ${item.label}: ${item.count} task`}
+                        title={`Filter task #${normalizeClipText(item.label)} (${item.count} task) — Shift+Klik untuk multi-pilih`}
+                        aria-label={`Filter tag ${normalizeClipText(item.label)}: ${item.count} task`}
                       >
                         <span className="task-tag-chip-hash" aria-hidden="true">#</span>
                         <span className="task-tag-chip-name">{item.label}</span>
@@ -1310,8 +1316,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             className="task-preset-chip-main"
                             onClick={() => handlePresetClick(p.key)}
                             aria-pressed={isAct}
-                            title={`${p.label}: [${p.tags.map(t => '#' + t).join(', ')}] — ${p.desc} (${p.count} task)`}
-                            aria-label={`Preset ${p.label}: ${p.count} task`}
+                            title={`${normalizeClipText(p.label)}: [${p.tags.map(t => '#' + normalizeClipText(t)).join(', ')}] — ${normalizeClipText(p.desc)} (${p.count} task)`}
+                            aria-label={`Preset ${normalizeClipText(p.label)}: ${p.count} task`}
                           >
                             <span className="task-preset-icon" aria-hidden="true">{p.icon}</span>
                             <span className="task-preset-label">{p.label}</span>
@@ -1321,8 +1327,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             type="button"
                             className="task-preset-del-btn"
                             onClick={(e) => handleDeleteCustomPreset(p.key, e)}
-                            title={`Hapus preset kustom ${p.label}`}
-                            aria-label={`Hapus preset kustom ${p.label}`}
+                            title={`Hapus preset kustom ${normalizeClipText(p.label)}`}
+                            aria-label={`Hapus preset kustom ${normalizeClipText(p.label)}`}
                           >
                             ✕
                           </button>
@@ -1337,8 +1343,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         style={{ '--preset-color': p.color }}
                         onClick={() => handlePresetClick(p.key)}
                         aria-pressed={isAct}
-                        title={`${p.label}: [${p.tags.map(t => '#' + t).join(', ')}] — ${p.desc} (${p.count} task)`}
-                        aria-label={`Preset ${p.label}: ${p.count} task`}
+                        title={`${normalizeClipText(p.label)}: [${p.tags.map(t => '#' + normalizeClipText(t)).join(', ')}] — ${normalizeClipText(p.desc)} (${p.count} task)`}
+                        aria-label={`Preset ${normalizeClipText(p.label)}: ${p.count} task`}
                       >
                         <span className="task-preset-icon" aria-hidden="true">{p.icon}</span>
                         <span className="task-preset-label">{p.label}</span>
@@ -1408,7 +1414,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                           type="button"
                           className={`task-preset-icon-btn${presetFormIcon === ic ? ' active' : ''}`}
                           onClick={() => setPresetFormIcon(ic)}
-                          aria-label={`Pilih ikon ${ic}`}
+                          aria-label={`Pilih ikon ${normalizeClipText(ic)}`}
                           aria-pressed={presetFormIcon === ic}
                         >
                           {ic}
@@ -1423,7 +1429,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                           className={`task-preset-color-btn${presetFormColor === c ? ' active' : ''}`}
                           style={{ background: c, '--dot-color': c }}
                           onClick={() => setPresetFormColor(c)}
-                          aria-label={`Pilih warna ${c}`}
+                          aria-label={`Pilih warna ${normalizeClipText(c)}`}
                           aria-pressed={presetFormColor === c}
                         />
                       ))}
@@ -1449,7 +1455,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                               )
                             }}
                             aria-pressed={isSel}
-                            aria-label={`Tag #${item.label}`}
+                            aria-label={`Tag #${normalizeClipText(item.label)}`}
                           >
                             <span>#{item.label}</span>
                             {isSel && <span aria-hidden="true"> ✓</span>}
@@ -1526,7 +1532,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         key={col.key}
                         className={`kanban-col${dragOverCol === col.key ? ' drag-over' : ''}`}
                         role="region"
-                        aria-label={`Kolom ${col.label}`}
+                        aria-label={`Kolom ${normalizeClipText(col.label)}`}
                         style={{ '--col-color': col.color }}
                         onDragOver={(e) => handleDragOver(e, col.key)}
                         onDragLeave={(e) => handleDragLeave(e, col.key)}
@@ -1540,11 +1546,11 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         <div
                           className="kanban-col-dist-bar"
                           role="progressbar"
-                          aria-label={`Distribusi kolom ${col.label}: ${dist.pct}%`}
+                          aria-label={`Distribusi kolom ${normalizeClipText(col.label)}: ${dist.pct}%`}
                           aria-valuenow={dist.pct}
                           aria-valuemin={0}
                           aria-valuemax={100}
-                          title={`${dist.count}/${dist.total} task (${dist.pct}%) di kolom ${col.label}`}
+                          title={`${dist.count}/${dist.total} task (${dist.pct}%) di kolom ${normalizeClipText(col.label)}`}
                         >
                           <div
                             className="kanban-col-dist-fill"
@@ -1579,8 +1585,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                     borderLeft: `3px solid ${ST[t.status]?.[1] || col.color}`,
                                     animationDelay: `${Math.min(idx * 30, 240)}ms`,
                                   }}
-                                  aria-label={`Task #${t.id}: ${t.title}`}
-                                  title={`Buka task #${t.id}: ${t.title} (geser untuk pindah kolom)`}
+                                  aria-label={`Task #${t.id}: ${normalizeClipText(t.title)}`}
+                                  title={`Buka task #${t.id}: ${normalizeClipText(t.title)} (geser untuk pindah kolom)`}
                                 >
                                   <div className="kanban-card-top">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -1589,7 +1595,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                         <span
                                           className="kanban-priority-badge"
                                           style={{ color: badges.priority.color, background: badges.priority.bg }}
-                                          title={`Prioritas: ${badges.priority.label}`}
+                                          title={`Prioritas: ${normalizeClipText(badges.priority.label)}`}
                                         >
                                           <span aria-hidden="true">{badges.priority.icon}</span>
                                           <span>{badges.priority.label}</span>
@@ -1620,16 +1626,16 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                             }
                                           }
                                         }}
-                                        title={`Fokus kamera 3D ke meja agen ${t.agent_id}`}
-                                        aria-label={`Fokus kamera 3D ke agen ${t.agent_id}`}
+                                        title={`Fokus kamera 3D ke meja agen ${normalizeClipText(t.agent_id)}`}
+                                        aria-label={`Fokus kamera 3D ke agen ${normalizeClipText(t.agent_id)}`}
                                       >
                                         <span aria-hidden="true">🎯</span>
-                                        <span>{t.agent_id}</span>
+                                        <span>{normalizeSecondary(t.agent_id)}</span>
                                       </span>
                                     )}
                                   </div>
                                   <div className="kanban-card-title">
-                                    {getSearchMatchSegments(t.title, q).map((seg, i) =>
+                                    {getSearchMatchSegments(normalizeClipText(t.title), q).map((seg, i) =>
                                       seg.match ? (
                                         <mark key={i} className="kanban-search-highlight">
                                           {seg.text}
@@ -1649,7 +1655,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                             key={tg.tag}
                                             className={`kanban-tag-badge${isTagAct ? ' active' : ''}`}
                                             style={{ '--tag-color': tg.color, '--tag-text-color': tg.textColor || CHIP_TEXT }}
-                                            title={`Filter berdasarkan tag #${tg.label}`}
+                                            title={`Filter berdasarkan tag #${normalizeClipText(tg.label)}`}
                                             role="button"
                                             tabIndex={0}
                                             aria-pressed={isTagAct}
@@ -1672,7 +1678,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                       {badges.tags.length > 2 && (
                                         <span
                                           className="kanban-tag-badge-more"
-                                          title={badges.tags.slice(2).map((tg) => `#${tg.label}`).join(', ')}
+                                          title={badges.tags.slice(2).map((tg) => `#${normalizeClipText(tg.label)}`).join(', ')}
                                         >
                                           +{badges.tags.length - 2}
                                         </span>
@@ -1688,14 +1694,14 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                         </span>
                                       )}
                                     </div>
-                                    <span className="kanban-status-badge" style={{ color: ST[t.status]?.[1] || col.color }}>{ST[t.status]?.[0] || t.status}</span>
+                                    <span className="kanban-status-badge" style={{ color: ST[t.status]?.[1] || col.color }}>{ST[t.status]?.[0] || normalizeSecondary(t.status)}</span>
                                   </div>
                                 </button>
                               )
                             })
                           )}
                           {dragOverCol === col.key && draggedTaskId && (
-                            <div className="kanban-drop-slot" role="status" aria-label={`Lepas di kolom ${col.label}`}>
+                            <div className="kanban-drop-slot" role="status" aria-label={`Lepas di kolom ${normalizeClipText(col.label)}`}>
                               <span aria-hidden="true">{col.icon}</span> Lepas untuk pindah ke {col.label}
                             </div>
                           )}
@@ -1715,8 +1721,8 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         key={t.id}
                         type="button"
                         className="taskrow"
-                        aria-label={`Task #${t.id}: ${t.title}`}
-                        title={`Buka task #${t.id}: ${t.title}`}
+                        aria-label={`Task #${t.id}: ${normalizeClipText(t.title)}`}
+                        title={`Buka task #${t.id}: ${normalizeClipText(t.title)}`}
                         onClick={() => {
                           if (t.priority === 'urgent') sfx.playTaskUrgent()
                           else sfx.playSelect()
@@ -1727,7 +1733,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.35 }}>
                             #{t.id}{' '}
-                            {getSearchMatchSegments(t.title, q).map((seg, i) =>
+                            {getSearchMatchSegments(normalizeClipText(t.title), q).map((seg, i) =>
                               seg.match ? (
                                 <mark key={i} className="kanban-search-highlight">
                                   {seg.text}
@@ -1741,13 +1747,13 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             <span
                               className="kanban-priority-badge"
                               style={{ color: prio.color, background: prio.bg, flexShrink: 0 }}
-                              title={`Prioritas: ${prio.label}`}
+                              title={`Prioritas: ${normalizeClipText(prio.label)}`}
                             >
                               <span aria-hidden="true">{prio.icon}</span> {prio.label}
                             </span>
                           )}
                         </div>
-                        <div className="note">{t.agent_id || 'unassigned'} · {ST[t.status]?.[0] || t.status}</div>
+                        <div className="note">{normalizeSecondary(t.agent_id) || 'unassigned'} · {ST[t.status]?.[0] || normalizeSecondary(t.status)}</div>
                         {(() => {
                           const rowBadges = getTaskCardBadges(t)
                           return rowBadges.tags.length > 0 ? (
@@ -1759,7 +1765,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                     key={tg.tag}
                                     className={`kanban-tag-badge${isTagAct ? ' active' : ''}`}
                                     style={{ '--tag-color': tg.color, '--tag-text-color': tg.textColor || CHIP_TEXT }}
-                                    title={`Filter berdasarkan tag #${tg.label}`}
+                                    title={`Filter berdasarkan tag #${normalizeClipText(tg.label)}`}
                                     role="button"
                                     tabIndex={0}
                                     aria-pressed={isTagAct}

@@ -8,7 +8,16 @@ import { IconClose, IconStats } from './Icons'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
 import { ACCENT_BLUE, VIOLET_CARD, PALE_BLUE_CARD, IDLE_DOT } from '../lib/ui_palette.js'
 
-import { clip } from '../lib/clip.js'
+import { clip, normalizeClipText } from '../lib/clip.js'
+
+/* Siklus 513: field sekunder task non-string (bentuk sah API) → aman sebagai
+   React child; konsisten dgn normalizeSecondary TaskBoard (siklus 512). */
+const normalizeSecondary = (v) => {
+  if (v == null || v === '') return ''
+  if (typeof v === 'string') return v
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  try { return JSON.stringify(v) } catch { return '' }
+}
 import { fileCount } from '../lib/files'
 import { computeStatusCounts } from '../scene/parts/kanban_spec.js'
 import { fmtTime } from '../lib/format_time.js'
@@ -131,14 +140,17 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
             {stats && (
               <>
                 <div className="dash-grid">
-                  {card('Proyek', stats.projects_total ?? (projects ? projects.length : '—'), ACCENT_BLUE)}
-                  {card('Proyek jalan', stats.projects_running ?? (projects ? projects.filter(p => p.status === 'running').length : '—'), TASK_STATUS_COLORS.running)}
-                  {card('Task', stats.tasks_total ?? (tasks ? tasks.length : '—'), VIOLET_CARD)}
-                  {card('Task jalan', stats.tasks_running ?? (tasks ? running : '—'), TASK_STATUS_COLORS.running)}
-                  {card('Selesai', stats.tasks_completed ?? (tasks ? (byStatus.done || byStatus.completed || 0) : '—'), TASK_STATUS_COLORS.done)}
-                  {card('Agen task engine', stats.agents_count ?? '—', ACCENT_BLUE)}
-                  {card('File dihasilkan', tasks ? totalFiles : '—', PALE_BLUE_CARD)}
-                  {card('Sandbox', res ? (res.containers || []).filter(c => /wfs-sandbox|sbx/.test(c.name)).length : '—', TASK_STATUS_COLORS.review)}
+                  {/* Siklus 527: nilai kartu angka dinormalisasi (normalizeClipText) —
+                      field API bentuk sah non-string/objek tak lagi jatuh sebagai
+                      React child mentah ('[object Object]'/crash child). */}
+                  {card('Proyek', normalizeClipText(stats.projects_total ?? (projects ? projects.length : '—')), ACCENT_BLUE)}
+                  {card('Proyek jalan', normalizeClipText(stats.projects_running ?? (projects ? projects.filter(p => p.status === 'running').length : '—')), TASK_STATUS_COLORS.running)}
+                  {card('Task', normalizeClipText(stats.tasks_total ?? (tasks ? tasks.length : '—')), VIOLET_CARD)}
+                  {card('Task jalan', normalizeClipText(stats.tasks_running ?? (tasks ? running : '—')), TASK_STATUS_COLORS.running)}
+                  {card('Selesai', normalizeClipText(stats.tasks_completed ?? (tasks ? (byStatus.done || byStatus.completed || 0) : '—')), TASK_STATUS_COLORS.done)}
+                  {card('Agen task engine', normalizeClipText(stats.agents_count ?? '—'), ACCENT_BLUE)}
+                  {card('File dihasilkan', normalizeClipText(tasks ? totalFiles : '—'), PALE_BLUE_CARD)}
+                  {card('Sandbox', normalizeClipText(res ? (res.containers || []).filter(c => /wfs-sandbox|sbx/.test(c.name)).length : '—'), TASK_STATUS_COLORS.review)}
                 </div>
 
                 <div className="dash-cols">
@@ -151,12 +163,12 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                     {projects?.length === 0 && <div className="skeleton">Belum ada proyek.</div>}
                     {(projects || []).slice(0, 6).map(p => (
                       <button type="button" key={p.id} className="dash-row" onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}
-                        aria-label={`Proyek ${p.name} status ${p.status}`}
-                        title={p.preview_url ? `Preview: ${p.preview_url}` : 'Belum ada sandbox'}>
+                        aria-label={`Proyek ${normalizeClipText(p.name)} status ${normalizeSecondary(p.status)}`}
+                        title={p.preview_url ? `Preview: ${normalizeClipText(p.preview_url)}` : 'Belum ada sandbox'}>
                         <span className="dash-row-t">
                           <b style={{ color: p.status === 'running' ? TASK_STATUS_COLORS.done : IDLE_DOT }}>●</b> {clip(p.name, 26)}
                         </span>
-                        <span className="dash-row-s">{p.status}{p.preview_port ? ` :${p.preview_port}` : ''}</span>
+                        <span className="dash-row-s">{normalizeSecondary(p.status)}{p.preview_port ? ` :${normalizeSecondary(p.preview_port)}` : ''}</span>
                       </button>
                     ))}
                   </section>
@@ -168,9 +180,9 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                     {(tasks || []).slice(0, 7).map(t => (
                       <button type="button" key={t.id} className="dash-row" style={{ borderLeft: `3px solid ${taskStatusColor(t.status) || TASK_STATUS_COLORS.review}` }}
                         onClick={() => { setOpen(false); onOpenBoard && onOpenBoard() }}
-                        aria-label={`Task ${t.id}: ${t.title} status ${t.status}`}>
+                        aria-label={`Task ${t.id}: ${normalizeClipText(t.title)} status ${normalizeSecondary(t.status)}`}>
                         <span className="dash-row-t">{clip(t.title, 30)}</span>
-                        <span className="dash-row-s">{t.agent_id || t.status}</span>
+                        <span className="dash-row-s">{normalizeSecondary(t.agent_id) || normalizeSecondary(t.status)}</span>
                       </button>
                     ))}
                   </section>
@@ -183,16 +195,16 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                     {presence && (
                       <div className="dash-presence" role="status" title="Simulasi avatar kantor, bukan status eksekusi task">
                         <i style={{ background: TASK_STATUS_COLORS.done }} aria-hidden="true" />
-                        <b aria-hidden="true">{presence.total} avatar simulasi:</b> {presence.text}
-                        <span className="sr-only">Simulasi: {presence.total} avatar di kantor — {presence.text}</span>
+                        <b aria-hidden="true">{normalizeClipText(presence.total)} avatar simulasi:</b> {normalizeClipText(presence.text)}
+                        <span className="sr-only">Simulasi: {normalizeClipText(presence.total)} avatar di kantor — {normalizeClipText(presence.text)}</span>
                       </div>
                     )}
                     {!res && <p>Data container tidak tersedia.</p>}
                     {res && (res.containers || []).length === 0 && <div className="skeleton">Tidak ada container.</div>}
-                    {(res?.containers || []).filter(c => /wfs-sandbox|sbx|dibantuin|omniroute/.test(c.name)).slice(0, 8).map(c => (
+                    {(res?.containers || []).filter(c => /wfs-sandbox|sbx|dibantuin|omniroute/.test(normalizeClipText(c.name))).slice(0, 8).map(c => (
                       <div key={c.name} className="dash-row" style={{ cursor: 'default' }}>
-                        <span className="dash-row-t">{c.name.replace('wfs-sandbox-', 'sbx · ').replace('saas-dibantuin-', 'dbt · ').replace('wfs-office-', '')}</span>
-                        <span className="dash-row-s">{c.cpu} · {c.mem}</span>
+                        <span className="dash-row-t">{normalizeClipText(String(c.name ?? '').replace('wfs-sandbox-', 'sbx · ').replace('saas-dibantuin-', 'dbt · ').replace('wfs-office-', ''))}</span>
+                        <span className="dash-row-s">{normalizeSecondary(c.cpu)} · {normalizeSecondary(c.mem)}</span>
                       </div>
                     ))}
                   </section>
@@ -202,18 +214,18 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                 <div className="dash-log" aria-label="Log aktivitas" aria-live="polite">
                   {/* Siklus 573: aria-live polite — baris log baru diumumkan
                       ke screen reader tanpa memindahkan fokus. */}
-                  {(stats.logs || []).slice(0, 8).map(l => (
+                  {(Array.isArray(stats.logs) ? stats.logs : []).slice(0, 8).map(l => (
                     <div key={l.id} className="dash-log-row">
                       <span className="dash-log-t">{fmtTime(l.timestamp)}</span>
-                      <span>{clip(l.message, 86)}</span>
+                      <span>{clip(normalizeClipText(l.message), 86)}</span>
                     </div>
                   ))}
-                  {(stats.logs || []).length === 0 && <div className="skeleton">Belum ada log.</div>}
+                  {(Array.isArray(stats.logs) ? stats.logs : []).length === 0 && <div className="skeleton">Belum ada log.</div>}
                 </div>
 
                 {res && (
                   <div className="dash-host">
-                    🖥 HOST · load {res.load} · RAM {res.ram_mb} MB · {res.containers?.length || 0} container
+                    🖥 HOST · load {normalizeSecondary(res.load)} · RAM {normalizeSecondary(res.ram_mb)} MB · {normalizeSecondary(res.containers?.length || 0)} container
                   </div>
                 )}
               </>

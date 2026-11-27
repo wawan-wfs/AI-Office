@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { normalizeClipText } from '../lib/clip.js'
 import { api } from '../lib/api'
 import { clip } from '../lib/clip.js'
 import { tickerPresenceSummary, STATUS_HEX } from '../scene/parts/agent_status.js'
@@ -56,10 +57,10 @@ export default function Ticker({ conn }) {
         tasks.forEach(x => { cnt[x.status] = (cnt[x.status] || 0) + 1 })
         out.push({ text: `${tasks.length} task · ${cnt.done || 0} done · ${cnt.running || 0} running · ${cnt.pending || 0} pending · ${cnt.failed || 0} failed`, color: taskStatusColor('review') || PURE_TEXT })
         tasks.slice(-8).reverse().forEach(x => out.push({
-          text: `${x.agent_id ? (name[x.agent_id] || x.agent_id) : 'Tanpa agen'} — ${clip(x.title, 48)} [${x.status}]`,
+          text: `${x.agent_id ? clip(normalizeClipText(name[x.agent_id] || x.agent_id), 24) : 'Tanpa agen'} — ${clip(normalizeClipText(x.title), 48)} [${normalizeClipText(x.status)}]`,
           color: COL[x.status] || PURE_TEXT,
         }))
-        if (s && s.mem_total_mb) out.push({ text: `Host RAM tersedia ${s.mem_available_mb}/${s.mem_total_mb} MB · disk ${s.disk_used_gb}/${s.disk_total_gb} GB`, color: VIOLET_STATS })
+        if (s && s.mem_total_mb) out.push({ text: `Host RAM tersedia ${normalizeClipText(s.mem_available_mb)}/${normalizeClipText(s.mem_total_mb)} MB · disk ${normalizeClipText(s.disk_used_gb)}/${normalizeClipText(s.disk_total_gb)} GB`, color: VIOLET_STATS })
       if (!apiStop.current && my === apiRid.current) setMsgs(out)
     } catch {
       if (!apiStop.current && my === apiRid.current) setMsgs([{ text: 'Gateway offline — mencoba lagi…', color: TASK_STATUS_COLORS.failed }])
@@ -68,8 +69,8 @@ export default function Ticker({ conn }) {
   useVisibilityPoll(load, 20000)
 
   const list = [...msgs, ...msgs]
-  const liveText = [conn && conn.label, ...msgs.map(m => m.text)].filter(Boolean).join(' · ')
-  const livePresence = presence ? presence.map(s => `${s.count} ${s.label}`).join(' · ') : null
+  const liveText = [conn && normalizeClipText(conn.label), ...msgs.map(m => m.text)].filter(Boolean).join(' · ')
+  const livePresence = presence ? presence.map(s => `${normalizeClipText(s.count)} ${normalizeClipText(s.label)}`).join(' · ') : null
   return (
     <>
       <div id="ticker-live" role="status" aria-live="polite" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', clipPath: 'inset(50%)', whiteSpace: 'nowrap' }}>{[livePresence, liveText].filter(Boolean).join(' · ')}</div>
@@ -80,7 +81,7 @@ export default function Ticker({ conn }) {
               <span key={s.key} className="ticker-presence-item">
                 {!s.first && <span className="ticker-presence-sep" aria-hidden="true">·</span>}
                 <i style={{ background: STATUS_DOT[s.key] }} aria-hidden="true" />
-                {s.count} {s.label}
+                {normalizeClipText(s.count)} {normalizeClipText(s.label)}
               </span>
             ))}
           </span>
@@ -89,11 +90,11 @@ export default function Ticker({ conn }) {
           <span
             className={`ticker-conn ticker-conn-${conn.tone || 'ok'}`}
             role="status"
-            title={conn.detail}
-            aria-label={conn.detail}
+            title={normalizeClipText(conn.detail)}
+            aria-label={normalizeClipText(conn.detail)}
           >
             <i aria-hidden="true" />
-            <span>{conn.label}</span>
+            <span>{normalizeClipText(conn.label)}</span>
           </span>
         )}
         <div className="ticker-window"><div className="track">

@@ -1,4 +1,5 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react'
+import { normalizeClipText } from '../lib/clip.js'
 import { useDialogA11y } from '../lib/dialogA11y'
 import { IconClose } from './Icons'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
@@ -56,8 +57,8 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
                       satu sumber fmtStampId; item lama 'HH.MM' string atau 0
                       (stempel gagal) tetap tampil apa adanya. */}
                   <span style={{ color: TASK_STATUS_COLORS.pending, marginRight: 8 }}>{fmtStampId(x.t) || x.t || ''}</span>
-                  <span style={{ color: COL[x.status] || PURE_TEXT, fontWeight: 600 }}>{x.label}</span>
-                  {' '}#{x.id} {x.title}
+                  <span style={{ color: COL[x.status] || PURE_TEXT, fontWeight: 600 }}>{normalizeClipText(x.label)}</span>
+                  {' '}#{x.id} {normalizeClipText(x.title)}
                 </li>
               ))}
             </ul>}

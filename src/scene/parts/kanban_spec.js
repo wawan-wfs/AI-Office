@@ -255,8 +255,17 @@ export function extractTaskTags(task, { includeInferred = true } = {}) {
     task.labels.split(/[,;\s]+/).forEach(addTag);
   }
 
-  // 3. Hashtags in title & desc (#api, #frontend)
-  const textToScan = [task.title, task.desc, task.description].filter(Boolean).join(' ');
+  // 3. Hashtags in title & desc (#api, #frontend) — siklus 509: field teks
+  // non-string (bentuk sah API: desc objek, title numerik) dinormalisasi aman,
+  // bukan [object Object] / crash saat join+match.
+  const tagScanText = (v) => {
+    if (v == null) return '';
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number') return Number.isFinite(v) ? String(v) : '';
+    if (typeof v === 'boolean') return String(v);
+    try { return JSON.stringify(v) || ''; } catch { return ''; }
+  };
+  const textToScan = [task.title, task.desc, task.description].map(tagScanText).filter(Boolean).join(' ');
   const hashMatches = textToScan.match(/#([\w\d\-_/]{2,25})/g);
   if (hashMatches) {
     hashMatches.forEach((m) => addTag(m.slice(1)));

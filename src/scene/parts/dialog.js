@@ -4,6 +4,7 @@
 // ═══════════════════════════════════════════════════
 
 import { SCENE_NAME_TO_ID } from './running_tasks.js';
+import { normalizeClipText } from '../../lib/clip.js';
 
 // Dialog & frasa agent diekstrak murni (tanpa THREE/canvas) agar bisa di-unit-test.
 export const chatPhrases=[
@@ -60,7 +61,8 @@ export function autoTalkText(ad, runningTasks, agentIdMap, rng = Math) {
     const rawName = ad.agent?.name ? String(ad.agent.name).toUpperCase() : '';
     const rid = (agentIdMap && (agentIdMap[ad.agent?.name] || agentIdMap[rawName])) || SCENE_NAME_TO_ID[rawName];
     const run = rid && rt.byAgent[rid];
-    if (run) return 'Task #' + run.id + ': ' + clampBubbleText(run.title);
+    // siklus 510: title non-string (objek bentuk sah API) dinormalisasi, bukan '[object Object]'
+    if (run) return 'Task #' + run.id + ': ' + clampBubbleText(normalizeClipText(run.title));
   }
   const name = ad.agent?.name ? String(ad.agent.name).toUpperCase() : '';
   const role = ad.agent?.role ? String(ad.agent.role).toUpperCase() : '';

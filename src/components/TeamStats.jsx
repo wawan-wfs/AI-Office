@@ -1,4 +1,14 @@
-import { clip } from '../lib/clip.js'
+import { clip, normalizeClipText } from '../lib/clip.js'
+
+/* Siklus 513: field sekunder task (agent_id/status) bisa non-string (bentuk
+   sah API) — objek/angka mentah sebagai React child → crash; normalisasi
+   konsisten dgn normalizeSecondary TaskBoard (siklus 512). */
+const normalizeSecondary = (v) => {
+  if (v == null || v === '') return ''
+  if (typeof v === 'string') return v
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  try { return JSON.stringify(v) } catch { return '' }
+}
 import { NOTE_TEXT, ITEM_TITLE_TEXT , PURE_TEXT, whiteAlpha, amberAlpha} from '../lib/ui_palette.js'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../lib/api'
@@ -36,7 +46,7 @@ export default function TeamStats() {
     try {
       const d = await api('tasks', { signal })
       if (rid !== loadRid.current) return // poll lebih baru / panel ditutup — basi, abaikan
-      setData(d.tasks || []); setErr(false)
+      setData(Array.isArray(d.tasks) ? d.tasks : []); setErr(false)
     } catch (e) { if (e.name !== 'AbortError' && rid === loadRid.current) setErr(true) }
     try { setRes(await api('system/resources', { signal })) } catch { /* abaikan */ }
   }, [])
@@ -93,7 +103,7 @@ export default function TeamStats() {
               <>
                 <div className="stat-grid">
                   {Object.entries(TASK_STATUS_LABELS).map(([s, l]) => (
-                    <div key={s} role="img" aria-label={`${byStatus[s] || 0} task ${l.toLowerCase()}`}>
+                    <div key={s} role="img" aria-label={`${normalizeClipText(byStatus[s] || 0)} task ${normalizeClipText(String(l).toLowerCase())}`}>
                       <b style={{color:dot(s)}} aria-hidden="true">{TW[s]}</b>
                       <span aria-hidden="true">{l}</span>
                     </div>
@@ -116,14 +126,14 @@ export default function TeamStats() {
                           tabIndex={0}
                           onClick={() => { if (typeof window !== 'undefined' && window.__focusTeam) window.__focusTeam(team.key) }}
                           onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && typeof window !== 'undefined' && window.__focusTeam) { e.preventDefault(); window.__focusTeam(team.key) } }}
-                          aria-label={`${team.name}: ${team.done}/${team.total} task selesai (${team.pct}%)`}
-                          title={`Klik untuk fokus kamera 3D ke pod ${team.name} (Lantai ${team.floor})`}
+                          aria-label={`${normalizeClipText(team.name)}: ${team.done}/${team.total} task selesai (${team.pct}%)`}
+                          title={`Klik untuk fokus kamera 3D ke pod ${normalizeClipText(team.name)} (Lantai ${normalizeClipText(team.floor)})`}
                         >
                           <div className="team-card-header">
                             <div className="team-card-title">
                               <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: team.color }} />
-                              <span>{team.name}</span>
-                              <span className="team-card-tag">Lt. {team.floor}</span>
+                              <span>{normalizeClipText(team.name)}</span>
+                              <span className="team-card-tag">Lt. {normalizeClipText(team.floor)}</span>
                               {team.running > 0 && <span style={{ fontSize: 9.5, padding: '1px 5px', borderRadius: 4, background: amberAlpha(0.2), color: TASK_STATUS_COLORS.running, fontWeight: 700 }}>● {team.running} jalan</span>}
                             </div>
                             <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -134,8 +144,8 @@ export default function TeamStats() {
                                   e.stopPropagation()
                                   dispatchTaskBoardEvent('wfs-open-task-board', { division: team.key, view: 'kanban' })
                                 }}
-                                aria-label={`Buka kanban divisi ${team.name}`}
-                                title={`Buka papan kanban sprint untuk divisi ${team.name}`}
+                                aria-label={`Buka kanban divisi ${normalizeClipText(team.name)}`}
+                                title={`Buka papan kanban sprint untuk divisi ${normalizeClipText(team.name)}`}
                               >
                                 Kanban
                               </button>
@@ -143,8 +153,8 @@ export default function TeamStats() {
                                 type="button"
                                 className="team-focus-btn"
                                 onClick={(e) => { e.stopPropagation(); if (typeof window !== 'undefined' && window.__focusTeam) window.__focusTeam(team.key) }}
-                                aria-label={`Fokus kamera ke pod ${team.name}`}
-                                title={`Fokus kamera 3D ke pod ${team.name}`}
+                                aria-label={`Fokus kamera ke pod ${normalizeClipText(team.name)}`}
+                                title={`Fokus kamera 3D ke pod ${normalizeClipText(team.name)}`}
                               >
                                 Fokus 3D
                               </button>
@@ -160,7 +170,7 @@ export default function TeamStats() {
                             />
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
-                            <span className="team-members-sub">Lead: {team.lead} · {(team.members || []).length} agen</span>
+                            <span className="team-members-sub">Lead: {normalizeClipText(team.lead)} · {(team.members || []).length} agen</span>
                             <b style={{ color: team.pct === 100 ? TASK_STATUS_COLORS.done : team.color }}>{team.done}/{team.total} ({team.pct}%)</b>
                           </div>
                           {/* Siklus 150: kehadiran LIVE anggota di pod — paritas
@@ -170,15 +180,15 @@ export default function TeamStats() {
                             const pr = presence && presence.find(p => p.key === team.key)
                             if (!pr || pr.total === 0) return null
                             return (
-                              <div className="team-presence" title={`Kehadiran live pod ${team.name} dari scene 3D`}>
+                              <div className="team-presence" title={`Kehadiran live pod ${normalizeClipText(team.name)} dari scene 3D`}>
                                 <span className="team-presence-desk" aria-hidden="true">
                                   <i style={{ background: TASK_STATUS_COLORS.done }} />{pr.atDesk}/{pr.total} di pod
                                 </span>
                                 {pr.away > 0 && pr.awayLabel && (
-                                  <span className="team-presence-away" aria-hidden="true">{pr.awayLabel}</span>
+                                  <span className="team-presence-away" aria-hidden="true">{normalizeClipText(pr.awayLabel)}</span>
                                 )}
                                 <span className="sr-only">
-                                  Kehadiran live: {pr.atDesk} dari {pr.total} anggota di pod{pr.away > 0 && pr.awayLabel ? ` — ${pr.away} lain: ${pr.awayLabel}` : ''}
+                                  Kehadiran live: {pr.atDesk} dari {pr.total} anggota di pod{pr.away > 0 && pr.awayLabel ? ` — ${pr.away} lain: ${normalizeClipText(pr.awayLabel)}` : ''}
                                 </span>
                               </div>
                             )
@@ -209,12 +219,12 @@ export default function TeamStats() {
                       onClick={() => {
                         dispatchTaskBoardEvent('wfs-open-task-board', { taskId: t.id, view: 'kanban' })
                       }}
-                      title={`Buka detail task #${t.id} di papan kanban`}
-                      aria-label={`Task #${t.id}: ${t.title}`}
+                      title={`Buka detail task #${normalizeClipText(t.id)} di papan kanban`}
+                      aria-label={`Task #${normalizeClipText(t.id)}: ${normalizeClipText(t.title)}`}
                     >
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: ITEM_TITLE_TEXT }}>#{t.id} {clip(t.title, 32)}</div>
+                      <div style={{ fontSize: 12.5, fontWeight: 600, color: ITEM_TITLE_TEXT }}>#{normalizeClipText(t.id)} {clip(t.title, 32)}</div>
                       <div className="note" style={{ fontSize: 11, marginTop: 2 }}>
-                        {t.agent_id} · <span style={{ color: dot(t.status), fontWeight: 600 }}>{t.status}</span>
+                        {normalizeSecondary(t.agent_id)} · <span style={{ color: dot(t.status), fontWeight: 600 }}>{normalizeSecondary(t.status)}</span>
                       </div>
                     </button>
                   ))}
@@ -223,11 +233,11 @@ export default function TeamStats() {
             )}
             {res && (
               <div style={{ marginTop: 10, background: whiteAlpha(0.05), borderRadius: 8, padding: '8px 10px', fontSize: 12 }}>
-                <div style={{ color: TASK_STATUS_COLORS.done, fontWeight: 700, marginBottom: 4 }}>🖥 HOST: load {res.load} · RAM {res.ram_mb} MB</div>
+                <div style={{ color: TASK_STATUS_COLORS.done, fontWeight: 700, marginBottom: 4 }}>🖥 HOST: load {normalizeSecondary(res.load)} · RAM {normalizeSecondary(res.ram_mb)} MB</div>
                 {(res.containers || []).slice(0, 9).map(c => (
                   <div key={c.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0', color: 'var(--text-tertiary)' }}>
-                    <span>{c.name.replace('saas-dibantuin-', '').replace('wfs-sandbox-', '').replace('wfs-agent-', 'sbx-')}</span>
-                    <span style={{ color: PURE_TEXT }}>{c.cpu} · {c.mem}</span>
+                    <span>{normalizeClipText(String(c.name ?? '').replace('saas-dibantuin-', '').replace('wfs-sandbox-', '').replace('wfs-agent-', 'sbx-'))}</span>
+                    <span style={{ color: PURE_TEXT }}>{normalizeSecondary(c.cpu)} · {normalizeSecondary(c.mem)}</span>
                   </div>
                 ))}
               </div>

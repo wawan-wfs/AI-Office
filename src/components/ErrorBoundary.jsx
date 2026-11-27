@@ -8,6 +8,23 @@ export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
     this.state = { err: null }
+    // Siklus 526: tangkap juga error global di luar render React (callback async,
+    // unhandled promise rejection) yang sebelumnya hanya tercatat di console —
+    // UI kini menampilkan panel boundary yang sama, bukan diam-diam gagal.
+    this._onGlobalErr = (ev) => {
+      const detail = ev && (ev.reason || ev.error)
+      if (detail) this.setState({ err: detail })
+    }
+  }
+
+  componentDidMount() {
+    window.addEventListener('error', this._onGlobalErr)
+    window.addEventListener('unhandledrejection', this._onGlobalErr)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('error', this._onGlobalErr)
+    window.removeEventListener('unhandledrejection', this._onGlobalErr)
   }
 
   static getDerivedStateFromError(err) {

@@ -2,6 +2,17 @@ import React, { useState, useRef, useEffect } from 'react'
 import { fmtMicroUSD } from '../lib/format_time.js'
 import { fetchWithTimeout } from '../lib/fetch_timeout.js' // siklus 505: satu sumber jaringan dgn deadline
 
+// Siklus 518 — ANTI-POISONING: field non-string (bentuk sah API) dirender
+// mentah sebagai React child → "Objects are not valid as a React child"
+// atau "[object Object]". Normalisasi konsisten dgn siklus 512-515.
+function normalizeSecondary(v) {
+  if (v == null || v === '') return ''
+  if (typeof v === 'string') return v
+  if (typeof v === 'number') return Number.isFinite(v) ? String(v) : ''
+  if (typeof v === 'boolean') return String(v)
+  try { return JSON.stringify(v) ?? '' } catch { return '' }
+}
+
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/
 const SAFE_NUMBER = /^[0-9]{1,10}$/
 
@@ -235,7 +246,7 @@ export default function SecureProjectPanel() {
               Invoice provider resmi: {invoiceCheck.provider_invoice_verified ? 'terverifikasi' : 'belum diverifikasi'}.
             </p>}
             {evidence && <div aria-label="Manifest QA terverifikasi">
-              <strong>Hasil QA: {evidence.tests_passed} tes lulus</strong>
+              <strong>Hasil QA: {normalizeSecondary(evidence.tests_passed)} tes lulus</strong>
               {evidence.files.map(f => (
                 <p key={f.path}><code>{f.path}</code> · SHA256: <code>{f.sha256}</code></p>
               ))}
@@ -255,8 +266,8 @@ export default function SecureProjectPanel() {
                 {jobs.length === 0 && <p>Belum ada job pada proyek ini.</p>}
                 {jobs.slice(0, 20).map(job => (
                   <div key={job.id} className="wfs-secure-job">
-                    <div><b>{job.role}</b> <span>{job.status}</span>
-                      <small>{job.id}</small></div>
+                    <div><b>{normalizeSecondary(job.role)}</b> <span>{normalizeSecondary(job.status)}</span>
+                      <small>{normalizeSecondary(job.id)}</small></div>
                     {job.status === 'completed' &&
                       <button type="button" className="btn" disabled={busy}
                         onClick={() => act('evidence', job.id)}>Bukti QA</button>}

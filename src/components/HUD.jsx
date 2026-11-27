@@ -7,6 +7,7 @@ import {
 import { phaseStyleFor } from '../scene/parts/office_phase.js'
 import { useVisibilityPoll } from '../lib/dialogA11y'
 import { clockNowId } from '../lib/format_time'
+import { normalizeClipText } from '../lib/clip'
 
 // Pill kiri-atas: jam + fase kantor live + slider waktu + status gateway nyata + widget kontrol cepat audio ambience kantor.
 export default function HUD({
@@ -69,7 +70,7 @@ export default function HUD({
         <span
           className={`phase-chip ${phaseInfo.tone}`}
           role="status"
-          title={`Fase kantor: ${phaseInfo.label} ${phaseInfo.icon}`}
+          title={`Fase kantor: ${normalizeClipText(phaseInfo.label)} ${phaseInfo.icon}`}
         ><i aria-hidden="true" />{phaseInfo.label}</span>
       )}
       <input
@@ -82,16 +83,16 @@ export default function HUD({
         aria-valuetext={time}
         onChange={e => onTimeChange(parseInt(e.target.value, 10))}
       />
-      <span className={'stat ' + (statusKind || '')} role="status" title="Status pekerjaan dari task engine (backend)"><i />{status}</span>
+      <span className={'stat ' + (statusKind || '')} role="status" title="Status pekerjaan dari task engine (backend)"><i />{normalizeClipText(status)}</span>
 
       {conn && (
         <span
           className={`conn-chip ${conn.state}`}
           role="status"
-          title={conn.detail}
-          aria-label={`Status sinkronisasi: ${conn.detail}`}
+          title={normalizeClipText(conn.detail)}
+          aria-label={`Status sinkronisasi: ${normalizeClipText(conn.detail)}`}
         >
-          <i aria-hidden="true" />{conn.label}
+          <i aria-hidden="true" />{normalizeClipText(conn.label)}
         </span>
       )}
 
@@ -101,10 +102,10 @@ export default function HUD({
         <span
           className={`perf-chip ${perf.state}`}
           role="status"
-          title={perf.detail}
-          aria-label={`Kualitas render: ${perf.detail}`}
+          title={normalizeClipText(perf.detail)}
+          aria-label={`Kualitas render: ${normalizeClipText(perf.detail)}`}
         >
-          <i aria-hidden="true" />{perf.label}
+          <i aria-hidden="true" />{normalizeClipText(perf.label)}
         </span>
       )}
 

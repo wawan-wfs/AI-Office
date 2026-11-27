@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react'
-import { clip } from './lib/clip.js'
+import { clip, normalizeClipText as normText, normalizeClipText as normErr } from './lib/clip.js'
 import { createAppBadgeManager } from './lib/app_badge.js'
 import { SCENE_ID_TO_NAME } from './scene/parts/agent_identity.js'
 import { viewModePref, setViewModePref, neonPrefOn, audioMutedPref, loadActivityLog, saveActivityLog, dedupeLogHead, takeOpenDashboardFlag } from './lib/storage_prefs.js'
@@ -361,7 +361,7 @@ export default function App() {
         cur[x.id] = x.status
         if (prev && prev[x.id] !== undefined && prev[x.id] !== x.status) {
           const L = { done: 'selesai', failed: 'gagal', running: 'berjalan', review: 'perlu review', pending: 'antri' }
-          pushLog({ t: clockStampMs() ?? 0, id: x.id, status: x.status, label: L[x.status] || x.status, title: clip(x.title, 50) })
+          pushLog({ t: clockStampMs() ?? 0, id: x.id, status: x.status, label: normText(L[x.status] || x.status), title: clip(x.title, 50) })
           flash(`Task #${x.id} ${L[x.status] || x.status}: ${clip(x.title, 40)}`, x.status === 'failed')
           const s = sceneRef.current
           if (s) {
@@ -857,7 +857,7 @@ export default function App() {
       setConfirm(null); refreshStatus()
     } catch (e) {
       if (rid !== confirmRid.current) return // kegagalan basi: jangan toast / tutup dialog baru
-      flash(e.message, true); setConfirm(null)
+      flash(normErr(e.message), true); setConfirm(null)
     } finally {
       if (rid === confirmRid.current) { confirmInFlight.current = 0; setConfirmBusy(false) } // jangan hapus busy/lock generasi baru
     }
@@ -1037,7 +1037,7 @@ export default function App() {
       <ConfirmModal show={!!ask} title={ask?.title} text={ask?.body} confirmLabel={ask?.ok}
         onConfirm={() => { const f = ask.onOk; setAsk(null); f() }} onCancel={() => setAsk(null)} />
 
-      {toast && <div className={'toast' + (toast.err ? ' err' : '')} role={toast.err ? 'alert' : 'status'} aria-live={toast.err ? 'assertive' : 'polite'}>{toast.msg}</div>}
+      {toast && <div className={'toast' + (toast.err ? ' err' : '')} role={toast.err ? 'alert' : 'status'} aria-live={toast.err ? 'assertive' : 'polite'}>{normText(toast.msg)}</div>}
       {swUpdateReady && (
         // Siklus 192: SW baru MENUNGGU (mode prompt) — versi baru tidak
         // dipaksakan; satu klik memuat ulang seluruh tab ke versi terkini.

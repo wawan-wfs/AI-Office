@@ -3,6 +3,8 @@ import { api } from '../lib/api'
 import { useDialogA11y } from '../lib/dialogA11y'
 import { useModalFlag } from '../lib/modal'
 import { IconClose } from './Icons'
+// Siklus 521: e.message non-string → crash React child di form task baru.
+import { normalizeClipText as normErr } from '../lib/clip.js'
 
 const ROLES = ['backend', 'frontend', 'mobile', 'design', 'devops', 'qa', 'marketing', 'pm']
 
@@ -66,7 +68,7 @@ export default function TaskModal({ show, onClose, onDone }) {
       setBusy(false)
     } catch (e) {
       if (my !== rid.current) return // kegagalan basi — jangan munculkan alert di form baru
-      setErr(e.message)
+      setErr(normErr(e.message))
       setBusy(false)
     } finally {
       if (submitInFlight.current === my) submitInFlight.current = false

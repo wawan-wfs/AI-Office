@@ -2,6 +2,7 @@
 // Mengonsumsi API nyata backend: /wfs-api/sh/overview, projects, tasks, agents.
 // Tab: Overview | Projects | Tasks | Agents | Project Baru.
 import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { normalizeClipText, normalizeClipText as normErr } from '../lib/clip.js'
 import { api } from '../lib/api'
 import { useDialogA11y, useVisibilityPoll } from '../lib/dialogA11y'
 import { useModalFlag } from '../lib/modal'
@@ -11,6 +12,15 @@ import { MUTED_TEXT, BRIGHT_TEXT, FAINT_META, PANEL_BORDER, SUB_TEXT, TAB_BG, BT
 // Siklus 465: stempel waktu task di tab Tasks (backlog 154) — parser satu-sumber
 // parseTaskTimestamp (detik-UNIX REAL → ms, anti Invalid Date) + formatTaskDate.
 import { formatTaskDate } from '../lib/kanban_date'
+
+/* Siklus 513: field sekunder task non-string (bentuk sah API) → aman sebagai
+   React child; konsisten dgn normalizeSecondary TaskBoard (siklus 512). */
+const normalizeSecondary = (v) => {
+  if (v == null || v === '') return ''
+  if (typeof v === 'string') return v
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  try { return JSON.stringify(v) } catch { return '' }
+}
 
 const STYLE = {
   overlay: { position: 'fixed', inset: 0, zIndex: 2000, background: shadowAlpha(0.45) },
@@ -126,7 +136,7 @@ export default function ShConsole({ show, onClose }) {
       setOv(d); setErr('')
     } catch (e) {
       if (ovRid.current !== rid) return // kegagalan poll basi tak boleh menaikkan banner palsu
-      setErr(e.message)
+      setErr(normErr(e.message))
     }
   }, [])
   const loadProjects = useCallback(async () => {
@@ -137,7 +147,7 @@ export default function ShConsole({ show, onClose }) {
       // normalisasi: gateway balas {} / null tak boleh membuat projects bukan
       // array (projects.map crash → seluruh drawer blank)
       setProjects(Array.isArray(d?.projects) ? d.projects : Array.isArray(d) ? d : []); setErr('')
-    } catch (e) { if (!guardTab('projects', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardTab('projects', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const loadTasks = useCallback(async (project) => {
     const rid = ++tabRid.current.tasks
@@ -146,7 +156,7 @@ export default function ShConsole({ show, onClose }) {
       const d = await api('tasks' + q)
       if (!guardTab('tasks', rid)) return // respons LAMA (filter berganti) — abaikan
       setTasks(d.tasks || []); setErr('')
-    } catch (e) { if (!guardTab('tasks', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardTab('tasks', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const loadAgents = useCallback(async () => {
     const rid = ++tabRid.current.agents
@@ -154,7 +164,7 @@ export default function ShConsole({ show, onClose }) {
       const d = await api('agents')
       if (!guardTab('agents', rid)) return
       setAgents(Array.isArray(d) ? d : []); setErr('')
-    } catch (e) { if (!guardTab('agents', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardTab('agents', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const loadApprovals = useCallback(async () => {
     const rid = ++tabRid.current.approvals
@@ -163,7 +173,7 @@ export default function ShConsole({ show, onClose }) {
       if (!guardTab('approvals', rid)) return
       setApprovals(d.approvals || []); setErr('')
     }
-    catch (e) { if (!guardTab('approvals', rid)) return; setErr(e.message) }
+    catch (e) { if (!guardTab('approvals', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const decideApproval = async (aid, action) => {
     if (approvalInFlight.current) return // siklus 498: dobel klik cepat tak mengirim POST decide kedua
@@ -174,7 +184,7 @@ export default function ShConsole({ show, onClose }) {
       if (!guardAct('approval', rid)) return // keputusan basi — refresh dgn daftar basi justru menampilkan item yg baru diputuskan
       await loadApprovals()
     }
-    catch (e) { if (!guardAct('approval', rid)) return; setErr(e.message) }
+    catch (e) { if (!guardAct('approval', rid)) return; setErr(normErr(e.message)) }
     finally { approvalInFlight.current = false }
   }
 
@@ -191,7 +201,7 @@ export default function ShConsole({ show, onClose }) {
       // render (entries.map is not a function → drawer blank), kelas sama dgn
       // projects.map (siklus 128)
       setEntries(Array.isArray(d?.entries) ? d.entries : []); setWsPath(d?.path || ''); setErr('')
-    } catch (e) { if (!guardWs('files', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardWs('files', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const loadWsLogs = useCallback(async (pid) => {
     const rid = ++wsRid.current.logs
@@ -199,7 +209,7 @@ export default function ShConsole({ show, onClose }) {
       const d = await api('projects/' + pid + '/logs?lines=100')
       if (!guardWs('logs', rid)) return
       setLogs(Array.isArray(d?.logs) ? d.logs : []); setErr('')
-    } catch (e) { if (!guardWs('logs', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardWs('logs', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const loadWsGit = useCallback(async (pid) => {
     const rid = ++wsRid.current.git
@@ -207,7 +217,7 @@ export default function ShConsole({ show, onClose }) {
       const d = await api('projects/' + pid + '/git')
       if (!guardWs('git', rid)) return
       setGitInfo(d || null); setErr('')
-    } catch (e) { if (!guardWs('git', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardWs('git', rid)) return; setErr(normErr(e.message)) }
   }, [])
   const commitWs = async (pid) => {
     if (!gitMsg.trim()) { setErr('Pesan commit wajib'); return }
@@ -218,7 +228,7 @@ export default function ShConsole({ show, onClose }) {
       await api('projects/' + pid + '/git/commit', { method: 'POST', body: { message: gitMsg.trim() } })
       if (!guardAct('git', rid)) return // commit basi — konteks ganti / aksi commit lain menyusul
       setGitMsg(''); await loadWsGit(pid); setErr('')
-    } catch (e) { if (!guardAct('git', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardAct('git', rid)) return; setErr(normErr(e.message)) }
     finally { gitInFlight.current = false }
   }
   const sbAction = async (pid, action) => {
@@ -229,7 +239,7 @@ export default function ShConsole({ show, onClose }) {
       await api('projects/' + pid + '/sandbox/' + action, { method: 'POST', body: {} })
       if (!guardAct('sb', rid)) return // aksi sandbox basi — jangan refresh daftar dgn state basi
       await loadProjects(); setErr('')
-    } catch (e) { if (!guardAct('sb', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardAct('sb', rid)) return; setErr(normErr(e.message)) }
     finally { sbInFlight.current = false }
   }
   const runPreset = async (pid, kind) => {
@@ -241,8 +251,8 @@ export default function ShConsole({ show, onClose }) {
     try {
       const d = await api('projects/' + pid + '/exec', { method: 'POST', body: { cmd } })
       if (!guardAct('term', rid)) return // exec LAMA tiba belakangan — tak menimpa output exec BARU
-      setTermOut('Exit status: ' + (d.exit ?? 'unknown') + '\n' + (d.stderr || '') + (d.stdout || ''))
-    } catch (e) { if (!guardAct('term', rid)) return; setTermOut('ERROR: ' + e.message) }
+      setTermOut('Exit status: ' + (d.exit ?? 'unknown') + '\n' + normErr(d.stderr) + normErr(d.stdout))
+    } catch (e) { if (!guardAct('term', rid)) return; setTermOut('ERROR: ' + normErr(e.message)) }
   }
 
   // Siklus 339: poll overview satu sumber via useVisibilityPoll — interval
@@ -325,7 +335,7 @@ export default function ShConsole({ show, onClose }) {
       await api('projects', { method: 'POST', body: { name: name.trim(), brief: brief.trim() } })
       if (!guardAct('create', rid)) return // create LAMA telat — form BARU milik user, jangan dihapus
       setName(''); setBrief(''); await loadProjects(); setTab('projects')
-    } catch (e) { if (!guardAct('create', rid)) return; setErr(e.message) } finally {
+    } catch (e) { if (!guardAct('create', rid)) return; setErr(normErr(e.message)) } finally {
       if (actRid.current.create === rid) projectInFlight.current = false // hanya milik sendiri — create baru yang menang tetap terkunci
       setBusy(false)
     }
@@ -341,7 +351,7 @@ export default function ShConsole({ show, onClose }) {
       await api('tasks', { method: 'POST', body: { title: tTitle.trim(), role: tRole, prompt: tPrompt.trim() } })
       if (!guardAct('task', rid)) return // create LAMA telat — input task BARU tak dihapus
       setTTitle(''); setTPrompt(''); await loadTasks()
-    } catch (e) { if (!guardAct('task', rid)) return; setErr(e.message) } finally {
+    } catch (e) { if (!guardAct('task', rid)) return; setErr(normErr(e.message)) } finally {
       if (actRid.current.task === rid) taskInFlight.current = false // hanya milik sendiri — create baru yang menang tetap terkunci
       setBusy(false)
     }
@@ -357,7 +367,7 @@ export default function ShConsole({ show, onClose }) {
       await api('tasks/' + tid + '/run', { method: 'POST', body: {} })
       if (!guardAct('run', rid)) return // run LAMA telat — refresh milik run BARU yang menang
       await loadTasks(tFilter)
-    } catch (e) { if (!guardAct('run', rid)) return; setErr(e.message) } finally {
+    } catch (e) { if (!guardAct('run', rid)) return; setErr(normErr(e.message)) } finally {
       runInFlight.current = new Set(runInFlight.current); runInFlight.current.delete(tid)
       setRunningTask(prev => { const n = new Set(prev); n.delete(tid); return n }) // bersihkan hanya milik sendiri (run task lain mungkin in-flight)
     }
@@ -376,7 +386,7 @@ export default function ShConsole({ show, onClose }) {
       await api('tasks/resume_all', { method: 'POST', body: { project } })
       if (!guardAct('bulk', rid)) return // resume LAMA telat — refresh milik resume BARU yang menang
       await loadTasks(project)
-    } catch (e) { if (!guardAct('bulk', rid)) return; setErr(e.message) } finally { bulkInFlight.current = false; setBulkBusy(false) }
+    } catch (e) { if (!guardAct('bulk', rid)) return; setErr(normErr(e.message)) } finally { bulkInFlight.current = false; setBulkBusy(false) }
   }
 
   const openWsFile = async (pid, path) => {
@@ -385,7 +395,7 @@ export default function ShConsole({ show, onClose }) {
       const d = await api('projects/' + pid + '/file?path=' + encodeURIComponent(path))
       if (!guardWs('file', rid)) return // file LAMA tiba belakangan — tak menimpa file yang baru dibuka
       setFileView({ name: path, content: d?.content ?? '' }); setErr('')
-    } catch (e) { if (!guardWs('file', rid)) return; setErr(e.message) }
+    } catch (e) { if (!guardWs('file', rid)) return; setErr(normErr(e.message)) }
   }
   const runTerm = async (pid) => {
     if (!termCmd.trim()) return
@@ -394,8 +404,8 @@ export default function ShConsole({ show, onClose }) {
     try {
       const d = await api('projects/' + pid + '/exec', { method: 'POST', body: { cmd: termCmd } })
       if (!guardAct('term', rid)) return // exec LAMA tiba belakangan — tak menimpa output exec BARU
-      setTermOut('Exit status: ' + (d.exit ?? 'unknown') + '\n' + (d.stderr || '') + (d.stdout || ''))
-    } catch (e) { if (!guardAct('term', rid)) return; setTermOut('ERROR: ' + e.message) }
+      setTermOut('Exit status: ' + (d.exit ?? 'unknown') + '\n' + normErr(d.stderr) + normErr(d.stdout))
+    } catch (e) { if (!guardAct('term', rid)) return; setTermOut('ERROR: ' + normErr(e.message)) }
   }
   const selectWsProject = (pid) => {
     // ganti project: semua respons in-flight milik project LAMA jadi basi —
@@ -454,17 +464,17 @@ export default function ShConsole({ show, onClose }) {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <select style={STYLE.select} aria-label="Filter project" disabled={bulkBusy} value={tFilter} onChange={(e) => setTFilter(e.target.value)}>
                     <option value="">Semua project</option>
-                    {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {projects.map((p) => <option key={p.id} value={p.id}>{normalizeClipText(p.name || p.title)}</option>)}
                   </select>
                 </div>
                 {tasks.length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Belum ada task.</div>}
                 {tasks.map((t) => (
                   <div key={t.id} style={STYLE.row}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: BRIGHT_TEXT }}>#{t.id} {t.title}</div>
-                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>role: {t.role || '—'} · agent: {t.agent_id || '—'} · {formatTaskDate(t)}</div>
+                      <div style={{ color: BRIGHT_TEXT }}>#{t.id} {normalizeClipText(t.title)}</div>
+                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>role: {normalizeSecondary(t.role) || '—'} · agent: {normalizeSecondary(t.agent_id) || '—'} · {formatTaskDate(t)}</div>
                     </div>
-                    <span style={STYLE.tag}>{t.status}</span>
+                    <span style={STYLE.tag}>{normalizeSecondary(t.status)}</span>
                     {(t.status === 'pending' || t.status === 'failed' || t.status === 'review') && (
                       <button type="button" style={STYLE.btnGhost} onClick={() => runTask(t.id)} disabled={runningTask.has(t.id)} aria-busy={runningTask.has(t.id)} title={runningTask.has(t.id) ? 'Mengirim ke agent…' : 'Jalankan task ini'}>{runningTask.has(t.id) ? 'Menjalankan…' : 'Jalankan'}</button>
                     )}
@@ -481,10 +491,10 @@ export default function ShConsole({ show, onClose }) {
                 {agents.map((a) => (
                   <div key={a.id} style={STYLE.row}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: BRIGHT_TEXT }}>{a.name || a.id}</div>
-                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>{a.role} · Lantai {a.floor || '—'} · {a.model || '—'}</div>
+                      <div style={{ color: BRIGHT_TEXT }}>{normalizeClipText(a.name || a.id)}</div>
+                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>{normalizeSecondary(a.role)} · Lantai {normalizeSecondary(a.floor)} · {normalizeSecondary(a.model) || '—'}</div>
                     </div>
-                    <span style={STYLE.tag}>{a.status || 'idle'}</span>
+                    <span style={STYLE.tag}>{normalizeSecondary(a.status) || 'idle'}</span>
                   </div>
                 ))}
               </div>
@@ -494,7 +504,7 @@ export default function ShConsole({ show, onClose }) {
             <div>
               <select style={STYLE.select} aria-label="Pilih project" value={wsId || ''} onChange={(e) => selectWsProject(e.target.value)}>
                 <option value="">— pilih project —</option>
-                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                {projects.map((p) => <option key={p.id} value={p.id}>{normalizeClipText(p.name || p.title)}</option>)}
               </select>
               {!wsId && <div style={{ color: MUTED_TEXT }}>Pilih project untuk melihat workspace.</div>}
               {wsId && (
@@ -503,7 +513,7 @@ export default function ShConsole({ show, onClose }) {
                     <div style={{ fontWeight: 700, marginBottom: 8 }}>📁 File · {wsPath || '/'}</div>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                       <button type="button" style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, '')}>Refresh</button>
-                      {wsPath && <button type="button" style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, wsPath.split('/').slice(0, -1).join('/'))}>⬆ Naik</button>}
+                      {wsPath && <button type="button" style={STYLE.btnGhost} onClick={() => loadWsFiles(wsId, normalizeClipText(wsPath).split('/').slice(0, -1).join('/'))}>⬆ Naik</button>}
                     </div>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                       <button type="button" style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'restart')}>⟳ Restart</button>
@@ -511,27 +521,32 @@ export default function ShConsole({ show, onClose }) {
                       <button type="button" style={STYLE.btnGhost} onClick={() => sbAction(wsId, 'start')}>▶ Start</button>
                     </div>
                     {entries.map((en) => {
+                      // Siklus 528: en bentuk sah non-objek dari gateway dilewati —
+                      // akses properti .type/.name pada string/angka → undefined aman,
+                      // objek tanpa name (null) difilter agar baris kosong tak dirender.
+                      if (typeof en !== 'object' || en === null || !en.name) return null;
+                      const nm = normalizeClipText(en.name);
                       const openEntry = () => en.type === 'dir'
                         ? loadWsFiles(wsId, (wsPath ? wsPath + '/' : '') + en.name)
                         : openWsFile(wsId, (wsPath ? wsPath + '/' : '') + en.name);
                       return (
-                        <div key={en.name} style={{ ...STYLE.row, cursor: 'pointer' }}
+                        <div key={nm} style={{ ...STYLE.row, cursor: 'pointer' }}
                           role="button" tabIndex={0}
-                          aria-label={`${en.type === 'dir' ? 'Folder' : 'File'}: ${en.name}`}
+                          aria-label={`${en.type === 'dir' ? 'Folder' : 'File'}: ${nm}`}
                           onClick={openEntry}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEntry(); }
                           }}>
-                          <span>{en.type === 'dir' ? '📁 ' : '📄 '}{en.name}</span>
-                          {en.size != null && <span style={STYLE.tag}>{en.size} B</span>}
+                          <span>{en.type === 'dir' ? '📁 ' : '📄 '}{nm}</span>
+                          {en.size != null && <span style={STYLE.tag}>{normalizeClipText(en.size)}{' '}B</span>}
                         </div>
                       );
                     })}
                     {entries.length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>(folder kosong)</div>}
                     {fileView && (
-                      <pre role="region" aria-label={`Isi file ${fileView.name}`}
+                      <pre role="region" aria-label={`Isi file ${normalizeClipText(fileView.name)}`}
                         style={{ ...STYLE.pre, maxHeight: 220, fontSize: 12, marginTop: 8 }}
-                        onClick={(e) => e.stopPropagation()}>{fileView.content}</pre>
+                        onClick={(e) => e.stopPropagation()}>{normalizeClipText(fileView.content)}</pre>
                     )}
                   </div>
                   <div style={STYLE.card}>
@@ -597,8 +612,8 @@ export default function ShConsole({ show, onClose }) {
                 {approvals.map((a) => (
                   <div key={a.id} style={{ ...STYLE.row, alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: BRIGHT_TEXT }}>[{a.action_type}] project #{a.project_id || '-'}</div>
-                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>{a.description}</div>
+                      <div style={{ color: BRIGHT_TEXT }}>[{normalizeSecondary(a.action_type)}] project #{a.project_id || '-'}</div>
+                      <div style={{ fontSize: 12, color: MUTED_TEXT }}>{normalizeSecondary(a.description)}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <button type="button" style={STYLE.btn} onClick={() => decideApproval(a.id, 'approve')}>Setujui</button>
@@ -642,9 +657,11 @@ function Overview({ ov, liveLogs, esState }) {
   const streamMeta = streamOpen ? 'realtime'
     : esState === 'error' ? 'terputus — menampilkan log terakhir'
     : 'menyambungkan…'
+  // Siklus 527: nilai stat dinormalisasi (normalizeClipText) — field API bentuk
+  // sah non-string/objek tak lagi jatuh sebagai React child mentah.
   const stats = [
-    ['Projects', ov.projects], ['Task total', ov.tasks],
-    ['Agent total', ov.agents], ['Subtask jalan', ov.running_subtasks], ['Log event', ov.total_logs],
+    ['Projects', normalizeClipText(ov.projects)], ['Task total', normalizeClipText(ov.tasks)],
+    ['Agent total', normalizeClipText(ov.agents)], ['Subtask jalan', normalizeClipText(ov.running_subtasks)], ['Log event', normalizeClipText(ov.total_logs)],
   ]
   return (
     <div>
@@ -657,15 +674,15 @@ function Overview({ ov, liveLogs, esState }) {
       </div>
       <div style={STYLE.card}>
         <div style={{ fontWeight: 700, marginBottom: 8 }}>Task per status</div>
-        {Object.keys(ov.task_by_status || {}).length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Belum ada task.</div>}
-        {Object.entries(ov.task_by_status || {}).map(([k, v]) => (
-          <div key={k} style={STYLE.row}><span style={STYLE.k}>{k}</span><span style={STYLE.tag}>{v}</span></div>
+        {Object.keys(typeof ov.task_by_status === 'object' && ov.task_by_status !== null && !Array.isArray(ov.task_by_status) ? ov.task_by_status : {}).length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Belum ada task.</div>}
+        {Object.entries(typeof ov.task_by_status === 'object' && ov.task_by_status !== null && !Array.isArray(ov.task_by_status) ? ov.task_by_status : {}).map(([k, v]) => (
+          <div key={k} style={STYLE.row}><span style={STYLE.k}>{k}</span><span style={STYLE.tag}>{normalizeClipText(v)}</span></div>
         ))}
       </div>
       <div style={STYLE.card}>
         <div style={{ fontWeight: 700, marginBottom: 8 }}>Agents per status</div>
-        {Object.entries(ov.agent_by_status || {}).map(([k, v]) => (
-          <div key={k} style={STYLE.row}><span style={STYLE.k}>{k}</span><span style={STYLE.tag}>{v}</span></div>
+        {Object.entries(typeof ov.agent_by_status === 'object' && ov.agent_by_status !== null && !Array.isArray(ov.agent_by_status) ? ov.agent_by_status : {}).map(([k, v]) => (
+          <div key={k} style={STYLE.row}><span style={STYLE.k}>{k}</span><span style={STYLE.tag}>{normalizeClipText(v)}</span></div>
         ))}
       </div>
       <div style={STYLE.card}>
@@ -678,7 +695,7 @@ function Overview({ ov, liveLogs, esState }) {
             <div style={{ fontSize: 11, color: FAINT_META, marginBottom: 6 }} data-testid="live-log-badge">
               <span aria-hidden="true" style={{ color: STATUS_HEX.work, marginRight: 4 }}>●</span>
               <span className="sr-only">Log realtime aktif: </span>
-              {live} log diterima realtime
+              {normalizeClipText(live)} log diterima realtime
             </div>
           )}
           {esState === 'error' && (
@@ -688,7 +705,7 @@ function Overview({ ov, liveLogs, esState }) {
           )}
           {(liveLogs && liveLogs.length) ? null : (ov.recent_logs || []).length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Belum ada log.</div>}
           {(liveLogs && liveLogs.length ? liveLogs : (ov.recent_logs || [])).map((l, i) => (
-            <div key={i} style={STYLE.logLine}><b>{l.level || 'INFO'}</b> · {l.message} <span style={{ color: FAINT_META }}>({l.source || 'system'})</span></div>
+            <div key={i} style={STYLE.logLine}><b>{normalizeSecondary(l.level) || 'INFO'}</b> · {normalizeSecondary(l.message)} <span style={{ color: FAINT_META }}>({normalizeSecondary(l.source) || 'system'})</span></div>
           ))}
         </div>
       </div>
@@ -706,10 +723,10 @@ function Projects({ projects, onRefresh, onOpenWorkspace }) {
       {projects.map((p) => (
         <div key={p.id} style={STYLE.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <b>{p.name || p.title}</b>
-            <span style={STYLE.tag}>{p.status || '—'}</span>
+            <b>{normalizeClipText(p.name || p.title)}</b>
+            <span style={STYLE.tag}>{normalizeSecondary(p.status) || '—'}</span>
           </div>
-          <div style={{ fontSize: 12, color: MUTED_TEXT, margin: '6px 0' }}>{p.description || ''}</div>
+          <div style={{ fontSize: 12, color: MUTED_TEXT, margin: '6px 0' }}>{normalizeSecondary(p.description)}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" style={STYLE.btnGhost} onClick={() => onOpenWorkspace?.(p.id)} title="Buka workspace project ini">Workspace</button>
             {(p.preview_url || p.direct_url) && (

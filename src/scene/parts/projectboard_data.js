@@ -20,7 +20,7 @@ export function fmtUptime(sec) {
 }
 
 // judul dipotong di batas kata, diberi '…' bila terpotong (jangan memotong di tengah kata)
-import { clip } from '../../lib/clip.js'
+import { clip, normalizeClipText } from '../../lib/clip.js'
 import { pctDone } from '../../lib/math_util.js'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
 import { SCENE_MUTED, PB_DIVIDER } from '../../lib/ui_palette.js'
@@ -75,7 +75,7 @@ export function formatCardStatus(status) {
 export function formatCardTitle(task, maxLen = 30) {
   if (!task) return ''
   const idStr = formatTaskId(task.id)
-  const title = clip(task.title || '', maxLen)
+  const title = clip(normalizeClipText(task.title), maxLen) // siklus 510: title objek → JSON, bukan '[object Object]'
   return idStr ? `${idStr} ${title}` : title
 }
 
@@ -89,7 +89,7 @@ export function cardMeta(task) {
   return {
     id: task.id,
     formattedId: formatTaskId(task.id),
-    title: task.title || '',
+    title: normalizeClipText(task.title),
     formattedTitle: formatCardTitle(task, 30),
     statusKey,
     statusText: formatCardStatus(task.status),
@@ -137,7 +137,7 @@ export function bannerNames(T) {
     const s = normalizeTaskStatus(r.status)
     return s === 'failed' || s === 'review'
   }).slice(0, 3)
-  return parts.map(p => p[0]).join(' · ') + ' — ' + items.map(r => formatTaskId(r.id) + ' ' + (r.title || '')).join('  ·  ')
+  return parts.map(p => p[0]).join(' · ') + ' — ' + items.map(r => formatTaskId(r.id) + ' ' + normalizeClipText(r.title)).join('  ·  ')
 }
 
 // layout banner sadar-lebar: ukur lebar dengan font sungguhan; bila melebihi budget,
@@ -152,7 +152,7 @@ export function bannerLayout(T, measure) {
     const s = normalizeTaskStatus(r.status)
     return s === 'failed' || s === 'review'
   }).slice(0, 3)
-  const itemText = r => formatTaskId(r.id) + ' ' + (r.title || '')
+  const itemText = r => formatTaskId(r.id) + ' ' + normalizeClipText(r.title)
   const budget = measure.budget
   const sepW = measure.text('—  ·  ')
   const fits = (n) => measure.text(prefix(parts) + ' — ') + sepW + n.reduce((a, t) => a + measure.text(t) + sepW, 0) <= budget

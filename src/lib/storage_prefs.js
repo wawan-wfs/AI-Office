@@ -1,5 +1,6 @@
 // Siklus 346: preferensi scene satu sumber — lib/storage_prefs.js
 import { fmtStampId } from './format_time.js'
+import { normalizeClipText } from './clip.js'
 
 // Keys: wfs_names (default true), wfs_autorot (default false).
 // Sebelumnya 4 salinan try/catch localStorage.getItem tersebar di ActionMenu,
@@ -114,8 +115,11 @@ export const formatLogText = (items) => {
   for (const x of items) {
     const id = x && x.id !== undefined && x.id !== null ? `#${x.id}` : '[?]'
     const stamp = (x && fmtStampId(x.t)) || (x && x.t) || ''
-    const label = (x && x.label) || ''
-    const title = (x && x.title) || ''
+    // Siklus 516 — ANTI-POISONING: label/status/title non-string (bentuk sah
+    // API: status numerik, label objek) → '[object Object]' di teks Salin/unduh.
+    const label = normalizeClipText(x && x.label)
+    const title = normalizeClipText(x && x.title)
+    // dedupeLogHead membandingkan label mentah — kontras dedup tetap di App.
     const line = `${stamp} | ${label} | ${id} ${title}`.replace(/\s+$/, '')
     if (seen.has(line)) continue
     seen.add(line)

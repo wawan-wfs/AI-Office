@@ -3,6 +3,12 @@ import { api } from '../lib/api'
 import { fmtUptime } from '../lib/uptime'
 import { useVisibilityPoll } from '../lib/dialogA11y'
 import { clockNowId } from '../lib/format_time'
+import { normalizeClipText as norm } from '../lib/clip.js'
+
+// Siklus 524: field API (agents/load/ram/disk) bentuk sah non-string/objek
+// → "Objects are not valid as a React child" atau "[object Object]" di chip
+// & aria-label. Semua render dinormalisasi satu sumber (clip.js), pola seri
+// 512-523. fmtUptime sudah tahan non-angka (lib/uptime.js).
 
 // Meter status host — data NYATA dari gateway (status + resources), polled tiap 12 dtk.
 // Widget kecil kanan-atas supaya "data yang ada" selalu terlihat tanpa buka panel.
@@ -54,11 +60,11 @@ export default function SysMeter() {
       {!err && (
         <span className="sm-item sm-hl" title="Gateway terhubung, data live" aria-label="Gateway terhubung, data live"><i aria-hidden="true" /> host live</span>
       )}
-      <span className="sm-item" title="Agen dari status backend" aria-label={`Agen task engine: ${d.agents ?? 'tidak tersedia'}`}>{d.agents ?? '—'} agen task engine</span>
+      <span className="sm-item" title="Agen dari status backend" aria-label={`Agen task engine: ${norm(d.agents) ?? 'tidak tersedia'}`}>{norm(d.agents) || '—'} agen task engine</span>
       {sceneAgents && <span className="sm-item" title="Avatar ambient, bukan status pekerjaan" aria-label={`${sceneAgents} avatar simulasi di scene (bukan status pekerjaan)`}>{sceneAgents} avatar simulasi</span>}
-      <span className="sm-item" title="Load average host" aria-label={`Load average host: ${d.load}`}>⚡ {d.load}</span>
-      <span className="sm-item" title="RAM terpakai / total" aria-label={`RAM terpakai per total: ${d.ram} MB`}>🧠 {d.ram}</span>
-      <span className="sm-item" title="Disk terpakai / total" aria-label={`Disk terpakai per total: ${d.disk_used_gb} dari ${d.disk_total_gb} GB`}>💾 {d.disk_used_gb}/{d.disk_total_gb} GB</span>
+      <span className="sm-item" title="Load average host" aria-label={`Load average host: ${norm(d.load)}`}>⚡ {norm(d.load) || '—'}</span>
+      <span className="sm-item" title="RAM terpakai / total" aria-label={`RAM terpakai per total: ${norm(d.ram)} MB`}>🧠 {norm(d.ram) || '—'}</span>
+      <span className="sm-item" title="Disk terpakai / total" aria-label={`Disk terpakai per total: ${norm(d.disk_used_gb)} dari ${norm(d.disk_total_gb)} GB`}>💾 {norm(d.disk_used_gb) || '—'}/{norm(d.disk_total_gb) || '—'} GB</span>
       <span className="sm-item" title="Uptime host" aria-label={`Uptime host: ${fmtUptime(d.uptime_s)}`}>⏱ {fmtUptime(d.uptime_s)}</span>
     </div>
   )

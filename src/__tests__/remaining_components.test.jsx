@@ -20,7 +20,7 @@ import { taskBoardGateReset, taskBoardGateFlush } from '../lib/taskboard_gate.js
 
 let apiMock
 vi.mock('../lib/api', () => ({ api: (...a) => apiMock(...a) }))
-vi.mock('../lib/clip.js', () => ({ clip: (s, n) => String(s).slice(0, n) }))
+vi.mock('../lib/clip.js', () => ({ clip: (s, n) => String(s).slice(0, n), normalizeClipText: (s) => (s == null ? '' : typeof s === 'string' ? s : String(s)) }))
 
 import Ticker from '../components/Ticker'
 

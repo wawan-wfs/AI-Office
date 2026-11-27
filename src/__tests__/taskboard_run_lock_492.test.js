@@ -39,7 +39,7 @@ describe('guard 492 — lock reentrancy run TaskBoard', () => {
 
   it('kontrak POST run tak diregresi: endpoint + body {} + onFlash gagal jujur', () => {
     expect(fn).toContain("api(`tasks/${t.id}/run`, { method: 'POST', body: {} })")
-    expect(fn).toContain("onFlash(e.message || 'Gagal menjalankan task', true)")
+    expect(fn).toContain("onFlash(normErr(e.message) || 'Gagal menjalankan task', true)")
     expect(src).toContain('onOk: () => run(t)')
   })
 })
