@@ -3,7 +3,7 @@ import { normalizeClipText } from '../lib/clip.js'
 import { IconClose, IconChat, IconUser } from './Icons'
 import { getAgentCompetency } from '../scene/parts/agent_competencies.js'
 import { TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
-import { ACCENT_BLUE, accentAlpha, amberAlpha, cyanAlpha, greenAlpha, whiteAlpha, AVATAR_TEXT, PANEL_SOFT_TEXT , PURE_TEXT} from '../lib/ui_palette.js'
+import { ACCENT_BLUE, accentAlpha, amberAlpha, cyanAlpha, greenAlpha, whiteAlpha, AVATAR_TEXT, PANEL_SOFT_TEXT , PURE_TEXT, agentHexSafe} from '../lib/ui_palette.js'
 import { resolveAgentId } from '../scene/parts/running_tasks.js'
 import { findTeamByAgent } from '../scene/parts/team_spec.js'
 import { agentLiveStatus, findAgentLiveEntry, agentLiveLevel, floorZoneName, floorZonePrefix, FLOOR_ZONE_PREFIX } from '../scene/parts/agent_status.js'
@@ -92,14 +92,14 @@ export default function AgentInspector({ agent, onClose, onChatWith, onFocusFloo
               width: 38,
               height: 38,
               borderRadius: 12,
-              background: `linear-gradient(135deg, ${agent.hex || ACCENT_BLUE}, ${accentAlpha(0.3)})`,
+              background: `linear-gradient(135deg, ${agentHexSafe(agent)}, ${accentAlpha(0.3)})`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: AVATAR_TEXT,
               fontWeight: 800,
               fontSize: 16,
-              boxShadow: `0 0 16px ${agent.hex || ACCENT_BLUE}44`,
+              boxShadow: `0 0 16px ${agentHexSafe(agent)}44`,
             }}
           >
             {agent.name ? normalizeSecondary(String(agent.name).slice(0, 2)).toUpperCase() : <IconUser size={18} />}

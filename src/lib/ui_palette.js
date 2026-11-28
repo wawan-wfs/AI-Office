@@ -621,6 +621,16 @@ export const RC_FOUNDER_ACCENT = 0xF59E0B; // warna identitas Founder (color)
 export const RC_FOUNDER_HEX = '#F59E0B';   // hex renderer label/badge Founder
 export const RC_FOUNDER_FALLBACK_HEX = '#38BDF8'; // fallback label saat agen tanpa hex
 
+// Siklus 537: SATU SUMBER warna identitas canvas — hex agen yang sah ATAU
+// fallback di atas. Dulu konsumen canvas (nameplate, label float, bubble,
+// layar meja) memakai agent.hex MENTAH: nama tak terdaftar/undefined →
+// "undefined44" di CSS atau ctx.strokeStyle=undefined (garis tak tergambar).
+// makeLabel sudah pakai fallback inline; kini semua titik lain ikut sini.
+export const agentHexSafe = (agent) => {
+  const h = agent && agent.hex !== undefined && agent.hex !== null ? String(agent.hex) : '';
+  return /^#[0-9a-fA-F]{6}$/.test(h) ? h : RC_FOUNDER_FALLBACK_HEX;
+};
+
 // Blok SR_* — siklus 432: ruang server & water cooler. Nilai historis terkunci.
 export const SR_RACK_BODY = 0x2E3244;     // badan rak server
 export const SR_RACK_EDGE = 0x00E5FF;     // strip cahaya tepi rak (breath)

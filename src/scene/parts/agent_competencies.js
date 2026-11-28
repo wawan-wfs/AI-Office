@@ -167,7 +167,14 @@ export function getAgentCompetency(agentOrName) {
     return AGENT_COMPETENCIES[matchedKey];
   }
 
-  const role = typeof agentOrName === 'object' && agentOrName.role ? agentOrName.role : 'Specialist';
+  // Bentuk sah: role dari API bisa non-string (objek/angka) — koerce ke string agar
+  // domain/summary/tags yang dirender JSX AgentInspector tidak berisi [object Object].
+  const rawRole = typeof agentOrName === 'object' && agentOrName.role !== undefined && agentOrName.role !== null
+    ? agentOrName.role
+    : null;
+  const role = typeof rawRole === 'string' && rawRole.trim()
+    ? rawRole.trim()
+    : (rawRole ? 'AI Specialist' : 'Specialist');
   return {
     domain: role,
     summary: `Spesialis ${role} pada lingkungan autonomous kampus WFS PROJECT.`,

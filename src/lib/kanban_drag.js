@@ -98,8 +98,8 @@ export function resolveNewStatusForColumn(targetColKey) {
  */
 export function formatDragDropNotification(task, targetColKey, colLabel) {
   if (!task || task.id == null) return ''
-  const label = colLabel || targetColKey || 'baru'
-  return `Task #${task.id} dipindahkan ke kolom ${label}`
+  const label = normalizeClipText(colLabel || targetColKey || 'baru')
+  return `Task #${normalizeClipText(task.id)} dipindahkan ke kolom ${label}`
 }
 
 /**

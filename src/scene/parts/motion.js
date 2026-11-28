@@ -7,6 +7,7 @@ import { collabTarget } from './trip_plan.js';
 import { OBSTACLES, inObstacle, seatOccupied } from './obstacles.js';
 import { talkStep, isConverseOver, speakerIsVisitor } from './converse_timing.js';
 import { floorElevationAt } from './floor_elevation.js';
+import { agentHexSafe } from '../../lib/ui_palette.js';
 import {
   WALK_SPEED as WALK, EXIT_SPEED as EXIT, LINE_SEC, COLLAB_OFFSET, DEST_JITTER,
   COLLAB_CHANCE, TRIP_PAUSE_MIN, TRIP_PAUSE_JITTER, SIT_TIMER_MIN, SIT_TIMER_JITTER,
@@ -118,7 +119,7 @@ export function createMotion(ctx) {
       const anchor = mine
         ? { get x(){return me.x}, get z(){return me.z}, y: myY + 2.6 }
         : { get x(){return pr.home.x}, get z(){return pr.home.z}, y: prY + 2.6 };
-      createBubble(anchor.x, anchor.y, anchor.z, lines[step], (mine ? ad : pr).agent.hex, anchor);
+      createBubble(anchor.x, anchor.y, anchor.z, lines[step], agentHexSafe((mine ? ad : pr).agent), anchor);
     }
     if (isConverseOver(ad.walkPause, lines.length, LINE_SEC)) {
       pr.sittingChar.rotation.y = 0;
@@ -149,7 +150,7 @@ export function createMotion(ctx) {
             const lunchAnc = { get x(){return ad.walker.position.x}, get z(){return ad.walker.position.z}, y: cafeY + 2.6 };
             createBubble(ad.walker.position.x, cafeY + 2.6, ad.walker.position.z,
               ['“makan siang dulu”', '“kopi wajib”', '“paket nasi goreng”', '“sesh sore nanti?”'][Math.floor(Math.random() * 4)],
-              ad.agent.hex, lunchAnc);
+              agentHexSafe(ad.agent), lunchAnc);
           }
         }
         follow(ad);

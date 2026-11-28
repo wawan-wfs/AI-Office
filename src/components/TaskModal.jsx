@@ -63,7 +63,7 @@ export default function TaskModal({ show, onClose, onDone }) {
       if (my !== rid.current) return // basi: task lama TIDAK dijalankan (run berbayar — jangan auto-run task yang sudah di-abandon user)
       if (run) await api(`tasks/${d.task_id}/run`, { method: 'POST' })
       if (my !== rid.current) return // submit lebih baru / modal dibuka ulang — respons basi
-      onDone(run ? `Task #${d.task_id} dibuat & dijalankan` : `Task #${d.task_id} dibuat (pending)`)
+      onDone(run ? `Task #${normErr(d.task_id)} dibuat & dijalankan` : `Task #${normErr(d.task_id)} dibuat (pending)`)
       setTitle(''); setPrompt(''); onClose()
       setBusy(false)
     } catch (e) {

@@ -31,7 +31,7 @@ describe('siklus 500 — statusInFlight lock PATCH status TaskBoard', () => {
   it('PATCH tetap satu sumber dan flash gagal jujur (kontrak 235 tak diregresi)', () => {
     expect((src.match(/api\(`tasks\/\$\{task\.id\}\/status`/g) || []).length).toBe(1)
     expect(src).toMatch(/method: 'PATCH', body: \{ status: persistedStatus \}/)
-    expect(src).toMatch(/Gagal memindahkan task #\$\{task\.id\}/)
+    expect(src).toMatch(/Gagal memindahkan task #\$\{normalizeClipText\(task\.id\)\}/)
     // failed→review tetap failed (bukan dipetakan)
     expect(src).toMatch(/task\.status === 'failed' && targetColKey === 'review' \? 'failed' : targetColKey/)
   })

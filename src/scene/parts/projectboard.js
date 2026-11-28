@@ -10,6 +10,7 @@ import { parseTimestampMs } from '../../lib/kanban_date.js'
 import { fmtStampId } from '../../lib/format_time.js'
 import { uiTexture, uiMaterial } from './ui_colorspace.js'
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js';
+import { numCount } from './projectboard_data.js';
 import { SCENE_MUTED, PB_BG, PB_FOOT, PB_FRAME, PB_COL_BG, PB_CARD, NOTE_TEXT as PB_TXT_SOFT, PB_PENDING, PURE_TEXT, whiteAlpha, failedAlpha, PB_FRAME_3D } from '../../lib/ui_palette.js'
 
 // Polling adaptif papan 3D: cadence sehat 60 dtk (POLL_SCENE_HEALTHY_MS satu
@@ -106,10 +107,12 @@ export function createProjectBoard(office, THREE) {
 
     // tiga kolom: Antri / Jalan / Selesai
     const cols = [
-      ['ANTRI', PB_PENDING, T.pending || 0],
-      ['JALAN', C.running, T.running || 0],
-      ['SELESAI', C.done, T.done || 0],
+      ['ANTRI', PB_PENDING, numCount(T.pending)],
+      ['JALAN', C.running, numCount(T.running)],
+      ['SELESAI', C.done, numCount(T.done)],
     ]
+    // Siklus 545 — jumlah kolom bentuk sah non-numerik → 0 (bukan
+    // 'ANTRI ([object Object])' di kepala kolom papan 3D).
     cols.forEach(([t, c, n], i) => {
       const x = 34 + i * 496
       g.fillStyle = PB_COL_BG; roundRect(x, 210, 470, 578, 12); g.fill()

@@ -368,7 +368,8 @@ describe('stripLayout', () => {
   })
   it('budget sangat sempit → hanya segmen wajib (SaaS + agen)', () => {
     const { kept, dropped } = stripLayout(snap, m(400))
-    expect(dropped).toEqual(['latest', 'messages', 'chats', 'online', 'host'])
+    // siklus 549: 'agmore' (+N lagi) kini opsional — ikut terbuang sebelum segmen wajib
+    expect(dropped).toEqual(['latest', 'agmore', 'messages', 'chats', 'online', 'host'])
     expect(kept.every(s => !['latest', 'messages', 'chats', 'online'].includes(s.txt))).toBe(true)
     expect(kept.map(s => s.txt)).toContain('be1 ●')
   })
@@ -401,14 +402,14 @@ describe('stripLayout', () => {
 })
 
 describe('drop order — prioritas buang segmen strip', () => {
-  it('BASE_DROP_ORDER: terbaru → pesan → chat → online → host', () => {
-    expect(BASE_DROP_ORDER).toEqual(['latest', 'messages', 'chats', 'online', 'host'])
+  it('BASE_DROP_ORDER: terbaru → +N lagi → pesan → chat → online → host', () => {
+    expect(BASE_DROP_ORDER).toEqual(['latest', 'agmore', 'messages', 'chats', 'online', 'host'])
   })
   it('OMNI_DROP_ORDER menyisipkan omni sebelum online (omni dikorbankan dulu)', () => {
-    expect(OMNI_DROP_ORDER).toEqual(['latest', 'messages', 'chats', 'omni', 'online', 'host'])
+    expect(OMNI_DROP_ORDER).toEqual(['latest', 'agmore', 'messages', 'chats', 'omni', 'online', 'host'])
     // invariant: urutan BASE adalah prefix OMNI minus 'omni'
     const base = BASE_DROP_ORDER.filter(k => k !== 'omni' && k !== 'host')
-    expect(base).toEqual(['latest', 'messages', 'chats', 'online'])
+    expect(base).toEqual(['latest', 'agmore', 'messages', 'chats', 'online'])
     expect(OMNI_DROP_ORDER.indexOf('omni')).toBeLessThan(OMNI_DROP_ORDER.indexOf('online'))
   })
   it('STRIP_GAP default 26px', () => {

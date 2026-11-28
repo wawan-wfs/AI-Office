@@ -4,7 +4,8 @@
 // Tidak ada THREE / DOM di sini — ctx 2D di-inject oleh pemanggil.
 import { ACRONYMS } from './nameplate_spec.js';
 import { STATUS_HEX } from './agent_status.js'; // siklus 530: warna dot status live
-import { LB_TEXT, LB_ROLE, LBL_BODY_BG } from '../../lib/ui_palette.js'; // 449/475
+import { LB_TEXT, LB_ROLE, LBL_BODY_BG, agentHexSafe } from '../../lib/ui_palette.js'; // 449/475
+import { safeText } from './nameplate_spec.js'; // siklus 541: satu sumber koersi teks
 
 export const LABEL_Y = 2.45; // tepat di atas kepala (tinggi duduk ≈1.95)
 
@@ -15,7 +16,7 @@ export const LABEL_SHORT = { W: 210, H: 50, RADIUS: 14, NAME_FONT: '800 28px "Se
 // "wahyu fs" → "Wahyu FS"; "bantuin ai" → "Bantuin AI" (akronim diuppecase-kan);
 // aman utk null/undefined. Memakai ACRONYMS dari nameplate_spec.
 export function labelName(name) {
-  return String(name ?? '').toLowerCase().replace(/(^|\s)(\w+)/g, (m, sp, w) =>
+  return safeText(name).toLowerCase().replace(/(^|\s)(\w+)/g, (m, sp, w) =>
     sp + (ACRONYMS.has(w) ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1)));
 }
 
@@ -46,9 +47,9 @@ export function drawLabelText(ctx, agent, spec, full) {
   const W = spec.W, H = spec.H;
   ctx.fillStyle = LBL_BODY_BG;
   ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(2, 2, W - 4, H - 4, spec.RADIUS); else ctx.rect(2, 2, W - 4, H - 4); ctx.fill();
-  ctx.fillStyle = agent.hex; ctx.fillRect(2, full ? 14 : 10, 6, H - (full ? 28 : 20));
+  ctx.fillStyle = agentHexSafe(agent); ctx.fillRect(2, full ? 14 : 10, 6, H - (full ? 28 : 20));
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  const title = (s, max, font) => fitLabel(ctx, s, max, font, full ? 36 : 28);
+  const title = (s, max, font) => fitLabel(ctx, safeText(s), max, font, full ? 36 : 28);
   const drawFit = (val, max, font, weightPx, y) => { const r = title(val, max, font);
     if (r && typeof r === 'object' && r.fit) { ctx.font = r.fnt; ctx.fillText(r.fit, W / 2 + 4, y); ctx.font = font; }
     else ctx.fillText(typeof r === 'string' ? r : String(val), W / 2 + 4, y); };

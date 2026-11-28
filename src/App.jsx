@@ -362,7 +362,7 @@ export default function App() {
         if (prev && prev[x.id] !== undefined && prev[x.id] !== x.status) {
           const L = { done: 'selesai', failed: 'gagal', running: 'berjalan', review: 'perlu review', pending: 'antri' }
           pushLog({ t: clockStampMs() ?? 0, id: x.id, status: x.status, label: normText(L[x.status] || x.status), title: clip(x.title, 50) })
-          flash(`Task #${x.id} ${L[x.status] || x.status}: ${clip(x.title, 40)}`, x.status === 'failed')
+          flash(`Task #${normText(x.id)} ${normText(L[x.status] || x.status)}: ${clip(x.title, 40)}`, x.status === 'failed')
           const s = sceneRef.current
           if (s) {
             if (x.status === 'done' && s.playTaskDone) s.playTaskDone()

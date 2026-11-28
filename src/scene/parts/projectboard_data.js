@@ -21,6 +21,7 @@ export function fmtUptime(sec) {
 
 // judul dipotong di batas kata, diberi '…' bila terpotong (jangan memotong di tengah kata)
 import { clip, normalizeClipText } from '../../lib/clip.js'
+import { safeText } from './nameplate_spec.js'
 import { pctDone } from '../../lib/math_util.js'
 import { taskStatusColor, TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
 import { SCENE_MUTED, PB_DIVIDER } from '../../lib/ui_palette.js'
@@ -110,20 +111,37 @@ export function subtitle(T, timeStr) {
   // Siklus 270 — timeStr kosong/tidak diberikan tidak boleh meninggalkan
   // trailing separator "· " gantung di papan 3D (dulu: 'Data live · task engine
   // + SaaS · ' lalu '· review 2' menambah separator ganda).
+  // Siklus 545 — anti-poisoning: review/failed bentuk sah non-numerik (objek/
+  // array dari API) dikoersi via numCount — bukan '[object Object]' di papan.
   const head = 'Data live · task engine + SaaS'
   const parts = []
   if (timeStr) parts.push(timeStr)
-  if (T && T.review) parts.push('review ' + T.review)
-  if (T && T.failed) parts.push('gagal ' + T.failed)
+  const rv = numCount(T && T.review)
+  if (rv) parts.push('review ' + rv)
+  const fl = numCount(T && T.failed)
+  if (fl) parts.push('gagal ' + fl)
   return parts.length ? head + ' · ' + parts.join(' · ') : head
 }
+
+// Koersi jumlah task bentuk bebas → angka bulat atau null (siklus 545).
+// finite → bulat; non-finite (objek/array/string) → null (segmen tak tampil).
+function numCount(v) {
+  if (v == null) return null
+  const n = +v
+  return Number.isFinite(n) ? Math.round(n) : null
+}
+export { numCount }
 
 // chip banner [teks, warna]; kosong bila tidak ada task bermasalah
 export function bannerParts(T) {
   const parts = []
   if (!T) return parts
-  if (T.failed) parts.push(['GAGAL ' + T.failed, taskStatusColor('failed')])
-  if (T.review) parts.push(['REVIEW ' + T.review, taskStatusColor('review')])
+  // Siklus 545 — anti-poisoning: jumlah bentuk sah non-numerik dikoersi angka
+  // (segmen tanpa jumlah valid dilewati) — tanpa '[object Object]' di banner.
+  const fl = numCount(T.failed)
+  if (fl) parts.push(['GAGAL ' + fl, taskStatusColor('failed')])
+  const rv = numCount(T.review)
+  if (rv) parts.push(['REVIEW ' + rv, taskStatusColor('review')])
   return parts
 }
 
@@ -207,11 +225,15 @@ export function stripSegments(snap, hostRes = null) {
     // jumlah agen dibatasi 4 + "+N" — 9 agen sandbox × nama panjang makan seluruh
     // budget strip dan mendorong segmen lain (termasuk HOST) keluar layar.
     const MAX_AG = 3
-    ags.slice(0, MAX_AG).forEach(a => {
-      const nm = clip(a.name, 12)
+    let shown = 0
+    for (const a of ags) {
+      if (shown >= MAX_AG) break
+      const nm = clip(safeText(a.name), 12) // siklus 546: nama objek → segmen kosong, bukan '[object Object]'
+      if (!nm) continue
+      shown++
       segs.push({ txt: nm + ' ' + (a.status === 'Up' ? '●' : '○'), col: a.status === 'Up' ? ok : err })
-    })
-    if (ags.length > MAX_AG) segs.push({ txt: '+' + (ags.length - MAX_AG) + ' lagi', col: dim })
+    }
+    if (ags.length > shown) segs.push({ txt: '+' + (ags.length - shown) + ' lagi', col: dim, __drop: 'agmore' })
   }
   const omni = (snap && snap.omniroute) || null
   if (omni) {
@@ -321,7 +343,7 @@ export function fpsSegment(fps) {
 // Nama tenant di strip dipangkas di batas kata (pola clip) — nama panjang
 // tidak boleh memakan seluruh lebar strip dan mendorong segmen agen keluar.
 export function clampStripTenant(name, max = 24) {
-  const n = String(name || '')
+  const n = safeText(name) // siklus 546: objek/array → '', bukan '[object Object]' di strip papan
   if (n.length <= max) return n
   const cut = n.slice(0, max)
   const sp = cut.lastIndexOf(' ')
@@ -334,8 +356,11 @@ export function clampStripTenant(name, max = 24) {
 export const STRIP_GAP = 26, STRIP_LEFT = 44, STRIP_RIGHT = 44
 // Siklus 535: segmen HOST (metrik nyata via hostRes) dibuang paling akhir —
 // lebih penting dari 'terbaru'. BASE tanpa host: urutan lama utuh (test regresi).
-export const BASE_DROP_ORDER = ['latest', 'messages', 'chats', 'online', 'host']
-export const OMNI_DROP_ORDER = ['latest', 'messages', 'chats', 'omni', 'online', 'host']
+// Siklus 549: '+N lagi' (agmore) kini segmen opsional — dibuang bersama
+// 'latest' dsb. sebelum segmen wajib (SaaS/AGENT/HOST); layar sempit tak
+// lagi memajang penanda agen tersembunyi saat ruang tak cukup.
+export const BASE_DROP_ORDER = ['latest', 'agmore', 'messages', 'chats', 'online', 'host']
+export const OMNI_DROP_ORDER = ['latest', 'agmore', 'messages', 'chats', 'omni', 'online', 'host']
 
 export function stripLayout(snap, measure, hostRes = null) {
   const segs = stripSegments(snap, hostRes).map(sg => ({ ...sg }))

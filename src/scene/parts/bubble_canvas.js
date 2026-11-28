@@ -1,5 +1,6 @@
 import { clamp01 } from '../../lib/math_util.js'
-import { LB_TEXT } from '../../lib/ui_palette.js'
+import { LB_TEXT, agentHexSafe } from '../../lib/ui_palette.js'
+import { safeText } from './nameplate_spec.js'
 
 // Canvas drawing bubble chat: panel rounded-rect + ekor segitiga + teks.
 // Diekstrak murni dari createBubble (OfficeScene.js) agar bisa di-unit-test:
@@ -38,7 +39,8 @@ export function tailPath(ctx, W, H){
 
 // Gambar seluruh bubble pada ctx 2D. Mengembalikan teks yang dipakai
 // (sudah melalui clampText, default identitas untuk non-string).
-export function drawBubble(ctx, text, color, { clampText } = {}){
+export function drawBubble(ctx, text, colorArg, { clampText } = {}){
+  const color = agentHexSafe({ hex: colorArg }); // siklus 537: undefined → fallback stroke
   const W = BUBBLE_W, H = BUBBLE_H;
   ctx.fillStyle = BUBBLE_BG;
   roundRectPath(ctx, 3, 3, W-6, H-14, 10);
@@ -53,7 +55,7 @@ export function drawBubble(ctx, text, color, { clampText } = {}){
   ctx.font = BUBBLE_TEXT_FONT;
   ctx.fillStyle = LB_TEXT;
   ctx.textAlign = 'center';
-  const clamp = clampText || (t => String(t));
+  const clamp = clampText || ((t) => safeText(t)); // siklus 542: default tanpa poisoning
   const t = clamp(text);
   ctx.fillText(t, W/2, 32);
   return t;

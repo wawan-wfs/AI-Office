@@ -1,5 +1,5 @@
 // Siklus 22 — 2026-10-24 — kualitas berkelanjutan; 0 edit perilaku
-import { SCENE_SKY, SCENE_AMBIENT, SCENE_SUN, SCENE_SKYFILL, SCENE_HEMI_SKY, SCENE_HEMI_GROUND, SCENE_GLASS, SCENE_CEIL_WHITE, SCENE_WALL_DEEP, FURN_DESK_TOP, FURN_DESK_LEG, FURN_MONO_METAL, FURN_SCREEN_BODY, FURN_INPUT_DARK, FURN_CHAIR_SEAT, FURN_CHAIR_BACK, FURN_PLATE_STAND, FURN_CHAIR_POLE, FURN_CHAIR_BASE, FURN_CABINET, FURN_DRAWER, FURN_HANDLE, FURN_POT, FURN_LEAF, DUCT_LIGHT, DUCT_CROSS, DUCT_VENT, DUCT_LINE, TUBE_NEON, LEAD_MON_BODY, LEAD_MON_HEX, HELMET_BASE, HELMET_BODY, RING_BLUE, PARTICLE_WHITE, RC_FOUNDER_ACCENT, RC_FOUNDER_HEX, RC_FOUNDER_HAIR, RC_FOUNDER_SHIRT, RC_FOUNDER_PANTS, RC_FOUNDER_FALLBACK_HEX, AG_GLASSES_DARK, AG_SKIN_CREAM, AG_HAT_BRIM, AG_BEANIE, AG_CAP_TOP, AG_BEARD, AG_ANTENNA_ROD, AG_BLAZER, AG_SHIRT_WHITE, AG_TIE, AG_PANTS_MATCH_A, AG_PANTS_MATCH_B, AG_PANTS_MATCH_C, AG_PANTS_DEFAULT, AG_PANTS_FALLBACK, AG_BLUSH, AG_PUPIL, AG_MOUTH, AG_LANYARD, LBL_TAIL_BG } from '../lib/ui_palette.js';
+import { SCENE_SKY, SCENE_AMBIENT, SCENE_SUN, SCENE_SKYFILL, SCENE_HEMI_SKY, SCENE_HEMI_GROUND, SCENE_GLASS, SCENE_CEIL_WHITE, SCENE_WALL_DEEP, FURN_DESK_TOP, FURN_DESK_LEG, FURN_MONO_METAL, FURN_SCREEN_BODY, FURN_INPUT_DARK, FURN_CHAIR_SEAT, FURN_CHAIR_BACK, FURN_PLATE_STAND, FURN_CHAIR_POLE, FURN_CHAIR_BASE, FURN_CABINET, FURN_DRAWER, FURN_HANDLE, FURN_POT, FURN_LEAF, DUCT_LIGHT, DUCT_CROSS, DUCT_VENT, DUCT_LINE, TUBE_NEON, LEAD_MON_BODY, LEAD_MON_HEX, HELMET_BASE, HELMET_BODY, RING_BLUE, PARTICLE_WHITE, RC_FOUNDER_ACCENT, RC_FOUNDER_HEX, RC_FOUNDER_HAIR, RC_FOUNDER_SHIRT, RC_FOUNDER_PANTS, AG_GLASSES_DARK, AG_SKIN_CREAM, AG_HAT_BRIM, AG_BEANIE, AG_CAP_TOP, AG_BEARD, AG_ANTENNA_ROD, AG_BLAZER, AG_SHIRT_WHITE, AG_TIE, AG_PANTS_MATCH_A, AG_PANTS_MATCH_B, AG_PANTS_MATCH_C, AG_PANTS_DEFAULT, AG_PANTS_FALLBACK, AG_BLUSH, AG_PUPIL, AG_MOUTH, AG_LANYARD, LBL_TAIL_BG, agentHexSafe } from '../lib/ui_palette.js';
 import { CEIL_PANEL_DAY } from './parts/ceiling_fixtures_palette.js';
 import * as THREE from 'three';window.THREE=THREE;
 import { createFurniture } from './parts/furniture.js';
@@ -29,7 +29,7 @@ import { orbitStep, orbitFocusGoal, ORBIT_KEY_STEP, ORBIT_KEY_STEP_FAST } from '
 import { snapshotDataUrl, snapshotFilename } from './parts/snapshot_spec.js';
 import { dblclickPointGoal, dblclickBlankGoal, tapCandidate, isDoubleTap, dtapRadius, DTAP_ZOOM_STEP } from './parts/dblclick_spec.js';
 import { createMeetingRoom, createWallClock, createCeilingFixtures } from './parts/room.js';
-import { drawNameplate, PLATE } from './parts/nameplate_spec.js';
+import { drawNameplate, PLATE, safeText } from './parts/nameplate_spec.js';
 import {
   SEL_RING, HOVER_RING, selectedAgent,
   meetingFigureAnchor, SEL_RING_DAMP_RATE, HOVER_RING_DAMP_RATE,
@@ -381,7 +381,8 @@ const focusAgentRoot=(root,opts={})=>{
   const hr=ensureHomeRadius(homeRadius,sph.radius); homeRadius=hr.homeRadius;
   focusGoal=g;
   saveCam(sph);
-  if(bubble)createBubble(g.t.x,g.t.y-0.2,g.t.z,'“Halo! Aku '+root.agent.name+'”',root.agent.hex);
+  // Siklus 542: bubble sapaan SPAWN — safeText satu sumber (bukan '[object Object]').
+  if(bubble)createBubble(g.t.x,g.t.y-0.2,g.t.z,'“Halo! Aku '+safeText(root.agent.name)+'”',agentHexSafe(root.agent));
   selectedIdx=agentData.indexOf(root);applySelected();
   if(onSelectAgent)onSelectAgent(root.agent);
   return true;
@@ -413,7 +414,7 @@ const focusMeetingFigure=(figIdx,opts={})=>{
   focusGoal={t:new THREE.Vector3(anc.x,anc.y+1.5,anc.z),r:Math.min(sph.radius,16),
     follow:{meetIdx:figIdx,root:ad}};
   saveCam(sph);
-  if(bubble)createBubble(anc.x,anc.y+1.3,anc.z,'“Halo! Aku '+ad.agent.name+' (rapat)”',ad.agent.hex);
+  if(bubble)createBubble(anc.x,anc.y+1.3,anc.z,'“Halo! Aku '+safeText(ad.agent.name)+' (rapat)”',agentHexSafe(ad.agent));
   selectedIdx=figIdx;applySelected();
   if(onSelectAgent)onSelectAgent(ad.agent);
   return true;
@@ -1057,9 +1058,9 @@ function makeLabel(agent){
     // 2. Glowing glassmorphism border dengan warna identitas agen
     const rad = spec.RADIUS || 14;
     c.save();
-    c.strokeStyle = agent.hex || RC_FOUNDER_FALLBACK_HEX;
+    c.strokeStyle = agentHexSafe(agent);
     c.lineWidth = 3.5;
-    c.shadowColor = agent.hex || RC_FOUNDER_FALLBACK_HEX;
+    c.shadowColor = agentHexSafe(agent);
     c.shadowBlur = 10;
     if (c.roundRect) {
       c.beginPath();
@@ -1077,7 +1078,7 @@ function makeLabel(agent){
     c.lineTo(W / 2 + 10, spec.H - 4);
     c.closePath();
     c.fill();
-    c.strokeStyle = agent.hex || RC_FOUNDER_FALLBACK_HEX;
+    c.strokeStyle = agentHexSafe(agent);
     c.lineWidth = 3.0;
     c.beginPath();
     c.moveTo(W / 2 - 10, spec.H - 4);
@@ -1174,7 +1175,7 @@ function buildDesk(agent,dp){
   const stx=uiTexture(new THREE.CanvasTexture(sc));stx.minFilter=THREE.LinearFilter;
   const screen=new THREE.Mesh(new THREE.PlaneGeometry(.66,.36), uiMaterial(new THREE.MeshBasicMaterial({map:stx})));
   screen.position.set(.32,1.08,-.22);g.add(screen);
-  screenData.push({ctx:sctx,canvas:sc,tex:stx,type:agent.screen||'terminal',hex:agent.hex});
+  screenData.push({ctx:sctx,canvas:sc,tex:stx,type:agent.screen||'terminal',hex:agentHexSafe(agent)});
   // Screen light — warna agent
   const sLight=new THREE.PointLight(agent.color,.35,2.5,2);
   sLight.position.set(.32,1.08,-.05);g.add(sLight);
@@ -1198,7 +1199,7 @@ function buildDesk(agent,dp){
   // Nameplate pribadi: nama + role di sisi depan meja (spec di parts/nameplate_spec.js)
   (() => {
     const c = document.createElement('canvas');
-    drawNameplate(c.getContext('2d'), agent.name, agent.role, agent.hex);
+    drawNameplate(c.getContext('2d'), agent.name, agent.role, agentHexSafe(agent));
     const tex = uiTexture(new THREE.CanvasTexture(c)); tex.minFilter = THREE.LinearFilter;
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(PLATE.w, PLATE.h), uiMaterial(new THREE.MeshBasicMaterial({ map: tex, transparent: true })));
     plate.position.set(0, PLATE.y, PLATE.z); g.add(plate);
@@ -1801,7 +1802,7 @@ function autoTalk(){
   const wp=ad.walker.visible?ad.walker.position:{x:ad.home.x,y:baseAy,z:ad.home.z};
   // anchor mengikuti agent agar bubble tidak tertinggal di posisi lama saat agent berjalan
   const anc={agent:ad,get x(){return ad.walker.visible?ad.walker.position.x:ad.home.x},get z(){return ad.walker.visible?ad.walker.position.z:ad.home.z},y:baseAy+1.3};
-  createBubble(wp.x,baseAy+1.3,wp.z,text,ad.agent.hex,anc);
+  createBubble(wp.x,baseAy+1.3,wp.z,text,agentHexSafe(ad.agent),anc);
 }
 // Sinkron task running: tidak ada interval sendiri — data status + tasks diambil di pollStatus (SATU fetch /agents/status)
 let deltaFrame=0; // delta dtk frame terakhir (utk cooldown chat berbasis waktu nyata)
@@ -1842,7 +1843,7 @@ function checkConversations(){
     const phrase=chatPhrases[Math.floor(Math.random()*chatPhrases.length)];
     const bay=(a.walker&&a.walker.visible?a.walker.position.y:a.home.y)||0;
     const anc={get x(){return a.walker.position.x},get z(){return a.walker.position.z},y:bay+1.3};
-    createBubble(a.walker.position.x,bay+1.3,a.walker.position.z,phrase,a.agent.hex,anc);
+    createBubble(a.walker.position.x,bay+1.3,a.walker.position.z,phrase,agentHexSafe(a.agent),anc);
     a._chatCooldown=CHAT_COOLDOWN_SEC;b._chatCooldown=CHAT_COOLDOWN_SEC;
   }
   for(let i=0;i<agentData.length;i++){
@@ -2816,7 +2817,7 @@ window.addEventListener('keydown',onKey);
         const hr2=ensureHomeRadius(homeRadius,sph.radius); homeRadius=hr2.homeRadius;
         focusGoal = g;
         saveCam(sph);
-        createBubble(g.t.x, g.t.y - 0.2, g.t.z, '“Halo! Aku ' + root.agent.name + '”', root.agent.hex || TASK_STATUS_COLORS.done);
+        createBubble(g.t.x, g.t.y - 0.2, g.t.z, '“Halo! Aku ' + safeText(root.agent.name) + '”', agentHexSafe(root.agent) || TASK_STATUS_COLORS.done);
         selectedIdx = agentData.indexOf(root);
         applySelected();
         if (onSelectAgent) onSelectAgent(root.agent);

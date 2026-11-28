@@ -1,6 +1,6 @@
 // Nameplate meja: kanvas 256×64, garis aksen warna agen, nama + role — diekstrak dari buildDesk().
 // Semua fungsi murni (ctx 2D di-inject, tanpa THREE) agar bisa di-unit-test.
-import { LB_TEXT, NP_ROLE, NP_BG } from '../../lib/ui_palette.js';
+import { LB_TEXT, NP_ROLE, NP_BG, agentHexSafe } from '../../lib/ui_palette.js';
 
 export const NAMEPLATE = {
   W: 256, H: 64,
@@ -24,8 +24,14 @@ export const PLATE = {
 // "bantuin ai" -> "Bantuin AI" (word-initial capitalization; kata khas akronim
 // dalam daftar ACRONYMS di-uppecase-kan semua: "ai"→"AI", "hr"→"HR", "qa"→"QA").
 export const ACRONYMS = new Set(['ai', 'hr', 'qa', 'ui', 'ux', 'ml', 'api', 'sql', 'fs', 'wfs', 'cs', 'pm', 'it', 'cto', 'ceo']);
+// Siklus 541: koersi teks satu sumber — bentuk sah non-string (null/undefined) → '',
+// objek/array (poisoning '[object Object]') → '' juga; angka/boolean di-stringify.
+export function safeText(s) {
+  if (s == null || typeof s === 'object') return '';
+  return String(s);
+}
 export function titleCase(s) {
-  return String(s).toLowerCase().replace(/(^|[^\w])(\w+)/g, (m, sp, w) => {
+  return safeText(s).toLowerCase().replace(/(^|[^\w])(\w+)/g, (m, sp, w) => {
     // sp = pemisah sebelum kata ('' di awal, atau spasi/'-'/'/' dll).
     // Semua kata dikapitalisasi / akronim di-uppecase-kan, termasuk kata setelah
     // pemisah non-spasi (data-science → Data-Science).
@@ -43,7 +49,8 @@ export function clampText(ctx, text, max, font) {
   return e + '…';
 }
 
-export function drawNameplate(ctx, name, role, hex) {
+export function drawNameplate(ctx, name, role, hexArg) {
+  const hex = agentHexSafe({ hex: hexArg }); // siklus 537: undefined → fallback, bukan garis aksen hilang
   const N = NAMEPLATE;
   ctx.canvas.width = N.W; ctx.canvas.height = N.H;
   // Panel latar rounded-rect
@@ -59,7 +66,7 @@ export function drawNameplate(ctx, name, role, hex) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = N.F1; ctx.fillStyle = N.NAME_COLOR;
-  ctx.fillText(clampText(ctx, titleCase(name), N.MAX_TEXT_W, N.F1), N.TEXT_X, N.NAME_Y);
+  ctx.fillText(clampText(ctx, titleCase(safeText(name)), N.MAX_TEXT_W, N.F1), N.TEXT_X, N.NAME_Y);
   ctx.font = N.F2; ctx.fillStyle = N.ROLE_COLOR;
-  ctx.fillText(clampText(ctx, role, N.MAX_TEXT_W, N.F2), N.TEXT_X, N.ROLE_Y);
+  ctx.fillText(clampText(ctx, safeText(role), N.MAX_TEXT_W, N.F2), N.TEXT_X, N.ROLE_Y);
 }

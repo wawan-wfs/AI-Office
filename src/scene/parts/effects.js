@@ -1,6 +1,7 @@
 // Efek visual WFS Project: layar monitor, dokumen melayang, detail meja, tema waktu.
 // Ditulis ulang: tiap layar = fungsi renderer terpisah dalam tabel, bukan rangkaian if/else.
 import { tvPct } from './tv_canvas.js';
+import { safeText } from './nameplate_spec.js';
 import { fmtUptime } from './projectboard_data.js';
 import { clamp01 } from '../../lib/math_util.js'; // Siklus 503: satu sumber clamp01
 import { AMBER_ACCENT, PINK_ACCENT, SKY_DIVISION, EMERALD_ACCENT, SCENE_MUTED, PURE_TEXT, SCREEN_BG, SCREEN_OK, SCREEN_WARN, SCREEN_INFO, SCREEN_FAIL, SCREEN_PALETTE, FX_PAGE_TINTS, FX_POT_CLAY, FX_LEAF, FX_HP_BAND, FX_HP_CUP } from '../../lib/ui_palette.js';
@@ -106,7 +107,11 @@ export const SCREEN_RENDERERS = {
     const totalN = Number.isFinite(T.total) ? T.total : 0;
     c.fillText(pct + '% · ' + doneN + '/' + totalN + ' task', 6, 30);
     c.globalAlpha = 0.5; c.fillStyle = col;
-    c.fillText((T.review ? 'REVIEW: ' + T.review + '  ' : '') + (T.failed ? 'GAGAL: ' + T.failed : 'on track'), 6, 42);
+    // Siklus 543: review/failed non-numerik (bentuk sah API) tak boleh tampil
+    // sebagai '[object Object]' di layar — koersi via safeText satu sumber.
+    const revN = Number.isFinite(+T.review) ? +T.review : safeText(T.review);
+    const failN = Number.isFinite(+T.failed) ? +T.failed : safeText(T.failed);
+    c.fillText((T.review ? 'REVIEW: ' + revN + '  ' : '') + (T.failed ? 'GAGAL: ' + failN : 'on track'), 6, 42);
     if (Math.sin(t * 2.5) > 0) { c.globalAlpha = 0.9; c.fillStyle = SCREEN_OK; c.fillRect(w - 11, 6, 5, 5); } // dot live
   },
   // Dashboard sistem meja lead (monitor kedua, siklus 531): 4 baris metrik

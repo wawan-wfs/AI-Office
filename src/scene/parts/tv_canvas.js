@@ -4,6 +4,7 @@
 import { parseTimestampMs, resolveNow } from '../../lib/kanban_date.js'
 import { fmtStampId } from '../../lib/format_time.js'
 import { TASK_STATUS_COLORS } from '../../lib/task_status_colors.js'
+import { safeText } from './nameplate_spec.js'
 import { AMBER_ACCENT, SCENE_MUTED, TV_BG_COLOR, TV_DIM_COLOR, TV_BAR_TRACK, LB_TEXT, GREEN_ACCENT } from '../../lib/ui_palette.js';
 
 // Warna palet & koordinat layout (satu sumber kebenaran untuk render & test).
@@ -22,9 +23,12 @@ const TV_DIM = TV_DIM_COLOR;
 
 // Berapa baris status (GAGAL/REVIEW) yang tampil, dan X untuk kolom kedua.
 export function statusRows(T){
+  // Siklus 544: anti-poisoning — nilai non-numerik di-koersi safeText satu sumber
+  // (numerik tetap utuh); dulu 'GAGAL: '+T.failed MENTAH → '[object Object]'.
+  const num = v => { if (v == null || typeof v === 'object' || typeof v === 'symbol' || typeof v === 'function') return safeText(v); const n = +v; return Number.isFinite(n) ? String(n) : safeText(v); };
   const rows=[];
-  if(T.failed)rows.push({color:TV_RED,x:12,text:'GAGAL: '+T.failed});
-  if(T.review)rows.push({color:TV_BLUE,x:T.failed?90:12,text:'REVIEW: '+T.review});
+  if(T.failed)rows.push({color:TV_RED,x:12,text:'GAGAL: '+num(T.failed)});
+  if(T.review)rows.push({color:TV_BLUE,x:T.failed?90:12,text:'REVIEW: '+num(T.review)});
   return rows;
 }
 
@@ -106,7 +110,7 @@ export function drawTvDashboard(ctx,data,opts={}){
   // agents
   ctx.fillStyle=TV_BLUE;ctx.fillText('AGENT',12,120);
   ctx.fillStyle=TV_GREEN;
-  ctx.fillText(AG.map(a=>a.name+(a.status==='Up'?'●':'○')).join(' ')||'-',56,120);
+  ctx.fillText(AG.map(a=>safeText(a.name)+(a.status==='Up'?'●':'○')).join(' ')||'-',56,120);
   ctx.fillStyle=TV_DIM;ctx.font='9px monospace';
   ctx.fillText('update '+(fmtStampId(stampTs) ?? ''),12,138);
   // Siklus 529: badge agen on-site (paritas layar lobi 528) — digambar di baris

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { api } from '../lib/api'
-import { clip, normalizeClipText, normalizeClipText as normErr } from '../lib/clip'
+import { clip, normalizeClipText, normalizeClipText as normPresetLabel, normalizeClipText as normErr } from '../lib/clip'
 import { useModalFlag } from '../lib/modal'
 import { useDialogA11y, useEscapeClose, useVisibilityPoll, useWindowEvent } from '../lib/dialogA11y'
 import { parseFileList } from '../lib/files'
@@ -224,7 +224,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     setSelectedTag(newPreset.tags)
     setShowPresetCreator(false)
     setPresetFormName('')
-    if (onFlash) onFlash(`Preset kustom "${newPreset.label}" berhasil disimpan`)
+    if (onFlash) onFlash(`Preset kustom "${normPresetLabel(newPreset.label)}" berhasil disimpan`)
     sfx.playSelect()
   }, [presetFormName, presetFormTags, presetFormIcon, presetFormColor, customPresets, onFlash])
 
@@ -300,7 +300,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     setDivision(newPreset.key)
     setShowDivPresetCreator(false)
     setDivPresetFormName('')
-    if (onFlash) onFlash(`Preset divisi kustom "${newPreset.label}" berhasil disimpan`)
+    if (onFlash) onFlash(`Preset divisi kustom "${normPresetLabel(newPreset.label)}" berhasil disimpan`)
     sfx.playSelect()
   }, [divPresetFormName, divPresetFormDivisions, divPresetFormIcon, divPresetFormColor, customDivPresets, onFlash])
 
@@ -424,7 +424,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     runInFlight.current = new Set(runInFlight.current).add(t.id)
     try {
       await api(`tasks/${t.id}/run`, { method: 'POST', body: {} })
-      onFlash(`Task #${t.id} dijalankan`); load()
+      onFlash(`Task #${normalizeClipText(t.id)} dijalankan`); load()
     } catch (e) { onFlash(normErr(e.message) || 'Gagal menjalankan task', true) } finally {
       runInFlight.current = new Set(runInFlight.current); runInFlight.current.delete(t.id)
     }
@@ -454,7 +454,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
     statusInFlight.current = new Set(statusInFlight.current).add(task.id)
     api(`tasks/${task.id}/status`, { method: 'PATCH', body: { status: persistedStatus } })
       .catch(e => {
-        if (onFlash) onFlash(`Gagal memindahkan task #${task.id}: ${normErr(e.message) || 'server menolak'}`, true)
+        if (onFlash) onFlash(`Gagal memindahkan task #${normalizeClipText(task.id)}: ${normErr(e.message) || 'server menolak'}`, true)
       })
       .finally(() => {
         statusInFlight.current = new Set(statusInFlight.current); statusInFlight.current.delete(task.id)
@@ -827,7 +827,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                       aria-label={`Pindahkan task #${normalizeClipText(sel.id)} ke kolom ${normalizeClipText(col.label)}`}
                     >
                       <span aria-hidden="true">{col.icon}</span>
-                      <span>{col.label}</span>
+                      <span>{normalizeClipText(col.label)}</span>
                     </button>
                   )
                 })}
@@ -1050,7 +1050,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                           title={div.key === 'all' ? 'Tampilkan semua divisi' : `Filter ${normalizeClipText(div.fullName || div.label)}: ${div.count} task (${div.done || 0} selesai)`}
                         >
                           <span className="div-chip-dot" style={{ background: div.color }} aria-hidden="true" />
-                          <span className="div-chip-label">{div.label}</span>
+                          <span className="div-chip-label">{normalizeClipText(div.label)}</span>
                           <span className="div-chip-count">
                             {div.count}
                           </span>
@@ -1103,7 +1103,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             aria-label={`Preset ${normalizeClipText(preset.label)}: ${count} task`}
                           >
                             <span className="div-preset-icon">{preset.icon}</span>
-                            <span className="div-preset-label">{preset.label}</span>
+                            <span className="div-preset-label">{normalizeClipText(preset.label)}</span>
                             <span className="div-preset-count">{count}</span>
                           </button>
                           {preset.isCustom && (
@@ -1269,7 +1269,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         aria-label={`Filter tag ${normalizeClipText(item.label)}: ${item.count} task`}
                       >
                         <span className="task-tag-chip-hash" aria-hidden="true">#</span>
-                        <span className="task-tag-chip-name">{item.label}</span>
+                        <span className="task-tag-chip-name">{normalizeClipText(item.label)}</span>
                         <span className="task-tag-chip-count">{item.count}</span>
                       </button>
                     )
@@ -1320,7 +1320,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                             aria-label={`Preset ${normalizeClipText(p.label)}: ${p.count} task`}
                           >
                             <span className="task-preset-icon" aria-hidden="true">{p.icon}</span>
-                            <span className="task-preset-label">{p.label}</span>
+                            <span className="task-preset-label">{normalizeClipText(p.label)}</span>
                             {p.count > 0 && <span className="task-preset-count">{p.count}</span>}
                           </button>
                           <button
@@ -1347,7 +1347,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                         aria-label={`Preset ${normalizeClipText(p.label)}: ${p.count} task`}
                       >
                         <span className="task-preset-icon" aria-hidden="true">{p.icon}</span>
-                        <span className="task-preset-label">{p.label}</span>
+                        <span className="task-preset-label">{normalizeClipText(p.label)}</span>
                         {p.count > 0 && <span className="task-preset-count">{p.count}</span>}
                       </button>
                     )
@@ -1540,7 +1540,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                       >
                         <div className="kanban-col-head" style={{ borderTop: `3px solid ${col.color}` }}>
                           <span className="kanban-col-icon" aria-hidden="true">{col.icon}</span>
-                          <span className="kanban-col-title">{col.label}</span>
+                          <span className="kanban-col-title">{normalizeClipText(col.label)}</span>
                           <span className="kanban-col-count" style={{ background: col.bg, color: col.color }}>{colTasks.length}</span>
                         </div>
                         <div

@@ -5,6 +5,7 @@
 
 import { SCENE_NAME_TO_ID } from './running_tasks.js';
 import { normalizeClipText } from '../../lib/clip.js';
+import { safeText } from './nameplate_spec.js';
 
 // Dialog & frasa agent diekstrak murni (tanpa THREE/canvas) agar bisa di-unit-test.
 export const chatPhrases=[
@@ -138,7 +139,7 @@ export function pickCollab(ad, agentData){
 // terpotong tengah — pola sama dengan clip() papan proyek. Fallback: potong
 // apa adanya bila kata tunggal sangat panjang / tidak ada spasi yang membantu.
 export const clampBubbleText=(text)=>{
-  let t=String(text);
+  let t=safeText(text); // siklus 542: objek/array → '', bukan '[object Object]'
   if(t.length<=32)return t;
   const head=t.slice(0,31);
   const sp=head.lastIndexOf(' ');

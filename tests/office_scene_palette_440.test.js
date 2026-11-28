@@ -20,7 +20,8 @@ describe('siklus 440 — founder palette satu sumber', () => {
   });
   it('pemakaian di titik asal', () => {
     expect(src).toContain('color:RC_FOUNDER_ACCENT,hex:RC_FOUNDER_HEX');
-    expect(src).toContain('agent.hex || RC_FOUNDER_FALLBACK_HEX');
+    // siklus 537: fallback label kini via agentHexSafe() satu sumber (ui_palette)
+    expect(src).toContain('agentHexSafe(agent)');
     expect(pal).toMatch(/export const RC_FOUNDER_HEX = '#F59E0B'/);
   });
   it('0 literal founder/fallback tersisa di OfficeScene', () => {
