@@ -58,6 +58,7 @@ export function applyPollResult(tr, result, now = Date.now()) {
 }
 
 import { durLabel } from './duration_label.js'
+import { normalizeClipText } from './clip.js'
 export { durLabel } // satu sumber "X dtk/mnt lalu" (siklus 374)
 
 // Ringkasan chip HUD dari tracker + jam sekarang. Selalu ada label yang aman
@@ -73,8 +74,12 @@ export function connectionBadge(tr, now = Date.now()) {
     const ago = durLabel(Math.floor(age / 1000)) ?? '0 dtk lalu'
     return { state: 'stale', label: `Sinkron ${ago}`, detail: `Polling gagal — data terakhir ${ago}`, tone: 'warn' }
   }
-  // 'down' atau tracker kosong sebelum sukses pertama
-  return { state: 'down', label: 'Terputus', detail: t.lastError ? `Gateway tak terjangkau (${t.lastError})` : 'Gateway tak terjangkau', tone: 'err' }
+  // 'down' atau tracker kosong sebelum sukses pertama.
+  // Siklus 563 — ANTI-POISONING: lastError bentuk sah non-string (objek
+  // Error, {message}, array) dari catch gateway → '[object Object]' di
+  // detail chip HUD; dinormalisasi satu sumber (paritas 508).
+  const errText = t.lastError != null ? normalizeClipText(t.lastError) : null
+  return { state: 'down', label: 'Terputus', detail: errText ? `Gateway tak terjangkau (${errText})` : 'Gateway tak terjangkau', tone: 'err' }
 }
 
 // Delay poll berikutnya (ms). healthyMs: cadence sehat kustom per-pemanggil —

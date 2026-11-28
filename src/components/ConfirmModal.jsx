@@ -2,6 +2,7 @@ import React, { useRef, useCallback, useEffect } from 'react'
 import { useDialogA11y } from '../lib/dialogA11y'
 import { useModalFlag } from '../lib/modal'
 import { IconClose } from './Icons'
+import { normalizeClipText } from '../lib/clip.js'
 import { TASK_STATUS_COLORS } from '../lib/task_status_colors.js'
 import { PURE_TEXT } from '../lib/ui_palette.js';
 
@@ -14,6 +15,7 @@ export default function ConfirmModal({ show, title, text, confirmLabel = 'Ya, la
   useDialogA11y({ open: show, onClose: cancelViaA11y, ref: box })
   if (!show) return null
   const textId = text ? 'cf-d' : undefined
+  const okLabel = normalizeClipText(confirmLabel) || 'Ya, lanjut'
   return (
     <div className="modal-scrim" role="presentation" onClick={onCancel}>
       <div ref={box} className="modal" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" aria-describedby={textId} onClick={e => e.stopPropagation()}>
@@ -21,11 +23,11 @@ export default function ConfirmModal({ show, title, text, confirmLabel = 'Ya, la
           <IconClose size={16} />
           <span className="sr-only">✕</span>
         </button>
-        <h3 id="cf-t" style={{ paddingRight: 32 }}>{title}</h3>
-        <p id="cf-d">{text}</p>
+        <h3 id="cf-t" style={{ paddingRight: 32 }}>{normalizeClipText(title)}</h3>
+        <p id="cf-d">{normalizeClipText(text)}</p>
         <div className="modal-actions">
           <button type="button" className="btn" onClick={onCancel}>Batal</button>
-          <button type="button" className="btn primary" style={danger ? { background: TASK_STATUS_COLORS.failed, color: PURE_TEXT } : null} disabled={busy} onClick={onConfirm} autoFocus>{busy ? 'Memproses…' : confirmLabel}</button>
+          <button type="button" className="btn primary" style={danger ? { background: TASK_STATUS_COLORS.failed, color: PURE_TEXT } : null} disabled={busy} onClick={onConfirm} autoFocus>{busy ? 'Memproses…' : okLabel}</button>
         </div>
       </div>
     </div>

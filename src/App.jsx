@@ -1030,7 +1030,7 @@ export default function App() {
         title={confirm === 'pause' ? 'Jeda semua task?' : 'Lanjutkan semua task?'}
         text={confirm === 'pause'
           ? 'Semua task yang sedang berjalan dihentikan dan dikembalikan ke status pending. Task baru tidak akan jalan sampai Anda menekan Lanjut.'
-          : `${pendingCount} task (pending/review/failed) akan dijalankan. Tiap task memanggil model AI dan memakai kuota API. Lanjutkan?`}
+          : `${String(pendingCount)} task (pending/review/failed) akan dijalankan. Tiap task memanggil model AI dan memakai kuota API. Lanjutkan?`}
         confirmLabel={confirm === 'pause' ? 'Ya, jeda' : 'Ya, jalankan'}
         onConfirm={doConfirm} onCancel={closeConfirm} />
 

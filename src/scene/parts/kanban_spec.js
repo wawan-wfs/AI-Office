@@ -5,6 +5,7 @@ import { TEAMS, findTeamByRole, findTeamByAgent, computeTeamStats } from './team
 import { parseFileList } from '../../lib/files.js';
 import { isTaskInDateRange, DATE_RANGE_PRESETS, parseTaskTimestamp } from '../../lib/kanban_date.js';
 import { taskStatusColor } from '../../lib/task_status_colors.js';
+import { normalizeClipText } from '../../lib/clip.js';
 import {
   KANBAN_COLUMN_BG, KANBAN_PRIORITY_COLORS, KANBAN_PRIORITY_BG,
   KANBAN_TAG_PALETTE, KANBAN_ROLE_COLORS, KANBAN_TAG_PRESET_COLORS,
@@ -854,7 +855,9 @@ export function normalizeDivisionList(input, customPresets = []) {
 
 export function normalizeCustomDivPreset(rawPreset) {
   if (!rawPreset || typeof rawPreset !== 'object') return null;
-  const label = String(rawPreset.label || rawPreset.name || '').trim();
+  // Siklus 564 — ANTI-POISONING: String(label) mentah pada bentuk sah non-string
+  // menghasilkan '[object Object]' yang lolos validasi. Normalisasi dulu.
+  const label = normalizeClipText(rawPreset.label || rawPreset.name).trim();
   if (!label) return null;
 
   const rawDivs = rawPreset.divisions || rawPreset.divisionKeys || rawPreset.keys;
@@ -868,7 +871,7 @@ export function normalizeCustomDivPreset(rawPreset) {
     key = `div-${key}`;
   }
 
-  const icon = typeof rawPreset.icon === 'string' && rawPreset.icon.trim() ? rawPreset.icon.trim() : '🏢';
+  const icon = normalizeClipText(rawPreset.icon).trim() || '🏢';
   const color = typeof rawPreset.color === 'string' && /^#[0-9a-fA-F]{6}$/i.test(rawPreset.color.trim())
     ? rawPreset.color.trim()
     : KANBAN_DIVISION_COLORS.engineering;
@@ -1041,7 +1044,12 @@ export function formatDivisionFilterSummary(divisionFilter, customPresets = []) 
   if (!divisionFilter || divisionFilter === 'all') return 'Semua Divisi';
   const preset = getDivisionPreset(divisionFilter, customPresets);
   if (preset) {
-    return `${preset.icon} ${preset.label} (${preset.divisions.length} divisi)`;
+    // Siklus 564 — ANTI-POISONING: custom preset bisa berisi label/icon non-string
+    // (localStorage/API bentuk sah) → '[object Object]' di chip filter divisi.
+    const icon = normalizeClipText(preset.icon) || '🏢';
+    const label = normalizeClipText(preset.label);
+    const divCount = Number(preset.divisions && preset.divisions.length) || 0;
+    return `${icon} ${label} (${divCount} divisi)`;
   }
   const list = normalizeDivisionList(divisionFilter, customPresets);
   if (list.length === 1) {

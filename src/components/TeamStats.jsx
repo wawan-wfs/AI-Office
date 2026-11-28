@@ -202,7 +202,7 @@ export default function TeamStats() {
                 <div style={{ maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {data.slice(-8).reverse().map(t => (
                     <button
-                      key={t.id}
+                      key={`t-${normalizeClipText(t.id)}`}
                       type="button"
                       className="taskrow"
                       style={{

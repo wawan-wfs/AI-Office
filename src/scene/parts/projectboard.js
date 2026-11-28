@@ -3,7 +3,7 @@
 // diperbarui otomatis setiap 60 detik. Jika fetch gagal → fallback ke data terakhir.
 // Modul murni-canvas; dipasang di OfficeScene dengan satu pemanggilan.
 
-import { computePct, clip, cardY, CARD_H, subtitle as subLine, bannerParts, bannerLayout, columnItems, cardMeta, stripLayout, fpsSegment, STRIP_GAP, STRIP_LEFT, STRIP_RIGHT } from './projectboard_data.js'
+import { computePct, clip, cardY, CARD_H, subtitle as subLine, bannerParts, bannerLayout, columnItems, cardMeta, formatCardTitle, stripLayout, fpsSegment, STRIP_GAP, STRIP_LEFT, STRIP_RIGHT } from './projectboard_data.js'
 import { applyPollResult, connectionBadge, nextPollDelay, POLL_SCENE_HEALTHY_MS, CONN_TICK_MS } from '../../lib/connection_spec.js'
 import { fetchWithTimeout } from '../../lib/fetch_timeout.js'
 import { parseTimestampMs } from '../../lib/kanban_date.js'
@@ -130,7 +130,7 @@ export function createProjectBoard(office, THREE) {
         g.strokeStyle = cardCol; g.lineWidth = 4; roundRect(x + 22, y, 426, CARD_H, 10); g.stroke()
         g.fillStyle = PURE_TEXT
         g.font = '600 26px sans-serif'; g.textAlign = 'left'
-        const title = meta ? meta.formattedTitle : ('#' + r.id + ' ' + clip((r.title || ''), 30))
+        const title = meta ? meta.formattedTitle : formatCardTitle(r, 30)
         g.fillText(title, x + 44, y + 33, 392)
         g.fillStyle = cardCol; g.font = '600 22px sans-serif'
         const stText = meta ? meta.statusText : (r.status === 'done' ? '✓ selesai' : r.status)

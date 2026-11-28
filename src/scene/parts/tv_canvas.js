@@ -100,7 +100,9 @@ export function drawTvDashboard(ctx,data,opts={}){
   const grd=ctx.createLinearGradient(12,0,244,0);grd.addColorStop(0,TV_GREEN);grd.addColorStop(1,TV_BLUE);
   ctx.fillStyle=grd;ctx.fillRect(12,36,Math.max(6,232*pct/100),12);
   ctx.fillStyle=LB_TEXT;ctx.font='bold 12px sans-serif';
-  ctx.fillText(pct+'% · '+T.done+'/'+T.total+' task',12,62);
+  // Siklus 560: done/total non-numerik → safeText, bukan '[object Object]'.
+  const cnt = v => { if (v == null || typeof v === 'object' || typeof v === 'function' || typeof v === 'symbol') return safeText(v); const n = +v; return Number.isFinite(n) ? String(n) : safeText(v); };
+  ctx.fillText(pct+'% · '+cnt(T.done)+'/'+cnt(T.total)+' task',12,62);
   ctx.font='11px monospace';
   for(const r of statusRows(T)){ctx.fillStyle=r.color;ctx.fillText(r.text,r.x,80);}
   // SaaS

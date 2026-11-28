@@ -2759,7 +2759,9 @@ window.addEventListener('keydown',onKey);
       const teamObj = findTeamByKey(teamKey);
       if (teamObj) {
         __sound.playSelect();
-        createBubble(ft.x, ft.y + 1.8, ft.z, '“Pod ' + teamObj.name + ' (Lt. ' + teamObj.floor + ')”', teamObj.hex || teamObj.color || TASK_STATUS_COLORS.done);
+        // Siklus 561: bubble fokus pod — safeText satu sumber (paritas 542);
+        // hex tim statis tetap diberi fallback warna status.
+        createBubble(ft.x, ft.y + 1.8, ft.z, '“Pod ' + safeText(teamObj.name) + ' (Lt. ' + safeText(teamObj.floor) + ')”', teamObj.hex || teamObj.color || TASK_STATUS_COLORS.done);
       }
       // Siklus 145→146: kamera melompat ke pod tim (L1/L2/L3 sesuai spesifikasi
       // tim) — FloorNavigator harus ikut, dulu nav tetap di lantai lama

@@ -162,7 +162,7 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                     {projects === null && <p>Data proyek tidak tersedia.</p>}
                     {projects?.length === 0 && <div className="skeleton">Belum ada proyek.</div>}
                     {(projects || []).slice(0, 6).map(p => (
-                      <button type="button" key={p.id} className="dash-row" onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}
+                      <button type="button" key={`p-${normalizeClipText(p.id)}`} className="dash-row" onClick={() => { setOpen(false); onOpenProjects && onOpenProjects() }}
                         aria-label={`Proyek ${normalizeClipText(p.name)} status ${normalizeSecondary(p.status)}`}
                         title={p.preview_url ? `Preview: ${normalizeClipText(p.preview_url)}` : 'Belum ada sandbox'}>
                         <span className="dash-row-t">
@@ -178,9 +178,9 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                     {tasks === null && <p>Data task tidak tersedia.</p>}
                     {tasks?.length === 0 && <div className="skeleton">Belum ada task. Klik ＋ Task.</div>}
                     {(tasks || []).slice(0, 7).map(t => (
-                      <button type="button" key={t.id} className="dash-row" style={{ borderLeft: `3px solid ${taskStatusColor(t.status) || TASK_STATUS_COLORS.review}` }}
+                      <button type="button" key={`t-${normalizeClipText(t.id)}`} className="dash-row" style={{ borderLeft: `3px solid ${taskStatusColor(t.status) || TASK_STATUS_COLORS.review}` }}
                         onClick={() => { setOpen(false); onOpenBoard && onOpenBoard() }}
-                        aria-label={`Task ${t.id}: ${normalizeClipText(t.title)} status ${normalizeSecondary(t.status)}`}>
+                        aria-label={`Task ${normalizeClipText(t.id)}: ${normalizeClipText(t.title)} status ${normalizeSecondary(t.status)}`}>
                         <span className="dash-row-t">{clip(t.title, 30)}</span>
                         <span className="dash-row-s">{normalizeSecondary(t.agent_id) || normalizeSecondary(t.status)}</span>
                       </button>
@@ -215,7 +215,7 @@ export default function Dashboard({ onOpenBoard, onOpenProjects }) {
                   {/* Siklus 573: aria-live polite — baris log baru diumumkan
                       ke screen reader tanpa memindahkan fokus. */}
                   {(Array.isArray(stats.logs) ? stats.logs : []).slice(0, 8).map(l => (
-                    <div key={l.id} className="dash-log-row">
+                    <div key={`l-${normalizeClipText(l.id)}`} className="dash-log-row">
                       <span className="dash-log-t">{fmtTime(l.timestamp)}</span>
                       <span>{clip(normalizeClipText(l.message), 86)}</span>
                     </div>

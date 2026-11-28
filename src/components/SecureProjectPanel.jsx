@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { fmtMicroUSD } from '../lib/format_time.js'
 import { fetchWithTimeout } from '../lib/fetch_timeout.js' // siklus 505: satu sumber jaringan dgn deadline
+import { normalizeClipText } from '../lib/clip.js'
 
 // Siklus 518 — ANTI-POISONING: field non-string (bentuk sah API) dirender
 // mentah sebagai React child → "Objects are not valid as a React child"
@@ -121,16 +122,16 @@ export default function SecureProjectPanel() {
         }, { 'Idempotency-Key': briefKey.current })
         briefKey.current = null
         setTaskId(String(result.task_id))
-        setNotice('Brief tersimpan sebagai task #' + result.task_id +
-          ', job ' + result.job_id + '. Menunggu worker terotorisasi & Docker QA; preview belum dipublikasikan.')
+        setNotice('Brief tersimpan sebagai task #' + normalizeSecondary(result.task_id) +
+          ', job ' + normalizeSecondary(result.job_id) + '. Menunggu worker terotorisasi & Docker QA; preview belum dipublikasikan.')
       } else if (kind === 'enqueue') {
         const result = await request('/tasks/' + encodeURIComponent(taskId) + '/enqueue', 'POST', ctrl)
-        setNotice('Task masuk antrean: ' + result.job_id + '. Belum berarti sedang dieksekusi.')
+        setNotice('Task masuk antrean: ' + normalizeSecondary(result.job_id) + '. Belum berarti sedang dieksekusi.')
       } else if (kind === 'evidence') {
         if (!SAFE_ID.test(value)) throw new Error('Job ID tidak valid.')
         const result = await request('/jobs/' + encodeURIComponent(value) + '/artifacts', 'GET', ctrl)
         setEvidence(result)
-        setNotice('Manifest QA terverifikasi untuk job ' + value + '. Tidak berarti preview aplikasi aktif.')
+        setNotice('Manifest QA terverifikasi untuk job ' + normalizeSecondary(value) + '. Tidak berarti preview aplikasi aktif.')
       } else if (kind === 'preview') {
         const result = await request('/preview/api/health', 'GET', ctrl)
         setPreviewCheck(result)
@@ -142,7 +143,7 @@ export default function SecureProjectPanel() {
       } else if (kind === 'cancel') {
         if (!SAFE_ID.test(value)) throw new Error('Job ID tidak valid.')
         const result = await request('/jobs/' + encodeURIComponent(value) + '/cancel', 'POST', ctrl)
-        setNotice('Permintaan pembatalan tersimpan: ' + result.status)
+        setNotice('Permintaan pembatalan tersimpan: ' + normalizeSecondary(result.status))
       }
       const [j, b, e] = await Promise.all([
         request('/jobs', 'GET', ctrl),
@@ -224,8 +225,8 @@ export default function SecureProjectPanel() {
           {notice && <p className="wfs-secure-notice" role="status">{notice}</p>}
           {budget && <div className="wfs-secure-budget" aria-label="Budget proyek">
             <b>{budget.approved ? 'Approved' : 'Belum disetujui'}</b>
-            <span>Cap: {fmtMicroUSD(budget.cap_microusd) ?? '—'} µUSD</span>
-            <span>Sisa: {fmtMicroUSD(budget.remaining_microusd) ?? '—'} µUSD</span>
+            <span>Cap: {normalizeSecondary(fmtMicroUSD(budget.cap_microusd) ?? '—')} µUSD</span>
+            <span>Sisa: {normalizeSecondary(fmtMicroUSD(budget.remaining_microusd) ?? '—')} µUSD</span>
           </div>}
           {jobs !== null && <div className="wfs-secure-inspector" aria-label="Inspeksi backend nyata">
             <div>
@@ -237,19 +238,25 @@ export default function SecureProjectPanel() {
               </button>
             </div>
             {previewCheck && <p role="status">
-              Preview health: {previewCheck.ok ? 'server terhubung' : 'server belum sehat'}.
+              Preview health: {normalizeSecondary(previewCheck.ok ? 'server terhubung' : 'server belum sehat')}.
               Ini bukan preview kode AI yang baru dibuat.
             </p>}
             {invoiceCheck && <p role="status">
-              Rekonsiliasi lokal: {invoiceCheck.matched} cocok;
-              {' '}{invoiceCheck.requires_review} butuh pemeriksaan.
-              Invoice provider resmi: {invoiceCheck.provider_invoice_verified ? 'terverifikasi' : 'belum diverifikasi'}.
+              Rekonsiliasi lokal: {normalizeSecondary(invoiceCheck.matched)} cocok;
+              {' '}{normalizeSecondary(invoiceCheck.requires_review)} butuh pemeriksaan.
+              Invoice provider resmi: {normalizeSecondary(invoiceCheck.provider_invoice_verified ? 'terverifikasi' : 'belum diverifikasi')}.
             </p>}
             {evidence && <div aria-label="Manifest QA terverifikasi">
               <strong>Hasil QA: {normalizeSecondary(evidence.tests_passed)} tes lulus</strong>
-              {evidence.files.map(f => (
-                <p key={f.path}><code>{f.path}</code> · SHA256: <code>{f.sha256}</code></p>
-              ))}
+              {Array.isArray(evidence.files) && evidence.files.map(f => {
+                // Siklus 572: path/sha256 dari manifest API bisa berupa objek
+                // bentuk sah → '[object Object]' di UI + duplicate key React.
+                const fpath = normalizeSecondary(f && f.path)
+                const fsha = normalizeSecondary(f && f.sha256)
+                return (
+                  <p key={fpath || fsha || 'file'}><code>{fpath}</code> · SHA256: <code>{fsha}</code></p>
+                )
+              })}
             </div>}
           </div>}
           {jobs !== null && (
@@ -265,7 +272,7 @@ export default function SecureProjectPanel() {
               <div className="wfs-secure-jobs" aria-label="Daftar antrean nyata">
                 {jobs.length === 0 && <p>Belum ada job pada proyek ini.</p>}
                 {jobs.slice(0, 20).map(job => (
-                  <div key={job.id} className="wfs-secure-job">
+                  <div key={`job-${normalizeClipText(job.id)}`} className="wfs-secure-job">
                     <div><b>{normalizeSecondary(job.role)}</b> <span>{normalizeSecondary(job.status)}</span>
                       <small>{normalizeSecondary(job.id)}</small></div>
                     {job.status === 'completed' &&

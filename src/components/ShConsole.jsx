@@ -3,6 +3,7 @@
 // Tab: Overview | Projects | Tasks | Agents | Project Baru.
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { normalizeClipText, normalizeClipText as normErr } from '../lib/clip.js'
+import { isSafeHttpUrl } from '../lib/url_safe.js'
 import { api } from '../lib/api'
 import { useDialogA11y, useVisibilityPoll } from '../lib/dialogA11y'
 import { useModalFlag } from '../lib/modal'
@@ -376,7 +377,7 @@ export default function ShConsole({ show, onClose }) {
     if (bulkInFlight.current) return
     const project = tFilter || null
     const selected = projects.find((p) => String(p.id) === project)
-    const scope = confirmedScope || (project ? `${selected?.name || 'Project'} (#${project})` : 'SEMUA PROJECT')
+    const scope = normalizeClipText(confirmedScope || (project ? `${normalizeClipText(selected?.name) || 'Project'} (#${normalizeClipText(project)})` : 'SEMUA PROJECT'))
     if (!confirmedScope) { setBulkConfirm(scope); return } // siklus 413: konfirmasi via ConfirmModal aksesibel (dialog bawaan browser dihapus)
     bulkInFlight.current = true
     setBulkBusy(true)
@@ -464,14 +465,14 @@ export default function ShConsole({ show, onClose }) {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <select style={STYLE.select} aria-label="Filter project" disabled={bulkBusy} value={tFilter} onChange={(e) => setTFilter(e.target.value)}>
                     <option value="">Semua project</option>
-                    {projects.map((p) => <option key={p.id} value={p.id}>{normalizeClipText(p.name || p.title)}</option>)}
+                    {projects.map((p) => <option key={`p-${normalizeClipText(p.id)}`} value={p.id}>{normalizeClipText(p.name || p.title)}</option>)}
                   </select>
                 </div>
                 {tasks.length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Belum ada task.</div>}
                 {tasks.map((t) => (
-                  <div key={t.id} style={STYLE.row}>
+                  <div key={`t-${normalizeClipText(t.id)}`} style={STYLE.row}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: BRIGHT_TEXT }}>#{t.id} {normalizeClipText(t.title)}</div>
+                      <div style={{ color: BRIGHT_TEXT }}>#{normalizeClipText(t.id)} {normalizeClipText(t.title)}</div>
                       <div style={{ fontSize: 12, color: MUTED_TEXT }}>role: {normalizeSecondary(t.role) || '—'} · agent: {normalizeSecondary(t.agent_id) || '—'} · {formatTaskDate(t)}</div>
                     </div>
                     <span style={STYLE.tag}>{normalizeSecondary(t.status)}</span>
@@ -489,7 +490,7 @@ export default function ShConsole({ show, onClose }) {
                 <div style={{ fontWeight: 700, marginBottom: 8 }}>Agents ({agents.length})</div>
                 {agents.length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Belum ada data agent.</div>}
                 {agents.map((a) => (
-                  <div key={a.id} style={STYLE.row}>
+                  <div key={`a-${normalizeClipText(a.id)}`} style={STYLE.row}>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: BRIGHT_TEXT }}>{normalizeClipText(a.name || a.id)}</div>
                       <div style={{ fontSize: 12, color: MUTED_TEXT }}>{normalizeSecondary(a.role)} · Lantai {normalizeSecondary(a.floor)} · {normalizeSecondary(a.model) || '—'}</div>
@@ -504,7 +505,7 @@ export default function ShConsole({ show, onClose }) {
             <div>
               <select style={STYLE.select} aria-label="Pilih project" value={wsId || ''} onChange={(e) => selectWsProject(e.target.value)}>
                 <option value="">— pilih project —</option>
-                {projects.map((p) => <option key={p.id} value={p.id}>{normalizeClipText(p.name || p.title)}</option>)}
+                {projects.map((p) => <option key={`p-${normalizeClipText(p.id)}`} value={p.id}>{normalizeClipText(p.name || p.title)}</option>)}
               </select>
               {!wsId && <div style={{ color: MUTED_TEXT }}>Pilih project untuk melihat workspace.</div>}
               {wsId && (
@@ -526,9 +527,10 @@ export default function ShConsole({ show, onClose }) {
                       // objek tanpa name (null) difilter agar baris kosong tak dirender.
                       if (typeof en !== 'object' || en === null || !en.name) return null;
                       const nm = normalizeClipText(en.name);
-                      const openEntry = () => en.type === 'dir'
-                        ? loadWsFiles(wsId, (wsPath ? wsPath + '/' : '') + en.name)
-                        : openWsFile(wsId, (wsPath ? wsPath + '/' : '') + en.name);
+                      // Siklus 565: jalur path openEntry ikut ternormalisasi — en.name
+                      // objek bentuk sah (localStorage/API) → path '[object Object]'.
+                      const isDir = en.type === 'dir'
+                      const openEntry = () => (isDir ? loadWsFiles : openWsFile)(wsId, (wsPath ? wsPath + '/' : '') + nm)
                       return (
                         <div key={nm} style={{ ...STYLE.row, cursor: 'pointer' }}
                           role="button" tabIndex={0}
@@ -610,9 +612,9 @@ export default function ShConsole({ show, onClose }) {
                 </div>
                 {approvals.length === 0 && <div style={{ color: MUTED_TEXT, fontSize: 13 }}>Tidak ada approval pending.</div>}
                 {approvals.map((a) => (
-                  <div key={a.id} style={{ ...STYLE.row, alignItems: 'flex-start' }}>
+                  <div key={`a-${normalizeClipText(a.id)}`} style={{ ...STYLE.row, alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: BRIGHT_TEXT }}>[{normalizeSecondary(a.action_type)}] project #{a.project_id || '-'}</div>
+                      <div style={{ color: BRIGHT_TEXT }}>[{normalizeSecondary(a.action_type)}] project #{normalizeSecondary(a.project_id) || '-'}</div>
                       <div style={{ fontSize: 12, color: MUTED_TEXT }}>{normalizeSecondary(a.description)}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }}>
@@ -721,7 +723,7 @@ function Projects({ projects, onRefresh, onOpenWorkspace }) {
   return (
     <div>
       {projects.map((p) => (
-        <div key={p.id} style={STYLE.card}>
+        <div key={`p-${normalizeClipText(p.id)}`} style={STYLE.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <b>{normalizeClipText(p.name || p.title)}</b>
             <span style={STYLE.tag}>{normalizeSecondary(p.status) || '—'}</span>
@@ -730,7 +732,12 @@ function Projects({ projects, onRefresh, onOpenWorkspace }) {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" style={STYLE.btnGhost} onClick={() => onOpenWorkspace?.(p.id)} title="Buka workspace project ini">Workspace</button>
             {(p.preview_url || p.direct_url) && (
-              <button type="button" style={STYLE.btn} onClick={() => window.open(p.preview_url || p.direct_url, '_blank')}>Buka Preview ↗</button>
+              // Siklus 577: URL API divalidasi isSafeHttpUrl — skema javascript:/data:
+              // diblokir, non-string tidak dibuka (tidak ada tombol mati yang eksekusi).
+              <button type="button" style={STYLE.btn} onClick={() => {
+                const u = p.preview_url || p.direct_url;
+                if (isSafeHttpUrl(u)) window.open(u, '_blank', 'noopener,noreferrer');
+              }}>Buka Preview ↗</button>
             )}
             <button type="button" style={{ ...STYLE.btn, background: TAB_BG }} onClick={onRefresh}>Refresh</button>
           </div>

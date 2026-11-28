@@ -50,7 +50,11 @@ export function normalizeTaskStatus(status) {
  */
 export function formatTaskId(id) {
   if (id == null) return ''
-  const str = String(id).trim()
+  // Siklus 560: anti-poisoning — id objek/array bentuk sah API → segmen JSON,
+  // bukan '[object Object]' di judul kartu papan 3D.
+  const str = (typeof id === 'object' || typeof id === 'function' || typeof id === 'symbol')
+    ? normalizeClipText(id)
+    : String(id).trim()
   if (!str) return ''
   if (str.startsWith('task-')) {
     return '#' + str.slice(5)

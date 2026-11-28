@@ -113,7 +113,7 @@ export const formatLogText = (items) => {
   const seen = new Set()
   const lines = []
   for (const x of items) {
-    const id = x && x.id !== undefined && x.id !== null ? `#${x.id}` : '[?]'
+    const id = x && x.id !== undefined && x.id !== null ? `#${normalizeClipText(x.id)}` : '[?]'
     const stamp = (x && fmtStampId(x.t)) || (x && x.t) || ''
     // Siklus 516 — ANTI-POISONING: label/status/title non-string (bentuk sah
     // API: status numerik, label objek) → '[object Object]' di teks Salin/unduh.

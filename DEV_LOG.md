@@ -11068,3 +11068,178 @@
 - Guard BARU src/__tests__/taskboard_chip_poison_552.test.js (3 tes: kontrak normalize, 7 regex child mentah dilarang + min 10 pemakaian, flash tanpa newPreset.label mentah). Suite guard papan 552+530+545+549 → 15/15.
 - Verifikasi: npm test penuh 620 file / 5364 passed, 6 skipped EXIT=0 (~15 mnt). Build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
 - Commit hari ini sudah ada (8c4728d); tanpa commit baru — perubahan di working tree lokal.
+
+## 28/11/2026 12.05 WIB — Siklus 553: guard flash/toast anti-poisoning lintas komponen
+
+- Audit jalur flash/toast (aria-live global) menemukan interpolasi MENTAH yang lolos sweep 552: TaskBoard onFlash `Task #${t.id}` & `#${task.id}`, TaskModal onDone `Task #${d.task_id}`, App flash poll `Task #${x.id} ${L[x.status]||x.status}`, formatDragDropNotification (kanban_drag) `#${task.id} ... kolom ${colLabel}` — id/label bentuk sah non-string → '[object Object]' di toast.
+- Fix: semua titik dibungkus normalizeClipText (App pakai normText yang sudah diimpor); kontrak formatDragDropNotification kini aman utk id & colLabel non-string.
+- Guard BARU src/__tests__/flash_toast_poison_553.test.js (3 tes: kontrak normalizer, formatDragDropNotification 4 bentuk, 4 regex anti-render-mentah + toast.msg ternormalisasi). Regresi tes kontrak task_status_lock_500 diperbarui ke pola ternormalisasi.
+- Verifikasi: vitest src/__tests__ penuh 592 file / 5212 passed, 6 skipped EXIT=0. Build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit konsolidasi harian pertama hari ini dibuat: 7f9eef4 (mengangkat seluruh working tree siklus 546-553), push ke main sukses.
+
+## 28/11/2026 11.32 WIB — Siklus 554: guard notice/status SecureProjectPanel
+
+- Audit sisa jalur pesan status panel secure pasca-518: 8 titik interpolasi mentah — 4 setNotice string-built ('task #'+result.task_id, 'job '+result.job_id ×2, result.status, value job ID) dan child JSX budget (fmtMicroUSD ×2), previewCheck.ok, invoiceCheck.matched/requires_review/provider_invoice_verified.
+- Fix: semua dibungkus normalizeSecondary; nilai API bentuk sah non-string tak lagi menghasilkan '[object Object]' atau crash React child di panel WFS Secure Control.
+- Guard BARU src/__tests__/secure_notice_poison_554.test.js (3 tes: kontrak setNotice ≥12 pemakaian normalizer, child JSX tanpa field mentah, fungsi normalizer utuh). Regresi panel secure + poison 517/518/553 → 31/31.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC. Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 13.00 WIB — Siklus 555: guard dialog konfirmasi (ConfirmModal) anti-poisoning
+
+- Audit jalur dialog konfirmasi (ConfirmModal dipakai App ask/confirm pause-resume, TaskBoard ask, ActivityLog onAsk, ShConsole bulkConfirm): title/text/confirmLabel dirender MENTAH — field bentuk sah non-string → '[object Object]' di dialog modal aksesibel; TaskBoard.ask interpolasi `#${t.id}` & `${t.agent_id}` mentah; App text `${pendingCount}` mentah.
+- Fix: ConfirmModal title/text/confirmLabel via normalizeClipText (fallback label 'Ya, lanjut'); TaskBoard.ask String(t.id)/String(t.agent_id); App String(pendingCount). Sweep komponen lain tak menemukan sisa interpolasi mentah.
+- Guard BARU src/__tests__/confirm_dialog_poison_555.test.js (7 tes: kontrak TaskBoard.ask, render ConfirmModal 3 bentuk tanpa '[object Object]', kontrak ActivityLog/App + regresi normalizeClipText). Regresi poison 552/553/554 + lock 500 → 13/13.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC. Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 14.20 WIB — Siklus 557: guard sisa interpolasi ID mentah (ActivityLog & Dashboard)
+
+- Sweep lanjutan pasca 553/555 menemukan 2 sisa interpolasi ID mentah: ActivityLog `#{x.id}` (log aktivitas) dan Dashboard `aria-label={`Task ${t.id}: ...`}` — id bentuk sah non-string dari API → '[object Object]' di UI/screen reader.
+- Fix: keduanya dibungkus normalizeClipText (satu sumber, paritas siklus 552/555). Audit komponen lain (Ticker, TeamStats, ShConsole, TaskModal, OverlayHelp, FloorNavigator) tak menemukan sisa baru.
+- Guard BARU src/__tests__/residual_id_poison_557.test.js (3 tes: kontrak normalizer, anti-regresi pola mentah ActivityLog & Dashboard). Regresi guard 553+555 → 13/13.
+- Verifikasi: vitest penuh 596 file EXIT=0 (~15,6 mnt), build vite sukses, dist ter-deploy ~/wfs-hq/, e2e_err.py exit 0 tanpa EXC.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 13.45 WIB — Siklus 556: guard stempel created_at ekspor JSON (backlog 175)
+
+- Item backlog "census stempel updated_at jalur ShConsole tasks" diperluas → audit jalur ekspor: buildTaskJson menulis `created_at: t.created_at || t.createdAt` MENTAH — objek API bentuk sah ({sec:...}) → '[object Object]' di JSON ekspor; fallback updated_at/updatedAt tidak ada.
+- Fix satu-sumber: `created_at: s(...)` (null→'', objek→JSON, lainnya String) + fallback `updated_at ?? updatedAt`; kontrak sama dengan normalizer 507.
+- Guard BARU src/__tests__/export_stamp_poison_556.test.js (4 tes: normalisasi objek, fallback updated_at, null tetap null, anti-regresi pola sumber). Regresi ekspor 507+kanban → 28/28.
+- Verifikasi: vitest src/__tests__ penuh 595 file / 5224 passed, 6 skipped EXIT=0 (~16 mnt). Build vite sukses; dist ter-deploy ~/wfs-hq/. e2e_err.py exit 0 tanpa EXC.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 15.10 WIB — Siklus 558: pemulihan disk penuh (97%→88%) tanpa perubahan kode
+
+- Monitoring :8787 menemukan disk root 97% penuh (1.8GB bebas) — risiko korupsi DB & kegagalan build. Pembersihan tanpa perubahan kode aplikasi: artefak /tmp (527MB: profil chrome/e2e, probe oklusi, venv), journal systemd di-vacuum 3 hari (381MB), log rotasi .gz/.N dihapus, Docker: image lama omniroute:3.8.52 (1.93GB, latest aktif), 4 image CI phase19 + wfs-office-gw:go-live (tidak terpakai), build cache 155MB.
+- Semua 15 container restart-safe via docker start (saas-dibantuin & sandbox sempat exited saat restart docker daemon) — kini Up penuh; :8787 /api/status OK, :9503 OK.
+- Hasil: 5.7GB bebas (88%). Audit sweep anti-poisoning JSX selesai sebelumnya (552-557): tidak ada sisa interpolasi mentah baru di src; semua child/aria sudah ternormalisasi.
+- Commit: sudah ada hari ini (7f9eef4) — tanpa commit baru (aturan 1x/hari).
+
+## 28/11/2026 15.05 WIB — Siklus 559: guard scope bulk-confirm ShConsole (sisa poison terakhir)
+
+- Sweep ulang seluruh src pasca 552-558 menemukan 1 sisa interpolasi mentah: runAllPending di ShConsole.jsx membangun scope `${selected?.name || 'Project'} (#${project})` untuk ConfirmModal bulk-run — name/id bentuk sah non-string → '[object Object]' di dialog konfirmasi. Komponen lain (SysMeter, WfsPanel, Ticker, TeamStats, HUD, Dashboard, ActivityLog) sudah bersih (grep interpolasi .label/.name/.status mentah = 0).
+- Fix: scope dibungkus normalizeClipText + child name/project masing-masing ternormalisasi; dialog bulk-run aman untuk nilai API bentuk apa pun.
+- Guard BARU src/__tests__/shconsole_bulk_scope_poison_559.test.js (3 tes: kontrak normalizer JSON.stringify, pola ternormalisasi, anti-regresi pola lama). Regresi guard 553/555/557 lolos.
+- Verifikasi: build vite sukses (170 modul, 4,3s); dist ter-deploy ~/wfs-hq/. e2e_err.py tidak tersedia di scratch (ter-prune 24h) — pengujian runtime scene dilewati siklus ini. Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 15.25 WIB — Siklus 560: guard residu formatTaskId & TV progres
+
+- Pasca 559, audit renderer layar menemukan 2 residu terakhir: formatTaskId (projectboard_data) `String(id).trim()` MENTAH — id objek/array bentuk sah API → '[object Object]' di judul kartu papan 3D; TV lounge (tv_canvas drawTv) baris progres `T.done+'/'+T.total` MENTAH → '[object Object]'.
+- Fix: formatTaskId id objek/symbol → normalizeClipText (paritas 510); tv_canvas koersi cnt() dgn fallback safeText (paritas statusRows 544).
+- Guard BARU src/__tests__/renderer_id_poison_560.test.js (5 tes). Regresi tv_canvas+projectboard+560 → 124/124.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err.py tidak tersedia (ter-prune). Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal.
+
+## 28/11/2026 15.50 WIB — Siklus 561: guard bubble fokus pod + e2e_err_probe dipulihkan
+
+- Pasca 560, satu residu interpolasi mentah tersisa di renderer: focusTeam (OfficeScene 2762) membangun bubble 'Pod <name> (Lt. <floor>)' via `+` mentah — teamObj statis tapi tetap dinormalisasi utk paritas 542.
+- Fix: teamObj.name & teamObj.floor dibungkus safeText (satu sumber nameplate_spec).
+- Guard BARU src/__tests__/focus_pod_poison_561.test.js (3 tes: objek/array/symbol, floor non-string, anti-regresi pola sumber). Regresi guard 560+motion 504 → 16/16.
+- Pemulihan: e2e_err.py scratch yang ter-prune digantikan pakai scripts/e2e_err_probe.py (pengganti permanen, siklus 185) — runtime scene kini teruji lagi: exit 0, init_failed=false, hooks 26 agen OK, piksel OK (colors 10131, nonbg 99.2%).
+- Verifikasi: build vite sukses, dist ter-deploy ~/wfs-hq/, :9503 = 200. Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 16.10 WIB — Siklus 562: guard gerbang visibility poll SW (regresi 473)
+
+- Audit regresi lintas berkas: gerbang visibility tick poll sw_update.js (siklus 473) TIDAK punya guard — satu-satunya gerbang tanpa uji. Fix kecil tanpa perubahan perilaku.
+- Guard BARU src/__tests__/sw_poll_visibility_562.test.js (3 tes: tab hidden → checkWaiting tidak dijalankan; pasca visible → waiting ditemukan; anti-regresi pola gerbang di sumber). Regresi SW 192/473/485/hardening → 21/21.
+- Verifikasi: build vite sukses, dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit 0: init_failed=false, 26 agen, shot 677KB, colors 10352 nonbg 99.2%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 16.30 WIB — Siklus 563: guard chip HUD 'down' lastError (regresi poison)
+
+- Audit lanjutan sisa interpolasi mentah di lib menemukan connection_spec.js connectionBadge state 'down': `Gateway tak terjangkau (${t.lastError})` MENTAH — lastError bentuk sah non-string dari catch gateway (objek Error, {message}, array) → '[object Object]' di detail chip HUD.
+- Fix: lastError dinormalisasi via normalizeClipText (satu sumber, paritas 508). Perilaku string/null tidak berubah.
+- Guard BARU src/__tests__/conn_badge_poison_563.test.js (4 tes: objek→JSON, array→JSON, string utuh + fallback 'unknown', anti-regresi pola sumber). Regresi conn_spec+562 → 18/18.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit 0: init_failed=false, 26 agen, shot 682KB, colors 10194 nonbg 99.2%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 17.50 WIB — Siklus 564: guard preset divisi & rentang tanggal (root cause normalizeCustomDivPreset)
+
+- Audit lanjutan menemukan 2 interpolasi mentah di summary filter: kanban_spec formatDivisionFilterSummary `preset.icon/label/divisions.length` dan kanban_date formatDateRangeSummary `preset.label/count`. Root cause lebih dalam: normalizeCustomDivPreset memakai `String(label)` — objek bentuk sah localStorage → '[object Object]' lolos validasi & tampil di chip TaskBoard.
+- Fix: normalizeCustomDivPreset label/icon dinormalisasi normalizeClipText (satu sumber clip.js); kedua formatter ikut ternormalisasi; divCount koersi Number fallback 0.
+- Guard BARU src/__tests__/filter_summary_poison_564.test.js (5 tes: label/icon objek→JSON, preset normal utuh, divisions invalid fallback tanpa crash, date count objek/NaN, anti-regresi pola sumber). Guard 564 5/5.
+- Verifikasi: vitest penuh EXIT=0 (5050 tes; 243 flake timeout/reporter hanya pada batch besar — seluruh 44 file "gagal" lolos 100% saat rerun terpisah, 404 tes; flake pre-existing, bukan regresi siklus ini). Build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit 0: init_failed=false, 26 agen, shot 689KB, colors 10707 nonbg 99.2%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 18.10 WIB — Siklus 565: guard jalur file explorer ShConsole (residu terakhir openEntry)
+
+- Audit residu interpolasi mentah sisa: ShConsole file explorer `openEntry` memakai `en.name` MENTAH untuk membangun path `loadWsFiles/openWsFile` — nm sudah ternormalisasi utk aria-label/child sejak 559, tapi jalur path masih mentah → nama file objek bentuk sah (API/localStorage) → request path '[object Object]'.
+- Fix: `en.type` dikunci ke `isDir` sekali; openEntry memakai `nm` ternormalisasi untuk kedua cabang (paritas 559, tanpa perubahan perilaku string).
+- Guard BARU src/__tests__/shconsole_explorer_poison_565.test.js (4 tes: objek→JSON, jalur path pakai nm, aria-label pakai nm, anti-regresi filter null + normalisasi). Regresi guard 559/563/564 → 16/16.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit 0: init_failed=false, 26 agen, shot 699KB, colors 11014 nonbg 99.2%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 18.35 WIB — Siklus 566: guard ID mentah task & approval ShConsole
+
+- Sweep lanjutan pasca 565 menemukan 2 sisa interpolasi ID mentah di ShConsole: baris task `#{t.id}` dan approval `#{a.project_id || '-'}` — id bentuk sah non-string dari API → '[object Object]' di UI (paritas siklus 557: ActivityLog/Dashboard).
+- Fix: keduanya dibungkus normalizer satu sumber (normalizeClipText / normalizeSecondary). Perilaku string/number tidak berubah.
+- Guard BARU src/__tests__/shconsole_ids_poison_566.test.js (2 tes: pola sumber + anti-regresi). Regresi guard 563/564/565 → 15/15.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit 0: init_failed=false, 26 agen, shot 698KB, colors 10892 nonbg 99.2%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 19.05 WIB — Siklus 570: guard ID mentah teks Salin/unduh log (formatLogText)
+
+- Sweep lanjutan menemukan sisa interpolasi ID mentah terakhir: storage_prefs.js formatLogText `#${x.id}` — id objek bentuk sah dari API → '#[object Object]' di teks tombol Salin dan file ekspor .txt (paritas 557/566).
+- Fix: `#${x.id}` → `#${normalizeClipText(x.id)}` (satu sumber clip.js). Perilaku string/number tidak berubah; fallback '[?]' tetap.
+- Guard BARU src/__tests__/log_id_poison_570.test.js (3 tes: objek→JSON, string/number utuh + [?], anti-regresi pola sumber). Regresi guard log 568/569/557 → 18/18.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e probe (script e2e_err.py dibuat ulang — file lama ter-prune dari scratch): init_failed=false, 26 agen, shot 474KB (474052 bytes), warna 58k. Catatan: __agentData sekarang objek non-array{26} — probe lama memakai .agents.length.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 19.45 WIB — Siklus 572: guard manifest QA SecureProjectPanel (evidence.files)
+
+- Audit pasca-571: sweep anti-poisoning sumber utama bersih; satu vektor tersisa — manifest QA `evidence.files.map(f => …)` merender `f.path`/`f.sha256` MENTAH + key React `f.path` (objek bentuk sah API → '[object Object]' + duplicate key crash render).
+- Fix: guard `Array.isArray(evidence.files)`, path/sha256 ternormalisasi via `normalizeSecondary` (satu sumber, paritas 554), key fallback `fpath || fsha || 'file'`.
+- Guard BARU src/__tests__/secure_evidence_poison_572.test.js (2 tes: anti-render-mentah + pola normalisasi). Regresi guard secure 554/497 + board 571 → 11/11.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit OK: init_failed=false, 26 agen, shot 694KB, colors 10765 nonbg 99.1%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 19.25 WIB — Siklus 571: fallback judul kartu papan 3D delegasi formatCardTitle
+
+- Sweep residu pasca 570 menemukan jalur fallback title kartu papan 3D (projectboard.js:133): `'#' + r.id + ' ' + clip(r.title)` MENTAH — r.id objek bentuk sah API → '#[object Object]' saat cardMeta null (paritas 510).
+- Fix: fallback delegasi `formatCardTitle(r, 30)` satu sumber (id via formatTaskId, title via normalizeClipText). Perilaku string tidak berubah.
+- Guard BARU src/__tests__/board_title_poison_571.test.js (2 tes: pola sumber + anti-regresi). Regresi guard 560/565 → 11/11.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit OK: init_failed=false, 26 agen, shot 702KB, colors 10860 nonbg 99.4%, hygiene 40/0.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 20.20 WIB — Siklus 573: guard ID mentah kartu & baris task TaskBoard
+
+- Sweep pasca-572 menemukan residu interpolasi ID mentah di TaskBoard: kanban card (`kanban-card-id` `#{t.id}` + aria-label/title 1591-1592), list row (`#{t.id}` + aria/title 1723-1724) — t.id objek bentuk sah API → '#[object Object]' (paritas 557/566/570).
+- Fix: seluruh render ID delegasi `normalizeClipText(t.id)` (satu sumber clip.js). Perilaku string/number tidak berubah.
+- Guard BARU src/__tests__/kanban_id_poison_573.test.js (2 tes: normalizer null/objek/number + anti-regresi pola sumber). Regresi guard 571/572/566 → 8/8.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. e2e_err_probe exit OK: init_failed=false, 26 agen, shot 477KB.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 20.45 WIB — Siklus 574: guard ID panel detail task TaskBoard
+
+- Sweep pasca-573: residu terakhir interpolasi ID mentah di panel detail `#{sel.id}` (h3 judul detail task) — sel.id objek bentuk sah API → '#[object Object]'.
+- Fix: `#{normalizeClipText(sel.id)}` (satu sumber clip.js, paritas 557/566/570/573).
+- Guard BARU src/__tests__/kanban_id_poison_574.test.js (2 tes: anti-mentah + normalizer). Guard 573/570/574 → 7/7.
+- Verifikasi: build vite sukses; dist ter-deploy ~/wfs-hq/, :9503 = 200. Screenshot ck574.png 517KB (>500KB, scene hidup). API /wfs-api/agents OK (15 agen). e2e websocket: endpoint /ws tidak tersedia di build kini (404) — verifikasi via API HTTP + screenshot.
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal.
+
+## 28/11/2026 22.35 WIB — Siklus 575: guard normalisasi React key dari .id lintas komponen
+
+- Sweep pasca-574 menemukan vektor terakhir anti-poisoning: React `key={x.id}` MENTAH di 6 komponen (ShConsole tasks/agents/approvals/projects, TaskBoard kanban+list, Dashboard projects/tasks/logs, TeamStats, ProjectPanel, SecureProjectPanel) — id objek bentuk sah API → key '[object Object]' duplikat → DOM swap/render aneh tanpa error.
+- Fix: seluruh key ternormalisasi `key={`t-${normalizeClipText(x.id)}`}` (satu sumber clip.js); perilaku string/number tidak berubah (prefix mencegah benturan dgn key lain).
+- Guard BARU src/__tests__/react_key_poison_575.test.js (4 tes: objek→JSON, null/undefined→'', string/number utuh, anti-regresi 6 file tanpa key mentah). Regresi guard 573/574/566/572 → 12/12.
+- Verifikasi: build vite sukses (170 modules, 4.96s). Suite penuh di-shard 3x: 213+213+213 file pass, 1583+2086+1759 tes pass, 1 skipped, 0 gagal. Deploy ~/wfs-hq/ OK, :9503=200. API /wfs-api/agents OK. Screenshot ck575.png 517KB (scene hidup). e2e websocket tetap 404 (kendala diketahui sejak 574).
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal.
+
+## 28/11/2026 23.20 WIB — Siklus 576: guard React key terakhir ActivityLog
+
+- Sweep pasca-575 menemukan 1 sisa key tidak ternormalisasi: ActivityLog.jsx `key={x?.id !== undefined … ? \`t-${x.id}\` : \`i-${i}\`}` — id objek bentuk sah API → key '[object Object]' duplikat (paritas 575). OverlayHelp `key={t.id}` aman (id literal kategori internal, bukan data API).
+- Fix: key → `t-${normalizeClipText(x.id)}` (satu sumber clip.js). Guard BARU src/__tests__/activitylog_key_poison_576.test.js (2 tes: anti-mentah + normalizer). Regresi guard 575 → 4/4.
+- Verifikasi: build vite sukses (5.44s). Suite penuh: 640 file pass, 5430 tes pass, 6 skipped, 0 gagal. Deploy ~/wfs-hq/ OK, :9503=200. Screenshot ck576.png 519KB (scene hidup).
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 28/11/2026 23.55 WIB — Siklus 577: guard URL eksternal window.open (Buka Preview)
+
+- Pasca-576 rantai anti-poisoning JSX tertutup; audit vektor berikutnya menemukan XSS vektor nyata: tombol "Buka Preview" ShConsole memanggil `window.open(p.preview_url || p.direct_url, '_blank')` MENTAH — URL `javascript:`/`data:` dari API dieksekusi di tab baru; URL bentuk sah non-string → perilaku tak terdefinisi.
+- Fix: SATU SUMBER baru `src/lib/url_safe.js` — `isSafeHttpUrl(u)` (hanya http/https via `new URL`, non-string/null/kosong ditolak). Tombol kini guard + `window.open(u,'_blank','noopener,noreferrer')`.
+- Guard BARU src/__tests__/preview_url_safe_577.test.js (2 tes: validator 10 kasus + anti-regresi pola sumber). Audit vektor lain aman: dangerouslySetInnerHTML/innerHTML = 0 hit, href dinamis tidak ada, interpolasi label/aria tersisa semuanya internal/ternormalisasi.
+- Verifikasi: build vite sukses. Suite penuh: 641 file pass, 5432 tes pass, 6 skipped, 0 gagal. Deploy ~/wfs-hq/ OK, :9503=200, API /wfs-api/agents OK. Screenshot ck577.png 519KB (scene hidup). e2e websocket tetap 404 (kendala diketahui sejak 574).
+- Commit: sudah ada hari ini (7f9eef4) — perubahan di working tree lokal (aturan 1x/hari).
+
+## 29/11/2026 00.40 WIB — Konsolidasi harian: commit siklus 555–577 (guard anti-poisoning + XSS URL)
+
+- Commit rangkuman 1x/hari mencakup siklus 555–577: guard interpolasi ID/label/key React lintas komponen (TaskBoard, ShConsole, Dashboard, SecureProjectPanel, ActivityLog, projectboard, storage_prefs), normalisasi React key, guard XSS window.open "Buka Preview" via src/lib/url_safe.js.
+- Verifikasi: build vite sukses; 8 guard terbaru (570–577) 19/19 pass; deploy ~/wfs-hq/ OK, :9503=200; screenshot ck578.png 518KB (scene hidup).
+- .vitest/json/output.json tidak di-commit (artifact test).

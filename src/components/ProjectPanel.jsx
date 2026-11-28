@@ -120,7 +120,7 @@ export default function ProjectPanel() {
                     const displayId = formatTaskId(x.id)
                     return (
                       <button
-                        key={x.id}
+                        key={`x-${normalizeClipText(x.id)}`}
                         type="button"
                         className="taskrow"
                         style={{

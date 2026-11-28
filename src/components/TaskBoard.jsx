@@ -429,7 +429,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
       runInFlight.current = new Set(runInFlight.current); runInFlight.current.delete(t.id)
     }
   }
-  const ask = (t) => onAsk({ title: `Jalankan task #${t.id}?`, body: `"${normalizeClipText(t.title)}" akan dikerjakan oleh ${t.agent_id} dan memanggil model AI (memakai kuota API).`, ok: 'Jalankan', onOk: () => run(t) })
+  const ask = (t) => onAsk({ title: `Jalankan task #${String(t.id)}?`, body: `"${normalizeClipText(t.title)}" akan dikerjakan oleh ${String(t.agent_id)} dan memanggil model AI (memakai kuota API).`, ok: 'Jalankan', onOk: () => run(t) })
 
   const handleMoveTask = useCallback((task, targetColKey) => {
     if (!task || !targetColKey) return
@@ -724,7 +724,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                 sfx.playSelect()
                 setSel(null)
               }} style={{ marginBottom: 10 }}>← Kembali</button>
-              <h3 style={{ fontSize: 15, marginBottom: 6 }}>#{sel.id} {normalizeClipText(sel.title)}</h3>
+              <h3 style={{ fontSize: 15, marginBottom: 6 }}>#{normalizeClipText(sel.id)} {normalizeClipText(sel.title)}</h3>
               <p className="note" style={{ marginBottom: 8 }}>
                 Agent: {normalizeSecondary(sel.agent_id) || '—'} · Role: {normalizeSecondary(sel.role) || '—'} ({getTaskRoleLabel(sel.role)}) · Prioritas: <b style={{ color: getTaskPriorityInfo(sel.priority).color }}>{getTaskPriorityInfo(sel.priority).icon} {getTaskPriorityInfo(sel.priority).label}</b> · <b style={{ color: ST[sel.status]?.[1] }}>{ST[sel.status]?.[0] || normalizeSecondary(sel.status)}</b>{parseTaskTimestamp(sel) ? <> · Waktu: <b>{formatTaskDate(sel)}</b></> : null}
               </p>
@@ -1569,7 +1569,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                               const isDragging = draggedTaskId === t.id
                               return (
                                 <button
-                                  key={t.id}
+                                  key={`t-${normalizeClipText(t.id)}`}
                                   type="button"
                                   className={`kanban-card${isDragging ? ' is-dragging' : ''}`}
                                   data-dragging={isDragging ? 'true' : undefined}
@@ -1585,12 +1585,12 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                                     borderLeft: `3px solid ${ST[t.status]?.[1] || col.color}`,
                                     animationDelay: `${Math.min(idx * 30, 240)}ms`,
                                   }}
-                                  aria-label={`Task #${t.id}: ${normalizeClipText(t.title)}`}
-                                  title={`Buka task #${t.id}: ${normalizeClipText(t.title)} (geser untuk pindah kolom)`}
+                                  aria-label={`Task #${normalizeClipText(t.id)}: ${normalizeClipText(t.title)}`}
+                                  title={`Buka task #${normalizeClipText(t.id)}: ${normalizeClipText(t.title)} (geser untuk pindah kolom)`}
                                 >
                                   <div className="kanban-card-top">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                      <span className="kanban-card-id">#{t.id}</span>
+                                      <span className="kanban-card-id">#{normalizeClipText(t.id)}</span>
                                       {t.priority && badges.priority.key !== 'normal' && (
                                         <span
                                           className="kanban-priority-badge"
@@ -1718,11 +1718,11 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                     const prio = getTaskPriorityInfo(t.priority)
                     return (
                       <button
-                        key={t.id}
+                        key={`t-${normalizeClipText(t.id)}`}
                         type="button"
                         className="taskrow"
-                        aria-label={`Task #${t.id}: ${normalizeClipText(t.title)}`}
-                        title={`Buka task #${t.id}: ${normalizeClipText(t.title)}`}
+                        aria-label={`Task #${normalizeClipText(t.id)}: ${normalizeClipText(t.title)}`}
+                        title={`Buka task #${normalizeClipText(t.id)}: ${normalizeClipText(t.title)}`}
                         onClick={() => {
                           if (t.priority === 'urgent') sfx.playTaskUrgent()
                           else sfx.playSelect()
@@ -1732,7 +1732,7 @@ export default function TaskBoard({ onFlash, onAsk, onChunkReady }) {
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.35 }}>
-                            #{t.id}{' '}
+                            #{normalizeClipText(t.id)}{' '}
                             {getSearchMatchSegments(normalizeClipText(t.title), q).map((seg, i) =>
                               seg.match ? (
                                 <mark key={i} className="kanban-search-highlight">

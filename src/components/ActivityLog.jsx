@@ -52,13 +52,13 @@ export default function ActivityLog({ show, items, onClose, onClear, onAsk }) {
                   <li> saat item terlama terpotong CAP 50. id task unik; fallback
                   index hanya utk item tanpa id. */}
               {items.map((x, i) => (
-                <li key={x?.id !== undefined && x?.id !== null ? `t-${x.id}` : `i-${i}`} style={{ padding: '6px 0', borderBottom: '1px solid '+whiteAlpha(0.08), fontSize: 13 }}>
+                <li key={`t-${normalizeClipText(x.id)}`} style={{ padding: '6px 0', borderBottom: '1px solid '+whiteAlpha(0.08), fontSize: 13 }}>
                   {/* Siklus 567: stempel epoch ms (App pushLog) → 'HH.MM.SS' id-ID
                       satu sumber fmtStampId; item lama 'HH.MM' string atau 0
                       (stempel gagal) tetap tampil apa adanya. */}
                   <span style={{ color: TASK_STATUS_COLORS.pending, marginRight: 8 }}>{fmtStampId(x.t) || x.t || ''}</span>
                   <span style={{ color: COL[x.status] || PURE_TEXT, fontWeight: 600 }}>{normalizeClipText(x.label)}</span>
-                  {' '}#{x.id} {normalizeClipText(x.title)}
+                  {' '}#{normalizeClipText(x.id)} {normalizeClipText(x.title)}
                 </li>
               ))}
             </ul>}

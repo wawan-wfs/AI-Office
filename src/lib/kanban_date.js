@@ -9,6 +9,7 @@
  */
 
 import { clockFromDate, idDateLong, MONTH_NAMES_ID } from './format_time.js';
+import { normalizeClipText } from './clip.js';
 
 /** Satu sumber nama bulan singkat ID (siklus 342, dipindah ke format_time.js
  * siklus 359 agar idDateLong tidak tergantung variabel sini — re-export
@@ -348,5 +349,8 @@ export function formatDateRangeSummary(rangeKey, count, options = {}) {
     const rangeText = formatCustomDateRange(options.customRange || options);
     return count != null ? `Rentang: ${rangeText} (${count} task)` : `Rentang: ${rangeText}`;
   }
-  return count != null ? `Rentang: ${preset.label} (${count} task)` : `Rentang: ${preset.label}`;
+  // Siklus 564 — ANTI-POISONING: count/label bentuk sah non-string → '[object Object]'.
+  const safeLabel = normalizeClipText(preset.label);
+  const safeCount = count != null ? normalizeClipText(count) : null;
+  return safeCount != null ? `Rentang: ${safeLabel} (${safeCount} task)` : `Rentang: ${safeLabel}`;
 }

@@ -145,7 +145,7 @@ export function buildTaskJson(tasks, options = {}) {
         files,
         review: t.review || null,
         description: s(t.description || t.desc) || null,
-        created_at: t.created_at || t.createdAt || null,
+        created_at: s(t.created_at ?? t.createdAt ?? t.updated_at ?? t.updatedAt ?? null) || null,
       };
     });
 
